@@ -1,0 +1,985 @@
+CREATE OR REPLACE PACKAGE BODY pkg_fit_hfm_data_insert IS
+  --??
+  PROCEDURE gl_data_insert(p_entity    IN VARCHAR2,
+                           p_year      IN NUMBER,
+                           p_period    IN NUMBER,
+                           v_status    OUT VARCHAR2,
+                           err_message OUT VARCHAR2) IS
+    truncate_map_sql       VARCHAR2(300);
+    truncate_interface_sql VARCHAR2(300);
+    insert_map_sql         VARCHAR2(5000);
+    insert_interface_sql   VARCHAR(5000);
+    err_num                NUMBER;
+    err_account            VARCHAR(10000);
+    err_table              VARCHAR(200);
+    v_period               VARCHAR(100);
+    sql_error_number       VARCHAR2(100);
+    lerror_message         VARCHAR2(200);
+    --   err_message  varchar(10000);
+  
+    CURSOR cur_map_err IS
+      SELECT *
+        FROM no_mapping_validate;
+  
+  BEGIN
+    v_status    := 'P';
+    err_num     := 0;
+    err_message := NULL;
+  
+    --清空mapping??表
+    truncate_map_sql := ' truncate table no_mapping_validate';
+    EXECUTE IMMEDIATE truncate_map_sql;
+  
+    insert_map_sql := ' insert into no_mapping_validate' ||
+                      '  select t.corporation_code, t.item_code from' ||
+                      ' FIT_GENERAL_LEDGER t ' ||
+                      ' where 1 = 1  and t.period= ' || p_period ||
+                      'and t.corporation_code in  ' || '(' || p_entity || ')' ||
+                      ' and t.item_code not in
+             (select mm.source_account_code
+                from fit_coa_mapping mm,FIT_CORPORAT_MAP emm
+               where 1 = 1' ||
+                      'and emm.attribute1=mm.source_corporate_code' ||
+                      ' and emm.erp_corporat_code  in' || '(' || p_entity || '))';
+  
+    dbms_output.put_line(insert_map_sql);
+    EXECUTE IMMEDIATE insert_map_sql;
+    COMMIT;
+  
+    SELECT COUNT(1)
+      INTO err_num
+      FROM no_mapping_validate;
+    IF err_num > 0 THEN
+      FOR rec_err_map IN cur_map_err
+      LOOP
+        err_account := err_account || ',' || rec_err_map.ACCOUNT_CODE;
+        err_table   := rec_err_map.entity;
+      END LOOP;
+      err_message := err_account;
+    
+      IF length(err_message) > 100 THEN
+        err_message := substr(err_message,
+                              1,
+                              100) || '...no mapping account';
+      END IF;
+      v_status := 'F';
+    END IF;
+  
+    IF v_status = 'P' THEN
+      SELECT fpt.period_en
+        INTO v_period
+        FROM FIT_PERIOD_TRANS fpt
+       WHERE 1 = 1
+         AND fpt.period_num = to_char(p_period,
+                                      '00');
+    
+      truncate_interface_sql := ' delete from  EPMEPMa.hs_data_consolidation';
+      execute immediate truncate_interface_sql;
+      COMMIT;
+    
+      BEGIN
+        insert_interface_sql := 'INSERT INTO HS_DATA_CONSOLIDATION HDC
+  select 1,' || chr(39) || 'Actual' || chr(39) ||
+                                ', fgl.year,' || chr(39) || v_period || chr(39) || ',' ||
+                                chr(39) || ' YTD' || chr(39) || ',' || chr(39) ||
+                                '<Entity Currency>' || chr(39) ||
+                                ', e_map.HFM_CORPORAT_CODE, map.target_account_code,' ||
+                                chr(39) || '[ICP NONE]' || chr(39) || ',' ||
+                                chr(39) || '[NONE]' || chr(39) || ',' ||
+                                chr(39) || '[NONE]' || chr(39) || ',' ||
+                                chr(39) || '[NONE]' || chr(39) || ',' ||
+                                chr(39) || '[NONE]' || chr(39) || ',' ||
+                                'sum(decode(map.attribute1,' || chr(39) || 'Y' ||
+                                chr(39) || ',
+                    fgl.End_Balance * -1,
+                    fgl.End_Balance)) End_Balance
+    from fit_general_ledger fgl, fit_coa_mapping map,FIT_CORPORAT_MAP e_map
+   where 1 = 1
+     and map.source_account_code = fgl.item_code
+     and fgl.corporation_code = e_map.erp_corporat_code
+     and map.source_corporate_code=e_map.attribute1
+     and fgl.corporation_code in ( ' || p_entity || ')' || ' 
+     and fgl.year = ' || p_year ||
+                                ' and fgl.period =' || p_period ||
+                                ' group by fgl.year,
+            fgl.period,
+            map.target_account_code,
+            e_map.HFM_CORPORAT_CODE';
+        dbms_output.put_line(insert_interface_sql);
+        EXECUTE IMMEDIATE insert_interface_sql;
+        COMMIT;
+      
+      EXCEPTION
+        WHEN OTHERS THEN
+          sql_error_number := SQLCODE;
+          lerror_message   := Substr(SQLERRM,
+                                     1,
+                                     150);
+          dbms_output.put_line(sql_error_number || ' :' || lerror_message);
+          v_status := 'F';
+      END;
+    
+      v_status := 'S';
+    
+    END IF;
+  
+  END gl_data_insert;
+
+  --AR已收款
+  PROCEDURE ar_data_insert(p_entity    IN VARCHAR2,
+                           p_year      IN NUMBER,
+                           p_period    IN NUMBER,
+                           v_status    OUT VARCHAR2,
+                           err_message OUT VARCHAR2) IS
+    truncate_map_sql       VARCHAR2(300);
+    truncate_interface_sql VARCHAR2(300);
+    insert_map_sql         VARCHAR2(5000);
+    insert_interface_sql1  VARCHAR(5000);
+    insert_interface_sql2  VARCHAR(5000);
+    err_num                NUMBER;
+    err_account            VARCHAR(10000);
+    --err_table              VARCHAR(200);
+    v_period               VARCHAR(100);
+    sql_error_number       VARCHAR2(100);
+    lerror_message         VARCHAR2(200);
+    --   err_message  varchar(10000);
+  
+    CURSOR cur_map_err IS
+      SELECT *
+        FROM no_mapping_validate;
+  
+  BEGIN
+    v_status := 'P';
+    err_num  := 0;
+  
+    --清空mapping??表
+    truncate_map_sql := ' truncate table no_mapping_validate';
+    EXECUTE IMMEDIATE truncate_map_sql;
+  
+    insert_map_sql := ' insert into no_mapping_validate' ||
+                      '  select t.corporation_code, t.item_code from' ||
+                      ' FIT_GENERAL_LEDGER t ' || ' where 1 = 1 and t.period= ' ||
+                      p_period || ' and t.corporation_code in  ' || '(' ||
+                      p_entity || ')' || ' and t.item_code not in
+             (select mm.source_account_code
+                from fit_coa_mapping mm,FIT_CORPORAT_MAP emm
+               where 1 = 1' ||
+                      'and emm.attribute1=mm.source_corporate_code' ||
+                      ' and emm.erp_corporat_code  in' || '(' || p_entity || '))';
+  
+    dbms_output.put_line(insert_map_sql);
+    EXECUTE IMMEDIATE insert_map_sql;
+    COMMIT;
+  
+    SELECT COUNT(1)
+      INTO err_num
+      FROM no_mapping_validate;
+    IF err_num > 0 THEN
+      FOR rec_err_map IN cur_map_err
+      LOOP
+        err_account := err_account || ',' || rec_err_map.ACCOUNT_CODE;
+        --    err_table   := rec_err_map.entity;
+      END LOOP;
+      err_message := err_account;
+    
+      IF length(err_message) > 100 THEN
+        err_message := substr(err_message,
+                              1,
+                              100) || '...no mapping account';
+      END IF;
+      v_status := 'F';
+    END IF;
+  
+    IF v_status = 'P' THEN
+      SELECT fpt.period_en
+        INTO v_period
+        FROM FIT_PERIOD_TRANS fpt
+       WHERE 1 = 1
+         AND fpt.period_num = to_char(p_period,'00');
+    
+      truncate_interface_sql := ' delete from  EPMEPMa.hs_data_consolidation';
+      EXECUTE IMMEDIATE truncate_interface_sql;
+      COMMIT;
+    
+      BEGIN
+      insert_interface_sql1:='INSERT INTO HS_DATA_CONSOLIDATION HDC 
+                                  select 2,
+                                         ''Actual'',
+                                         ar.year,
+                                         v_period,
+                                         '' YTD'',
+                                         ''<Entity Currency>'',
+                                         m.hfm_corporat_code,
+                                         c.target_account_code,
+                                         c_map.hfm_code,
+                                         ''[NONE]'',
+                                         ''[NONE]'',
+                                         ar.currency,
+                                         ''[NONE]'',
+                                         sum(decode(c.attribute1,chr(39)Ychr(39),ar.CURRENCY_UNAMOUNT * -1,ar.CURRENCY_UNAMOUNT)) End_Balance
+                                  from FIT_COA_MAPPING c,FIT_AR_RECEIVE ar,FIT_HFM_Customer_Mapping c_map,(
+                                       select t.erp_corporat_code,t.hfm_corporat_code from fit_corporat_map t,fit_corporat_map f where t.hfm_corporat_code=f.hfm_corporat_code and f.erp_corporat_code in (' || p_entity|| ') and t.erp_corporat_code like ''%@%''
+                                  ) m
+                                  where c.source_corporate_code=m.erp_corporat_code and c.source_account_code=ar.item_code and ar.year=to_char(' || p_year|| ') and ar.period=to_char(' || p_period|| ') and ar.corporation_code in (' || p_entity|| ') and ar.customer=c_map.erp_code
+                                  group by ar.year,ar.period,m.hfm_corporat_code,c.target_account_code,c_map.hfm_code,ar.currency';
+     
+      insert_interface_sql2:='INSERT INTO HS_DATA_CONSOLIDATION HDC 
+                                  select 2,
+                                         ''Actual'',
+                                         ar.year,
+                                         v_period,
+                                         '' YTD'',
+                                         ''<Entity Currency>'',
+                                         m.hfm_corporat_code,
+                                         c.target_account_code,
+                                         c_map.hfm_code,
+                                         ''[NONE]'',
+                                         ''TransCurr'',
+                                         ar.currency,
+                                         ''[NONE]'',
+                                         sum(decode(c.attribute1,chr(39)Ychr(39),ar.SRC_UNAMOUNT * -1,ar.SRC_UNAMOUNT)) End_Balance
+                                  from FIT_COA_MAPPING c,FIT_AR_RECEIVE ar,FIT_HFM_Customer_Mapping c_map,(
+                                       select t.erp_corporat_code,t.hfm_corporat_code from fit_corporat_map t,fit_corporat_map f where t.hfm_corporat_code=f.hfm_corporat_code and f.erp_corporat_code in (' || p_entity|| ') and t.erp_corporat_code like ''%@%''
+                                  ) m
+                                  where c.source_corporate_code=m.erp_corporat_code and c.source_account_code=ar.item_code and ar.year=to_char(' || p_year|| ') and ar.period=to_char(' || p_period|| ') and ar.corporation_code in (' || p_entity|| ') and ar.customer=c_map.erp_code
+                                  group by ar.year,ar.period,m.hfm_corporat_code,c.target_account_code,c_map.hfm_code,ar.currency';
+      
+        dbms_output.put_line(insert_interface_sql1);
+        dbms_output.put_line(insert_interface_sql2);
+        EXECUTE IMMEDIATE insert_interface_sql1;
+        COMMIT;
+        EXECUTE IMMEDIATE insert_interface_sql2;
+        COMMIT;
+        
+        v_status := 'S';
+      EXCEPTION
+        WHEN OTHERS THEN
+          sql_error_number := SQLCODE;
+          lerror_message   := Substr(SQLERRM,
+                                     1,
+                                     150);
+          dbms_output.put_line(sql_error_number || ' :' || lerror_message);
+          v_status := 'F';
+      END;
+    
+    END IF;
+    
+  END ar_data_insert;
+
+  --AR交易金?
+  PROCEDURE ar_trans_data_insert(p_entity    IN VARCHAR2,
+                                 p_year      IN NUMBER,
+                                 p_period    IN NUMBER,
+                                 v_status    OUT VARCHAR2,
+                                 err_message OUT VARCHAR2) IS
+    truncate_map_sql       VARCHAR2(300);
+    truncate_interface_sql VARCHAR2(300);
+    insert_map_sql         VARCHAR2(5000);
+    insert_interface_sql1  VARCHAR(5000);
+    insert_interface_sql2  VARCHAR(5000);
+    err_num                NUMBER;
+    err_account            VARCHAR(10000);
+    err_table              VARCHAR(200);
+    v_period               VARCHAR(100);
+    sql_error_number       VARCHAR2(100);
+    lerror_message         VARCHAR2(200);
+    --   err_message  varchar(10000);
+  
+    CURSOR cur_map_err IS
+      SELECT *
+        FROM no_mapping_validate;
+  
+  BEGIN
+    v_status := 'P';
+    err_num  := 0;
+  
+    --清空mapping??表
+    truncate_map_sql := ' truncate table no_mapping_validate';
+    EXECUTE IMMEDIATE truncate_map_sql;
+  
+    insert_map_sql := ' insert into no_mapping_validate' ||
+                      '  select t.corporation_code, t.item_code from' ||
+                      ' FIT_GENERAL_LEDGER t ' || ' where 1 = 1 and t.period= ' ||
+                      p_period || ' and t.corporation_code in  ' || '(' ||
+                      p_entity || ')' || ' and t.item_code not in
+             (select mm.source_account_code
+                from fit_coa_mapping mm
+               where 1 = 1' ||
+                      ' and mm.source_corporate_code in' || '(' || p_entity || '))';
+  
+    dbms_output.put_line(insert_map_sql);
+    EXECUTE IMMEDIATE insert_map_sql;
+    COMMIT;
+  
+    SELECT COUNT(1)
+      INTO err_num
+      FROM no_mapping_validate;
+    IF err_num > 0 THEN
+      FOR rec_err_map IN cur_map_err
+      LOOP
+        err_account := err_account || ',' || rec_err_map.ACCOUNT_CODE;
+        --    err_table   := rec_err_map.entity;
+      END LOOP;
+      err_message := err_account;
+    
+      IF length(err_message) > 100 THEN
+        err_message := substr(err_message,
+                              1,
+                              100) || '...no mapping account';
+      END IF;
+      v_status := 'F';
+    END IF;
+  
+    IF v_status = 'P' THEN
+      SELECT fpt.period_en
+        INTO v_period
+        FROM FIT_PERIOD_TRANS fpt
+       WHERE 1 = 1
+         AND fpt.period_num = to_char(p_period,
+                                      '00');
+    
+      truncate_interface_sql := ' delete from  EPMEPMa.hs_data_consolidation';
+      EXECUTE IMMEDIATE truncate_interface_sql;
+      COMMIT;
+    
+      BEGIN
+        insert_interface_sql1 := 'INSERT INTO HS_DATA_CONSOLIDATION HDC
+  select 3,' || chr(39) || 'Actual' || chr(39) ||
+                                 ', fgl.year,' || chr(39) || v_period ||
+                                 chr(39) || ',' || chr(39) || ' YTD' || chr(39) || ',' ||
+                                 chr(39) || '<Entity Currency>' || chr(39) ||
+                                 ', map.target_corporate_code, map.target_account_code,' ||
+                                 ' c_map.HFM_ICP_CODE ' || ',' || chr(39) ||
+                                 '[NONE]' || chr(39) || ',' || chr(39) ||
+                                 '[NONE]' || chr(39) || ',' || 'fgl.CURRENCY' || ',' ||
+                                 chr(39) || '[NONE]' || chr(39) || ',' ||
+                                 'sum(decode(map.attribute1,' || chr(39) || 'Y' ||
+                                 chr(39) || ',
+                    fgl.UNTAX_CURRENCY_AMOUNT * -1,
+                    fgl.UNTAX_CURRENCY_AMOUNT)) End_Balance
+    from FIT_AR_TRADE_INVOICE fgl, fit_coa_mapping map,FIT_ICP_CUST_MAPPING c_map
+   where 1 = 1
+     and map.source_account_code = fgl.item_code
+     and c_map.ERP_ICP_CODE= fgl.CUSTOMER
+     and fgl.corporation_code = map.source_corporate_code
+     and fgl.corporation_code in ( ' ||
+                                 p_entity || ')' || ' 
+     and fgl.year = ' || p_year ||
+                                 ' and fgl.period =' || p_period ||
+                                 ' group by fgl.year,
+            fgl.period,
+            fgl.CURRENCY,
+           c_map.HFM_ICP_CODE,
+            map.target_account_code,
+            map.target_corporate_code';
+      
+        insert_interface_sql2 := 'INSERT INTO HS_DATA_CONSOLIDATION HDC
+  select 3,' || chr(39) || 'Actual' || chr(39) ||
+                                 ', fgl.year,' || chr(39) || v_period ||
+                                 chr(39) || ',' || chr(39) || ' YTD' || chr(39) || ',' ||
+                                 chr(39) || '<Entity Currency>' || chr(39) ||
+                                 ', map.target_corporate_code, map.target_account_code,' ||
+                                 ' c_map.HFM_ICP_CODE' || ',' || chr(39) ||
+                                 '[NONE]' || chr(39) || ',' || chr(39) ||
+                                 'TransCurr' || chr(39) || ',' ||
+                                 'fgl.CURRENCY' || ',' || chr(39) || '[NONE]' ||
+                                 chr(39) || ',' || 'sum(decode(map.attribute1,' ||
+                                 chr(39) || 'Y' || chr(39) || ',
+                    fgl.UNTAX_SRC_AMOUNT * -1,
+                    fgl.UNTAX_SRC_AMOUNT)) End_Balance
+    from FIT_AR_TRADE_INVOICE fgl, fit_coa_mapping map,FIT_ICP_CUST_MAPPING c_map
+   where 1 = 1
+     and map.source_account_code = fgl.item_code
+     and c_map.ERP_ICP_CODE= fgl.CUSTOMER
+     and fgl.corporation_code = map.source_corporate_code
+     and fgl.corporation_code in ( ' ||
+                                 p_entity || ')' || ' 
+     and fgl.year = ' || p_year ||
+                                 ' and fgl.period =' || p_period ||
+                                 ' group by fgl.year,
+            fgl.period,
+            fgl.CURRENCY,
+             c_map.HFM_ICP_CODE,
+            map.target_account_code,
+            map.target_corporate_code';
+      
+        dbms_output.put_line(insert_interface_sql1);
+        dbms_output.put_line(insert_interface_sql2);
+        EXECUTE IMMEDIATE insert_interface_sql1;
+        COMMIT;
+        EXECUTE IMMEDIATE insert_interface_sql2;
+        COMMIT;
+      
+      EXCEPTION
+        WHEN OTHERS THEN
+          sql_error_number := SQLCODE;
+          lerror_message   := Substr(SQLERRM,
+                                     1,
+                                     150);
+          dbms_output.put_line(sql_error_number || ' :' || lerror_message);
+          v_status := 'F';
+      END;
+    
+      v_status := 'S';
+    
+    END IF;
+  
+  END ar_trans_data_insert;
+
+  --AP 已付款
+  PROCEDURE ap_data_insert(p_entity    IN VARCHAR2,
+                           p_year      IN NUMBER,
+                           p_period    IN NUMBER,
+                           v_status    OUT VARCHAR2,
+                           err_message OUT VARCHAR2) IS
+    truncate_map_sql       VARCHAR2(300);
+    truncate_interface_sql VARCHAR2(300);
+    insert_map_sql         VARCHAR2(5000);
+    insert_interface_sql1  VARCHAR(5000);
+    insert_interface_sql2  VARCHAR(5000);
+    err_num                NUMBER;
+    err_account            VARCHAR(10000);
+    err_table              VARCHAR(200);
+    v_period               VARCHAR(100);
+    sql_error_number       VARCHAR2(100);
+    lerror_message         VARCHAR2(200);
+    --   err_message  varchar(10000);
+  
+    CURSOR cur_map_err IS
+      SELECT *
+        FROM no_mapping_validate;
+  
+  BEGIN
+    v_status := 'P';
+    err_num  := 0;
+  
+    --清空mapping??表
+    truncate_map_sql := ' truncate table no_mapping_validate';
+    EXECUTE IMMEDIATE truncate_map_sql;
+  
+    insert_map_sql := ' insert into no_mapping_validate' ||
+                      '  select t.corporation_code, t.item_code from' ||
+                      ' FIT_GENERAL_LEDGER t ' || ' where 1 = 1 and t.period= ' ||
+                      p_period || ' and t.corporation_code in  ' || '(' ||
+                      p_entity || ')' || ' and t.item_code not in
+             (select mm.source_account_code
+                from fit_coa_mapping mm
+               where 1 = 1' ||
+                      ' and mm.source_corporate_code in' || '(' || p_entity || '))';
+  
+    dbms_output.put_line(insert_map_sql);
+    EXECUTE IMMEDIATE insert_map_sql;
+    COMMIT;
+  
+    SELECT COUNT(1)
+      INTO err_num
+      FROM no_mapping_validate;
+    IF err_num > 0 THEN
+      FOR rec_err_map IN cur_map_err
+      LOOP
+        err_account := err_account || ',' || rec_err_map.ACCOUNT_CODE;
+        --    err_table   := rec_err_map.entity;
+      END LOOP;
+      err_message := err_account;
+    
+      IF length(err_message) > 100 THEN
+        err_message := substr(err_message,
+                              1,
+                              100) || '...no mapping account';
+      END IF;
+      v_status := 'F';
+    END IF;
+  
+    IF v_status = 'P' THEN
+      SELECT fpt.period_en
+        INTO v_period
+        FROM FIT_PERIOD_TRANS fpt
+       WHERE 1 = 1
+         AND fpt.period_num = to_char(p_period,
+                                      '00');
+    
+      truncate_interface_sql := ' delete from  EPMEPMa.hs_data_consolidation';
+      EXECUTE IMMEDIATE truncate_interface_sql;
+      COMMIT;
+    
+      BEGIN
+        insert_interface_sql1 := 'INSERT INTO HS_DATA_CONSOLIDATION HDC
+  select 4,' || chr(39) || 'Actual' || chr(39) ||
+                                 ', fgl.year,' || chr(39) || v_period ||
+                                 chr(39) || ',' || chr(39) || ' YTD' || chr(39) || ',' ||
+                                 chr(39) || '<Entity Currency>' || chr(39) ||
+                                 ', map.target_corporate_code, map.target_account_code,' ||
+                                 ' v_map.HFM_ICP_NAME' || ',' || chr(39) ||
+                                 '[NONE]' || chr(39) || ',' || chr(39) ||
+                                 '[NONE]' || chr(39) || ',' || 'fgl.CURRENCY' || ',' ||
+                                 chr(39) || '[NONE]' || chr(39) || ',' ||
+                                 'sum(decode(map.attribute1,' || chr(39) || 'Y' ||
+                                 chr(39) || ',
+                    fgl.CURRENCY_UNAMOUNT * -1,
+                    fgl.CURRENCY_UNAMOUNT)) End_Balance
+    from FIT_AP_PAYMENT fgl, fit_coa_mapping map,FIT_ICP_VENDOR_MAPPING V_MAP
+   where 1 = 1
+     and map.source_account_code = fgl.item_code
+     and v_map.ERP_ICP_CODE=fgl.SUPPLIER
+     and fgl.corporation_code = map.source_corporate_code
+     and fgl.corporation_code in ( ' ||
+                                 p_entity || ')' || ' 
+     and fgl.year = ' || p_year ||
+                                 ' and fgl.period =' || p_period ||
+                                 ' group by fgl.year,
+            fgl.period,
+            v_map.HFM_ICP_NAME,
+            fgl.CURRENCY,
+            map.target_account_code,
+            map.target_corporate_code';
+      
+        insert_interface_sql2 := 'INSERT INTO HS_DATA_CONSOLIDATION HDC
+  select 4,' || chr(39) || 'Actual' || chr(39) ||
+                                 ', fgl.year,' || chr(39) || v_period ||
+                                 chr(39) || ',' || chr(39) || ' YTD' || chr(39) || ',' ||
+                                 chr(39) || '<Entity Currency>' || chr(39) ||
+                                 ', map.target_corporate_code, map.target_account_code,' ||
+                                 'v_map.HFM_ICP_NAME' || ',' || chr(39) ||
+                                 '[NONE]' || chr(39) || ',' || chr(39) ||
+                                 'TransCurr' || chr(39) || ',' ||
+                                 'fgl.CURRENCY' || ',' || chr(39) || '[NONE]' ||
+                                 chr(39) || ',' || 'sum(decode(map.attribute1,' ||
+                                 chr(39) || 'Y' || chr(39) || ',
+                    fgl.SRC_UNAMOUNT * -1,
+                    fgl.SRC_UNAMOUNT)) End_Balance
+    from FIT_AP_PAYMENT fgl, fit_coa_mapping map,FIT_ICP_VENDOR_MAPPING V_MAP
+   where 1 = 1
+     and map.source_account_code = fgl.item_code
+     and v_map.ERP_ICP_CODE=fgl.SUPPLIER
+     and fgl.corporation_code = map.source_corporate_code
+     and fgl.corporation_code in ( ' ||
+                                 p_entity || ')' || ' 
+     and fgl.year = ' || p_year ||
+                                 ' and fgl.period =' || p_period ||
+                                 ' group by fgl.year,
+            fgl.period,
+            fgl.CURRENCY,
+             v_map.HFM_ICP_NAME,
+            map.target_account_code,
+            map.target_corporate_code';
+      
+        dbms_output.put_line(insert_interface_sql1);
+        dbms_output.put_line(insert_interface_sql2);
+        EXECUTE IMMEDIATE insert_interface_sql1;
+        COMMIT;
+        EXECUTE IMMEDIATE insert_interface_sql2;
+        COMMIT;
+      
+      EXCEPTION
+        WHEN OTHERS THEN
+          sql_error_number := SQLCODE;
+          lerror_message   := Substr(SQLERRM,
+                                     1,
+                                     150);
+          dbms_output.put_line(sql_error_number || ' :' || lerror_message);
+          v_status := 'F';
+      END;
+    
+      v_status := 'S';
+    
+    END IF;
+  
+  END ap_data_insert;
+
+  
+  PROCEDURE ap_trans_data_insert(p_entity    IN VARCHAR2,
+                                 p_year      IN NUMBER,
+                                 p_period    IN NUMBER,
+                                 v_status    OUT VARCHAR2,
+                                 err_message OUT VARCHAR2) IS
+    truncate_map_sql       VARCHAR2(300);
+    truncate_interface_sql VARCHAR2(300);
+    insert_map_sql         VARCHAR2(5000);
+    insert_interface_sql1  VARCHAR(5000);
+    insert_interface_sql2  VARCHAR(5000);
+    err_num                NUMBER;
+    err_account            VARCHAR(10000);
+    err_table              VARCHAR(200);
+    v_period               VARCHAR(100);
+    sql_error_number       VARCHAR2(100);
+    lerror_message         VARCHAR2(200);
+    --   err_message  varchar(10000);
+  
+    CURSOR cur_map_err IS
+      SELECT *
+        FROM no_mapping_validate;
+  
+  BEGIN
+    v_status := 'P';
+    err_num  := 0;
+  
+    --清空mapping??表
+    truncate_map_sql := ' truncate table no_mapping_validate';
+    EXECUTE IMMEDIATE truncate_map_sql;
+  
+    insert_map_sql := ' insert into no_mapping_validate' ||
+                      '  select t.corporation_code, t.item_code from' ||
+                      ' FIT_GENERAL_LEDGER t ' || ' where 1 = 1 and t.period= ' ||
+                      p_period || ' and t.corporation_code in  ' || '(' ||
+                      p_entity || ')' || ' and t.item_code not in
+             (select mm.source_account_code
+                from fit_coa_mapping mm
+               where 1 = 1' ||
+                      ' and mm.source_corporate_code in' || '(' || p_entity || '))';
+  
+    dbms_output.put_line(insert_map_sql);
+    EXECUTE IMMEDIATE insert_map_sql;
+    COMMIT;
+  
+    SELECT COUNT(1)
+      INTO err_num
+      FROM no_mapping_validate;
+    IF err_num > 0 THEN
+      FOR rec_err_map IN cur_map_err
+      LOOP
+        err_account := err_account || ',' || rec_err_map.ACCOUNT_CODE;
+        --    err_table   := rec_err_map.entity;
+      END LOOP;
+      err_message := err_account;
+    
+      IF length(err_message) > 100 THEN
+        err_message := substr(err_message,
+                              1,
+                              100) || '...no mapping account';
+      END IF;
+      v_status := 'F';
+    END IF;
+  
+    IF v_status = 'P' THEN
+      SELECT fpt.period_en
+        INTO v_period
+        FROM FIT_PERIOD_TRANS fpt
+       WHERE 1 = 1
+         AND fpt.period_num = to_char(p_period,
+                                      '00');
+    
+      truncate_interface_sql := ' delete from  EPMEPMa.hs_data_consolidation';
+      EXECUTE IMMEDIATE truncate_interface_sql;
+      COMMIT;
+    
+      BEGIN
+        insert_interface_sql1 := 'INSERT INTO HS_DATA_CONSOLIDATION HDC
+  select 5,' || chr(39) || 'Actual' || chr(39) ||
+                                 ', fgl.year,' || chr(39) || v_period ||
+                                 chr(39) || ',' || chr(39) || ' YTD' || chr(39) || ',' ||
+                                 chr(39) || '<Entity Currency>' || chr(39) ||
+                                 ', map.target_corporate_code, map.target_account_code,' ||
+                                 ' v_map.HFM_ICP_CODE' || ',' || chr(39) ||
+                                 '[NONE]' || chr(39) || ',' || chr(39) ||
+                                 '[NONE]' || chr(39) || ',' || 'fgl.CURRENCY' || ',' ||
+                                 chr(39) || '[NONE]' || chr(39) || ',' ||
+                                 'sum(decode(map.attribute1,' || chr(39) || 'Y' ||
+                                 chr(39) || ',
+                    fgl.UNTAX_CURRENCY_AMOUNT * -1,
+                    fgl.UNTAX_CURRENCY_AMOUNT)) End_Balance
+    from FIT_AP_TRADE_INVOICE fgl, fit_coa_mapping map,FIT_ICP_VENDOR_MAPPING v_map
+   where 1 = 1
+     and map.source_account_code = fgl.BORROW_ITEM_CODE
+     and v_map.ERP_ICP_CODE=fgl.SUPPLIER
+     and fgl.corporation_code = map.source_corporate_code
+     and fgl.corporation_code in ( ' ||
+                                 p_entity || ')' || ' 
+     and fgl.year = ' || p_year ||
+                                 ' and fgl.period =' || p_period ||
+                                 ' group by fgl.year,
+            fgl.period,
+            fgl.CURRENCY,
+            v_map.HFM_ICP_CODE,
+            map.target_account_code,
+            map.target_corporate_code';
+      
+        insert_interface_sql2 := 'INSERT INTO HS_DATA_CONSOLIDATION HDC
+  select 5,' || chr(39) || 'Actual' || chr(39) ||
+                                 ', fgl.year,' || chr(39) || v_period ||
+                                 chr(39) || ',' || chr(39) || ' YTD' || chr(39) || ',' ||
+                                 chr(39) || '<Entity Currency>' || chr(39) ||
+                                 ', map.target_corporate_code, map.target_account_code,' ||
+                                 ' v_map.HFM_ICP_CODE' || ',' || chr(39) ||
+                                 '[NONE]' || chr(39) || ',' || chr(39) ||
+                                 'TransCurr' || chr(39) || ',' ||
+                                 'fgl.CURRENCY' || ',' || chr(39) || '[NONE]' ||
+                                 chr(39) || ',' || 'sum(decode(map.attribute1,' ||
+                                 chr(39) || 'Y' || chr(39) || ',
+                    fgl.UNTAX_SRC_AMOUNT * -1,
+                    fgl.UNTAX_SRC_AMOUNT)) End_Balance
+    from FIT_AP_TRADE_INVOICE fgl, fit_coa_mapping map,FIT_ICP_VENDOR_MAPPING v_map
+   where 1 = 1
+     and map.source_account_code = fgl.BORROW_ITEM_CODE
+     and v_map.ERP_ICP_CODE=fgl.SUPPLIER
+     and fgl.corporation_code = map.source_corporate_code
+     and fgl.corporation_code in ( ' ||
+                                 p_entity || ')' || ' 
+     and fgl.year = ' || p_year ||
+                                 ' and fgl.period =' || p_period ||
+                                 ' group by fgl.year,
+            fgl.period,
+            fgl.CURRENCY,
+             v_map.HFM_ICP_CODE,
+            map.target_account_code,
+            map.target_corporate_code';
+      
+        dbms_output.put_line(insert_interface_sql1);
+        dbms_output.put_line(insert_interface_sql2);
+      /*  EXECUTE IMMEDIATE insert_interface_sql1;
+        COMMIT;
+        EXECUTE IMMEDIATE insert_interface_sql2;
+        COMMIT;*/
+      
+      EXCEPTION
+        WHEN OTHERS THEN
+          sql_error_number := SQLCODE;
+          lerror_message   := Substr(SQLERRM,
+                                     1,
+                                     150);
+          dbms_output.put_line(sql_error_number || ' :' || lerror_message);
+          v_status := 'F';
+      END;
+    
+      v_status := 'S';
+    
+    END IF;
+  
+  END ap_trans_data_insert;
+
+  PROCEDURE coa_item_validate(v_status        OUT VARCHAR2,
+                              err_message_sum OUT VARCHAR2) IS
+    coa_count                 NUMBER;
+    distinct_coa_count        NUMBER;
+    normal_coa_count          NUMBER;
+    distinct_normal_coa_count NUMBER;
+    err_num_sum               NUMBER;
+    err_num1                  NUMBER;
+    err_num2                  NUMBER;
+    err_message1              VARCHAR2(300);
+    err_message2              VARCHAR2(300);
+    v_entity                  VARCHAR2(300);
+  BEGIN
+    v_status     := NULL;
+    err_message1 := NULL;
+    err_message2 := NULL;
+  
+    BEGIN
+      --查询唯一的前四位通配科目数量
+      SELECT COUNT(DISTINCT substr(a.source_account_code,
+                          1,
+                          4))
+        INTO distinct_coa_count
+        FROM fit_coa_mapping_temp a
+       WHERE instr(a.source_account_code,
+                   '*') > 0;
+      --查询所有通配科目数量
+      SELECT COUNT(1)
+        INTO coa_count
+        FROM fit_coa_mapping_temp a
+       WHERE instr(a.source_account_code,
+                   '*') > 0;
+    
+      --查询非通配科目数量 
+      SELECT COUNT(1)
+        INTO normal_coa_count
+        FROM fit_coa_mapping_temp a
+       WHERE instr(a.source_account_code,
+                   '*') = 0;
+    
+      --查询非通配唯一科目数量 
+      SELECT COUNT(DISTINCT a.source_account_code)
+        INTO distinct_normal_coa_count
+        FROM fit_coa_mapping_temp a
+       WHERE instr(a.source_account_code,
+                   '*') = 0;
+    
+    EXCEPTION
+      WHEN OTHERS THEN
+        NULL;
+    END;
+  
+    --判断 带通配符是否重复
+    IF abs(distinct_coa_count - coa_count) > 0 THEN
+      err_num1     := coa_count - distinct_coa_count;
+      v_status     := 'E';
+      err_message1 := '1.通配符科目重复！个数:' || err_num1;
+    END IF;
+  
+    --判断 带通配符是否重复
+    IF distinct_normal_coa_count <> normal_coa_count THEN
+      err_num2     := normal_coa_count - distinct_normal_coa_count;
+      v_status     := 'E';
+      err_message2 := '2.非通配符科目重复！个数:' || err_num2;
+    END IF;
+  
+    -- err_num_sum     := err_num1 + err_num2;
+    err_message_sum := err_message1 || '; ' || err_message2;
+  
+    IF v_status NOT IN ('E') OR v_status IS NULL THEN
+      SELECT DISTINCT a.source_corporate_code
+        INTO v_entity
+        FROM fit_coa_mapping_temp a;
+    
+      DELETE FROM fit_coa_mapping t
+       WHERE 1 = 1
+         AND t.source_corporate_code = v_entity;
+      COMMIT;
+    
+      INSERT INTO fit_coa_mapping
+        SELECT *
+          FROM fit_coa_mapping_temp;
+      COMMIT;
+      v_status := 'S';
+    END IF;
+  
+  END coa_item_validate;
+
+  PROCEDURE gl_data_insert_new(p_entity    IN VARCHAR2,
+                               p_year      IN NUMBER,
+                               p_period    IN NUMBER,
+                               v_status    OUT VARCHAR2,
+                               err_message OUT VARCHAR2) IS
+    coa_count              NUMBER;
+    distinct_coa_count     NUMBER;
+    select_sql             VARCHAR2(3000);
+    v_period               VARCHAR2(300);
+    v_account_code         VARCHAR2(300);
+    v_coa_map_account      VARCHAR2(100);
+    v_flag                 VARCHAR2(100);
+    truncate_interface_sql VARCHAR2(300);
+    v_number1              NUMBER;
+    v_number2              NUMBER;
+    v_number3              NUMBER;
+    error_number           NUMBER;
+  
+    check_sql VARCHAR2(3000);
+    CURSOR coa_map_data IS
+      SELECT *
+        FROM fit_coa_mapping a
+       WHERE 1 = 1
+            --   AND a.source_corporate_code = p_entity;
+         AND a.source_corporate_code IN (p_entity);
+  
+    CURSOR coa_coa_data IS
+      SELECT *
+        FROM fit_general_ledger a
+       WHERE 1 = 1
+            --  AND a.corporation_code = p_entity
+         AND a.corporation_code IN (p_entity)
+         AND a.year = p_year
+         AND a.period = p_period
+      /* AND a.item_code IN ('153110',
+      '131110',
+      '227890')*/
+      ;
+  
+  BEGIN
+    v_status     := NULL;
+    err_message  := NULL;
+    error_number := 0;
+  
+    SELECT fpt.period_en
+      INTO v_period
+      FROM FIT_PERIOD_TRANS fpt
+     WHERE 1 = 1
+       AND fpt.period_num = to_char(p_period,
+                                    '00');
+  
+    DELETE FROM EPMEPMa.hs_data_consolidation a;
+    COMMIT;
+  
+    FOR rec_map_data IN coa_coa_data
+    LOOP
+      SELECT COUNT(1)
+        INTO v_number1
+        FROM fit_coa_mapping a
+       WHERE 1 = 1
+         AND a.source_corporate_code = p_entity
+         AND a.source_account_code = rec_map_data.item_code;
+    
+      SELECT COUNT(1)
+        INTO v_number2
+        FROM fit_coa_mapping f
+       WHERE 1 = 1
+         AND f.source_corporate_code = p_entity
+         AND substr(f.source_account_code,
+                    1,
+                    4) = substr(rec_map_data.item_code,
+                                1,
+                                4);
+    
+      SELECT COUNT(1)
+        INTO v_number3
+        FROM fit_coa_mapping f
+       WHERE 1 = 1
+         AND f.source_corporate_code = p_entity
+         AND substr(f.source_account_code,
+                    1,
+                    6) = substr(rec_map_data.item_code,
+                                1,
+                                6);
+    
+      IF v_number1 + v_number2 + v_number3 = 0 THEN
+        error_number := error_number + 1;
+      END IF;
+    END LOOP;
+  
+    IF error_number > 0 THEN
+      v_status    := 'E';
+      err_message := '存在' || error_number || '条科目不匹配';
+    END IF;
+  
+    -- dbms_output.put_line(v_status);
+    IF v_status NOT IN ('E') OR v_status IS NULL THEN
+    
+      FOR rec_map_data IN coa_map_data
+      LOOP
+        v_account_code := REPLACE(rec_map_data.source_account_code,
+                                  '*',
+                                  '');
+      
+        IF rec_map_data.attribute1 IS NULL THEN
+          v_flag := 'N';
+        ELSE
+          v_flag := Rec_map_data.attribute1;
+        END IF;
+      
+        select_sql := 'INSERT INTO EPMEPMa.hs_data_consolidation
+          SELECT 1,' || chr(39) || 'Actual' || chr(39) || ',' ||
+                      chr(39) || 'fgl.year,' || chr(39) || 'Apr' || chr(39) || ',' ||
+                      chr(39) || 'YTD' || chr(39) || ',' || chr(39) ||
+                      '<Entity Currency>' || chr(39) || ',' ||
+                      ' e_map.HFM_CORPORAT_CODE,rec_map_data.target_account_code,' ||
+                      chr(39) || '[ICP NONE]' || chr(39) || ',' || chr(39) ||
+                      '[NONE]' || chr(39) || ',' || chr(39) || '[NONE]' ||
+                      chr(39) || ',' || chr(39) || '[NONE]' || chr(39) || ',' ||
+                      chr(39) || '[NONE]' || chr(39) || ',' || 'SUM(decode(' ||
+                      v_flag || ',' || chr(39) || 'Y' || chr(39) || ',' ||
+                      'fgl.end_balance * -1,
+                            fgl.end_balance)) end_balance
+            FROM fit_general_ledger fgl,
+                 FIT_CORPORAT_MAP   e_map
+           WHERE 1 = 1
+             AND fgl.corporation_code = e_map.erp_corporat_code
+             AND fgl.item_code LIKE ' || chr(39) ||
+                      v_account_code || '%' || chr(39) ||
+                      'AND fgl.corporation_code IN (' || p_entity || ')
+             AND fgl.year =' || p_year ||
+                      'AND fgl.period =' || p_period ||
+                      'AND e_map.attribute1 =' ||
+                      rec_map_data.source_corporate_code ||
+                      'GROUP BY fgl.corporation_code,
+                    fgl.year,
+                    e_map.HFM_CORPORAT_CODE,' ||
+                      rec_map_data.target_account_code;
+      
+        Dbms_Output.put_line(select_sql);
+        --   execute immediate select_sql;
+      --   commit;
+      END LOOP;
+      -- COMMIT;
+      v_status := 'S';
+    END IF;
+  END gl_data_insert_new;
+
+END pkg_fit_hfm_data_insert;

@@ -1,0 +1,36 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/security
+          http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<!--需要过滤不被拦截的请求 -->
+	<security:http auto-config="true" use-expressions="true">
+		<security:csrf disabled="true" />
+		<security:intercept-url pattern="/" access="permitAll" />
+		<security:intercept-url pattern="/welcome" access="permitAll" />
+		<security:intercept-url pattern="/index" access="permitAll" />
+		<security:intercept-url pattern="/unauth" access="permitAll" />
+		<security:intercept-url pattern="/hfm/schedule/**" access="hasAnyRole('ROLE_ADMIN','ROLE_HFM')" />
+		<security:intercept-url pattern="/hfm/**" access="hasRole('ROLE_HFM')" />
+		<security:intercept-url pattern="/bi/**" access="hasRole('ROLE_BI')" />
+		<security:intercept-url pattern="/admin/user/pwdModify" access="hasAnyRole('ROLE_ADMIN','ROLE_HFM','ROLE_BI','ROLE_Budget')" />
+		<security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')" />
+		<security:form-login login-page="/login"
+			login-processing-url="/login" username-parameter="username" password-parameter="password"
+			always-use-default-target="true"
+			authentication-failure-url="/login?error=true" default-target-url="/welcome" />
+		<security:logout invalidate-session="true" logout-success-url="/login" logout-url="/logout" />
+	</security:http>
+
+	<bean id="loginAuthenticationProvider" class="foxconn.fit.security.UserAuthenticationProvider">
+		<property name="userDetailsService" ref="userService"></property>
+	</bean>
+
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider ref="loginAuthenticationProvider"/>
+	</security:authentication-manager>
+
+</beans>

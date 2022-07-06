@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:task="http://www.springframework.org/schema/tool"
+	   xmlns:tasks="http://www.springframework.org/schema/task"
+	   xsi:schemaLocation=
+			   "				http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/jdbc
+						http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+						http://www.springframework.org/schema/util
+						http://www.springframework.org/schema/util/spring-util.xsd
+						http://www.springframework.org/schema/tool
+						http://www.springframework.org/schema/tool/spring-tool.xsd
+
+						http://www.springframework.org/schema/task
+						http://www.springframework.org/schema/task/spring-task-3.0.xsd
+		"
+	   default-lazy-init="false">
+
+	<description>Spring公共配置 </description>
+
+	<!-- 定义受环境影响易变的变量 -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:application.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 实例化@Controller类时，Spring会自动把关联的@Service（此@Service已做了@Transaction事务注解）类实例化，此时事务并未生效，导致@Transaction注解无效，事务未被注册
+		因此需要把@Controller和其它的@Service,@Components,@Reposity等分开实例化，在事务生效后，并且其它组件都实例化完成后，@Controller最后实例化 -->
+	<context:component-scan base-package="foxconn.fit">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<context:annotation-config />
+
+	<tasks:annotation-driven scheduler="qbScheduler" mode="proxy"/>
+	<tasks:scheduler id="qbScheduler" pool-size="10"/>
+
+
+	<!-- 数据源配置 -->
+	<bean id="dataSource" class="org.logicalcobwebs.proxool.ProxoolDataSource">
+		<property name="driver" value="${jdbc-0.proxool.driver-class}" />
+		<property name="driverUrl" value="${jdbc-0.proxool.driver-url}" />
+		<property name="user" value="${jdbc-0.user}" />
+		<property name="password" value="${jdbc-0.password}" />
+		<property name="alias" value="${jdbc-0.proxool.alias}" />
+		<property name="prototypeCount" value="${jdbc-0.proxool.prototype-count}" />
+		<property name="simultaneousBuildThrottle"
+			value="${jdbc-0.proxool.simultaneous-build-throttle}" />
+		<property name="maximumConnectionCount" value="${jdbc-0.proxool.maximum-connection-count}" />
+		<property name="maximumActiveTime" value="${jdbc-0.proxool.maximum-active-time}" />
+		<property name="testBeforeUse" value="true"></property>
+		<property name="houseKeepingTestSql" value="${jdbc-0.proxool.house-keeping-test-sql}"></property>
+	</bean>
+
+	<!-- Hibernate配置 -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.default_schema">${hibernate.default_schema}</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="javax.persistence.validation.mode">none</prop>
+				<prop key="hibernate.jdbc.batch_size">50</prop>
+				<!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+				<!-- <prop key="hibernate.cache.use_query_cache">true</prop> -->
+				<!-- <prop key="hibernate.cache.use_second_level_cache">true</prop> -->
+				<!-- <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop> -->
+				<!-- <prop key="hibernate.cache.provider_configuration_file_resource_path">ehcache/ehcache-hibernate.xml</prop> -->
+			</props>
+		</property>
+		<property name="packagesToScan" value="foxconn.fit.entity" />
+	</bean>
+
+	<bean id="hibernateTemplate"
+		class="org.springframework.orm.hibernate3.OptimisticLockTemplate">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<!-- <property name="cacheQueries"> <value>true</value> </property> -->
+	</bean>
+
+	<!-- Add core Daos -->
+
+	<!-- 事务管理器配置,单数据源事务 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- 使用annotation定义事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+
+	<bean id="cleanDownloadFileJob" class="foxconn.fit.job.CleanDownloadFileJob">
+		<property name="directory" value="${cleanDirectory}"/>
+	</bean>
+	<bean id="sixProcessInterfaceJob" class="foxconn.fit.job.SixProcessInterfaceJob">
+		<property name="sendUrl" value="${sendUrl}"/>
+		<property name="callbackUrl" value="${callbackUrl}"/>
+	</bean>
+
+	<bean id="cleanDownloadFileDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="cleanDownloadFileJob" />
+        <property name="targetMethod" value="clean" />
+    </bean>
+	<bean id="sixProcessInterfaceDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="sixProcessInterfaceJob" />
+        <property name="targetMethod" value="sendAlert" />
+    </bean>
+
+    <bean id="cleanDownloadFileTrigger"  class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="cleanDownloadFileDetail" />
+        <property name="cronExpression" value="0 0 1 * * ?" />
+    </bean>
+    <bean id="sixProcessInterfaceTrigger"  class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="sixProcessInterfaceDetail" />
+        <property name="cronExpression" value="0 0/10 5-23 * * ?" />
+    </bean>
+
+    <!-- Scheduler factory bean to glue together jobDetails and triggers to Configure Quartz Scheduler -->
+    <bean  class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="jobDetails">
+            <list>
+                <ref bean="cleanDownloadFileDetail" />
+<!--                 <ref bean="sixProcessInterfaceDetail" /> -->
+            </list>
+        </property>
+
+        <property name="triggers">
+            <list>
+                <ref bean="cleanDownloadFileTrigger" />
+<!--                 <ref bean="sixProcessInterfaceTrigger" /> -->
+            </list>
+        </property>
+    </bean>
+
+</beans>

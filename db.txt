@@ -1,0 +1,645 @@
+﻿create or replace package body PKG_BI_MAPPING is
+
+  PROCEDURE Revenue_Detail_Actual_Mapping(
+    v_year in varchar2,
+    v_month in varchar2,
+    v_version in varchar2,
+    v_legalCode in varchar2,
+    v_status    OUT VARCHAR2,
+    v_message OUT VARCHAR2) 
+  IS
+    v_temp varchar2(100);
+    v_count integer;
+  BEGIN
+      EXECUTE IMMEDIATE 'truncate table FIT_REVENUE_DETAIL_MANUAL_TEMP';
+      
+      EXECUTE IMMEDIATE 'insert into FIT_REVENUE_DETAIL_MANUAL_TEMP(id,LEGAL_CODE,Year,Period,Customer_Code,Customer_Name,Department,Category,Invoice_Item,Invoice_No,Invoice_Date,Invoice_Sign_Date,Sale_Item,Sale_No,Sale_Date
+            ,Store_No,Product_No,Customer_Product_No,Quantity,Price,Currency,rate,Source_Untax_Amount,Currency_Untax_Amount,Supplier_Code,Supplier_Name,Production_Unit,Cd,Version) 
+      (select t.id,t.corporation_code,t.year,t.period,t.customer_code,t.customer_name,t.department,t.category,t.invoice_item,t.invoice_no,t.invoice_date,t.invoice_sign_date,t.sale_item,t.sale_no,
+             t.sale_date,t.store_no,t.product_no,t.customer_product_no,t.quantity,t.price,t.currency,t.rate,t.source_untax_amount,t.currency_untax_amount,t.supplier_code,t.supplier_name,
+             t.production_unit,t.cd,t.version
+       from FIT_Revenue_Detail_Actual t where t.year=' || v_year || ' and t.period=' || v_month || ' and t.version=''' || v_version || ''' and t.CORPORATION_CODE in (' || v_legalCode || '))';
+      commit;
+      
+      update FIT_REVENUE_DETAIL_MANUAL_TEMP t set t.QUARTER='Q' || ceil(t.period/3);
+      commit;
+      
+      for record in (SELECT a.id,l.legal_name,l.currency from FIT_REVENUE_DETAIL_MANUAL_TEMP a,fit_legal_entity_list l where a.legal_code=l.corporation_code)
+      loop
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP m set m.corporation_code=record.legal_name,m.local_currency=record.currency where m.id=record.id;
+      end loop;
+      commit;
+      
+      select Upper(t.period_en) into v_temp from FIT_PERIOD_TRANS t where t.period_num=to_number(v_month);
+      for record in (select a.id,a.local_currency from FIT_REVENUE_DETAIL_MANUAL_TEMP a)
+      loop
+        if v_version='v2' then
+           update FIT_REVENUE_DETAIL_MANUAL_TEMP m set m.month_rate='1',m.currenty_rate=(select 1/c.RATE from bihfmif.BIEE_EXRATE_V c where c.year=v_year and c.period=v_temp and c.FROM_CURRENCY='USD' and c.TO_CURRENCY='NTD' and c.RATE_TYPE='平均匯率') where m.id=record.id;
+        else 
+           if record.local_currency='USD' then
+             update FIT_REVENUE_DETAIL_MANUAL_TEMP m set m.currenty_rate='1',m.month_rate=(select c.RATE from bihfmif.BIEE_EXRATE_V c where c.year=v_year and c.period=v_temp and c.FROM_CURRENCY=record.local_currency and c.TO_CURRENCY='NTD' and c.RATE_TYPE='平均匯率') where m.id=record.id;
+           elsif record.local_currency='NTD' then
+             update FIT_REVENUE_DETAIL_MANUAL_TEMP m set m.month_rate='1',m.currenty_rate=(select c.RATE from bihfmif.BIEE_EXRATE_V c where c.year=v_year and c.period=v_temp and c.FROM_CURRENCY=record.local_currency and c.TO_CURRENCY='USD' and c.RATE_TYPE='平均匯率') where m.id=record.id;
+           else
+             update FIT_REVENUE_DETAIL_MANUAL_TEMP m set m.currenty_rate=(select c.RATE from bihfmif.BIEE_EXRATE_V c where c.year=v_year and c.period=v_temp and c.FROM_CURRENCY=record.local_currency and c.TO_CURRENCY='USD' and c.RATE_TYPE='平均匯率'),m.month_rate=(select c.RATE from bihfmif.BIEE_EXRATE_V c where c.year=v_year and c.period=v_temp and c.FROM_CURRENCY=record.local_currency and c.TO_CURRENCY='NTD' and c.RATE_TYPE='平均匯率') where m.id=record.id;
+           end if;
+        end if;
+        
+      end loop;
+      commit;
+      
+      update FIT_REVENUE_DETAIL_MANUAL_TEMP a set a.month_revenue_amount=ROUND(a.currency_untax_amount * a.currenty_rate,2),a.month_revenue_rate=ROUND(a.currency_untax_amount * a.month_rate,2);
+      commit;
+      
+      update FIT_REVENUE_DETAIL_MANUAL_TEMP t set t.CUSTOMER_INFO=t.product_no || t.customer_product_no || t.customer_code;
+      commit;
+      
+      for record in (select t.id,t.corporation_code as code,s.sbu from FIT_REVENUE_DETAIL_MANUAL_TEMP t,FIT_Store_SBU s where t.store_no=s.code)
+      loop
+        if record.sbu is null then
+          if record.code ='HTTW' or record.code='HTUS' or record.code='HTSG' then
+             update FIT_REVENUE_DETAIL_MANUAL_TEMP t set sbu=(select m.new_sbu_name from FIT_SBU_MAPPING m where m.old_sbu_name=t.invoice_number) where t.id=record.id;
+          end if;
+        else
+          update FIT_REVENUE_DETAIL_MANUAL_TEMP set sbu=record.sbu where id=record.id;
+        end if;
+        
+      end loop;
+      commit;
+      
+      --順序(1)：根據mapping表《主次產業對照檔》依據“產品料號&客戶料號&客戶代碼”直接抓取唯一主次產業。
+      for record in (select t.id,s.MAJOR_INDUSTRY,s.secondary_industry from FIT_REVENUE_DETAIL_MANUAL_TEMP t,FIT_Primary_Secondary_Industry s where t.CUSTOMER_INFO=s.document and t.LEADING_INDUSTRY1 is null and t.secondary_industry is null)
+      loop        
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP set LEADING_INDUSTRY1=record.major_industry,secondary_industry=record.secondary_industry where id=record.id;
+      end loop;
+      commit;
+      
+      /*順序(2)：根據mapping表《主次產業對照檔》依據“產品料號&客戶料號”有唯一主次產業時,則直接進行mapping; 
+        順序(3)：根據mapping表《主次產業對照檔》依據“產品料號&客戶料號”不是唯一主次產業時，系統則判斷為   
+              其中主次產業之一.如“產品料號&客戶料號”對應2個主次產業時,系統將在2個之中隨機選取一個.*/
+      for record in(
+        SELECT id,major_industry,secondary_industry FROM (
+               SELECT ROW_NUMBER() OVER(PARTITION BY m.id ORDER BY m.id,m.major_industry,m.secondary_industry) rn,m.* FROM (select t.id,s.MAJOR_INDUSTRY,s.secondary_industry from FIT_REVENUE_DETAIL_MANUAL_TEMP t,FIT_Primary_Secondary_Industry s where t.product_no=s.product and t.customer_product_no=s.customer_product and t.LEADING_INDUSTRY1 is null and t.secondary_industry is null) m
+        ) WHERE rn = 1
+      )
+      loop
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP set LEADING_INDUSTRY1=record.major_industry,secondary_industry=record.secondary_industry where id=record.id;
+      end loop;
+      commit;
+      
+      /*順序(4)：根據mapping表《主次產業對照檔》依據“產品料號&客戶代碼”有唯一主次產業時,則直接進行mapping; 
+        順序(5)：根據mapping表《主次產業對照檔》依據“產品料號&客戶代碼”不是唯一主次產業時，系統則判斷為   
+               其中主次產業之一.如“產品料號&客戶代碼”對應2個主次產業時,系統將在2個之中隨機選取一個.*/
+      for record in(
+        SELECT id,major_industry,secondary_industry FROM (
+               SELECT ROW_NUMBER() OVER(PARTITION BY m.id ORDER BY m.id,m.major_industry,m.secondary_industry) rn,m.* FROM (select t.id,s.MAJOR_INDUSTRY,s.secondary_industry from FIT_REVENUE_DETAIL_MANUAL_TEMP t,FIT_Primary_Secondary_Industry s where t.product_no=s.product and t.customer_code=s.account_customer_code and t.LEADING_INDUSTRY1 is null and t.secondary_industry is null) m
+        ) WHERE rn = 1
+      )
+      loop
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP set LEADING_INDUSTRY1=record.major_industry,secondary_industry=record.secondary_industry where id=record.id;
+      end loop;
+      commit;
+      
+      /*順序(6)：根據mapping表《主次產業對照檔》依據“產品料號”有唯一主次產業時,則直接進行mapping;
+        順序(7)：根據mapping表《主次產業對照檔》依據“產品料號”不是唯一主次產業時，系統則判斷為   
+             其中主次產業之一.如“產品料號”對應2個主次產業時,系統將在2個之中隨機選取一個.*/
+      for record in(
+        SELECT id,major_industry,secondary_industry FROM (
+               SELECT ROW_NUMBER() OVER(PARTITION BY m.id ORDER BY m.id,m.major_industry,m.secondary_industry) rn,m.* FROM (select t.id,s.MAJOR_INDUSTRY,s.secondary_industry from FIT_REVENUE_DETAIL_MANUAL_TEMP t,FIT_Primary_Secondary_Industry s where t.product_no=s.product and t.LEADING_INDUSTRY1 is null and t.secondary_industry is null) m
+        ) WHERE rn = 1
+      )
+      loop
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP set LEADING_INDUSTRY1=record.major_industry,secondary_industry=record.secondary_industry where id=record.id;
+      end loop;
+      commit;
+      
+      --3 當“法人簡稱”為FOITUS或FOITSG時，主產業判斷為Communication.    
+      --4當SBU為CIDA時,主產業判斷為Automotive .
+      for record in(select t.id,t.corporation_code,t.sbu from FIT_REVENUE_DETAIL_MANUAL_TEMP t)
+      loop
+        if record.corporation_code in ('FOITUS','FOITSG') then
+          update FIT_REVENUE_DETAIL_MANUAL_TEMP set LEADING_INDUSTRY1='Communication' where id=record.id;
+        end if;
+        
+        if record.sbu ='CIDA' then
+          update FIT_REVENUE_DETAIL_MANUAL_TEMP set LEADING_INDUSTRY1='Automotive' where id=record.id;
+        end if;
+      end loop;
+      commit;
+            
+      for record in (select t.id,t.product_no,t.corporation_code,t.customer_code,t.sale_no,s.CUSTOMER_LEVEL from FIT_REVENUE_DETAIL_MANUAL_TEMP t left join FIT_Primary_Secondary_Industry s on t.CUSTOMER_INFO=s.document)
+      loop
+          v_temp:=null;
+          if record.CUSTOMER_LEVEL is not null then
+            v_temp:=record.CUSTOMER_LEVEL;
+          elsif record.corporation_code='FOITUS' or record.corporation_code='FOITSG' then
+            v_temp:='FOIT';
+          elsif instr(record.product_no,'MISC')>0 or record.customer_code is null or record.sale_no is null then
+            v_temp:='Other';
+          end if;
+          
+          if v_temp is null then
+            v_temp:='未知';
+          end if;     
+          update FIT_REVENUE_DETAIL_MANUAL_TEMP d set d.GRADE=v_temp where d.id=record.id;
+          
+      end loop;
+      commit;
+      
+      for record in (select t.id,ss.dept_name from FIT_REVENUE_DETAIL_MANUAL_TEMP t,(select distinct Upper(s.industry_name) industry_name,s.dept_name from BIDEV.DM_D_SEG_SUBIND s) ss where Upper(t.LEADING_INDUSTRY1)=ss.industry_name)
+      loop
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP set SEGMENT=record.dept_name where id=record.id;
+      end loop;
+      commit;
+      
+      for record in (select t.id,t.sale_no,s.classification, t.invoice_no, t.customer_code, t.sale_category
+        from FIT_REVENUE_DETAIL_MANUAL_TEMP t left join FIT_Sale_Classification s on t.customer_code=s.customer_code)
+      loop
+        v_temp:=null;
+        /* 20180912 Modified by Simon Step 1
+          if 當客戶代碼為“BCQ001”或“BFC231”或“BFH081”或“BHF001”或“BHF061” and 當發票號碼為“VCV”開頭
+            update為“成品銷售”
+          end if; 
+        */
+        if record.customer_code in ('BCQ001', 'BFC231', 'BFH081', 'BHF001','BHF061') and substr(record.invoice_no, 1, 3) = 'VCV' then
+          v_temp:='成品銷售';
+        end if;
+        /* 20180912 Modified by Simon Step 2
+          如果“銷售大類”還為為null，以下邏輯邏輯繼續處理
+            if SALE_NO為空 OR “HHT”開頭的“銷單號碼”
+               update為“雜項”  
+            else 
+               update為“成品銷售”
+            end if
+        */
+        if record.sale_category is null then
+          if v_temp is null then  --Step 1未處理
+            if record.sale_no is null or substr(record.sale_no,1,3)='HHT' then
+              v_temp:='雜項';
+            else
+              v_temp:='成品銷售';
+            end if;
+          end if;
+        end if;
+        if v_temp is not null then
+          update FIT_REVENUE_DETAIL_MANUAL_TEMP d set d.SALE_CATEGORY=v_temp where d.id=record.id;
+        end if;
+      end loop;
+      commit;
+     
+      --20181109 Modified by Simon Add and t.sbu = s.sbu
+      --根據所處理的營收明細的年月篩選對應年月（版本）的《產品BCG映射》表，若沒有當月版本的，則篩選最新月版本（最大年月）的《產品BCG映射》作為mapping表
+      select count(*) into v_count from FIT_Product_BCG where version = v_year || ltrim(to_char(v_month,'00'));
+      if v_count>0 then
+        select v_year || ltrim(to_char(v_month,'00')) into v_temp from dual;
+      else
+        select max(version) into v_temp from FIT_PRODUCT_BCG;
+      end if;
+      
+      for record in (select t.id,t.corporation_code,t.product_no,t.sbu,s.bcg from FIT_REVENUE_DETAIL_MANUAL_TEMP t left join
+        (select * from FIT_Product_BCG where version = v_temp) s
+        on t.product_no=s.part_no and t.sbu = s.sbu 
+        --where s.version=t.year || ltrim(to_char(t.period,'00'))
+        )
+      loop
+        v_temp:=null;
+        if record.bcg is not null then
+          v_temp:=record.bcg;
+        else
+          if record.corporation_code='FOITUS' or record.corporation_code='FOITSG' then
+            v_temp:='FOIT';
+          elsif record.sbu ='CIDA' then
+            v_temp:='CIDA';
+          elsif record.sbu ='TEKCON' then
+            v_temp:='TEKCON';
+          elsif record.product_no is null then
+            v_temp:='Other';
+          end if;
+        end if;
+
+        if v_temp is null then
+          v_temp:='未知';
+        end if;
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP d set d.bcg=v_temp where d.id=record.id;
+        
+      end loop;
+      commit;
+   
+      for record in (select t.id,s.judge_region from FIT_REVENUE_DETAIL_MANUAL_TEMP t,FIT_Region s where t.department=s.code)
+      loop
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP set AREA=record.judge_region where id=record.id;
+      end loop;
+      commit;
+      
+      for record in (select t.id,t.corporation_code,t.customer_code,s.channel from FIT_REVENUE_DETAIL_MANUAL_TEMP t left join FIT_Channel s on t.corporation_code || t.customer_code=s.document)
+      loop
+        v_temp:=null;
+        if record.channel is null then
+          if record.corporation_code='FOITUS' or record.corporation_code='FOITSG' then
+            v_temp:='FOIT';
+          else
+            if record.customer_code is null then
+               v_temp:='Other';
+            end if;
+          end if;
+        else
+          v_temp:=record.channel;
+        end if;
+        if v_temp is not null then
+          update FIT_REVENUE_DETAIL_MANUAL_TEMP d set d.channel=v_temp where d.id=record.id;
+        end if;
+      end loop;
+      commit;
+      
+      for record in (select t.id,s.specification_short_name,s.specification_full_name,s.specification_group_name from FIT_REVENUE_DETAIL_MANUAL_TEMP t,FIT_Customer_Name_Specify s where t.corporation_code=s.corporation_code and t.customer_code=s.customer_code)
+      loop
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP set SIMPLE_SPECIFICATION=record.specification_short_name,FULL_SPECIFICATION=record.specification_full_name,GROUP_SPECIFICATION=record.specification_group_name where id=record.id;
+      end loop;
+      commit;
+    
+      for record in (select id,ROW_NUMBER() over (partition by legal_code order by legal_code) serial from FIT_REVENUE_DETAIL_MANUAL_TEMP order by legal_code)
+      loop
+        update FIT_REVENUE_DETAIL_MANUAL_TEMP set serial_number=record.serial where id=record.id;
+      end loop;
+      commit;
+    
+      EXECUTE IMMEDIATE 'delete from FIT_REVENUE_DETAIL_MANUAL t where t.year=' || v_year || ' and t.period=' || v_month || ' and t.version=''' || v_version || ''' and t.LEGAL_CODE in (' || v_legalCode || ')';
+      commit;
+  
+      update FIT_REVENUE_DETAIL_MANUAL_TEMP set strategy = '未知';
+      insert into FIT_REVENUE_DETAIL_MANUAL (select * from FIT_REVENUE_DETAIL_MANUAL_TEMP);
+      commit;
+
+      v_status := 'S';
+      EXCEPTION
+        WHEN OTHERS THEN
+          v_message   := Substr(SQLERRM,1,150);
+          dbms_output.put_line(SQLCODE || ' :' || v_message);
+          v_status := 'F';
+  END;
+  
+  PROCEDURE Forecast_Revenue_Process(
+      o_status  OUT VARCHAR2,
+      o_message OUT VARCHAR2) 
+  IS
+      v_count integer;
+  BEGIN
+      for record in (select * from FIT_FORECAST_DETAIL_REVENUE)
+      loop
+        select count(1) into v_count from FIT_FORECAST_DETAIL_REV_SRC t where t.entity=record.entity and t.industry=record.industry and t.product=record.product 
+               and t.combine=record.combine and t.customer=record.customer and t.type=record.type and t.currency=record.currency and t.activity=record.activity and t.version=record.version and t.scenarios=record.scenarios and t.year=record.year;
+        
+        if v_count>0 then
+          update FIT_FORECAST_DETAIL_REV_SRC t set t.industry_demand_trend=record.industry_demand_trend,t.industry_demand_trend_served=record.industry_demand_trend_served,
+                 t.component_usage=record.component_usage,t.average_sales_price=record.average_sales_price,t.total_available_market=record.total_available_market,
+                 t.served_available_market=record.served_available_market,t.allocation=record.allocation,t.revenue=record.revenue,t.quantity=record.quantity,
+                 t.quantity_month1=record.quantity_month1,t.quantity_month2=record.quantity_month2,t.quantity_month3=record.quantity_month3,t.quantity_month4=record.quantity_month4,
+                 t.quantity_month5=record.quantity_month5,t.quantity_month6=record.quantity_month6,t.quantity_month7=record.quantity_month7,t.quantity_month8=record.quantity_month8,
+                 t.quantity_month9=record.quantity_month9,t.quantity_month10=record.quantity_month10,t.quantity_month11=record.quantity_month11,t.quantity_month12=record.quantity_month12,
+                 t.revenue_month1=record.revenue_month1,t.revenue_month2=record.revenue_month2,t.revenue_month3=record.revenue_month3,t.revenue_month4=record.revenue_month4,
+                 t.revenue_month5=record.revenue_month5,t.revenue_month6=record.revenue_month6,t.revenue_month7=record.revenue_month7,t.revenue_month8=record.revenue_month8,
+                 t.revenue_month9=record.revenue_month9,t.revenue_month10=record.revenue_month10,t.revenue_month11=record.revenue_month11,t.revenue_month12=record.revenue_month12,
+                 t.price_Month1=record.price_Month1,t.price_Month2=record.price_Month2,t.price_Month3=record.price_Month3,t.price_Month4=record.price_Month4,
+                 t.price_Month5=record.price_Month5,t.price_Month6=record.price_Month6,t.price_Month7=record.price_Month7,t.price_Month8=record.price_Month8,
+                 t.price_Month9=record.price_Month9,t.price_Month10=record.price_Month10,t.price_Month11=record.price_Month11,t.price_Month12=record.price_Month12
+          where t.entity=record.entity and t.industry=record.industry and t.product=record.product and t.combine=record.combine and t.customer=record.customer 
+                and t.type=record.type and t.currency=record.currency and t.activity=record.activity and t.version=record.version and t.scenarios=record.scenarios and t.year=record.year;
+        else
+          insert into FIT_FORECAST_DETAIL_REV_SRC(id,Entity,Industry,PRODUCT,combine,customer,type,currency,activity,version,scenarios,year,industry_Demand_Trend,industry_Demand_Trend_Served,component_Usage,
+                                                  average_Sales_Price,total_Available_Market,served_Available_Market,allocation,revenue,quantity,
+                                                  quantity_Month1,quantity_Month2,quantity_Month3,quantity_Month4,quantity_Month5,quantity_Month6,quantity_Month7,quantity_Month8,quantity_Month9,quantity_Month10,quantity_Month11,quantity_Month12,
+                                                  revenue_Month1,revenue_Month2,revenue_Month3,revenue_Month4,revenue_Month5,revenue_Month6,revenue_Month7,revenue_Month8,revenue_Month9,revenue_Month10,revenue_Month11,revenue_Month12,
+                                                  price_Month1,price_Month2,price_Month3,price_Month4,price_Month5,price_Month6,price_Month7,price_Month8,price_Month9,price_Month10,price_Month11,price_Month12)
+                                           values(record.id,record.Entity,record.Industry,record.PRODUCT,record.combine,record.customer,record.type,record.currency,record.activity,record.version,record.scenarios,record.year,record.industry_Demand_Trend,record.industry_Demand_Trend_Served,record.component_Usage,
+                                                  record.average_Sales_Price,record.total_Available_Market,record.served_Available_Market,record.allocation,record.revenue,record.quantity,
+                                                  record.quantity_Month1,record.quantity_Month2,record.quantity_Month3,record.quantity_Month4,record.quantity_Month5,record.quantity_Month6,record.quantity_Month7,record.quantity_Month8,record.quantity_Month9,record.quantity_Month10,record.quantity_Month11,record.quantity_Month12,
+                                                  record.revenue_Month1,record.revenue_Month2,record.revenue_Month3,record.revenue_Month4,record.revenue_Month5,record.revenue_Month6,record.revenue_Month7,record.revenue_Month8,record.revenue_Month9,record.revenue_Month10,record.revenue_Month11,record.revenue_Month12,
+                                                  record.price_Month1,record.price_Month2,record.price_Month3,record.price_Month4,record.price_Month5,record.price_Month6,record.price_Month7,record.price_Month8,record.price_Month9,record.price_Month10,record.price_Month11,record.price_Month12);
+        end if;
+        
+      end loop;
+      
+      commit;
+  
+      o_status := 'S';
+      EXCEPTION
+               WHEN OTHERS THEN
+               o_message   := Substr(SQLERRM,1,150);
+               dbms_output.put_line(SQLCODE || ' :' || o_message);
+               o_status := 'F';
+  END;
+  
+  PROCEDURE generate_planning(
+      i_sbu IN VARCHAR2,
+      i_year    IN VARCHAR2,
+      i_scenarios IN VARCHAR2,
+      o_status  OUT VARCHAR2,
+      o_message OUT VARCHAR2) 
+  IS
+      v_localView    VARCHAR2(200);
+      v_view    VARCHAR2(200);
+      v_product    VARCHAR2(200);    
+  BEGIN  
+      for record in (select s.id,s.product,
+        nvl(c.material_cost1,'0') material_cost1,nvl(c.material_cost2,'0') material_cost2,nvl(c.material_cost3,'0') material_cost3,nvl(c.material_cost4,'0') material_cost4,nvl(c.material_cost5,'0') material_cost5,nvl(c.material_cost6,'0') material_cost6,
+        nvl(c.material_cost7,'0') material_cost7,nvl(c.material_cost8,'0') material_cost8,nvl(c.material_cost9,'0') material_cost9,nvl(c.material_cost10,'0') material_cost10,nvl(c.material_cost11,'0') material_cost11,nvl(c.material_cost12,'0') material_cost12,
+        nvl(c.manual_Cost1,'0') manual_Cost1,nvl(c.manual_Cost2,'0') manual_Cost2,nvl(c.manual_Cost3,'0') manual_Cost3,nvl(c.manual_Cost4,'0') manual_Cost4,nvl(c.manual_Cost5,'0') manual_Cost5,nvl(c.manual_Cost6,'0') manual_Cost6,
+        nvl(c.manual_Cost7,'0') manual_Cost7,nvl(c.manual_Cost8,'0') manual_Cost8,nvl(c.manual_Cost9,'0') manual_Cost9,nvl(c.manual_Cost10,'0') manual_Cost10,nvl(c.manual_Cost11,'0') manual_Cost11,nvl(c.manual_Cost12,'0') manual_Cost12,
+        nvl(c.manufacture_Cost1,'0') manufacture_Cost1,nvl(c.manufacture_Cost2,'0') manufacture_Cost2,nvl(c.manufacture_Cost3,'0') manufacture_Cost3,nvl(c.manufacture_Cost4,'0') manufacture_Cost4,nvl(c.manufacture_Cost5,'0') manufacture_Cost5,nvl(c.manufacture_Cost6,'0') manufacture_Cost6,
+        nvl(c.manufacture_Cost7,'0') manufacture_Cost7,nvl(c.manufacture_Cost8,'0') manufacture_Cost8,nvl(c.manufacture_Cost9,'0') manufacture_Cost9,nvl(c.manufacture_Cost10,'0') manufacture_Cost10,nvl(c.manufacture_Cost11,'0') manufacture_Cost11,nvl(c.manufacture_Cost12,'0') manufacture_Cost12 
+        from FIT_FORECAST_DETAIL_REV_SRC s,FIT_Product_No_Unit_Cost c where s.product=c.product and s.entity=c.entity and s.year=c.year and s.scenarios=c.scenarios and s.year=i_year and s.scenarios=i_scenarios and c.version='V00' and s.version='V00' and REGEXP_LIKE(s.entity,'^(' || i_sbu ||')'))
+      loop
+        update FIT_FORECAST_DETAIL_REV_SRC set 
+            MATERIAL_MONTH1=record.material_cost1*QUANTITY_MONTH1,MATERIAL_MONTH2=record.material_cost2*QUANTITY_MONTH2,MATERIAL_MONTH3=record.material_cost3*QUANTITY_MONTH3,MATERIAL_MONTH4=record.material_cost4*QUANTITY_MONTH4,MATERIAL_MONTH5=record.material_cost5*QUANTITY_MONTH5,MATERIAL_MONTH6=record.material_cost6*QUANTITY_MONTH6,
+            MATERIAL_MONTH7=record.material_cost7*QUANTITY_MONTH7,MATERIAL_MONTH8=record.material_cost8*QUANTITY_MONTH8,MATERIAL_MONTH9=record.material_cost9*QUANTITY_MONTH9,MATERIAL_MONTH10=record.material_cost10*QUANTITY_MONTH10,MATERIAL_MONTH11=record.material_cost11*QUANTITY_MONTH11,MATERIAL_MONTH12=record.material_cost12*QUANTITY_MONTH12,
+            MANUAL_MONTH1=record.manual_Cost1*QUANTITY_MONTH1,MANUAL_MONTH2=record.manual_Cost2*QUANTITY_MONTH2,MANUAL_MONTH3=record.manual_Cost3*QUANTITY_MONTH3,MANUAL_MONTH4=record.manual_Cost4*QUANTITY_MONTH4,MANUAL_MONTH5=record.manual_Cost5*QUANTITY_MONTH5,MANUAL_MONTH6=record.manual_Cost6*QUANTITY_MONTH6,
+            MANUAL_MONTH7=record.manual_Cost7*QUANTITY_MONTH7,MANUAL_MONTH8=record.manual_Cost8*QUANTITY_MONTH8,MANUAL_MONTH9=record.manual_Cost9*QUANTITY_MONTH9,MANUAL_MONTH10=record.manual_Cost10*QUANTITY_MONTH10,MANUAL_MONTH11=record.manual_Cost11*QUANTITY_MONTH11,MANUAL_MONTH12=record.manual_Cost12*QUANTITY_MONTH12,
+            MANUFACTURE_MONTH1=record.manufacture_Cost1*QUANTITY_MONTH1,MANUFACTURE_MONTH2=record.manufacture_Cost2*QUANTITY_MONTH2,MANUFACTURE_MONTH3=record.manufacture_Cost3*QUANTITY_MONTH3,MANUFACTURE_MONTH4=record.manufacture_Cost4*QUANTITY_MONTH4,MANUFACTURE_MONTH5=record.manufacture_Cost5*QUANTITY_MONTH5,MANUFACTURE_MONTH6=record.manufacture_Cost6*QUANTITY_MONTH6,
+            MANUFACTURE_MONTH7=record.manufacture_Cost7*QUANTITY_MONTH7,MANUFACTURE_MONTH8=record.manufacture_Cost8*QUANTITY_MONTH8,MANUFACTURE_MONTH9=record.manufacture_Cost9*QUANTITY_MONTH9,MANUFACTURE_MONTH10=record.manufacture_Cost10*QUANTITY_MONTH10,MANUFACTURE_MONTH11=record.manufacture_Cost11*QUANTITY_MONTH11,MANUFACTURE_MONTH12=record.manufacture_Cost12*QUANTITY_MONTH12
+        where id=record.id;
+        
+      end loop;
+      
+      delete from FIT_PLANNING;
+      
+      for record in (
+        select p.d_entity,p.d_segment,p.d_combine,p.d_customer,p.d_currency,p.d_activity,p.product_series,p.scenarios,p.version,sum(nvl(p.revenue,0)) revenue,sum(nvl(p.quantity,0)) quantity,
+               sum(nvl(p.revenue_month1,0)) revenue_month1,sum(nvl(p.revenue_month2,0)) revenue_month2,sum(nvl(p.revenue_month3,0)) revenue_month3,sum(nvl(p.revenue_month4,0)) revenue_month4,sum(nvl(p.revenue_month5,0)) revenue_month5,sum(nvl(p.revenue_month6,0)) revenue_month6,
+               sum(nvl(p.revenue_month7,0)) revenue_month7,sum(nvl(p.revenue_month8,0)) revenue_month8,sum(nvl(p.revenue_month9,0)) revenue_month9,sum(nvl(p.revenue_month10,0)) revenue_month10,sum(nvl(p.revenue_month11,0)) revenue_month11,sum(nvl(p.revenue_month12,0)) revenue_month12,
+               sum(nvl(p.quantity_month1,0)) quantity_month1,sum(nvl(p.quantity_month2,0)) quantity_month2,sum(nvl(p.quantity_month3,0)) quantity_month3,sum(nvl(p.quantity_month4,0)) quantity_month4,sum(nvl(p.quantity_month5,0)) quantity_month5,sum(nvl(p.quantity_month6,0)) quantity_month6,
+               sum(nvl(p.quantity_month7,0)) quantity_month7,sum(nvl(p.quantity_month8,0)) quantity_month8,sum(nvl(p.quantity_month9,0)) quantity_month9,sum(nvl(p.quantity_month10,0)) quantity_month10,sum(nvl(p.quantity_month11,0)) quantity_month11,sum(nvl(p.quantity_month12,0)) quantity_month12,
+               sum(nvl(p.MATERIAL_MONTH1,0)) MATERIAL_MONTH1,sum(nvl(p.MATERIAL_MONTH2,0)) MATERIAL_MONTH2,sum(nvl(p.MATERIAL_MONTH3,0)) MATERIAL_MONTH3,sum(nvl(p.MATERIAL_MONTH4,0)) MATERIAL_MONTH4,sum(nvl(p.MATERIAL_MONTH5,0)) MATERIAL_MONTH5,sum(nvl(p.MATERIAL_MONTH6,0)) MATERIAL_MONTH6,
+               sum(nvl(p.MATERIAL_MONTH7,0)) MATERIAL_MONTH7,sum(nvl(p.MATERIAL_MONTH8,0)) MATERIAL_MONTH8,sum(nvl(p.MATERIAL_MONTH9,0)) MATERIAL_MONTH9,sum(nvl(p.MATERIAL_MONTH10,0)) MATERIAL_MONTH10,sum(nvl(p.MATERIAL_MONTH11,0)) MATERIAL_MONTH11,sum(nvl(p.MATERIAL_MONTH12,0)) MATERIAL_MONTH12,
+               sum(nvl(p.MANUAL_MONTH1,0)) MANUAL_MONTH1,sum(nvl(p.MANUAL_MONTH2,0)) MANUAL_MONTH2,sum(nvl(p.MANUAL_MONTH3,0)) MANUAL_MONTH3,sum(nvl(p.MANUAL_MONTH4,0)) MANUAL_MONTH4,sum(nvl(p.MANUAL_MONTH5,0)) MANUAL_MONTH5,sum(nvl(p.MANUAL_MONTH6,0)) MANUAL_MONTH6,
+               sum(nvl(p.MANUAL_MONTH7,0)) MANUAL_MONTH7,sum(nvl(p.MANUAL_MONTH8,0)) MANUAL_MONTH8,sum(nvl(p.MANUAL_MONTH9,0)) MANUAL_MONTH9,sum(nvl(p.MANUAL_MONTH10,0)) MANUAL_MONTH10,sum(nvl(p.MANUAL_MONTH11,0)) MANUAL_MONTH11,sum(nvl(p.MANUAL_MONTH12,0)) MANUAL_MONTH12,
+               sum(nvl(p.MANUFACTURE_MONTH1,0)) MANUFACTURE_MONTH1,sum(nvl(p.MANUFACTURE_MONTH2,0)) MANUFACTURE_MONTH2,sum(nvl(p.MANUFACTURE_MONTH3,0)) MANUFACTURE_MONTH3,sum(nvl(p.MANUFACTURE_MONTH4,0)) MANUFACTURE_MONTH4,sum(nvl(p.MANUFACTURE_MONTH5,0)) MANUFACTURE_MONTH5,sum(nvl(p.MANUFACTURE_MONTH6,0)) MANUFACTURE_MONTH6,
+               sum(nvl(p.MANUFACTURE_MONTH7,0)) MANUFACTURE_MONTH7,sum(nvl(p.MANUFACTURE_MONTH8,0)) MANUFACTURE_MONTH8,sum(nvl(p.MANUFACTURE_MONTH9,0)) MANUFACTURE_MONTH9,sum(nvl(p.MANUFACTURE_MONTH10,0)) MANUFACTURE_MONTH10,sum(nvl(p.MANUFACTURE_MONTH11,0)) MANUFACTURE_MONTH11,sum(nvl(p.MANUFACTURE_MONTH12,0)) MANUFACTURE_MONTH12
+        from (
+           select (select distinct d.dimension from fit_dimension d where d.alias=s.entity and d.type='Entity') d_entity,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.industry and d.type='Segment') d_segment,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.combine and d.type='Combine') d_combine,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.customer and d.type='Customer') d_customer,
+		   (select distinct d.dimension from fit_dimension d where d.alias=s.currency and d.type='Currency') d_currency,
+		   (select distinct d.dimension from fit_dimension d where d.alias=s.activity and d.type='Project') d_activity,
+           (select distinct product from (select distinct alias as product from fit_dimension where type='Product' and alias=s.product union all select distinct productseries_col from bidev.if_bd_fitpartno where partno_col=s.product)) product_series,
+           s.* from FIT_FORECAST_DETAIL_REV_SRC s where s.year=i_year and s.type in ('外售','External sales') and s.scenarios=i_scenarios and s.version='V00' and REGEXP_LIKE(s.entity,'^(' || i_sbu ||')')
+         ) p group by p.d_entity,p.d_segment,p.d_combine,p.d_customer,p.d_currency,p.d_activity,p.product_series,p.scenarios,p.version
+      )
+      loop
+        v_product:=record.product_series;
+        if v_product in ('產品缺省') then
+          select dimension into v_product from fit_dimension where type='Product' and alias='產品缺省';
+        end if;
+        
+        v_view:='FY' || substr(i_year,3,2) ||','||record.scenarios||','||record.version||','||record.d_entity||','||record.d_currency||',View00,'||record.d_segment||','||v_product||','||record.d_customer||','||record.d_combine||',Bak100,Bak200,'||record.d_activity;
+        
+        --外售營收
+        if record.revenue_month1 <> 0 or record.revenue_month2 <> 0 or record.revenue_month3 <> 0 or record.revenue_month4 <> 0 or record.revenue_month5 <> 0 or record.revenue_month6 <> 0
+           or record.revenue_month7 <> 0 or record.revenue_month8 <> 0 or record.revenue_month9 <> 0 or record.revenue_month10 <> 0 or record.revenue_month11 <> 0 or record.revenue_month12 <> 0 or record.revenue <> 0
+        then
+          insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW)
+          values('A0110',record.revenue_month1,record.revenue_month2,record.revenue_month3,record.revenue_month4,record.revenue_month5,record.revenue_month6,record.revenue_month7,record.revenue_month8,record.revenue_month9,record.revenue_month10,record.revenue_month11,record.revenue_month12,record.revenue,v_view);        
+        end if;
+    
+        --外售銷售數量
+        if record.quantity_month1 <> 0 or record.quantity_month2 <> 0 or record.quantity_month3 <> 0 or record.quantity_month4 <> 0 or record.quantity_month5 <> 0 or record.quantity_month6 <> 0
+               or record.quantity_month7 <> 0 or record.quantity_month8 <> 0 or record.quantity_month9 <> 0 or record.quantity_month10 <> 0 or record.quantity_month11 <> 0 or record.quantity_month12 <> 0 or record.quantity <> 0
+        then
+          insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW)
+          values('A0109',record.quantity_month1,record.quantity_month2,record.quantity_month3,record.quantity_month4,record.quantity_month5,record.quantity_month6,record.quantity_month7,record.quantity_month8,record.quantity_month9,record.quantity_month10,record.quantity_month11,record.quantity_month12,record.quantity,v_view);
+        end if;
+
+      end loop;
+      
+       for record in (
+        select p.d_entity,p.d_segment,p.d_combine,p.d_customer,p.d_activity,p.product_series,p.scenarios,p.version,sum(nvl(p.revenue,0)) revenue,sum(nvl(p.quantity,0)) quantity,
+               sum(nvl(p.revenue_month1,0)) revenue_month1,sum(nvl(p.revenue_month2,0)) revenue_month2,sum(nvl(p.revenue_month3,0)) revenue_month3,sum(nvl(p.revenue_month4,0)) revenue_month4,sum(nvl(p.revenue_month5,0)) revenue_month5,sum(nvl(p.revenue_month6,0)) revenue_month6,
+               sum(nvl(p.revenue_month7,0)) revenue_month7,sum(nvl(p.revenue_month8,0)) revenue_month8,sum(nvl(p.revenue_month9,0)) revenue_month9,sum(nvl(p.revenue_month10,0)) revenue_month10,sum(nvl(p.revenue_month11,0)) revenue_month11,sum(nvl(p.revenue_month12,0)) revenue_month12,
+               sum(nvl(p.quantity_month1,0)) quantity_month1,sum(nvl(p.quantity_month2,0)) quantity_month2,sum(nvl(p.quantity_month3,0)) quantity_month3,sum(nvl(p.quantity_month4,0)) quantity_month4,sum(nvl(p.quantity_month5,0)) quantity_month5,sum(nvl(p.quantity_month6,0)) quantity_month6,
+               sum(nvl(p.quantity_month7,0)) quantity_month7,sum(nvl(p.quantity_month8,0)) quantity_month8,sum(nvl(p.quantity_month9,0)) quantity_month9,sum(nvl(p.quantity_month10,0)) quantity_month10,sum(nvl(p.quantity_month11,0)) quantity_month11,sum(nvl(p.quantity_month12,0)) quantity_month12,
+               sum(nvl(p.MATERIAL_MONTH1,0)) MATERIAL_MONTH1,sum(nvl(p.MATERIAL_MONTH2,0)) MATERIAL_MONTH2,sum(nvl(p.MATERIAL_MONTH3,0)) MATERIAL_MONTH3,sum(nvl(p.MATERIAL_MONTH4,0)) MATERIAL_MONTH4,sum(nvl(p.MATERIAL_MONTH5,0)) MATERIAL_MONTH5,sum(nvl(p.MATERIAL_MONTH6,0)) MATERIAL_MONTH6,
+               sum(nvl(p.MATERIAL_MONTH7,0)) MATERIAL_MONTH7,sum(nvl(p.MATERIAL_MONTH8,0)) MATERIAL_MONTH8,sum(nvl(p.MATERIAL_MONTH9,0)) MATERIAL_MONTH9,sum(nvl(p.MATERIAL_MONTH10,0)) MATERIAL_MONTH10,sum(nvl(p.MATERIAL_MONTH11,0)) MATERIAL_MONTH11,sum(nvl(p.MATERIAL_MONTH12,0)) MATERIAL_MONTH12,
+               sum(nvl(p.MANUAL_MONTH1,0)) MANUAL_MONTH1,sum(nvl(p.MANUAL_MONTH2,0)) MANUAL_MONTH2,sum(nvl(p.MANUAL_MONTH3,0)) MANUAL_MONTH3,sum(nvl(p.MANUAL_MONTH4,0)) MANUAL_MONTH4,sum(nvl(p.MANUAL_MONTH5,0)) MANUAL_MONTH5,sum(nvl(p.MANUAL_MONTH6,0)) MANUAL_MONTH6,
+               sum(nvl(p.MANUAL_MONTH7,0)) MANUAL_MONTH7,sum(nvl(p.MANUAL_MONTH8,0)) MANUAL_MONTH8,sum(nvl(p.MANUAL_MONTH9,0)) MANUAL_MONTH9,sum(nvl(p.MANUAL_MONTH10,0)) MANUAL_MONTH10,sum(nvl(p.MANUAL_MONTH11,0)) MANUAL_MONTH11,sum(nvl(p.MANUAL_MONTH12,0)) MANUAL_MONTH12,
+               sum(nvl(p.MANUFACTURE_MONTH1,0)) MANUFACTURE_MONTH1,sum(nvl(p.MANUFACTURE_MONTH2,0)) MANUFACTURE_MONTH2,sum(nvl(p.MANUFACTURE_MONTH3,0)) MANUFACTURE_MONTH3,sum(nvl(p.MANUFACTURE_MONTH4,0)) MANUFACTURE_MONTH4,sum(nvl(p.MANUFACTURE_MONTH5,0)) MANUFACTURE_MONTH5,sum(nvl(p.MANUFACTURE_MONTH6,0)) MANUFACTURE_MONTH6,
+               sum(nvl(p.MANUFACTURE_MONTH7,0)) MANUFACTURE_MONTH7,sum(nvl(p.MANUFACTURE_MONTH8,0)) MANUFACTURE_MONTH8,sum(nvl(p.MANUFACTURE_MONTH9,0)) MANUFACTURE_MONTH9,sum(nvl(p.MANUFACTURE_MONTH10,0)) MANUFACTURE_MONTH10,sum(nvl(p.MANUFACTURE_MONTH11,0)) MANUFACTURE_MONTH11,sum(nvl(p.MANUFACTURE_MONTH12,0)) MANUFACTURE_MONTH12
+        from (
+           select (select distinct d.dimension from fit_dimension d where d.alias=s.entity and d.type='Entity') d_entity,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.industry and d.type='Segment') d_segment,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.combine and d.type='Combine') d_combine,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.customer and d.type='Customer') d_customer,
+       (select distinct d.dimension from fit_dimension d where d.alias=s.activity and d.type='Project') d_activity,
+           (select distinct product from (select distinct alias as product from fit_dimension where type='Product' and alias=s.product union all select distinct productseries_col from bidev.if_bd_fitpartno where partno_col=s.product)) product_series,
+           s.* from FIT_FORECAST_DETAIL_REV_SRC s where s.year=i_year and s.type in ('外售','External sales') and s.scenarios=i_scenarios and s.version='V00' and REGEXP_LIKE(s.entity,'^(' || i_sbu ||')')
+         ) p group by p.d_entity,p.d_segment,p.d_combine,p.d_customer,p.d_activity,p.product_series,p.scenarios,p.version
+      )
+      loop
+        v_product:=record.product_series;
+        if v_product in ('產品缺省') then
+          select dimension into v_product from fit_dimension where type='Product' and alias='產品缺省';
+        end if;
+        
+        v_localView:='FY' || substr(i_year,3,2) ||','||record.scenarios||','||record.version||','||record.d_entity||',Local,View00,'||record.d_segment||','||v_product||','||record.d_customer||','||record.d_combine||',Bak100,Bak200,'||record.d_activity;
+  
+        --外售销售材料成本
+        if record.MATERIAL_MONTH1 <> 0 or record.MATERIAL_MONTH2 <> 0 or record.MATERIAL_MONTH3 <> 0 or record.MATERIAL_MONTH4 <> 0 or record.MATERIAL_MONTH5 <> 0 or record.MATERIAL_MONTH6 <> 0
+               or record.MATERIAL_MONTH7 <> 0 or record.MATERIAL_MONTH8 <> 0 or record.MATERIAL_MONTH9 <> 0 or record.MATERIAL_MONTH10 <> 0 or record.MATERIAL_MONTH11 <> 0 or record.MATERIAL_MONTH12 <> 0
+        then
+          insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+          values('A020201',record.MATERIAL_MONTH1,record.MATERIAL_MONTH2,record.MATERIAL_MONTH3,record.MATERIAL_MONTH4,record.MATERIAL_MONTH5,record.MATERIAL_MONTH6,record.MATERIAL_MONTH7,record.MATERIAL_MONTH8,record.MATERIAL_MONTH9,record.MATERIAL_MONTH10,record.MATERIAL_MONTH11,record.MATERIAL_MONTH12,v_localView);
+        end if;
+    
+        --外售銷售人工成本
+        if record.MANUAL_MONTH1 <> 0 or record.MANUAL_MONTH2 <> 0 or record.MANUAL_MONTH3 <> 0 or record.MANUAL_MONTH4 <> 0 or record.MANUAL_MONTH5 <> 0 or record.MANUAL_MONTH6 <> 0
+               or record.MANUAL_MONTH7 <> 0 or record.MANUAL_MONTH8 <> 0 or record.MANUAL_MONTH9 <> 0 or record.MANUAL_MONTH10 <> 0 or record.MANUAL_MONTH11 <> 0 or record.MANUAL_MONTH12 <> 0
+        then
+          insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+          values('A020202',record.MANUAL_MONTH1,record.MANUAL_MONTH2,record.MANUAL_MONTH3,record.MANUAL_MONTH4,record.MANUAL_MONTH5,record.MANUAL_MONTH6,record.MANUAL_MONTH7,record.MANUAL_MONTH8,record.MANUAL_MONTH9,record.MANUAL_MONTH10,record.MANUAL_MONTH11,record.MANUAL_MONTH12,v_localView);
+        end if;
+    
+        --外售銷售製造費用
+        if record.MANUFACTURE_MONTH1 <> 0 or record.MANUFACTURE_MONTH2 <> 0 or record.MANUFACTURE_MONTH3 <> 0 or record.MANUFACTURE_MONTH4 <> 0 or record.MANUFACTURE_MONTH5 <> 0 or record.MANUFACTURE_MONTH6 <> 0
+               or record.MANUFACTURE_MONTH7 <> 0 or record.MANUFACTURE_MONTH8 <> 0 or record.MANUFACTURE_MONTH9 <> 0 or record.MANUFACTURE_MONTH10 <> 0 or record.MANUFACTURE_MONTH11 <> 0 or record.MANUFACTURE_MONTH12 <> 0
+        then
+          insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+          values('A020203',record.MANUFACTURE_MONTH1,record.MANUFACTURE_MONTH2,record.MANUFACTURE_MONTH3,record.MANUFACTURE_MONTH4,record.MANUFACTURE_MONTH5,record.MANUFACTURE_MONTH6,record.MANUFACTURE_MONTH7,record.MANUFACTURE_MONTH8,record.MANUFACTURE_MONTH9,record.MANUFACTURE_MONTH10,record.MANUFACTURE_MONTH11,record.MANUFACTURE_MONTH12,v_localView);
+        end if;
+        
+      end loop;
+      
+      for record in (
+         select p.d_entity,p.d_segment,p.d_combine,p.d_customer,p.type,p.d_currency,p.d_activity,p.product_series,p.scenarios,p.version,sum(nvl(p.revenue,0)) revenue,sum(nvl(p.quantity,0)) quantity,
+               sum(nvl(p.revenue_month1,0)) revenue_month1,sum(nvl(p.revenue_month2,0)) revenue_month2,sum(nvl(p.revenue_month3,0)) revenue_month3,sum(nvl(p.revenue_month4,0)) revenue_month4,sum(nvl(p.revenue_month5,0)) revenue_month5,sum(nvl(p.revenue_month6,0)) revenue_month6,
+               sum(nvl(p.revenue_month7,0)) revenue_month7,sum(nvl(p.revenue_month8,0)) revenue_month8,sum(nvl(p.revenue_month9,0)) revenue_month9,sum(nvl(p.revenue_month10,0)) revenue_month10,sum(nvl(p.revenue_month11,0)) revenue_month11,sum(nvl(p.revenue_month12,0)) revenue_month12,
+               sum(nvl(p.quantity_month1,0)) quantity_month1,sum(nvl(p.quantity_month2,0)) quantity_month2,sum(nvl(p.quantity_month3,0)) quantity_month3,sum(nvl(p.quantity_month4,0)) quantity_month4,sum(nvl(p.quantity_month5,0)) quantity_month5,sum(nvl(p.quantity_month6,0)) quantity_month6,
+               sum(nvl(p.quantity_month7,0)) quantity_month7,sum(nvl(p.quantity_month8,0)) quantity_month8,sum(nvl(p.quantity_month9,0)) quantity_month9,sum(nvl(p.quantity_month10,0)) quantity_month10,sum(nvl(p.quantity_month11,0)) quantity_month11,sum(nvl(p.quantity_month12,0)) quantity_month12,
+               sum(nvl(p.MATERIAL_MONTH1,0)) MATERIAL_MONTH1,sum(nvl(p.MATERIAL_MONTH2,0)) MATERIAL_MONTH2,sum(nvl(p.MATERIAL_MONTH3,0)) MATERIAL_MONTH3,sum(nvl(p.MATERIAL_MONTH4,0)) MATERIAL_MONTH4,sum(nvl(p.MATERIAL_MONTH5,0)) MATERIAL_MONTH5,sum(nvl(p.MATERIAL_MONTH6,0)) MATERIAL_MONTH6,
+               sum(nvl(p.MATERIAL_MONTH7,0)) MATERIAL_MONTH7,sum(nvl(p.MATERIAL_MONTH8,0)) MATERIAL_MONTH8,sum(nvl(p.MATERIAL_MONTH9,0)) MATERIAL_MONTH9,sum(nvl(p.MATERIAL_MONTH10,0)) MATERIAL_MONTH10,sum(nvl(p.MATERIAL_MONTH11,0)) MATERIAL_MONTH11,sum(nvl(p.MATERIAL_MONTH12,0)) MATERIAL_MONTH12,
+               sum(nvl(p.MANUAL_MONTH1,0)) MANUAL_MONTH1,sum(nvl(p.MANUAL_MONTH2,0)) MANUAL_MONTH2,sum(nvl(p.MANUAL_MONTH3,0)) MANUAL_MONTH3,sum(nvl(p.MANUAL_MONTH4,0)) MANUAL_MONTH4,sum(nvl(p.MANUAL_MONTH5,0)) MANUAL_MONTH5,sum(nvl(p.MANUAL_MONTH6,0)) MANUAL_MONTH6,
+               sum(nvl(p.MANUAL_MONTH7,0)) MANUAL_MONTH7,sum(nvl(p.MANUAL_MONTH8,0)) MANUAL_MONTH8,sum(nvl(p.MANUAL_MONTH9,0)) MANUAL_MONTH9,sum(nvl(p.MANUAL_MONTH10,0)) MANUAL_MONTH10,sum(nvl(p.MANUAL_MONTH11,0)) MANUAL_MONTH11,sum(nvl(p.MANUAL_MONTH12,0)) MANUAL_MONTH12,
+               sum(nvl(p.MANUFACTURE_MONTH1,0)) MANUFACTURE_MONTH1,sum(nvl(p.MANUFACTURE_MONTH2,0)) MANUFACTURE_MONTH2,sum(nvl(p.MANUFACTURE_MONTH3,0)) MANUFACTURE_MONTH3,sum(nvl(p.MANUFACTURE_MONTH4,0)) MANUFACTURE_MONTH4,sum(nvl(p.MANUFACTURE_MONTH5,0)) MANUFACTURE_MONTH5,sum(nvl(p.MANUFACTURE_MONTH6,0)) MANUFACTURE_MONTH6,
+               sum(nvl(p.MANUFACTURE_MONTH7,0)) MANUFACTURE_MONTH7,sum(nvl(p.MANUFACTURE_MONTH8,0)) MANUFACTURE_MONTH8,sum(nvl(p.MANUFACTURE_MONTH9,0)) MANUFACTURE_MONTH9,sum(nvl(p.MANUFACTURE_MONTH10,0)) MANUFACTURE_MONTH10,sum(nvl(p.MANUFACTURE_MONTH11,0)) MANUFACTURE_MONTH11,sum(nvl(p.MANUFACTURE_MONTH12,0)) MANUFACTURE_MONTH12
+        from (
+           select distinct (select distinct d.dimension from fit_dimension d where d.alias=s.entity and d.type='Entity') d_entity,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.industry and d.type='Segment') d_segment,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.combine and d.type='Combine') d_combine,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.customer and d.type='Customer') d_customer,
+       (select distinct d.dimension from fit_dimension d where d.alias=s.currency and d.type='Currency') d_currency,
+       (select distinct d.dimension from fit_dimension d where d.alias=s.activity and d.type='Project') d_activity,
+           (select distinct product from (select distinct alias as product from fit_dimension where type='Product' and alias=s.product union all select distinct productseries_col from bidev.if_bd_fitpartno where partno_col=s.product)) product_series,
+           s.* from FIT_FORECAST_DETAIL_REV_SRC s where s.year=i_year and s.type in ('回銷','跨法人同SBU內交','Internal Sales with the same SBU between difference legal Entity') and s.scenarios=i_scenarios and s.version='V00' and REGEXP_LIKE(s.entity,'^(' || i_sbu ||')')
+         ) p group by p.d_entity,p.d_segment,p.d_combine,p.d_customer,p.d_currency,p.d_activity,p.product_series,p.scenarios,p.version,p.type         
+      )
+      loop
+        v_product:=record.product_series;
+        if v_product in ('產品缺省') then
+          select dimension into v_product from fit_dimension where type='Product' and alias='產品缺省';
+        end if;
+        v_localView:='FY' || substr(i_year,3,2) ||','||record.scenarios||','||record.version||','||record.d_entity||',Local,View00,'||record.d_segment||','||v_product||','||record.d_customer||','||record.d_combine||',Bak100,Bak200,'||record.d_activity;
+        v_view:='FY' || substr(i_year,3,2) ||','||record.scenarios||','||record.version||','||record.d_entity||','||record.d_currency||',View00,'||record.d_segment||','||v_product||','||record.d_customer||','||record.d_combine||',Bak100,Bak200,'||record.d_activity;
+        
+        --回銷/跨法人同SBU內交營收
+        if record.revenue_month1 <> 0 or record.revenue_month2 <> 0 or record.revenue_month3 <> 0 or record.revenue_month4 <> 0 or record.revenue_month5 <> 0 or record.revenue_month6 <> 0
+              or record.revenue_month7 <> 0 or record.revenue_month8 <> 0 or record.revenue_month9 <> 0 or record.revenue_month10 <> 0 or record.revenue_month11 <> 0 or record.revenue_month12 <> 0
+        then
+          insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+          values('A011102',record.revenue_month1,record.revenue_month2,record.revenue_month3,record.revenue_month4,record.revenue_month5,record.revenue_month6,record.revenue_month7,record.revenue_month8,record.revenue_month9,record.revenue_month10,record.revenue_month11,record.revenue_month12,v_view);        
+        end if;
+    
+        --回銷/跨法人同SBU內交材料成本
+        if record.MATERIAL_MONTH1 <> 0 or record.MATERIAL_MONTH2 <> 0 or record.MATERIAL_MONTH3 <> 0 or record.MATERIAL_MONTH4 <> 0 or record.MATERIAL_MONTH5 <> 0 or record.MATERIAL_MONTH6 <> 0
+               or record.MATERIAL_MONTH7 <> 0 or record.MATERIAL_MONTH8 <> 0 or record.MATERIAL_MONTH9 <> 0 or record.MATERIAL_MONTH10 <> 0 or record.MATERIAL_MONTH11 <> 0 or record.MATERIAL_MONTH12 <> 0
+        then
+          insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+          values('A02040201',record.MATERIAL_MONTH1,record.MATERIAL_MONTH2,record.MATERIAL_MONTH3,record.MATERIAL_MONTH4,record.MATERIAL_MONTH5,record.MATERIAL_MONTH6,record.MATERIAL_MONTH7,record.MATERIAL_MONTH8,record.MATERIAL_MONTH9,record.MATERIAL_MONTH10,record.MATERIAL_MONTH11,record.MATERIAL_MONTH12,v_localView);
+        end if;
+    
+        --回銷/跨法人同SBU內交人工成本
+        if record.MANUAL_MONTH1 <> 0 or record.MANUAL_MONTH2 <> 0 or record.MANUAL_MONTH3 <> 0 or record.MANUAL_MONTH4 <> 0 or record.MANUAL_MONTH5 <> 0 or record.MANUAL_MONTH6 <> 0
+               or record.MANUAL_MONTH7 <> 0 or record.MANUAL_MONTH8 <> 0 or record.MANUAL_MONTH9 <> 0 or record.MANUAL_MONTH10 <> 0 or record.MANUAL_MONTH11 <> 0 or record.MANUAL_MONTH12 <> 0
+        then
+          insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+          values('A02040202',record.MANUAL_MONTH1,record.MANUAL_MONTH2,record.MANUAL_MONTH3,record.MANUAL_MONTH4,record.MANUAL_MONTH5,record.MANUAL_MONTH6,record.MANUAL_MONTH7,record.MANUAL_MONTH8,record.MANUAL_MONTH9,record.MANUAL_MONTH10,record.MANUAL_MONTH11,record.MANUAL_MONTH12,v_localView);
+        end if; 
+      
+        --回銷/跨法人同SBU內交制造成本
+        if record.MANUFACTURE_MONTH1 <> 0 or record.MANUFACTURE_MONTH2 <> 0 or record.MANUFACTURE_MONTH3 <> 0 or record.MANUFACTURE_MONTH4 <> 0 or record.MANUFACTURE_MONTH5 <> 0 or record.MANUFACTURE_MONTH6 <> 0
+               or record.MANUFACTURE_MONTH7 <> 0 or record.MANUFACTURE_MONTH8 <> 0 or record.MANUFACTURE_MONTH9 <> 0 or record.MANUFACTURE_MONTH10 <> 0 or record.MANUFACTURE_MONTH11 <> 0 or record.MANUFACTURE_MONTH12 <> 0
+        then
+          insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+          values('A02040203',record.MANUFACTURE_MONTH1,record.MANUFACTURE_MONTH2,record.MANUFACTURE_MONTH3,record.MANUFACTURE_MONTH4,record.MANUFACTURE_MONTH5,record.MANUFACTURE_MONTH6,record.MANUFACTURE_MONTH7,record.MANUFACTURE_MONTH8,record.MANUFACTURE_MONTH9,record.MANUFACTURE_MONTH10,record.MANUFACTURE_MONTH11,record.MANUFACTURE_MONTH12,v_localView);
+        end if;
+    
+      end loop;
+      
+      for record in (
+ 
+         select p.d_entity,p.d_segment,p.d_combine,p.d_customer,p.d_activity,p.type,(select distinct d.dimension from fit_dimension d where d.alias=p.currency and d.type='Currency') d_currency,p.product_series,p.scenarios,p.version,sum(nvl(p.revenue,0)) revenue,sum(nvl(p.quantity,0)) quantity,
+               sum(nvl(p.revenue_month1,0)) revenue_month1,sum(nvl(p.revenue_month2,0)) revenue_month2,sum(nvl(p.revenue_month3,0)) revenue_month3,sum(nvl(p.revenue_month4,0)) revenue_month4,sum(nvl(p.revenue_month5,0)) revenue_month5,sum(nvl(p.revenue_month6,0)) revenue_month6,
+               sum(nvl(p.revenue_month7,0)) revenue_month7,sum(nvl(p.revenue_month8,0)) revenue_month8,sum(nvl(p.revenue_month9,0)) revenue_month9,sum(nvl(p.revenue_month10,0)) revenue_month10,sum(nvl(p.revenue_month11,0)) revenue_month11,sum(nvl(p.revenue_month12,0)) revenue_month12,
+               sum(nvl(p.quantity_month1,0)) quantity_month1,sum(nvl(p.quantity_month2,0)) quantity_month2,sum(nvl(p.quantity_month3,0)) quantity_month3,sum(nvl(p.quantity_month4,0)) quantity_month4,sum(nvl(p.quantity_month5,0)) quantity_month5,sum(nvl(p.quantity_month6,0)) quantity_month6,
+               sum(nvl(p.quantity_month7,0)) quantity_month7,sum(nvl(p.quantity_month8,0)) quantity_month8,sum(nvl(p.quantity_month9,0)) quantity_month9,sum(nvl(p.quantity_month10,0)) quantity_month10,sum(nvl(p.quantity_month11,0)) quantity_month11,sum(nvl(p.quantity_month12,0)) quantity_month12,
+               sum(nvl(p.MATERIAL_MONTH1,0)) MATERIAL_MONTH1,sum(nvl(p.MATERIAL_MONTH2,0)) MATERIAL_MONTH2,sum(nvl(p.MATERIAL_MONTH3,0)) MATERIAL_MONTH3,sum(nvl(p.MATERIAL_MONTH4,0)) MATERIAL_MONTH4,sum(nvl(p.MATERIAL_MONTH5,0)) MATERIAL_MONTH5,sum(nvl(p.MATERIAL_MONTH6,0)) MATERIAL_MONTH6,
+               sum(nvl(p.MATERIAL_MONTH7,0)) MATERIAL_MONTH7,sum(nvl(p.MATERIAL_MONTH8,0)) MATERIAL_MONTH8,sum(nvl(p.MATERIAL_MONTH9,0)) MATERIAL_MONTH9,sum(nvl(p.MATERIAL_MONTH10,0)) MATERIAL_MONTH10,sum(nvl(p.MATERIAL_MONTH11,0)) MATERIAL_MONTH11,sum(nvl(p.MATERIAL_MONTH12,0)) MATERIAL_MONTH12,
+               sum(nvl(p.MANUAL_MONTH1,0)) MANUAL_MONTH1,sum(nvl(p.MANUAL_MONTH2,0)) MANUAL_MONTH2,sum(nvl(p.MANUAL_MONTH3,0)) MANUAL_MONTH3,sum(nvl(p.MANUAL_MONTH4,0)) MANUAL_MONTH4,sum(nvl(p.MANUAL_MONTH5,0)) MANUAL_MONTH5,sum(nvl(p.MANUAL_MONTH6,0)) MANUAL_MONTH6,
+               sum(nvl(p.MANUAL_MONTH7,0)) MANUAL_MONTH7,sum(nvl(p.MANUAL_MONTH8,0)) MANUAL_MONTH8,sum(nvl(p.MANUAL_MONTH9,0)) MANUAL_MONTH9,sum(nvl(p.MANUAL_MONTH10,0)) MANUAL_MONTH10,sum(nvl(p.MANUAL_MONTH11,0)) MANUAL_MONTH11,sum(nvl(p.MANUAL_MONTH12,0)) MANUAL_MONTH12,
+               sum(nvl(p.MANUFACTURE_MONTH1,0)) MANUFACTURE_MONTH1,sum(nvl(p.MANUFACTURE_MONTH2,0)) MANUFACTURE_MONTH2,sum(nvl(p.MANUFACTURE_MONTH3,0)) MANUFACTURE_MONTH3,sum(nvl(p.MANUFACTURE_MONTH4,0)) MANUFACTURE_MONTH4,sum(nvl(p.MANUFACTURE_MONTH5,0)) MANUFACTURE_MONTH5,sum(nvl(p.MANUFACTURE_MONTH6,0)) MANUFACTURE_MONTH6,
+               sum(nvl(p.MANUFACTURE_MONTH7,0)) MANUFACTURE_MONTH7,sum(nvl(p.MANUFACTURE_MONTH8,0)) MANUFACTURE_MONTH8,sum(nvl(p.MANUFACTURE_MONTH9,0)) MANUFACTURE_MONTH9,sum(nvl(p.MANUFACTURE_MONTH10,0)) MANUFACTURE_MONTH10,sum(nvl(p.MANUFACTURE_MONTH11,0)) MANUFACTURE_MONTH11,sum(nvl(p.MANUFACTURE_MONTH12,0)) MANUFACTURE_MONTH12
+        from (
+           select distinct (select distinct d.dimension from fit_dimension d where d.alias=s.entity and d.type='Entity') d_entity,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.industry and d.type='Segment') d_segment,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.combine and d.type='Combine') d_combine,
+           (select distinct d.dimension from fit_dimension d where d.alias=s.customer and d.type='Customer') d_customer,
+       (select distinct d.dimension from fit_dimension d where d.alias=s.activity and d.type='Project') d_activity,
+           (select distinct product from (select distinct alias as product from fit_dimension where type='Product' and alias=s.product union all select distinct productseries_col from bidev.if_bd_fitpartno where partno_col=s.product)) product_series,
+           s.* from FIT_FORECAST_DETAIL_REV_SRC s where s.year=i_year and s.type in ('跨法人跨SBU內交','Internal Sales with different SBU and different legal Entity','同法人跨SBU轉撥','Internal Sales with the same legal Entity between difference SBU') and s.scenarios=i_scenarios and s.version='V00' and REGEXP_LIKE(s.entity,'^(' || i_sbu ||')')
+         ) p group by p.d_entity,p.d_segment,p.d_combine,p.d_customer,p.d_activity,p.currency,p.product_series,p.scenarios,p.version,p.type               
+      )
+      loop
+        v_product:=record.product_series;
+        if v_product in ('產品缺省') then
+          select dimension into v_product from fit_dimension where type='Product' and alias='產品缺省';
+        end if;
+        v_localView:='FY' || substr(i_year,3,2) ||','||record.scenarios||','||record.version||','||record.d_entity||',Local,View00,'||record.d_segment||','||v_product||','||record.d_customer||','||record.d_combine||',Bak100,Bak200,'||record.d_activity;
+        v_view:='FY' || substr(i_year,3,2) ||','||record.scenarios||','||record.version||','||record.d_entity||','||record.d_currency||',View00,'||record.d_segment||','||v_product||','||record.d_customer||','||record.d_combine||',Bak100,Bak200,'||record.d_activity;
+         
+        if record.type='跨法人跨SBU內交' or record.type ='Internal Sales with different SBU and different legal Entity' then
+            --跨法人跨SBU內交营收
+            if record.revenue_month1 <> 0 or record.revenue_month2 <> 0 or record.revenue_month3 <> 0 or record.revenue_month4 <> 0 or record.revenue_month5 <> 0 or record.revenue_month6 <> 0
+              or record.revenue_month7 <> 0 or record.revenue_month8 <> 0 or record.revenue_month9 <> 0 or record.revenue_month10 <> 0 or record.revenue_month11 <> 0 or record.revenue_month12 <> 0
+            then
+              insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+              values('A011103',record.revenue_month1,record.revenue_month2,record.revenue_month3,record.revenue_month4,record.revenue_month5,record.revenue_month6,record.revenue_month7,record.revenue_month8,record.revenue_month9,record.revenue_month10,record.revenue_month11,record.revenue_month12,v_view);        
+            end if;
+              
+            --跨法人跨SBU內交材料成本
+            if record.MATERIAL_MONTH1 <> 0 or record.MATERIAL_MONTH2 <> 0 or record.MATERIAL_MONTH3 <> 0 or record.MATERIAL_MONTH4 <> 0 or record.MATERIAL_MONTH5 <> 0 or record.MATERIAL_MONTH6 <> 0
+               or record.MATERIAL_MONTH7 <> 0 or record.MATERIAL_MONTH8 <> 0 or record.MATERIAL_MONTH9 <> 0 or record.MATERIAL_MONTH10 <> 0 or record.MATERIAL_MONTH11 <> 0 or record.MATERIAL_MONTH12 <> 0
+            then
+              insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+              values('A02040301',record.MATERIAL_MONTH1,record.MATERIAL_MONTH2,record.MATERIAL_MONTH3,record.MATERIAL_MONTH4,record.MATERIAL_MONTH5,record.MATERIAL_MONTH6,record.MATERIAL_MONTH7,record.MATERIAL_MONTH8,record.MATERIAL_MONTH9,record.MATERIAL_MONTH10,record.MATERIAL_MONTH11,record.MATERIAL_MONTH12,v_localView);
+            end if;
+              
+            --跨法人跨SBU內交人工成本
+            if record.MANUAL_MONTH1 <> 0 or record.MANUAL_MONTH2 <> 0 or record.MANUAL_MONTH3 <> 0 or record.MANUAL_MONTH4 <> 0 or record.MANUAL_MONTH5 <> 0 or record.MANUAL_MONTH6 <> 0
+               or record.MANUAL_MONTH7 <> 0 or record.MANUAL_MONTH8 <> 0 or record.MANUAL_MONTH9 <> 0 or record.MANUAL_MONTH10 <> 0 or record.MANUAL_MONTH11 <> 0 or record.MANUAL_MONTH12 <> 0
+            then
+              insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+              values('A02040302',record.MANUAL_MONTH1,record.MANUAL_MONTH2,record.MANUAL_MONTH3,record.MANUAL_MONTH4,record.MANUAL_MONTH5,record.MANUAL_MONTH6,record.MANUAL_MONTH7,record.MANUAL_MONTH8,record.MANUAL_MONTH9,record.MANUAL_MONTH10,record.MANUAL_MONTH11,record.MANUAL_MONTH12,v_localView);
+            end if;
+              
+            --跨法人跨SBU內交制造成本
+            if record.MANUFACTURE_MONTH1 <> 0 or record.MANUFACTURE_MONTH2 <> 0 or record.MANUFACTURE_MONTH3 <> 0 or record.MANUFACTURE_MONTH4 <> 0 or record.MANUFACTURE_MONTH5 <> 0 or record.MANUFACTURE_MONTH6 <> 0
+               or record.MANUFACTURE_MONTH7 <> 0 or record.MANUFACTURE_MONTH8 <> 0 or record.MANUFACTURE_MONTH9 <> 0 or record.MANUFACTURE_MONTH10 <> 0 or record.MANUFACTURE_MONTH11 <> 0 or record.MANUFACTURE_MONTH12 <> 0
+            then
+              insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+              values('A02040303',record.MANUFACTURE_MONTH1,record.MANUFACTURE_MONTH2,record.MANUFACTURE_MONTH3,record.MANUFACTURE_MONTH4,record.MANUFACTURE_MONTH5,record.MANUFACTURE_MONTH6,record.MANUFACTURE_MONTH7,record.MANUFACTURE_MONTH8,record.MANUFACTURE_MONTH9,record.MANUFACTURE_MONTH10,record.MANUFACTURE_MONTH11,record.MANUFACTURE_MONTH12,v_localView);
+            end if;
+        
+        else
+            --同法人跨SBU轉撥营收
+            if record.revenue_month1 <> 0 or record.revenue_month2 <> 0 or record.revenue_month3 <> 0 or record.revenue_month4 <> 0 or record.revenue_month5 <> 0 or record.revenue_month6 <> 0
+              or record.revenue_month7 <> 0 or record.revenue_month8 <> 0 or record.revenue_month9 <> 0 or record.revenue_month10 <> 0 or record.revenue_month11 <> 0 or record.revenue_month12 <> 0
+            then
+              insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+              values('A011101',record.revenue_month1,record.revenue_month2,record.revenue_month3,record.revenue_month4,record.revenue_month5,record.revenue_month6,record.revenue_month7,record.revenue_month8,record.revenue_month9,record.revenue_month10,record.revenue_month11,record.revenue_month12,v_view);        
+            end if;
+              
+            --同法人跨SBU轉撥材料成本
+            if record.MATERIAL_MONTH1 <> 0 or record.MATERIAL_MONTH2 <> 0 or record.MATERIAL_MONTH3 <> 0 or record.MATERIAL_MONTH4 <> 0 or record.MATERIAL_MONTH5 <> 0 or record.MATERIAL_MONTH6 <> 0
+               or record.MATERIAL_MONTH7 <> 0 or record.MATERIAL_MONTH8 <> 0 or record.MATERIAL_MONTH9 <> 0 or record.MATERIAL_MONTH10 <> 0 or record.MATERIAL_MONTH11 <> 0 or record.MATERIAL_MONTH12 <> 0
+            then
+              insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+              values('A02040101',record.MATERIAL_MONTH1,record.MATERIAL_MONTH2,record.MATERIAL_MONTH3,record.MATERIAL_MONTH4,record.MATERIAL_MONTH5,record.MATERIAL_MONTH6,record.MATERIAL_MONTH7,record.MATERIAL_MONTH8,record.MATERIAL_MONTH9,record.MATERIAL_MONTH10,record.MATERIAL_MONTH11,record.MATERIAL_MONTH12,v_localView);
+            end if;
+              
+            --同法人跨SBU轉撥人工成本
+            if record.MANUAL_MONTH1 <> 0 or record.MANUAL_MONTH2 <> 0 or record.MANUAL_MONTH3 <> 0 or record.MANUAL_MONTH4 <> 0 or record.MANUAL_MONTH5 <> 0 or record.MANUAL_MONTH6 <> 0
+               or record.MANUAL_MONTH7 <> 0 or record.MANUAL_MONTH8 <> 0 or record.MANUAL_MONTH9 <> 0 or record.MANUAL_MONTH10 <> 0 or record.MANUAL_MONTH11 <> 0 or record.MANUAL_MONTH12 <> 0
+            then
+              insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+              values('A02040102',record.MANUAL_MONTH1,record.MANUAL_MONTH2,record.MANUAL_MONTH3,record.MANUAL_MONTH4,record.MANUAL_MONTH5,record.MANUAL_MONTH6,record.MANUAL_MONTH7,record.MANUAL_MONTH8,record.MANUAL_MONTH9,record.MANUAL_MONTH10,record.MANUAL_MONTH11,record.MANUAL_MONTH12,v_localView);
+            end if;
+              
+            --同法人跨SBU轉撥制造成本
+            if record.MANUFACTURE_MONTH1 <> 0 or record.MANUFACTURE_MONTH2 <> 0 or record.MANUFACTURE_MONTH3 <> 0 or record.MANUFACTURE_MONTH4 <> 0 or record.MANUFACTURE_MONTH5 <> 0 or record.MANUFACTURE_MONTH6 <> 0
+               or record.MANUFACTURE_MONTH7 <> 0 or record.MANUFACTURE_MONTH8 <> 0 or record.MANUFACTURE_MONTH9 <> 0 or record.MANUFACTURE_MONTH10 <> 0 or record.MANUFACTURE_MONTH11 <> 0 or record.MANUFACTURE_MONTH12 <> 0
+            then
+              insert into FIT_PLANNING(ACCOUNT,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,POINT_OF_VIEW)
+              values('A02040103',record.MANUFACTURE_MONTH1,record.MANUFACTURE_MONTH2,record.MANUFACTURE_MONTH3,record.MANUFACTURE_MONTH4,record.MANUFACTURE_MONTH5,record.MANUFACTURE_MONTH6,record.MANUFACTURE_MONTH7,record.MANUFACTURE_MONTH8,record.MANUFACTURE_MONTH9,record.MANUFACTURE_MONTH10,record.MANUFACTURE_MONTH11,record.MANUFACTURE_MONTH12,v_localView);
+            end if;
+        
+        end if;
+        
+      end loop;
+      
+      commit;
+      o_status := 'S';
+      EXCEPTION
+               WHEN OTHERS THEN
+               o_message   := Substr(SQLERRM,1,150);
+               dbms_output.put_line(SQLCODE || ' :' || o_message);
+               o_status := 'F';
+  END;
+  
+end PKG_BI_MAPPING;
