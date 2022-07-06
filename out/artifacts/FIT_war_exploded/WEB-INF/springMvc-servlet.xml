@@ -82,7 +82,7 @@
 	<bean id="multipartResolver"  
           class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
           <!--1024*1024*50即50M-->  
-        <property name="maxUploadSize" value="52428800"/>  
+<!--        <property name="maxUploadSize" value="52428800"/>  -->
         <!--resolveLazily属性启用是为了推迟文件解析，以便在UploadAction 中捕获文件大小异常-->  
         <property name="resolveLazily" value="true"/>  
     </bean>

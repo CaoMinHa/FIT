@@ -37,7 +37,7 @@ $(function() {
 		Page.jumpPage($(this).val());
 		clickPage(Page.getPage());
 	});
-	
+
 });
 
 //用于触发当前点击事件

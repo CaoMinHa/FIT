@@ -66,8 +66,7 @@ $(function() {
            	$("#PlanningEntitysTip").show();
            	flag=false;
         }
-    	var year=$("#PlanningYear").val();
-    	if(year==""){
+    	if($("input[name=PlanningYear]:checked").length==0){
     		$("#PlanningYearTip").show();
     		flag=false;
     	}
@@ -93,7 +92,11 @@ $(function() {
 		$("input[name=planningEntitys]:checked").each(function(i,dom){
 			sbu+=$(dom).val()+",";
 		});
-    	
+    	var year="";
+		$("input[name=PlanningYear]:checked").each(function(i,dom){
+			year+=$(dom).val()+",";
+		});
+
    		$("#loading").show();
    		$.ajax({
    			type:"POST",
@@ -127,11 +130,11 @@ $(function() {
            	$("#PlanningEntitysTip").show();
            	flag=false;
         }
-    	var year=$("#PlanningYear").val();
-    	if(year==""){
-    		$("#PlanningYearTip").show();
-    		flag=false;
-    	}
+    	if($("input[name=PlanningYear]:checked").length==0){
+           	$("#PlanningYearTip").show();
+           	flag=false;
+        }
+
     	var scenarios=$("#PlanningScenarios").val();
     	var period="";
     	if(scenarios==""){
@@ -159,6 +162,10 @@ $(function() {
 		var entitys="";
 		$("input[name=planningEntitys]:checked").each(function(i,dom){
 			entitys+=$(dom).val()+",";
+		});
+		var year="";
+		$("input[name=PlanningYear]:checked").each(function(i,dom){
+			year+=$(dom).val()+",";
 		});
 		$.ajax({
 			type:"POST",
@@ -230,14 +237,33 @@ $(function() {
 						</div>
 						<div class="pull-left" style="display:inline-block;">
 							<ul>
-								<li>
-									<select id="PlanningYear" class="input-large" style="width:80px;height:38px;margin-left:20px">
-							          	<option value=""><%=EnumDimensionType.Years.getCode() %></option>
-										<c:forEach items="${yearsList }" var="years">
-											<option value="${years }" >${years }</option>
+<%--								<li>--%>
+<%--									<select id="PlanningYear" class="input-large" style="width:80px;height:38px;margin-left:20px">--%>
+<%--							          	<option value=""><%=EnumDimensionType.Years.getCode() %></option>--%>
+<%--										<c:forEach items="${yearsList }" var="years">--%>
+<%--											<option value="${years }" >${years }</option>--%>
+<%--										</c:forEach>--%>
+<%--									</select>--%>
+<%--								</li>--%>
+
+								<li class="dropdown" style="width:80px;margin-left: 15px;">
+									<a data-toggle="dropdown" class="dropdown-toggle" href="#"><%=EnumDimensionType.Years.getCode() %><strong class="caret"></strong></a>
+									<ul class="dropdown-menu" style="left:-20%;max-height:350px;overflow-y:scroll;">
+										<li class="AllCheck" style="padding:0 10px;clear:both;">
+											<span style="font-size: 20px;color: #938a8a;float: left;line-height: 38px;font-weight: bold;"><spring:message code='all_check'/></span>
+											<input type="checkbox" style="font-size:15px;color:#7e8978;float:right;width:20px;" value=""/>
+										</li>
+										<c:forEach items="${yearsList}" var="years">
+											<c:if test="${not empty yearsList}">
+												<li class="Check" style="padding:0 10px;clear:both;">
+													<span style="font-size:15px;color:#7e8978;float:left;line-height:38px;">${years}</span>
+													<input type="checkbox" name="PlanningYear" style="font-size:15px;color:#7e8978;float:right;width:20px;" value="${years}"/>
+												</li>
+											</c:if>
 										</c:forEach>
-									</select>
+									</ul>
 								</li>
+
 								<li style="line-height:26px;">
 									<span id="PlanningYearTip" style="display:none;line-height:16px;margin-left:20px;" class="Validform_checktip Validform_wrong">请选择</span>
 								</li>

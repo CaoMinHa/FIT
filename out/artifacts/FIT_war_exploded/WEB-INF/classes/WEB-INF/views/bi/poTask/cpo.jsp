@@ -110,10 +110,10 @@ $("a.update").click(function(){
 				<th  style="text-align:center"  colspan="3">客指</th>
 			</tr>
 			<tr>
-				<th style="text-align:center">採購金額</th>
+				<th style="text-align:center">採購金額(NTD)</th>
 				<th style="text-align:center" >CD比率</th>
 				<th style="text-align:center" >CPO Approve</th>
-				<th style="text-align:center" >採購金額</th>
+				<th style="text-align:center" >採購金額(NTD)</th>
 				<th style="text-align:center" >CD比率</th>
 				<th style="text-align:center" >CPO Approve</th>
 			</tr>

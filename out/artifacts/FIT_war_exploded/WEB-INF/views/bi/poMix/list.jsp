@@ -63,6 +63,7 @@ $(function() {
 			success: function(data){
 				layer.alert(data.msg);
 				$("#loading").hide();
+				$("#Query").click();
 		   	},
 		   	error: function(XMLHttpRequest, textStatus, errorThrown) {
 		   		$("#loading").hide();
@@ -143,19 +144,28 @@ function refresh(){
 										<c:choose>
 											<c:when test="${fn:split(data,'|')[0] eq 'vendor_name'}">
 												<td style="white-space: nowrap; border-right:1px solid #eee;">
-													<input name="${fn:split(data,'|')[0]}" type="text" style="height:25px !important;width:350px;" value="${fn:split(data,'|')[2] }"/>
+													<input name="${fn:split(data,'|')[0]}" type="text"
+<%--														   style="height:25px !important;width:350px;"--%>
+														   style="height:25px !important;width:350px;line-height: 15px !important;"
+														   value="${fn:split(data,'|')[2] }"/>
 												</td>
 											</c:when>
 											<c:otherwise>
 												<td style="white-space: nowrap; border-right:1px solid #eee;">
-													<input name="${fn:split(data,'|')[0]}" type="text" style="height:25px !important;width:150px;" value="${fn:split(data,'|')[2] }"/>
+													<input name="${fn:split(data,'|')[0]}" type="text"
+<%--														   style="height:25px !important;width:150px;" --%>
+														   style="height:25px !important;width:150px;line-height: 15px !important;"
+														   value="${fn:split(data,'|')[2] }"/>
 												</td>
 											</c:otherwise>
 										</c:choose>
 									</c:when>
 									<c:when test="${fn:split(data,'|')[1] eq 'W'&& !fn:split(data,'|')[0] eq 'vendor_name'}">
 										<td style="white-space: nowrap; border-right:1px solid #eee;">
-											<input name="${fn:split(data,'|')[0]}" type="text" style="height:25px !important;width:350px;" value="${fn:split(data,'|')[2] }"/>
+											<input name="${fn:split(data,'|')[0]}" type="text"
+<%--												   style="height:25px !important;width:350px;" --%>
+												   style="height:25px !important;width:350px;line-height: 15px !important;"
+												   value="${fn:split(data,'|')[2] }"/>
 										</td>
 									</c:when>
 

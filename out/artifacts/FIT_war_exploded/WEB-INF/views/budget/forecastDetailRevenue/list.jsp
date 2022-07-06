@@ -89,7 +89,8 @@ function refresh(){
 					<tr>
 						<th rowspan="2"><spring:message code='operation'/></th>
 						<th rowspan="2" style="text-align: center;">Year</th>
-						<th rowspan="2" style="text-align: center;">SBU_Legal Entity</th>
+						<th rowspan="2" style="text-align: center;">SBU_Sales Legal Entity</th>
+						<th rowspan="2" style="text-align: center;">SBU_Make Legal Entity</th>
 						<th rowspan="2" style="text-align: center;">Sub_Industry</th>
 						<th rowspan="2" style="text-align: center;">PART NO</th>
 						<th rowspan="2" style="text-align: center;">End To Cust.ID-Name</th>
@@ -156,7 +157,8 @@ function refresh(){
 					<tr>
 						<th rowspan="2"><spring:message code='operation'/></th>
 						<th rowspan="2" style="text-align: center;">年</th>
-						<th rowspan="2" style="text-align: center;">SBU_法人</th>
+						<th rowspan="2" style="text-align: center;">SBU_銷售法人</th>
+						<th rowspan="2" style="text-align: center;">SBU_製造法人</th>
 						<th rowspan="2" style="text-align: center;">次產業</th>
 						<th rowspan="2" style="text-align: center;">產品料號</th>
 						<th rowspan="2" style="text-align: center;">最終客戶</th>
@@ -227,6 +229,7 @@ function refresh(){
 					</td>
 					<td style="border-right:1px solid #eee;text-align: center;">${mapping.year}</td>
 					<td style="border-right:1px solid #eee;text-align: center;">${mapping.entity}</td>
+					<td style="border-right:1px solid #eee;text-align: center;">${mapping.makeEntity}</td>
 					<td style="border-right:1px solid #eee;text-align: center;">${mapping.industry}</td>
 					<td style="border-right:1px solid #eee;text-align: center;">${mapping.product}</td>
 					<td style="border-right:1px solid #eee;text-align: center;">${mapping.combine}</td>

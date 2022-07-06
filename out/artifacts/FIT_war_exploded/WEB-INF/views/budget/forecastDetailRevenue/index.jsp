@@ -222,8 +222,29 @@ $(function() {
 			window.location.href="${ctx}/static/template/budget/營收明細實際數.xlsx";
 		}
 	});
+	<%--$("#DimensionTable").click(function(){--%>
+	<%--	window.location.href="${ctx}/static/template/budget/FIT_PBCS Dimension table 0917.xlsx";--%>
+	<%--});--%>
 	$("#DimensionTable").click(function(){
-		window.location.href="${ctx}/static/template/budget/FIT_PBCS Dimension table 0917.xlsx";
+	$("#loading").show();
+		$.ajax({
+			type: "POST",
+			url: "${ctx}/budget/forecastDetailRevenue/dimension",
+			async: true,
+			dataType: "json",
+			success: function (data) {
+				$("#loading").hide();
+				if (data.flag == "success") {
+					window.location.href = "${ctx}/static/download/" + data.fileName;
+				} else {
+					layer.alert(data.msg);
+				}
+			},
+			error: function () {
+				$("#loading").hide();
+				layer.alert("下載失敗！(Download Failed)");
+			}
+		});
 	});
 	
 	$("#Year").change(function(){

@@ -57,14 +57,70 @@
     max-width: 500%;
     height: 100%;
 }
+.two_bar {
+	display:none;
+}
+.top_bar .two_bar li {
+	list-style:none;
+}
+.one_bar {
+	display:block;
+	text-align:center;
+	font-size:16px;
+	background-color: #2e363f;
+	color:#ffffff;
+	border-bottom:1px solid #ffffff;
+	border-radius:10px;
+	line-height:38px;
+	overflow:hidden;
+	height:38px;
+	margin-bottom: 5px !important;
+}
+.two_bar li  {
+	display:block;
+	text-align:center;
+	font-size:16px;
+	background-color: #2e363f;
+	color:#ffffff;
+	border-radius:10px;
+	line-height:38px;
+	overflow:hidden;
+	height:35px !important;
+}
+.top_bar a{
+	color: #bebebe;
+}
+.two_bar a:link,a:visited,a:hover,a:active {
+	text-decoration:none;
+}
+.hover{
+	background-color:#2086ee !important;
+}
+
 </style>
 <script type="text/javascript">
-$(function() {
+	$(document).ready(function(){
+		if($("#menuBI").val()=="Y"){
+			$(".one_bar").click(function(){
+				$(".nav-body ul").removeAttrs("style");
+				$(this).next().slideToggle();
+				$(this).parent().siblings().children("ul").slideUp();
+			});
+			$(".two_bar li").hover(function() {
+				$(this).addClass("hover");
+			}, function() {
+				$(this).removeClass("hover");
+			});
+			$(".two_bar:first").show();
+		}
+	});
+	$(function() {
 	var length=88/($(".js_menu>li").length-1);
 	$(".js_menu>li:gt(0)").css("height",((length>9)?9:length)+"%");
 	
     $(".js_menu>li>a").bind("click",function(event,init){
-	    $(this).parent().addClass("active").siblings().removeClass("active");
+		$(".js_menu>li>a").parent().removeClass("active");
+	    $(this).parent().addClass("active");
    		var url=$(this).attr("url")+"?time="+new Date().getTime();
    		if(init){
    			$("#mainFrame").load(url);
@@ -81,9 +137,14 @@ $(function() {
 	$(".dropdown-menu a[link]").bind("click",function(){
 		$(".nav>li>a[linked='"+$(this).attr("link")+"']").trigger("click");
 	});
- 		
-    $(".nav>li>a:first").trigger("click",[true]);
-    
+
+
+	if($.trim($("#userNameCD").val())=="POAdmin"){
+		$(".userMenu a").click();
+		$("#navMenu li:gt(0)").hide();
+		$(".userMenu").show();
+	}
+
     dwr.engine.setActiveReverseAjax(true);
     dwr.engine.setNotifyServerOnPageUnload(true);
     dwr.engine.setErrorHandler(function(message, ex){});
@@ -213,6 +274,19 @@ $(function() {
     	   	}
     	});
     }
+		if($("#menuBI").val()=="Y") {
+			if($("#task").val()=="Y"){
+				$("a[url='/fit/bi/poTask/index']").click();
+			}else if("${detailsTsak}" == "Y"){
+				$("a[url='/fit/bi/poTask/index']").click();
+			}else if("${detailsTsak}"=="ok"){
+				$("a[url='/fit/bi/poIntegration/index']").click();
+			}else{
+				$(".two_bar li a:first").click();
+			}
+		}else{
+			$(".nav>li>a:first").click();
+		}
 })
 	 
 function updateTask(id,status,time){
@@ -226,7 +300,10 @@ function updateTask(id,status,time){
 </script>
 </head>
 <body>
-	<div id="loading" style="display:none;position: absolute;width:100%;height:100%;z-index:9999;background-color: #f1eded;opacity:0.6;"><img style="border-radius:50%;position: absolute;left: 50%;top: 50%;width: 100px;height: 100px;margin-top: -50px;margin-left: -50px;" alt="" src="${ctx}/static/image/loading.gif"></div>
+<input type="hidden" id="task" value="${task}">
+<input type="hidden" id="menuBI" value="${menuBI}">
+	<div id="loading" style="display:none;position: absolute;width:100%;height:100%;z-index:9999;background-color: #f1eded;opacity:0.6;">
+		<img style="border-radius:50%;position: absolute;left: 50%;top: 50%;width: 100px;height: 100px;margin-top: -50px;margin-left: -50px;" alt="" src="${ctx}/static/image/loading.gif"></div>
 	<div id="MessageDialog" style="display:none;"></div>
 	<div id="modal-modify-pwd" style="display:none;">
 		<form id="pwdForm" class="form-horizontal" autocomplete="off">
@@ -271,10 +348,13 @@ function updateTask(id,status,time){
 	</div>
 	<div>
 		<div style="width:15%;display: inline-block;">
+			<security:authorize access="authenticated">
+				<input type="hidden" id="userNameCD" value="<security:authentication property='principal.username'/>">
+			</security:authorize>
 			<nav class="navbar navbar-static-left">
-				<ul class="nav js_menu">
+				<ul class="nav js_menu" id="navMenu">
 					<li class="nav-header">
-						<img style="width:100%;height:100%;border:none;" src="${ctx }/static/image/logo/logo.gif"/>
+						<img style="width:100%;height:100%;border:none;" src="${ctx }/static/image/logo/logo.png"/>
 					</li>
 					<security:authorize access="hasRole('ROLE_ADMIN')">
 						<li class="nav-body">
@@ -284,7 +364,7 @@ function updateTask(id,status,time){
 								</div>
 							</a>
 						</li>
-						<li class="nav-body">
+						<li class="nav-body userMenu">
 							<a href="javascript:void(0);" url="${ctx}/admin/user/index">
 								<div class="div-middle">
 									<span><spring:message code='user_manage'/></span>
@@ -464,18 +544,46 @@ function updateTask(id,status,time){
 								</div>
 							</a>
 						</li>
-					</security:authorize> 
+					</security:authorize>
 					<security:authorize access="hasRole('ROLE_BI')">
-						<c:forEach items="<%=SecurityUtils.getMenus() %>" var="menu">
+						<c:forEach items="${menuList}" var="menu">
+							<div class="top_bar">
 							<li class="nav-body">
-								<a href="javascript:void(0);" url='${ctx}/bi/${menu }/index'>
+								<div class="one_bar" >
 									<div class="div-middle">
-										<span><spring:message code='${menu }'/></span>
+										<span style="color: #fff;font-size: 18px">
+											<c:choose>
+												<c:when test="${languageS == 'en_US'}">
+													${menu.menuNameE }
+												</c:when>
+												<c:when test="${languageS == 'zh_CN'}">
+												${menu.menuName }
+												</c:when>
+											</c:choose>
+										</span>
 									</div>
-								</a>
+								</div>
+								<ul class="two_bar js_menu">
+									<c:forEach items="${menu.list}" var="menulist">
+										<li>
+											<a href="javascript:void(0);" url='${ctx}/bi/${menulist.menuCode }/index'>
+												<c:choose>
+													<c:when test="${languageS == 'en_US'}">
+														${menulist.menuNameE }
+													</c:when>
+													<c:when test="${languageS == 'zh_CN'}">
+														${menulist.menuName }
+													</c:when>
+												</c:choose>
+											</a>
+										</li>
+									</c:forEach>
+								</ul>
 							</li>
+							</div>
 						</c:forEach>
-					</security:authorize> 
+					</security:authorize>
+
 					<security:authorize access="hasRole('ROLE_Budget')">
 						<c:forEach items="<%=SecurityUtils.getMenus() %>" var="menu">
 							<li class="nav-body">
@@ -486,6 +594,16 @@ function updateTask(id,status,time){
 								</a>
 							</li>
 						</c:forEach>
+							<li>
+								<a href="javascript:void(0);" url='${ctx}/budget/fileDownload/index'>
+									<div class="div-middle">
+											<span>
+												<c:if test="${languageS eq 'zh_CN'}">文件下載</c:if>
+												<c:if test="${languageS eq 'en_US'}">File Download</c:if>
+											</span>
+									</div>
+								</a>
+							</li>
 					</security:authorize> 
 				</ul>
 			</nav>

@@ -62,6 +62,13 @@ $(function() {
 		Page.jumpPage($(this).val());
 		clickPage(Page.getPage());
 	});
+	$("#Fenye input:first").bind("keypress",function(){
+		if(event.keyCode == "13"){
+			Page.jumpPage($(this).val());
+			clickPage(Page.getPage());
+		}
+	});
+
 	$('.selectpicker').selectpicker('render');
 });
 
@@ -101,21 +108,24 @@ function addDept(index) {
 			var html="";
 			var sbuHtml="";
 			var data=res.map[0];
+			data.COMMODITY_MAJOR=","+data.COMMODITY_MAJOR+",";
+			data.SBU=","+data.SBU+",";
 			$.each(res.cList, function (i) {
-				if(data.COMMODITY_MAJOR!=null&&data.COMMODITY_MAJOR.toString().indexOf(res.cList[i].toString())!=-1){
+				if(data.COMMODITY_MAJOR!=null&&data.COMMODITY_MAJOR.toString().indexOf(","+res.cList[i].toString()+",")!=-1){
 					html += "<option selected>" + res.cList[i] + "</option>";
 				}else{
 					html += "<option>" + res.cList[i] + "</option>";
 				}
 			});
 			$.each(res.sList, function (i) {
-				if(data.SBU!=null&&data.SBU.toString().indexOf(res.sList[i].toString())!=-1){
+				if(data.SBU!=null&&data.SBU.toString().indexOf(","+res.sList[i].toString()+",")!=-1){
 					sbuHtml += "<option selected>" + res.sList[i] + "</option>";
 				}else{
 					sbuHtml += "<option>" + res.sList[i] + "</option>";
 				}
 			});
 			$("#email").val(data.EMAIL)
+			$("#realname").val(data.REALNAME)
 			$('#select_c.selectpicker').html(html)
 			$('#select_s.selectpicker').html(sbuHtml)
 			$('.selectpicker').selectpicker('refresh');
@@ -146,10 +156,12 @@ function addDept(index) {
 					var sbu=$("#select_s").val()!=null?$("#select_s").val().toString():"";
 					var commodity=$("#select_c").val()!=null?$("#select_c").val().toString():""
 					var email=$("#email").val();
+					var realname=$("#realname").val();
 					var obj={
 						id:id,
 						sbu:sbu,
 						commodity:commodity,
+						realname:realname,
 						email:email
 					}
 					$.ajax({
@@ -195,8 +207,9 @@ function addDept(index) {
 	<table align="center" class="table table-condensed table-hover" >
 		<thead>
 			<tr>
-				<th style="text-align:center;width: 50px" >序号</th>
-				<th style="text-align:center" >用戶名</th>
+				<th style="text-align:center;width: 50px;display: none;">序号</th>
+				<th style="text-align:center" >用戶賬號</th>
+				<th style="text-align:center" >用戶姓名</th>
 				<th style="text-align:center" >類型</th>
                 <th style="text-align:center" >SBU</th>
 				<th style="text-align:center" >物料大类</th>
@@ -215,8 +228,8 @@ function addDept(index) {
 				<c:forEach var="i" begin="0" end="${fn:length(mapping)-index }" varStatus="status">
 					<c:choose>
 						<c:when test="${status.index eq 0}">
-							<td style="white-space: nowrap;border-right:1px solid #eee;">
-								<input name="ID" type="checkbox"  value="${mapping[i]}"/>
+							<td style="white-space: nowrap;border-right:1px solid #eee;display: none;">
+								<input  name="ID" type="checkbox"  value="${mapping[i]}"/>
 							</td>
 						</c:when>
 						<c:otherwise>
@@ -249,6 +262,11 @@ function addDept(index) {
 				</div>
 				<div class="pull-left" style=" display: inline-block">
 					<i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
+					用戶姓名：
+					<input id="realname" style="height: 30px !important;" type="realname" datatype="s3-30"/>
+				</div>
+				<div class="pull-left" style=" display: inline-block">
+					<i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
 					用戶郵箱：
 					<input id="email" style="height: 30px !important;" type="email" datatype="s3-30"/>
 				</div>
@@ -260,9 +278,9 @@ function addDept(index) {
 
 </div>
 
-<div id="Fenye"></div>
+<div id="Fenye" style="height: 50px"></div>
 <input type="hidden" id="PageNo" value="${fn:escapeXml(page.pageNo)}" />
-<input type="hidden" id="PageSize" value="${fn:escapeXml(page.pageSize)}" />
+<input type="hidden" id="PageSize" value="12" />
 <input type="hidden" id="OrderBy" value="${fn:escapeXml(page.orderBy)}" />
 <input type="hidden" id="OrderDir" value="${fn:escapeXml(page.orderDir)}" />
 </body>

@@ -34,7 +34,7 @@ $(function() {
         add: function (e, data) {
             $("#FileUpload").unbind();
             var filename=data.originalFiles[0]['name'];
-        	var acceptFileTypes = /(\.|\/)(csv|CSV)$/i;
+        	var acceptFileTypes = /(\.|\/)(xls|xlsx|XLS|XLSX)$/i;
             if(filename.length && !acceptFileTypes.test(filename)) {
             	$(".tip").text("<spring:message code='click_select_excel'/>");
             	layer.alert("<spring:message code='only_support_excel'/>");
@@ -121,10 +121,25 @@ $(function() {
 		}
 	});
 	
-	$("#Content").load("${ctx}/admin/dimension/list",{orderBy:"type,dimension",orderDir:"asc,asc"});
+	$("#Content").load("${ctx}/admin/dimension/list",{orderBy:"type,dimension",orderDir:"asc,asc"},function () {
+		if($("#QType").val()=="Entity"){
+			$(".ouName").show();
+		}else{
+			$(".ouName").hide();
+		}
+	});
+
 	$("#QueryBtn").click(function(){
 		clickPage(1);
 	});
+
+	$("#QType").change(function () {
+		if($(this).val()=="Entity"){
+           $(".ouName").show();
+		}else{
+			$(".ouName").hide();
+		}
+	})
 });
 </script>
 </head>

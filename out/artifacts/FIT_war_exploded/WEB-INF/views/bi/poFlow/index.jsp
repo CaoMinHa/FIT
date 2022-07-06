@@ -40,8 +40,6 @@
     </style>
     <script type="text/javascript">
         $(function() {
-
-
             $("#ui-datepicker-div").remove();
             $("#Date,#QDate,#DateEnd").datepicker({
                 changeMonth: true,
@@ -63,11 +61,6 @@
                     $("#"+periodId+"Tip").hide();
                 }
             });
-
-
-
-
-
 
 
             $("#QueryBtn").click(function(){
@@ -92,39 +85,39 @@
                 var date=$("#QDate").val();
 
                 $("#loading").show();
-                $("#Content").load("${ctx}/bi/poFlow/list",{date:date,tableName:tableName},function(){$("#loading").fadeOut(1000);});
+                $("#Content").load("${ctx}/bi/poFlow/list",{date:date,tableName:tableName},function(){$("#loading").fadeOut(1000); $("#modalBtn").show();});
             });
             $("#toTaskBtn").click(function () {
-
-                var year=$("#QDate").val();
-                var total=$("#total").val();
-                var obj={
-                    year:year
-                }
-                console.log(total);
-                if(total==undefined||total=="0"){
-                    alert("请先查询cpo表格数据")
-                }else{
-                    $.ajax({
-                        type:"POST",
-                        url:"${ctx}/bi/poTask/addCpo",
-                        async:false,
-                        dataType:"json",
-                        data:obj,
-                        success: function(data){
+                if($("#countNotUploadNumber").val()==="0"){
+                    var year=$("#QDate").val();
+                    var total=$("#total").val();
+                    var obj={
+                        year:year
+                    }
+                    console.log(total);
+                    if(total==undefined||total=="0"){
+                        layer.msg("请先查询cpo表格数据")
+                    }else{
+                        $.ajax({
+                            type:"POST",
+                            url:"${ctx}/bi/poTask/addCpo",
+                            async:false,
+                            dataType:"json",
+                            data:obj,
+                            success: function(data){
                                 layer.alert(data.msg);
                                 refresh();
-                        },
-                        error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            layer.alert("<spring:message code='connect_fail'/>");
-                        }
-                    });
+                            },
+                            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                layer.alert("<spring:message code='connect_fail'/>");
+                            }
+                        });
+                    }
+                }else{
+                    layer.msg("\"SBU年度CD目標匯總表\"必須全部審核通過才能創建該任務！")
+                    return;
                 }
             })
-
-
-
-
         });
         var periodId;
     </script>
@@ -151,7 +144,7 @@
                 <ul style="float:left;margin-left:20px;">
                     <li>
                         <select id="QTableName" class="input-large" style="width:200px;margin-bottom:0;">
-                            <option  value=""><spring:message code='tableSelect'/></option>
+<%--                            <option  value=""><spring:message code='tableSelect'/></option>--%>
                                 <option value="FIT_PO_Target_CPO_CD_DTL">採購CD 目標核准表</option>
                         </select>
                     </li>
@@ -166,5 +159,7 @@
         <div class="p-l-md p-r-md p-b-md" id="Content"></div>
     </div>
 </div>
+
+
 </body>
 </html>

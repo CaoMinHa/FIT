@@ -43,7 +43,12 @@ $(function() {
 		Page.jumpPage($(this).val());
 		clickPage(Page.getPage());
 	});
-
+	$("#Fenye input:first").bind("keypress",function(){
+		if(event.keyCode == "13"){
+			Page.jumpPage($(this).val());
+			clickPage(Page.getPage());
+		}
+	});
 });
 
 //用于触发当前点击事件
@@ -133,7 +138,8 @@ function removeUserRole(index) {
 		<thead>
 			<tr>
 				<th style="text-align:center;width: 50px" >序号</th>
-				<th style="text-align:center" >用戶名</th>
+				<th style="text-align:center" >用戶賬號</th>
+				<th style="text-align:center" >用戶姓名</th>
 				<th style="text-align:center" >創建人</th>
 				<th style="text-align:center" >創建時間</th>
 				<th style="text-align:center" style="white-space: nowrap; border-right:1px solid #eee;text-align: center;"><spring:message code='operation'/></th>

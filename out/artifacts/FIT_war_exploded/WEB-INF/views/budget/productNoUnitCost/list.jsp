@@ -311,6 +311,7 @@ function refresh(){
 						<th rowspan="2" style="border:1px solid #989292;">SBU</th>
 						<th rowspan="2" style="border:1px solid #989292;">SBU_法人</th>
 						<th rowspan="2" style="border:1px solid #989292;">產品料號</th>
+						<th colspan="15" style="text-align:center;border:1px solid #989292;">全年</th>
 						<th colspan="15" style="text-align:center;border:1px solid #989292;">1月</th>
 						<th colspan="15" style="text-align:center;border:1px solid #989292;">2月</th>
 						<th colspan="15" style="text-align:center;border:1px solid #989292;">3月</th>
@@ -325,6 +326,22 @@ function refresh(){
 						<th colspan="15" style="text-align:center;border:1px solid #989292;">12月</th>
 					</tr>
 					<tr>
+						<th>單位材料標準成本</th>
+						<th>單位材料調整成本</th>
+						<th>單位材料成本</th>
+						<th>單位標準工時</th>
+						<th>單位調整工時</th>
+						<th>單位工時</th>
+						<th>單位人工標準費率</th>
+						<th>單位人工調整費率</th>
+						<th>單位人工費率</th>
+						<th>單位人工成本</th>
+						<th>單位製造標準費率</th>
+						<th>單位製造調整費率</th>
+						<th>單位製造費率</th>
+						<th>單位製造成本</th>
+						<th style="border-right:1px solid #989292;">單位成本</th>
+
 						<th>單位材料標準成本</th>
 						<th>單位材料調整成本</th>
 						<th>單位材料成本</th>
@@ -540,6 +557,22 @@ function refresh(){
 					<td style="border-right:1px solid #eee;">${mapping.sbu}</td>
 					<td style="border-right:1px solid #eee;">${mapping.entity}</td>
 					<td style="border-right:1px solid #eee;">${mapping.product}</td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialStandardCostYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialAdjustCostYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCostYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.standardHoursYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.adjustHoursYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.hoursYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manualStandardRateYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manualAdjustRateYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manualRateYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manualCostYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manufactureStandardRateYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manufactureAdjustRateYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manufactureRateYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manufactureCostYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.unitCostYear}" pattern="#,##0.00"></fmt:formatNumber></td>
+
 					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialStandardCost1}" pattern="#,##0.00"></fmt:formatNumber></td>
 					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialAdjustCost1}" pattern="#,##0.00"></fmt:formatNumber></td>
 					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCost1}" pattern="#,##0.00"></fmt:formatNumber></td>

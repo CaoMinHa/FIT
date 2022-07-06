@@ -46,6 +46,12 @@ $(function(){
 		Page.jumpPage($(this).val());
 		clickPage(Page.getPage());
 	});
+	$("#Fenye input:first").bind("keypress",function(){
+		if(event.keyCode == "13"){
+			Page.jumpPage($(this).val());
+			clickPage(Page.getPage());
+		}
+	});
 
 })
 // (function() {
@@ -119,7 +125,7 @@ function toUser(index){
 				<th style="text-align:center;width: 50px" >序号</th>
 				<th style="text-align:center" >角色名称</th>
 				<th style="text-align:center" >角色代码</th>
-				<th style="text-align:center" >角色等级</th>
+				<th style="text-align:center;width: 60px;" >角色等级</th>
 				<th style="text-align:center" >状态</th>
 				<th style="text-align:center" >备注</th>
 				<th style="text-align:center" >创建人</th>

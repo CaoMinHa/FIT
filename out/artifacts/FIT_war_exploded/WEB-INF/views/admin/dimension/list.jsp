@@ -45,7 +45,13 @@ function clickPage(page){
 	var type=$("#QType").val();
 	$("#Content").load("${ctx}/admin/dimension/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
 														orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
-														type:type});
+														type:type},function () {
+		if($("#QType").val()=="Entity"){
+			$(".ouName").show();
+		}else{
+			$(".ouName").hide();
+		}
+	});
 }
 
 function refresh(){
@@ -61,6 +67,7 @@ function refresh(){
 			<th>父类成员</th>
 			<th>别名表</th>
 			<th>維度类型</th>
+			<th class="ouName" hidden>法人編碼</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -70,6 +77,7 @@ function refresh(){
 				<td style="border-right:1px solid #eee;">${mapping.parent}</td>
 				<td style="border-right:1px solid #eee;">${mapping.alias}</td>
 				<td style="border-right:1px solid #eee;">${mapping.type}</td>
+				<td style="border-right:1px solid #eee;" class="ouName" hidden>${mapping.ouName}</td>
 			</tr>
 		</c:forEach>
 	</tbody>

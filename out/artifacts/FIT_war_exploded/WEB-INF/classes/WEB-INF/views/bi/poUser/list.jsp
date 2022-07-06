@@ -196,7 +196,7 @@ function addDept(index) {
 		<thead>
 			<tr>
 				<th style="text-align:center;width: 50px" >序号</th>
-				<th style="text-align:center" >用戶名</th>
+				<th style="text-align:center" >用戶賬號</th>
 				<th style="text-align:center" >類型</th>
                 <th style="text-align:center" >SBU</th>
 				<th style="text-align:center" >物料大类</th>

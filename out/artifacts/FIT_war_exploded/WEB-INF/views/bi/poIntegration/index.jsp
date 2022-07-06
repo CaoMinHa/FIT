@@ -5,10 +5,6 @@
 <%
     String entity = SecurityUtils.getEntity();
     request.setAttribute("entity", entity);
-
-//	ArrayList<String> poCenters = new ArrayList<String>(Arrays.asList(SecurityUtils.getPoCenter()));
-//	request.setAttribute("poCenters",poCenters);
-
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -44,11 +40,76 @@
             vertical-align: middle;
         }
 
-        .table-condensed td {
+        .table-condensed td{
             padding: 7px 10px;
+        }
+        .modal-backdrop {
+            position: initial!important;
         }
     </style>
     <script type="text/javascript">
+        //FX获取文件路径方法
+        function readFileFirefox(fileBrowser) {
+            try {
+                netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+            }
+            catch (e) {
+                alert('无法访问本地文件，由于浏览器安全设置。为了克服这一点，请按照下列步骤操作：(1)在地址栏输入"about:config";(2) 右键点击并选择 New->Boolean; (3) 输入"signed.applets.codebase_principal_support" （不含引号）作为一个新的首选项的名称;(4) 点击OK并试着重新加载文件');
+                return;
+            }
+            var fileName=fileBrowser.value; //这一步就能得到客户端完整路径。下面的是否判断的太复杂，还有下面得到ie的也很复杂。
+            var file = Components.classes["@mozilla.org/file/local;1"]
+                .createInstance(Components.interfaces.nsILocalFile);
+            try {
+                // Back slashes for windows
+                file.initWithPath( fileName.replace(/\//g, "\\\\") );
+            }
+            catch(e) {
+                if (e.result!=Components.results.NS_ERROR_FILE_UNRECOGNIZED_PATH) throw e;
+                alert("File '" + fileName + "' cannot be loaded: relative paths are not allowed. Please provide an absolute path to this file.");
+                return;
+            }
+            if ( file.exists() == false ) {
+                alert("File '" + fileName + "' not found.");
+                return;
+            }
+
+
+            return file.path;
+        }
+        //根据不同浏览器获取路径
+        function getvl(obj){
+//判断浏览器
+            var Sys = {};
+            var ua = navigator.userAgent.toLowerCase();
+            var s;
+            (s = ua.match(/msie ([\d.]+)/)) ? Sys.ie = s[1] :
+                (s = ua.match(/firefox\/([\d.]+)/)) ? Sys.firefox = s[1] :
+                    (s = ua.match(/chrome\/([\d.]+)/)) ? Sys.chrome = s[1] :
+                        (s = ua.match(/opera.([\d.]+)/)) ? Sys.opera = s[1] :
+                            (s = ua.match(/version\/([\d.]+).*safari/)) ? Sys.safari = s[1] : 0;
+            var file_url="";
+            if(Sys.ie<="6.0"){
+                //ie5.5,ie6.0
+                file_url = obj.value;
+            }else if(Sys.ie>="7.0"){
+                //ie7,ie8
+                obj.select();
+                obj.blur();
+                file_url = document.selection.createRange().text;
+            }else if(Sys.firefox){
+                //fx
+                //file_url = document.getElementById("file").files[0].getAsDataURL();//获取的路径为FF识别的加密字符串
+                file_url = readFileFirefox(obj);
+            }else if(Sys.chrome){
+                file_url = obj.value;
+            }else {
+                file_url =  obj.value;
+            }
+            $("#addessExsel").val(file_url);
+        }
+
+
         $(function () {
             $("#poForm").fileupload({
                 dataType: "json",
@@ -74,19 +135,28 @@
                     $("#UploadTip").hide();
 
                     $("#FileUpload").click(function () {
-                        if ($("#Date").val().length == 0) {
-                            $("#DateTip").show();
-                            return;
-                        }
-                        // if($("#poCenter").val().length==0){
-                        // 	$("#poCenterTip").show();
-                        // 	return;
-                        // }
-                        if ($("input[name=tableNames]:checked").length == 0) {
-                            $("#TableNamesTip").show();
-                            return;
+                        if($("#tableNamesOut1").val()=='FIT_PO_SBU_YEAR_CD_SUM'||$("#tableNamesOut1").val()=='FIT_PO_CD_MONTH_DTL'){
+                            if (!$("#DateYearDownLoad").val()) {
+                                $("#DateYearTipDownLoad").show();
+                                return;
+                            }else{
+                                var r = /^\+?[1-9][0-9]*$/;
+                                if ($("#DateYearDownLoad").val().length!=4 || !r.test($("#DateYearDownLoad").val())) {
+                                    $("#DateYearTipDownLoad").text("請填寫正確年份");
+                                    $("#DateYearTipDownLoad").show();
+                                }
+                            }
+                        }else{
+                            if (!$("#DateDownLoad").val()) {
+                                $("#DateTipDownLoad").show();
+                                return;
+                            }
                         }
 
+                        if (!$("#tableNamesOut1").val()) {
+                            $("#TableNamesTipX1").show();
+                            return;
+                        }
                         $("#loading").show();
                         data.submit();
                     });
@@ -106,54 +176,78 @@
             });
 
             $("#FileUpload").click(function () {
-                //$("#DEntityTip").hide();
                 $("#UploadTip").show();
-                if ($("#Date").val().length == 0) {
-                    $("#DateTip").show();
+                if($("#tableNamesOut1").val()=='FIT_PO_SBU_YEAR_CD_SUM'||$("#tableNamesOut1").val()=='FIT_PO_CD_MONTH_DTL'){
+                    if (!$("#DateYearDownLoad").val()) {
+                        $("#DateYearTipDownLoad").show();
+                    }else{
+                        $("#DateYearTipDownLoad").hide();
+                        var r = /^\+?[1-9][0-9]*$/;
+                        if ($("#DateYearDownLoad").val().length!=4 || !r.test($("#DateYearDownLoad").val())) {
+                            $("#DateYearTipDownLoad").text("請填寫正確年份(Please fill in the correct year)");
+                            $("#DateYearTipDownLoad").show();
+                        }
+                    }
+                }else{
+                    if (!$("#DateDownLoad").val()) {
+                        $("#DateTipDownLoad").show();
+                    }else {
+                        $("#DateTipDownLoad").hide();
+                    }
                 }
-                if ($("input[name=tableNames]:checked").length == 0) {
-                    $("#TableNamesTip").show();
-                }
-                if ($("#poCenter").val().length == 0) {
-                    $("#poCenterTip").show();
+
+                if (!$("#tableNamesOut1").val()) {
+                    $("#TableNamesTipX1").show();
+                }else{
+                    $("#TableNamesTipX1").hide();
                 }
             });
 
+            $("#DateDownLoad").change(function () {
+                if($(this).val()){
+                    $("#DateTipDownLoad").hide();
+                }
+            })
+            $("#DateYearDownLoad").change(function () {
+                if($(this).val()){
+                    $("#DateYearTipDownLoad").hide();
+                }
+            })
+            $("#tableNamesOut1").change(function () {
+                if($(this).val()){
+                    $("#TableNamesTipX1").hide();
+                }
+            })
             $(".upload-tip").click(function () {
                 $(".input-file").trigger("click");
             });
 
             $("#Download").click(function () {
-                $("#UploadTip").hide();
-                $("#UEntityTip").hide();
-                $("#poCenterTip").hide();
-                $("#TableNamesTip").hide();
+                $("#QDateTip").hide();
+                $("#QDateTipEnd").hide();
+                $("#DateYearTip").hide();
                 var flag = true;
-                var date = $("#Date").val();
-                var dateEnd = $("#DateEnd").val();
-                if (date.length == 0) {
-                    $("#DateTip").show();
+                var tableName = $("#QTableName").val();
+                var date = $("#QDate").val();
+                var dateEnd = $("#QDateEnd").val();
+                var DateYear = $("#DateYear").val();
+                if(tableName!='FIT_PO_SBU_YEAR_CD_SUM'&&tableName!='FIT_PO_CD_MONTH_DTL'){
+                    if(date.length!=0||dateEnd.length!=0){
+                        if(date.substr(0,3)!=dateEnd.substr(0,3)){
+                            layer.msg("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
+                            flag = false;
+                        }
+                    }
+                }
+                if ($("#QTableName").val().length == 0) {
+                    $("#QTableNameTip").show();
                     flag = false;
                 }
-                /*var DEntity=$("#DEntity").val();
-                if(DEntity.length==0){
-                       $("#DEntityTip").show();
-                       flag=false;
-                }*/
-                var entity=$("#poCenter").val();
-                if ($("input[name=tableNamesOut]:checked").length == 0) {
-                    $("#TableNamesTipX").show();
-                    flag = false;
-                }
+                var entity = $("#QpoCenter").val();
+                var sbuVal = $("#sbuVal").val();
                 if (!flag) {
                     return;
                 }
-
-                var tableNames = "";
-                $("input[name=tableNamesOut]:checked").each(function (i, dom) {
-                    tableNames += $(dom).val() + ",";
-                });
-                tableNames = tableNames.substring(0, tableNames.length - 1);
                 $("#loading").show();
                 $.ajax({
                     type: "POST",
@@ -161,9 +255,13 @@
                     async: true,
                     dataType: "json",
                     data: {date: date,
-                           dateEnd: dateEnd,
-                           tableNames: tableNames,
-                           entity:entity},
+                        dateEnd: dateEnd,
+                        DateYear: DateYear,
+                        tableNames: tableName,
+                        poCenter: entity,
+                        sbuVal: sbuVal,
+                        commodity:$("#commodity").val()
+                    },
                     success: function (data) {
                         $("#loading").hide();
                         if (data.flag == "success") {
@@ -179,148 +277,19 @@
                 });
             });
 
-            $("#CheckValidation").click(function () {
-                $("#UploadTip").hide();
-                $("#poCenterTip").hide();
-                var flag = true;
-                var date = $("#Date").val();
-                if (date.length == 0) {
-                    $("#DateTip").show();
-                    flag = false;
-                }
-                /*var DEntity=$("#DEntity").val();
-                if(DEntity.length==0){
-                       $("#DEntityTip").show();
-                       flag=false;
-                }*/
-                if ($("input[name=tableNames]:checked").length == 0) {
-                    $("#TableNamesTip").show();
-                    flag = false;
-                }
-                if (!flag) {
-                    return;
-                }
-
-                var tableNames = "";
-                $("input[name=tableNames]:checked").each(function (i, dom) {
-                    tableNames += $(dom).val() + ",";
-                });
-                tableNames = tableNames.substring(0, tableNames.length - 1);
-                $("#loading").show();
-                $.ajax({
-                    type: "POST",
-                    url: "${ctx}/bi/poIntegration/check",
-                    async: true,
-                    dataType: "json",
-                    data: {date: date, tableNames: tableNames},
-                    success: function (data) {
-                        $("#loading").hide();
-                        if (data.msg.length <= 100) {
-                            layer.alert(data.msg);
-                        } else {
-                            $("#MessageDialog").html(data.msg);
-                            $("#MessageDialog").dialog({
-                                modal: true,
-                                title: "信息",
-                                height: 500,
-                                width: "auto",
-                                draggable: true,
-                                resizable: true,
-                                autoOpen: true,
-                                autofocus: true,
-                                closeText: "<spring:message code='close'/>",
-                                buttons: [
-                                    {
-                                        text: "<spring:message code='close'/>",
-                                        click: function () {
-                                            $(this).dialog("destroy");
-                                        }
-                                    }
-                                ],
-                                close: function () {
-                                    $(this).dialog("destroy");
-                                }
-                            });
-                        }
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        $("#loading").hide();
-                        layer.alert("<spring:message code='connect_fail'/>");
-                    }
-                });
-            });
-
-            $("#CheckAllValidation").click(function () {
-                $("#QTableNameTip").hide();
-                $("#QpoCenterTip").hide();
-                var date = $("#QDate").val();
-                if (date.length == 0) {
-                    $("#QDateTip").show();
-                } else {
-                    $("#QDateTip").hide();
-
-                    $("#loading").show();
-                    $.ajax({
-                        type: "POST",
-                        url: "${ctx}/bi/poIntegration/checkAll",
-                        async: true,
-                        dataType: "json",
-                        data: {date: date},
-                        success: function (data) {
-                            $("#loading").hide();
-                            $("#MessageDialog").html(data.msg);
-                            $("#MessageDialog").dialog({
-                                modal: true,
-                                title: "信息",
-                                height: 500,
-                                width: "auto",
-                                draggable: true,
-                                resizable: true,
-                                autoOpen: true,
-                                autofocus: true,
-                                closeText: "<spring:message code='close'/>",
-                                buttons: [
-                                    {
-                                        text: "<spring:message code='close'/>",
-                                        click: function () {
-                                            $(this).dialog("destroy");
-                                        }
-                                    }
-                                ],
-                                close: function () {
-                                    $(this).dialog("destroy");
-                                }
-                            });
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            $("#loading").hide();
-                            layer.alert("<spring:message code='connect_fail'/>");
-                        }
-                    });
-                }
-            });
-
             $("#DownloadTemplate").click(function () {
-                $("#UploadTip").hide();
-                $("#DateTip").hide();
-                $("#poCenterTip").hide();
-                $("#TableNamesTipX").hide();
-                if ($("input[name=tableNames]:checked").length == 0) {
-                    $("#TableNamesTip").show();
+                $("#TableNameTip").hide();
+                if (!$("#tableName").val()) {
+                    $("#TableNameTip").show();
                     return;
                 }
-                var tableNames = "";
-                $("input[name=tableNames]:checked").each(function (i, dom) {
-                    tableNames += $(dom).val() + ",";
-                });
-                tableNames = tableNames.substring(0, tableNames.length - 1);
                 $("#loading").show();
                 $.ajax({
                     type: "POST",
                     url: "${ctx}/bi/poIntegration/template",
                     async: true,
                     dataType: "json",
-                    data: {tableNames: tableNames},
+                    data: {tableNames: $("#tableName").val()},
                     success: function (data) {
                         $("#loading").hide();
                         if (data.flag == "success") {
@@ -337,15 +306,14 @@
             });
 
             $("#ui-datepicker-div").remove();
-            $("#Date,#QDate,#DateEnd").datepicker({
+            $("#Date,#DateEnd,#DateDownLoad,#QDate,#QDateEnd").datepicker({
                 changeMonth: true,
                 changeYear: true,
                 dateFormat: 'yy-MM',
                 showButtonPanel: true,
                 closeText: "<spring:message code='confirm'/>"
             });
-
-            $("#Date,#QDate,#DateEnd").click(function () {
+            $("#Date,#DateEnd,#DateDownLoad,#QDate,#QDateEnd").click(function () {
                 periodId = $(this).attr("id");
                 $(this).val("");
             });
@@ -359,182 +327,124 @@
                 }
             });
 
+            $("input[type='radio']").change(function () {
+                if($(this).val()=='FIT_PO_CD_MONTH_DTL'){
+                    $("#cdFormula").show();
+                }else{
+                    $("#cdFormula").hide();
+                }
+            });
+
+
             $("#QTableName").change(function () {
-                if ($(this).val().length > 0) {
-                    $("#" + $(this).attr("id") + "Tip").hide();
-                }
-            });
-
-            $(".AllCheck input").change(function () {
-                var checked = $(this).is(":checked");
-                $(this).parent().siblings().find("input").prop("checked", checked);
-                if (!checked) {
-                    $(this).parent().parent().parent().siblings().find("span").show();
-                } else {
-                    $(this).parent().parent().parent().siblings().find("span").hide();
-                }
-            });
-
-            $(".Check input").change(function () {
-                var length = $(this).parent().siblings(".Check").find("input:checked").length + $(this).is(":checked");
-                var total = $(this).parent().siblings(".Check").length + 1;
-                $(this).parent().siblings(".AllCheck").find("input").prop("checked", length == total);
-                if (length > 0) {
-                    $(this).parent().parent().parent().siblings().find("span").hide();
-                } else {
-                    $(this).parent().parent().parent().siblings().find("span").show();
-                }
-            });
-
-            $("#QueryBtn").click(function () {
-                $("#QDateTip").hide();
-                var flag = true;
-                var tableName = $("#QTableName").val();
-                var date = $("#QDate").val();
-                if (date.length == 0) {
-                    $("#QDateTip").show();
-                    flag = false;
-                }
-                if ($("#QTableName").val().length == 0) {
-                    $("#QTableNameTip").show();
-                    flag = false;
-                }
-                var entity = $("#QpoCenter").val();
-                var fuzzy = $("#fuzzy").val();
-                if (!flag) {
-                    return;
-                }
-                $("#QTableNameTip").hide();
-                $("#QpoCenterTip").hide();
-                $("#PageNo").val(1);
-                var date = $("#QDate").val();
-                $("#loading").show();
-                $("#Content").load("${ctx}/bi/poIntegration/list", {
-                    date: date,
-                    tableName: tableName,
-                    poCenter: entity,
-                    fuzzy: fuzzy
-                }, function () {
-                    $("#loading").fadeOut(1000);
-                });
-            });
-
-            $("#ConsolidationDataBtn").click(function () {
-                $("#QTableNameTip").hide();
-                $("#QQpoCenterTip").hide();
-                $("#QTypeTip").hide();
-                var date = $("#QDate").val();
-                if (date.length == 0) {
-                    $("#QDateTip").show();
-                    return;
-                }
-                $("#QDateTip").hide();
-                var type = $("#QType").val();
-                if (type.length == 0) {
-                    $("#QTypeTip").show();
-                    return;
-                }
-                $("#QTypeTip").hide();
-
-                $("#loading").show();
-                $.ajax({
-                    type: "POST",
-                    url: "${ctx}/bi/poIntegration/consolidationDataDownload",
-                    async: true,
-                    dataType: "json",
-                    data: {date: date, type: type},
-                    success: function (data) {
-                        $("#loading").hide();
-                        if (data.flag == "success") {
-                            window.location.href = "${ctx}/static/download/" + data.fileName;
-                        } else {
-                            layer.alert(data.msg);
-                        }
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        $("#loading").hide();
-                        layer.alert("<spring:message code='connect_fail'/>");
+                if($(this).val()!='FIT_PO_SBU_YEAR_CD_SUM'&&$(this).val()!='FIT_PO_CD_MONTH_DOWN'
+                    &&$(this).val()!='FIT_ACTUAL_PO_NPRICECD_DTL'&&$(this).val()!='FIT_PO_BUDGET_CD_DTL'){
+                    $("#downCondition").hide();
+                }else{
+                    $("#downCondition").show();
+                    if($(this).val()=='FIT_PO_CD_MONTH_DTL'){
+                        $("#QpoCenter").hide();
+                    }else{
+                        $("#QpoCenter").show();
                     }
-                });
-            });
-
-            $("#DataImport").click(function () {
-                $("#UploadTip").hide();
-                /*	$("#DateTip").hide();
-                    $("#UEntityTip").hide();*/
-                $("#TableNamesTip").hide();
-                //	$("#DEntityTip").hide();
-                var flag = true;
-                var date = $("#Date").val();
-                if (date.length == 0) {
-                    $("#DateTip").show();
-                    flag = false;
-                }
-                /*var entity=$("#UEntity").val();
-                if(entity.length==0){
-                    $("#UEntityTip").show();
-                    flag=false;
-                }*/
-                if (!flag) {
-                    return;
-                }
-                $("#loading").show();
-                $.ajax({
-                    type: "POST",
-                    url: "${ctx}/bi/poIntegration/dataImport",
-                    async: true,
-                    dataType: "json",
-                    data: {date: date},
-                    success: function (data) {
-                        $("#loading").hide();
-                        layer.alert(data.msg);
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        $("#loading").hide();
-                        window.location.href = "${ctx}/logout";
+                    if($(this).val()=='FIT_PO_SBU_YEAR_CD_SUM'||$(this).val()=='FIT_PO_CD_MONTH_DOWN'){
+                        $("ul[name='YYYY']").show();
+                        $("#QDateEnd").val("");
+                        $("#QDate").val("");
+                        $("ul[name='YYYYMM']").hide();
+                    }else{
+                        $("ul[name='YYYY']").hide();
+                        $("ul[name='YYYYMM']").show();
+                        $("#DateYear").val("");
                     }
-                });
+                }
+            });
+            $("#tableNamesOut1").change(function () {
+                if($(this).val()=='FIT_PO_SBU_YEAR_CD_SUM'||$(this).val()=='FIT_PO_CD_MONTH_DTL'){
+                    $("#DateYearDownLoad").show();
+                    $("#DateDownLoad").hide();
+                    $("#DateDownLoad").val("");
+                }else{
+                    $("#DateDownLoad").show();
+                    $("#DateYearDownLoad").hide();
+                    $("#DateYearDownLoad").val("");
+                }
             });
 
-        });
-        $('#deleteBtn').click(function () {
-            var ids = $('input[type=checkbox]');
-            var data = '';
-            ids.each(function () {
-                //获取当前元素的勾选状态
-                if ($(this).prop("checked")) {
-                    data = data + $(this).val() + ",";
-                }
-            });
-            if(data===""){
-                alert("請勾選要刪除的數據！");
-            }else{
-                data = data.substring(0, data.length - 1);
-                console.log(data)
-                var tableName = $("#QTableName").val();
-                var obj={
-                    id:data,
-                    tableName: tableName
-                }
+
+            //selectCommdity
+            $("#QpoCenter").change(function (e) {
                 $.ajax({
                     type:"POST",
-                    url:"${ctx}/bi/poIntegration/delete",
+                    url:"${ctx}/bi/poIntegrationList/selectCommdity",
                     async:false,
                     dataType:"json",
-                    data:obj,
-                    success: function(data){
-                            layer.alert(data.msg);
-                            refresh();
+                    data:{
+                        functionName:$(this).val()
                     },
-                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    success: function(data){
+                        $("#commdityTable").empty();
+                        jQuery.each(data, function(i,item){
+                            console.log("hahha"+item+"eee"+i);
+                            if(i%4==0){
+                                $("#commdityTable").append("<tr>");
+                            }
+                            $("#commdityTable").append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal' value='"+item+"'>"+item+"</td>");
+                        })
+                    },
+                    error: function() {
                         layer.alert("<spring:message code='connect_fail'/>");
                     }
                 });
-            }
-            //去最后的点
+            })
 
         })
+
+        // $("input[name=tableNamesOut]").change(function(){
+        //     if($("input[name=tableNamesOut]:checked").val()=="FIT_ACTUAL_PO_NPRICECD_DTL"||
+        //         $("input[name=tableNamesOut]:checked").val()=="FIT_PO_Target_CPO_CD_DTL"||
+        //         $("input[name=tableNamesOut]:checked").val()=="FIT_PO_BUDGET_CD_DTL"||
+        //         $("input[name=tableNamesOut]:checked").val()=="BIDEV.V_PO_PRICE_DIFF_SUM"||
+        //         $("input[name=tableNamesOut]:checked").val()=="BIDEV.V_PO_PRICE_DIFF"||
+        //         $("input[name=tableNamesOut]:checked").val()=="FIT_PO_SBU_YEAR_CD_SUM"||
+        //         $("input[name=tableNamesOut]:checked").val()=="FIT_PO_CD_MONTH_DOWN"
+        //     ){
+        //         $("#poCenter").show();
+        //     }else{
+        //         $("#poCenter").hide();
+        //         $("#poCenter").val("");
+        //     }
+        // })
         var periodId;
+        $(document).ready(function(){
+            if("${detailsTsak}"=="ok"){
+                setTimeout(function () {
+                    $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
+                    $("ul[name='YYYYMM']").hide();
+                    $("ul[name='YYYY']").show();
+                    $("#QueryBtn").click();
+                },1000)
+            }
+        })
+
+        $("#affirmBut").click(function () {
+            var valueUser='';
+            $(".userGroupVal:checked").each(function () {
+                valueUser+=$(this).val()+",";
+            })
+            $("#commodity").val(valueUser.substring(0,valueUser.length-1));
+        })
+        $("#closeBut").click(function () {
+            $(".userGroupVal:checked").prop("checked",false);
+            $("#commodity").val();
+        })
+        $("#allCheck").click(function(){
+            if ($("#allCheck").prop("checked") == true) {
+                $(".userGroupVal").prop("checked", true);
+            } else {
+                $(".userGroupVal").prop("checked", false);
+            }
+        });
     </script>
 </head>
 <body>
@@ -550,9 +460,72 @@
                 <div>
                     <form id="poForm" style="margin-bottom: 0;margin-top:0;" method="POST" enctype="multipart/form-data"
                           class="form-horizontal">
-                        <input type="file" style="display:none;" class="input-file" multiple="false"/>
-                        <div>
-                            <div style="float: left;text-align: right;" title="<spring:message code='not_exceed_30M'/>">
+                        <div style="float:left;display:flex;">
+                            <ul class="nav dropdown" style="margin-left:10px;">
+                                <li class="dropdown" >
+                                    <select class="input-large" style="width:240px;" id="tableName" name="tableName">
+                                        <option value=""><spring:message code='tableSelect'/></option>
+                                        <c:forEach items="${tableListSelect }" var="poTable">
+                                            <option value="${poTable.tableName }">${poTable.comments }</option>
+                                        </c:forEach>
+                                    </select>
+                                </li>
+                                <li>
+                                <span id="TableNameTip" style="display:none;"
+                                      class="Validform_checktip Validform_wrong"><spring:message
+                                        code='please_select'/></span>
+                                </li>
+                            </ul>
+                            <div>
+                                <button id="DownloadTemplate" class="btn btn-link"
+                                        style="vertical-align: top;height: 40px;font-size: 26px;text-decoration: underline;"
+                                        type="button"><spring:message code='template'/></button>
+                            </div>
+                        </div>
+
+<%--                        第二排--%>
+                        <input type="file" style="display:none;" class="input-file" multiple="false" id="file"  onchange="getvl(this)"/>
+                        <div class="m-l-md m-t-md m-r-md" style="clear:both;">
+                            <ul class="nav dropdown" style="float:left;margin-left: -10px;">
+                                <li class="dropdown" style="margin-top:0;">
+                                    <select class="input-large" style="width:240px;" id="tableNamesOut1" name="tableNamesOut1">
+                                        <option value=""><spring:message code='tableSelect'/></option>
+                                        <c:forEach items="${tableListSelect }" var="poTable">
+                                            <option value="${poTable.tableName }">${poTable.comments }</option>
+                                        </c:forEach>
+                                    </select>
+                                </li>
+                                <li>
+                            <span id="TableNamesTipX1" style="display:none;"
+                                  class="Validform_checktip Validform_wrong"><spring:message
+                                    code='please_select'/></span>
+                                </li>
+                            </ul>
+
+                            <div style="float: left;text-align: right;margin-left: 10px;" id="divMonthDownLoad">
+                                <div>
+                                    <input id="DateDownLoad" name="dateDownLoad" style="width:100px;text-align:center;"
+                                           placeholder="<spring:message code="date"/>"
+                                           type="text" value="" readonly>
+                                </div>
+                                <div style="float:left;">
+                                    <span id="DateTipDownLoad" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message
+                                            code='please_select'/></span>
+                                </div>
+                            </div>
+                            <div style="float: left;text-align: right;margin-left: 10px;" id="divYearDownLoad">
+                                <div>
+                                    <input id="DateYearDownLoad" name="dateDownLoad" style="display:none;float:left;width:100px;text-align:center;margin-bottom:0;"
+                                           placeholder="<spring:message code="please_select"/><spring:message code="year"/>"
+                                           type="text" value="${DateYear}">
+                                </div>
+                                <div style="float:left;">
+                                        <span id="DateYearTipDownLoad" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message
+                                                code='please_select'/></span>
+                                </div>
+                            </div>
+
+                            <div style="float: left;text-align: right;margin-left: 10px;" title="<spring:message code='not_exceed_30M'/>">
                                 <div class="upload-tip">
                                     <span class="tip"><spring:message code='click_select_excel'/></span>
                                 </div>
@@ -561,253 +534,222 @@
                                             code='please_select'/></span>
                                 </div>
                             </div>
-                            <div style="float:left;margin-left:15px;display:inline-block;">
+                            <div style="float: left;text-align: right;margin-left: 1px;">
                                 <div>
-                                    <input id="Date" name="date" style="width:70px;text-align:center;"
-                                           placeholder="<spring:message code='please_select'/><spring:message code='month'/>"
+                                    <input id="addessExsel" name="date" style="width:400px;text-align:center;"
                                            type="text" value="" readonly>
-                                    <input id="DateEnd" name="dateEnd" style="width:70px;text-align:center;"
-                                           placeholder="<spring:message code='please_select'/><spring:message code='month'/>"
-                                           type="text" value="" readonly>
-                                </div>
-                                <div style="float:left;">
-                                    <span id="DateTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message
-                                            code='please_select'/></span>
                                 </div>
                             </div>
-                            <div style="float:left;padding-right:10px;">
-                                        <ul style="float:left;margin-left:10px;">
-                                            <li>
-                                                <select id="dataRange" name="dataRange" class="input-large"
-                                                        style="width:140px;">
-                                                    <option value="">職能數據範圍</option>
-                                                    <c:forEach items="${dataRange}" var="code">
-                                                        <option value="<spring:message code='${code}'/>">${code}</option>
-                                                    </c:forEach>
-                                                </select>
-                                                <input id="dataRangeStr" style="display:none" value="${dataRange}">
-                                            </li>
-                                        </ul>
+                            <button id="FileUpload" style="float:left;" class="btn search-btn" type="button">
+                                <spring:message code='upload'/></button>
+                        </div>
+<%--                        第三排--%>
+                        <div class="m-l-md m-t-md m-r-md" style="clear:both;">
+                            <div style="margin-top: 20px;">
+                                <ul style="float:left;margin-right:20px;">
+                                    <li>
+                                        <select id="QTableName" class="input-large" style="width:240px;margin-bottom:0;margin-left:-10px;">
+                                            <option value=""><spring:message code='tableSelect'/></option>
+                                            <c:forEach items="${poTableOutList }" var="poTableOut">
+                                                <option value="${poTableOut.tableName }">${poTableOut.comments}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </li>
+                                    <li style="height:20px;">
+                                        <span id="QTableNameTip" style="display:none;"
+                                              class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
+                                    </li>
+                                </ul>
+                                <div id="downCondition">
+                                <ul style="float:left;display: none;margin-left:-10px;" name="YYYY">
+                                    <li>
+                                        <input id="DateYear" style="float:left;width:140px;text-align:center;margin-bottom:0;"
+                                               placeholder="<spring:message code='please_select'/><spring:message code='year'/>">
+                                    </li>
+                                    <li style="height:20px;">
+                                            <span id="DateYearTip" style="display:none;"
+                                                  class="Validform_checktip Validform_wrong">請填寫正確的年份(Please fill in the correct year)</span>
+                                    </li>
+                                </ul>
+                                <ul style="float:left;margin-left:-10px;" name="YYYYMM">
+                                    <li>
+                                        <input id="QDate" style="float:left;width:140px;text-align:center;margin-bottom:0;"
+                                               placeholder="<spring:message code='start_time'/>"
+                                               type="text" value="" readonly>
+                                    </li>
+                                </ul>
+                                <ul style="float:left;" name="YYYYMM">
+                                    <li>
+                                        <input id="QDateEnd" style="float:left;width:140px;text-align:center;margin-bottom:0;"
+                                               type="text" value=""
+                                               placeholder="<spring:message code='end_time'/>"
+                                                readonly>
+                                    </li>
+                                </ul>
                                 <ul style="float:left;margin-left:10px;">
                                     <li>
-                                        <select id="poCenter" name="poCenter" class="input-large" style="width:140px;">
+                                        <select id="QpoCenter" name="QpoCenter" class="input-large" style="width:140px;">
                                             <option value=""><spring:message code='poCenter'/></option>
                                             <c:forEach items="${poCenters}" var="code">
-                                                <%-- <option value="${code}">${code}-<spring:message code="${code}"/></option>--%>
-                                                <%--												 <option value="<spring:message code='${code}'/>">${code}-<spring:message code="${code}"/></option>--%>
                                                 <option value="${code}">${code}</option>
                                             </c:forEach>
                                         </select>
                                     </li>
+                                </ul>
+                                <ul style="float:left;margin-left:10px;">
                                     <li>
-                                        <span id="poCenterTip" style="display:none;"
-                                              class="Validform_checktip Validform_wrong"><spring:message
-                                                code='please_select'/></span>
+                                        <input type="text" id="commodity" style="width: 140px;"  data-toggle="modal" data-target="#myModal" placeholder="commodity">
                                     </li>
                                 </ul>
-                                <%--<ul style="float:left;margin-left:10px;">
+                                <ul style="float:left;margin-left:10px;">
                                     <li>
-                                        <select id="UEntity" name="entity" class="input-large" style="width:100px;">
-                                               <option value=""><spring:message code='entity'/></option>
-                                            <c:forEach items="${fn:split(entity,',') }" var="code">
-                                                <c:if test="${fn:startsWith(code,'F_') }">
-                                                    <option value="${fn:substring(code,2,-1) }">${fn:substring(code,2,-1) }</option>
-                                                </c:if>
-                                            </c:forEach>
-                                        </select>
-                                    </li>
-                                    <li>
-                                        <span id="UEntityTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                                    </li>
-                                </ul>--%>
-                                <%--
-                                                                <button id="DataImport" style="float:left;" class="btn search-btn" type="button"><spring:message code='dataImport'/></button>
-                                --%>
-                                <ul class="nav dropdown" style="float:left;margin-left:10px;">
-                                    <li class="dropdown" style="margin-top:0;">
-                                        <a data-toggle="dropdown" class="dropdown-toggle" href="#"><spring:message
-                                                code='tableSelect'/><strong class="caret"></strong></a>
-                                        <ul class="dropdown-menu"
-                                            style="left:-20%;max-height:350px;overflow-y:scroll;min-width:330px;">
-                                            <%--											<li class="AllCheck" style="padding:0 10px;clear:both;">--%>
-                                            <%--												<span style="font-size: 20px;color: #938a8a;float: left;line-height: 38px;font-weight: bold;"><spring:message code='all_check'/></span>--%>
-                                            <%--												<input type="checkbox" style="font-size:15px;color:#7e8978;float:right;width:20px;" value=""/>--%>
-                                            <%--											</li>--%>
-                                            <c:forEach items="${poTableList }" var="poTable">
-                                                <li class="Check" style="padding:0 10px;clear:both;">
-                                                    <span style="font-size:15px;color:#7e8978;float:left;line-height:38px;display:contents;">${poTable.comments }</span>
-                                                    <input type="radio" name="tableNames"
-                                                           style="font-size:15px;color:#7e8978;float:right;width:20px;"
-                                                           value="${poTable.tableName}"/>
-                                                </li>
-                                            </c:forEach>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <span id="TableNamesTip" style="display:none;"
-                                              class="Validform_checktip Validform_wrong"><spring:message
-                                                code='please_select'/></span>
+                                        <input type="text" style="width: 140px;" id="sbuVal" value="${sbuVal}"  placeholder="sbu">
                                     </li>
                                 </ul>
-                                <button id="FileUpload" style="float:left;" class="btn search-btn" type="button">
-                                    <spring:message code='upload'/></button>
+                               </div>
 
-                                <button id="DownloadTemplate" class="btn btn-link"
-                                        style="vertical-align: top;height: 40px;font-size: 26px;text-decoration: underline;"
-                                        type="button"><spring:message code='template'/></button>
-
+                                <button id="Download" style="float:left;" class="btn search-btn" type="button">
+                                    <spring:message code='download'/></button>
                             </div>
+                        </div>
+
+<%--                        <div style="float:left;margin-left:15px;display:inline-block;">--%>
+<%--                            <div>--%>
+<%--                                <input id="Date" name="date" style="width:70px;text-align:center;"--%>
+<%--                                       placeholder="<spring:message code='please_select'/><spring:message code='month'/>"--%>
+<%--                                       type="text" value="" readonly>--%>
+<%--                                <input id="DateEnd" name="dateEnd" style="width:70px;text-align:center;"--%>
+<%--                                       placeholder="<spring:message code='please_select'/><spring:message code='month'/>"--%>
+<%--                                       type="text" value="" readonly>--%>
+<%--                            </div>--%>
+<%--                            <div style="float:left;">--%>
+<%--                                    <span id="DateTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message--%>
+<%--                                            code='please_select'/></span>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
 
 
+<%--                        <div style="float:left;padding-right:10px;">--%>
+<%--                            <ul style="float:left;margin-left:10px;">--%>
+<%--                                <li>--%>
+<%--                                    <select id="dataRange" name="dataRange" class="input-large"--%>
+<%--                                            style="width:140px;">--%>
+<%--                                        <option value="">職能數據範圍</option>--%>
+<%--                                        <c:forEach items="${dataRange}" var="code">--%>
+<%--                                            <option value="<spring:message code='${code}'/>">${code}</option>--%>
+<%--                                        </c:forEach>--%>
+<%--                                    </select>--%>
+<%--                                    <input id="dataRangeStr" style="display:none" value="${dataRange}">--%>
+<%--                                </li>--%>
+<%--                            </ul>--%>
+<%--                            <ul style="float:left;margin-left:10px;">--%>
+<%--                                <li>--%>
+<%--                                    <select id="poCenter" name="poCenter" class="input-large" style="width:140px;">--%>
+<%--                                        <option value=""><spring:message code='poCenter'/></option>--%>
+<%--                                        <c:forEach items="${poCenters}" var="code">--%>
+<%--                                            &lt;%&ndash; <option value="${code}">${code}-<spring:message code="${code}"/></option>&ndash;%&gt;--%>
+<%--                                            &lt;%&ndash;												 <option value="<spring:message code='${code}'/>">${code}-<spring:message code="${code}"/></option>&ndash;%&gt;--%>
+<%--                                            <option value="${code}">${code}</option>--%>
+<%--                                        </c:forEach>--%>
+<%--                                    </select>--%>
+<%--                                </li>--%>
+<%--                                <li>--%>
+<%--                                        <span id="poCenterTip" style="display:none;"--%>
+<%--                                              class="Validform_checktip Validform_wrong"><spring:message--%>
+<%--                                                code='please_select'/></span>--%>
+<%--                                </li>--%>
+<%--                            </ul>--%>
+<%--                            <ul class="nav dropdown" style="float:left;margin-left:10px;">--%>
+<%--                                <li class="dropdown" style="margin-top:0;">--%>
+<%--                                    <a data-toggle="dropdown" class="dropdown-toggle" href="#"><spring:message--%>
+<%--                                            code='tableSelect'/><strong class="caret"></strong></a>--%>
+<%--                                    <ul class="dropdown-menu"--%>
+<%--                                        style="left:-20%;max-height:350px;overflow-y:scroll;min-width:330px;">--%>
+<%--                                        <c:forEach items="${poTableList }" var="poTable">--%>
+<%--                                            <li class="Check" style="padding:0 10px;clear:both;">--%>
+<%--                                                <span style="font-size:15px;color:#7e8978;float:left;line-height:38px;display:contents;">${poTable.comments }</span>--%>
+<%--                                                <input type="radio" name="tableNames"--%>
+<%--                                                       style="font-size:15px;color:#7e8978;float:right;width:20px;"--%>
+<%--                                                       value="${poTable.tableName}"/>--%>
+<%--                                            </li>--%>
+<%--                                        </c:forEach>--%>
+<%--                                    </ul>--%>
+<%--                                </li>--%>
+<%--                                <li>--%>
+<%--                                        <span id="TableNamesTip" style="display:none;"--%>
+<%--                                              class="Validform_checktip Validform_wrong"><spring:message--%>
+<%--                                                code='please_select'/></span>--%>
+<%--                                </li>--%>
+<%--                            </ul>--%>
+
+<%--                        </div>--%>
+<%--                        <div style="clear: both;display:flex;margin-top: 10px;">--%>
+<%--                            <ul class="nav dropdown" style="float:left;margin-left:10px;">--%>
+<%--                                <li class="dropdown" style="margin-top:0;">--%>
+<%--                                    <select class="input-large" style="width:240px;" id="tableNamesOut">--%>
+<%--                                        <option value=""><spring:message code='tableSelect'/></option>--%>
+<%--                                        <c:forEach items="${poTableOutList }" var="poTableOut">--%>
+<%--                                            <option value="${poTableOut.tableName }">${poTableOut.comments}</option>--%>
+<%--                                        </c:forEach>--%>
+<%--                                    </select>--%>
+<%--                                </li>--%>
+<%--                                <li>--%>
+<%--                                    <span id="TableNamesTipX" style="display:none;"--%>
+<%--                                          class="Validform_checktip Validform_wrong"><spring:message--%>
+<%--                                            code='please_select'/></span>--%>
+<%--                                </li>--%>
+<%--                            </ul>--%>
+
+
+
+<%--                        </div>--%>
+
+                        <div id="cdFormula" style="display: none">
+                            <span class="Validform_checktip" style="color: red;">
+                                <c:if test="${languageS eq 'zh_CN'}">預估年度CD% - CPO核準的年度CD% > -0.005%</c:if>
+                                <c:if test="${languageS eq 'en_US'}">Estimated annual CD% - CPO approved annual CD% > -0.005%</c:if>
+                                </span>
                         </div>
-                        <div style="clear: both;margin-left: 608px;padding-right:10px;">
-                            <%--<ul style="float:left;">
-                                <li>
-                                    <select id="DEntity" class="input-large" style="width:100px;">
-                                           <option value=""><spring:message code='entity'/></option>
-                                        <c:forEach items="${fn:split(entity,',') }" var="code">
-                                            <c:if test="${not empty code }">
-                                                <option value="${fn:substring(code,2,-1) }">${fn:substring(code,2,-1) }</option>
-                                            </c:if>
-                                        </c:forEach>
-                                    </select>
-                                </li>
-                                <li>
-                                    <span id="DEntityTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                                </li>
-                            </ul>--%>
-                            <ul class="nav dropdown" style="float:left;margin-left:10px;">
-                                <li class="dropdown" style="margin-top:0;">
-                                    <a data-toggle="dropdown" class="dropdown-toggle" href="#"><spring:message
-                                            code='tableSelect'/><strong class="caret"></strong></a>
-                                    <ul class="dropdown-menu"
-                                        style="left:-20%;max-height:350px;overflow-y:scroll;min-width:330px;">
-                                        <%--										<li class="AllCheck" style="padding:0 10px;clear:both;">--%>
-                                        <%--											<span style="font-size: 20px;color: #938a8a;float: left;line-height: 38px;font-weight: bold;"><spring:message code='all_check'/></span>--%>
-                                        <%--											<input type="checkbox" style="font-size:15px;color:#7e8978;float:right;width:20px;" value=""/>--%>
-                                        <%--										</li>--%>
-                                        <c:forEach items="${poTableOutList }" var="poTableOut">
-                                            <li class="Check" style="padding:0 10px;clear:both;">
-                                                <span style="font-size:15px;color:#7e8978;float:left;line-height:38px;display:contents;">${poTableOut.comments }</span>
-                                                <input type="radio" name="tableNamesOut"
-                                                       style="font-size:15px;color:#7e8978;float:right;width:20px;"
-                                                       value="${poTableOut.tableName}"/>
-                                            </li>
-                                        </c:forEach>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <span id="TableNamesTipX" style="display:none;"
-                                          class="Validform_checktip Validform_wrong"><spring:message
-                                            code='please_select'/></span>
-                                </li>
-                            </ul>
-                            <button id="Download" style="float:left;" class="btn search-btn" type="button">
-                                <spring:message code='download'/></button>
-                            <%--<button id="CheckValidation" style="float:left;" class="btn search-btn" type="button"><spring:message code='checkValidation'/></button>--%>
-                        </div>
+
                     </form>
                 </div>
             </div>
         </div>
-
-
-        <div class="m-l-md m-t-md m-r-md" style="clear:both;">
-            <div class="controls">
-                <ul style="float:left;">
-                    <li>
-                        <input id="QDate" style="float:left;width:140px;text-align:center;margin-bottom:0;"
-                               placeholder="<spring:message code='please_select'/><spring:message code='month'/>"
-                               type="text" value="" readonly>
-                    </li>
-                    <li style="height:30px;">
-                        <span id="QDateTip" style="display:none;"
-                              class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                    </li>
-                </ul>
-                <ul style="float:left;margin-left:10px;">
-                    <li>
-                        <select id="QpoCenter" name="QpoCenter" class="input-large" style="width:140px;">
-                            <option value=""><spring:message code='poCenter'/></option>
-                            <c:forEach items="${poCenters}" var="code">
-                                <%-- <option value="${code}">${code}-<spring:message code="${code}"/></option>--%>
-                                <option value="${code}">${code}</option>
-                            </c:forEach>
-                        </select>
-                    </li>
-                    <li>
-                        <span id="QpoCenterTip" style="display:none;"
-                              class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                    </li>
-                </ul>
-                <%--<ul style="float:left;margin-left:20px;">
-                    <li>
-                        <select id="QEntity" class="input-large" style="width:100px;margin-bottom:0;">
-                               <option value=""><spring:message code='entity'/></option>
-                            <c:forEach items="${fn:split(entity,',') }" var="code">
-                                <c:if test="${not empty code }">
-                                    <option value="${fn:substring(code,2,-1) }">${fn:substring(code,2,-1) }</option>
-                                </c:if>
-                            </c:forEach>
-                        </select>
-                    </li>
-                    <li style="height:30px;">
-                        <span id="QEntityTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                    </li>
-                </ul>--%>
-                <ul style="float:left;margin-left:20px;">
-                    <li>
-                        <input type="text" id="fuzzy" placeholder="请输入sbu">
-                    </li>
-                </ul>
-                <ul style="float:left;margin-left:20px;">
-                    <li>
-                        <select id="QTableName" class="input-large" style="width:200px;margin-bottom:0;">
-                            <option value=""><spring:message code='tableSelect'/></option>
-                            <c:forEach items="${poTableList }" var="poTable">
-                                <option value="${poTable.tableName }">${poTable.comments }</option>
-                            </c:forEach>
-                        </select>
-                    </li>
-                    <li style="height:30px;">
-                        <span id="QTableNameTip" style="display:none;"
-                              class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                    </li>
-                </ul>
-
-                <button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;"
-                        type="submit"><spring:message code='query'/></button>
-                <c:if test="${hasKey eq '1'}">
-                <button id="deleteBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;"
-                        type="submit"><spring:message code='delete'/></button>
-                </c:if>
-                <c:if test="${attribute eq 'group'}">
-                    <button id="CheckAllValidation" class="btn search-btn btn-warning m-l-md"
-                            style="margin-left:20px;float:left;" type="button"><spring:message
-                            code='checkAllValidation'/></button>
-                    <ul style="float:left;margin-left:20px;">
-                        <li>
-                            <select id="QType" class="input-large" style="width:160px;margin-bottom:0;">
-                                <option value=""><spring:message code='please_select'/><spring:message
-                                        code='type'/></option>
-                                <c:forEach items="${typeList}" var="type">
-                                    <option value="${type }">${type }</option>
-                                </c:forEach>
-                            </select>
-                        </li>
-                        <li style="height:30px;">
-                            <span id="QTypeTip" style="display:none;"
-                                  class="Validform_checktip Validform_wrong"><spring:message
-                                    code='please_select'/></span>
-                        </li>
-                    </ul>
-                    <button id="ConsolidationDataBtn" class="btn search-btn btn-warning m-l-md"
-                            style="margin-left:20px;" type="button"><spring:message code='consolidationData'/></button>
-                </c:if>
-            </div>
-        </div>
-        <div class="p-l-md p-r-md p-b-md" id="Content"></div>
     </div>
 </div>
+
+<div class="modal fade" id="myModal" style="display: none" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    commodity
+                </h4>
+                <span>全選 <input id="allCheck" type="checkbox"></span>
+            </div>
+            <div class="modal-body">
+                <table id="commdityTable" border="0" cellpadding="0" cellspacing="1">
+                    <c:forEach items="${commodityList}" var="column" varStatus="status">
+                    <c:if test="${status.index %4 eq 0}">
+                    <tr>
+                        </c:if>
+                        <td  height="25px" width="140px">
+                            <input type="checkbox" class="userGroupVal" value="${column}">${column}
+                        </td>
+                        </c:forEach>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeBut" class="btn btn-default" data-dismiss="modal"><spring:message code="close"/>
+                </button>
+                <button type="button" id="affirmBut" class="btn btn-primary" data-dismiss="modal"><spring:message code="submit"/></button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

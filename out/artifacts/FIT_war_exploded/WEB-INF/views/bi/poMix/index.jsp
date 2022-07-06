@@ -147,8 +147,10 @@ $(function() {
 			var masterData=$(this).val();
 			if(masterData.indexOf("SBU")>= 0){
                $("#FileUpload").hide()
+				$(".upload-tip").hide();
 			}else{
 				$("#FileUpload").show();
+				$(".upload-tip").show();
 			}
 			$.ajax({
 				type:"POST",
@@ -195,6 +197,11 @@ $(function() {
 <body>
 <div class="row-fluid bg-white content-body">
 	<div class="span12">
+		<div class="page-header bg-white">
+			<h2>
+				<span><spring:message code='poMix'/></span>
+			</h2>
+		</div>
 		<div class="m-t-md m-r-md">
 			<div class="controls">
                	<div class="m-l-md">

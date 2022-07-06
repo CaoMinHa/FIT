@@ -93,19 +93,21 @@ $("a.update").click(function(){
 	<table align="center" class="table table-condensed table-hover" >
 		<thead>
 			<tr>
-				<th style="text-align:center" rowspan="3">採購機能</th>
-				<th style="text-align:center" rowspan="3">Commodity</th>
-				<th style="text-align:center" colspan="6" >Year Total</th>
+				<th style="text-align:center" rowspan="4">採購機能</th>
+				<th style="text-align:center" rowspan="4">Commodity</th>
+				<th style="text-align:center" colspan="8" >Year Total</th>
 			</tr>
 			<tr>
-				<th  style="text-align:center"  style="text-align:center"  colspan="3">非客指</th>
-				<th  style="text-align:center"  colspan="3">客指</th>
+				<th  style="text-align:center"  style="text-align:center"  colspan="4">非客指</th>
+				<th  style="text-align:center"  colspan="4">客指</th>
 			</tr>
 			<tr>
-				<th style="text-align:center">採購金額</th>
+				<th style="text-align:center">採購金額(NTD)</th>
+				<th style="text-align:center">CD金额(NTD)</th>
 				<th style="text-align:center" >CD比率(%)</th>
 				<th style="text-align:center" >CPO Approve(%)</th>
-				<th style="text-align:center" >採購金額</th>
+				<th style="text-align:center" >採購金額(NTD)</th>
+				<th style="text-align:center">CD金额(NTD)</th>
 				<th style="text-align:center" >CD比率(%)</th>
 				<th style="text-align:center" >CPO Approve(%)</th>
 			</tr>

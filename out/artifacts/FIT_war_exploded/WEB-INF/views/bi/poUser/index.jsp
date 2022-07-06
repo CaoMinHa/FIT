@@ -40,9 +40,10 @@
         $(function() {
             $("#Query").click(function(){
                 var name=$("#name").val();
+                var username=$("#username").val();
                 $("#loading").show();
                 $("#Content").load("${ctx}/bi/poUser/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
-                    orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),name:name},function(){$("#loading").fadeOut(1000);});
+                    orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),name:name,username:username},function(){$("#loading").fadeOut(1000);});
             }).click();
         });
 
@@ -62,7 +63,8 @@
             <div class="controls">
                 <ul style="float:left;">
                     <li>
-                        <input id="name" style="float:left;width:140px;text-align:center;margin-bottom:0;" placeholder="請輸入查詢名稱" type="text">
+                        <input id="name" style="float:left;width:140px;text-align:center;margin-bottom:0;margin-right:15px;" placeholder="請輸入查詢賬號" type="text">
+                        <input id="username" style="float:left;width:140px;text-align:center;margin-bottom:0;" placeholder="請輸入查詢姓名" type="text">
                     </li>
                     <li style="float:left; height:70px;">
                         <span id="QTableNameTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>

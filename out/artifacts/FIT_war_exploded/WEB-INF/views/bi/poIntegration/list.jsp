@@ -1,6 +1,7 @@
 <%@page import="foxconn.fit.entity.base.EnumGenerateType"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ include file="/static/common/taglibs.jsp"%>
+<script type="text/javascript" src="${ctx}/static/js/common/utility.js"></script>
 <html>
 <head>
 <script type="text/javascript">
@@ -33,11 +34,44 @@ $(function() {
 	   }
 	});
 
-	$("#Fenye>input:first").bind("blur",function(){
+	$("#Fenye input:first").bind("blur",function(){
 		Page.jumpPage($(this).val());
 		clickPage(Page.getPage());
 	});
-	
+
+	$("#Fenye input:first").bind("keypress",function(){
+		if(event.keyCode == "13"){
+			Page.jumpPage($(this).val());
+			clickPage(Page.getPage());
+		}
+	});
+
+	$(".table tr:last td:gt(0)").css("text-align","right");
+
+	$(".table tbody tr").each(function(i){
+		if(i%2!=0){
+			$(this).css("background-color","#eceaea");
+		}
+		$(this).children('td').each(function(e){
+			if(e>3){
+				var txt = $(this).text();
+				if(txt!=null && txt.length>0) {
+					if (txt.trim().substring(0, 1) == ".") {
+						txt = "0" + txt.trim();
+					}
+					if (/^\-?[0-9]+(.[0-9]+)?$/.test(txt)) {
+						$(this).css("text-align", "right");
+						if ($("#QTableName").val() == "FIT_PO_SBU_YEAR_CD_SUM" && e == 7) {
+							$(this).text(RetainedDecimalPlaces(Number(txt), 6));
+						}else {
+							$(this).text(RetainedDecimalPlaces(Number(txt),2));
+						}
+					}
+				}
+			}
+		});
+	})
+	$(".table tr:last").css("background-color","#e4f2fd");
 });
 
 //用于触发当前点击事件
@@ -45,11 +79,22 @@ function clickPage(page){
 	$("#loading").show();
 	$("#PageNo").val(page);
 	var date=$("#QDate").val();
-	var entity=$("#QEntity").val();
 	var tableName=$("#QTableName").val();
-	$("#Content").load("${ctx}/bi/poIntegration/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
-														orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
-														date:date,tableName:tableName,poCenter:$("#QpoCenter").val()},function(){$("#loading").fadeOut(1000);});
+	var dateEnd = $("#QDateEnd").val();
+	var DateYear = $("#DateYear").val();
+	var sbuVal = $("#sbuVal").val();
+	var entity = $("#QpoCenter").val();
+	$("#Content").load("${ctx}/bi/poIntegration/list",
+			{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
+			orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
+				date: date,
+				dateEnd: dateEnd,
+				DateYear: DateYear,
+				tableName: tableName,
+				poCenter: entity,
+				sbuVal: sbuVal,
+				commodity:$("#commodity").val()
+			},function(){$("#loading").fadeOut(1000);});
 }
 
 function refresh(){
@@ -58,42 +103,73 @@ function refresh(){
 </script>
 </head>
 <body>
-<div <c:choose><c:when test="${fn:length(columns) gt 30}">style="width:500%;"</c:when><c:when test="${fn:length(columns) gt 25}">style="width:400%;"</c:when><c:when test="${fn:length(columns) gt 20}">style="width:300%;"</c:when><c:otherwise>style="width:200%;"</c:otherwise></c:choose>>
+<div <c:choose><c:when test="${fn:length(columns) gt 30}">style="width:450%;"</c:when><c:when test="${fn:length(columns) gt 25}">style="width:350%;"</c:when><c:when test="${fn:length(columns) gt 20}">style="width:250%;"</c:when><c:when test="${fn:length(columns) gt 15}">style="width:200%;"</c:when></c:choose>>
 	<table class="table table-condensed table-hover">
 		<thead>
 			<tr>
 				<th>序号</th>
 				<c:forEach items="${columns }" var="column" varStatus="status">
-					<c:choose>
-						<c:when test="${column.comments=='CD2 Total'||column.comments=='CD3 Total'}">
-							<th style="background-color: beige">${column.comments }</th>
-						</c:when>
-						<c:otherwise>
-							<th >${column.comments }</th>
-						</c:otherwise>
-					</c:choose>
+					<th >${column.comments }</th>
 				</c:forEach>
+				<c:if test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'}">
+					<th>CD合計(NTD)</th>
+				</c:if>
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach items="${page.result}" var="mapping">
+			<c:forEach items="${page.result}" var="mapping" varStatus="sort">
 				<tr>
-					<c:forEach var="i" begin="0" end="${fn:length(mapping)-index}" varStatus="status">
-						<c:choose>
-							<c:when test="${status.index eq 0}">
-								<td style="white-space: nowrap;border-right:1px solid #eee;">
-									<input name="ID" type="checkbox" value="${mapping[i]}"/>
-								</td>
-							</c:when>
-							<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==27}">
-								<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
-							</c:when>
-							<c:otherwise>
-								<td style="border-right:1px solid #eee;">${mapping[i]}</td>
-							</c:otherwise>
-						</c:choose>
-<%--						<td style="border-right:1px solid #eee;">${mapping[i]}</td>--%>
-					</c:forEach>
+					<c:choose>
+						<c:when test="${sort.index eq fn:length(page.result)-1}">
+							<c:forEach var="i" begin="0" end="${fn:length(mapping)-1}" varStatus="status">
+								<c:choose>
+									<c:when test="${status.index eq 0}">
+										<td style="white-space: nowrap;border-right:1px solid #eee;">
+											<input name="ID" type="checkbox" value="${mapping[i]}"/>
+										</td>
+									</c:when>
+									<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==27 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
+										<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
+									</c:when>
+                                    <c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index >fn:length(mapping)-4}">
+                                        <td style="border-right:1px solid #eee;background-color: #f5f5dc">${mapping[i]}</td>
+                                    </c:when>
+                                    <c:when test="${tableName =='FIT_PO_SBU_YEAR_CD_SUM' && status.index ==fn:length(mapping)-13}">
+                                        <td style="border-right:1px solid #eee;background-color: #f5f5dc">${mapping[i]}</td>
+                                    </c:when>
+									<c:otherwise>
+										<td style="border-right:1px solid #eee;">${mapping[i]}</td>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</c:when>
+						<c:otherwise>
+							<c:forEach var="i" begin="0" end="${fn:length(mapping)-index}" varStatus="status">
+								<c:choose>
+									<c:when test="${status.index eq 0}">
+										<td style="white-space: nowrap;border-right:1px solid #eee;">
+											<input name="ID" type="checkbox" value="${mapping[i]}"/>
+										</td>
+									</c:when>
+									<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==27|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
+										<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
+									</c:when>
+                                    <c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index > fn:length(mapping)-index-3}">
+                                        <td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
+                                    </c:when>
+                                    <c:when test="${tableName =='FIT_PO_SBU_YEAR_CD_SUM' && status.index ==fn:length(mapping)-index-12}">
+                                        <td style="border-right:1px solid #eee;background-color: #f5f5dc">${mapping[i]}</td>
+                                    </c:when>
+									<c:otherwise>
+										<td style="border-right:1px solid #eee;">${mapping[i]}</td>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</c:otherwise>
+					</c:choose>
+					<c:if test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'}">
+						<td style="border-right:1px solid #eee;background-color: beige">${mapping[21]+mapping[27]}</td>
+					</c:if>
 				</tr>
 			</c:forEach>
 		</tbody>

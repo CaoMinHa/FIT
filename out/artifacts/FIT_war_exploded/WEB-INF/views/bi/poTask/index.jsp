@@ -24,8 +24,8 @@
             height:40px;
             margin-left:10px;
             color:#ffffff;
-            background-image: linear-gradient(to bottom, #fbb450, #f89406);
-            background-color: #f89406 !important;
+            /*background-image: linear-gradient(to bottom, #fbb450, #f89406);*/
+            /*background-color: #f89406 !important;*/
         }
         .ui-datepicker select.ui-datepicker-month{
             display: none;
@@ -36,7 +36,7 @@
         .ui-datepicker-close{float:none !important;}
         .ui-datepicker-buttonpane{text-align: center;}
         .table thead th{vertical-align: middle;}
-        .table-condensed td{padding:7px 10px;}
+        .table-condensed td{padding:5px 3px;}
     </style>
     <script type="text/javascript">
         $(function() {
@@ -82,11 +82,15 @@
         $('#backBtn').click(function () {
             $("#audit").hide();
             $("#task").show();
-            var roleCode=$("#roleCode").val();
-            $("#Content").load("${ctx}/bi/poTask/list",{pageNo:"1",pageSize:"10",roleCode:roleCode},function(){$("#loading").fadeOut(1000);});
+            $("#roleCode").show();
+            $("#QDate").show();
+            $("#type").show();
+            $("#name").show();
+            $("#Query").show();
+            // var roleCode=$("#roleCode").val();
+            $("#Query").click();
+            <%--$("#Content").load("${ctx}/bi/poTask/list",{pageNo:"1",pageSize:"10",roleCode:roleCode},function(){$("#loading").fadeOut(1000);});--%>
         })
-
-
 
         var periodId;
     </script>
@@ -96,7 +100,7 @@
     <div class="span12">
         <div class="page-header bg-white">
             <h2>
-                <span>采购任务</span>
+                <span><c:if test="${languageS eq 'zh_CN'}">待簽核</c:if><c:if test="${languageS eq 'en_US'}">Pending approval</c:if></span>
             </h2>
         </div>
 
@@ -125,7 +129,7 @@
                             <option value="">全部</option>
                             <option value="FIT_PO_BUDGET_CD_DTL">採購CD手動匯總</option>
                             <option value="FIT_PO_SBU_YEAR_CD_SUM">SBU年度CD目標匯總</option>
-                            <option value="FIT_PO_Target_CPO_CD_DTL">CPO核准</option>
+                            <option value="FIT_PO_Target_CPO_CD_DTL">採購CD 目標CPO核准表</option>
                             <option value="FIT_ACTUAL_PO_NPRICECD_DTL">實際採購非價格CD匯總</option>
                             <option value="FIT_PO_CD_MONTH_DOWN">採購CDby月份展開</option>
                         </select>
@@ -141,8 +145,8 @@
                 </ul>
                 <button id="Query" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" type="submit"><spring:message code='query'/></button>
             </div>
-            <div style=" height:70px;!important;" class="controls" id="audit">
-                <button  id="backBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" type="submit">返回</button>
+            <div style="height:55px;!important;" class="controls" id="audit">
+                <button  id="backBtn" class="btn search-btn btn-primary" style="margin-left: -20px;background-image: linear-gradient(to bottom, #aad83e, #aad83e);background-color: #aad83e;" type="submit">返回</button>
             </div>
         </div>
         <div class="p-l-md p-r-md p-b-md" id="Content"></div>
@@ -166,7 +170,7 @@
                 </div>
                 <div class="control-group" style="margin:0px 0px 20px 10px;">
                     <div class="pull-left" style="margin-left: 40px">
-                        备注：<input name="remark" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
+                        審批意見：<input name="remark" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
                     </div>
                 </div>
             </form>

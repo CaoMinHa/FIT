@@ -133,7 +133,7 @@ function removeUserRole(index) {
 		<thead>
 			<tr>
 				<th style="text-align:center;width: 50px" >序号</th>
-				<th style="text-align:center" >用戶名</th>
+				<th style="text-align:center" >用戶賬號</th>
 				<th style="text-align:center" >創建人</th>
 				<th style="text-align:center" >創建時間</th>
 				<th style="text-align:center" style="white-space: nowrap; border-right:1px solid #eee;text-align: center;"><spring:message code='operation'/></th>

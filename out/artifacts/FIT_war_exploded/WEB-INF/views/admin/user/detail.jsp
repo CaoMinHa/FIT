@@ -20,7 +20,7 @@ $(function() {
 					return true;
 				}
 				$("#MenuEditTip").show();
-				
+
 				return false;
 			},
 			"sbu":function(gets,obj,curform,datatype){
@@ -29,7 +29,7 @@ $(function() {
 					return true;
 				}
 				$("#SBUEditTip").show();
-				
+
 				return false;
 			}
 		}
@@ -108,7 +108,7 @@ $(function() {
 var userEditFormValid;
 
 function userEditFormSubmit(){
-	if(userEditFormValid.check()){
+	// if(userEditFormValid.check()){
 		var data=$("#userEditForm").serialize();
 		$("#userEditForm input[name=updatable]").each(function(i){
 			data+="&readonly="+$(this).prop('checked');
@@ -138,7 +138,7 @@ function userEditFormSubmit(){
 		   		layer.alert("<spring:message code='connect_fail'/>");
 		   	}
 		});
-	}
+	// }
 }
 </script>
 </head>
@@ -247,13 +247,32 @@ function userEditFormSubmit(){
 					<span class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
 				</div>
 				<div class="pull-left">
-					<c:forEach items="<%=EnumMenu.values() %>" var="menu">
+<%--					<c:forEach items="<%=EnumMenu.values() %>" var="menu">--%>
+<%--						<c:set var="checked" value=""/>--%>
+<%--						<c:forEach items="${menus }" var="umenu">--%>
+<%--							<c:if test="${menu.code eq umenu }"><c:set var="checked" value="checked"/></c:if>--%>
+<%--						</c:forEach>--%>
+<%--						<input id="M_${menu.code }" type="checkbox" name="menus" ${checked } style="width:20px;" value="${menu.code }"/>--%>
+<%--						<label for="M_${menu.code }" class="MLabel"><spring:message code='${menu.code }'/></label>--%>
+<%--						<br>--%>
+<%--					</c:forEach>--%>
+<%--					--%>
+					<c:forEach items="${menuList}" var="menu">
 						<c:set var="checked" value=""/>
 						<c:forEach items="${menus }" var="umenu">
-							<c:if test="${menu.code eq umenu }"><c:set var="checked" value="checked"/></c:if>
+							<c:if test="${menu.menuCode eq umenu }"><c:set var="checked" value="checked"/></c:if>
 						</c:forEach>
-						<input id="M_${menu.code }" type="checkbox" name="menus" ${checked } style="width:20px;" value="${menu.code }"/>
-						<label for="M_${menu.code }" class="MLabel"><spring:message code='${menu.code }'/></label>
+						<input id="M_${menu.menuCode }" type="checkbox" name="menus" ${checked } style="width:20px;" value="${menu.menuCode }"/>
+						<label for="M_${menu.menuCode }" class="MLabel">
+							<c:choose>
+								<c:when test="${languageS == 'en_US'}">
+									${menu.menuNameE }
+								</c:when>
+								<c:when test="${languageS == 'zh_CN'}">
+									${menu.menuName }
+								</c:when>
+							</c:choose>
+						</label>
 						<br>
 					</c:forEach>
 				</div>

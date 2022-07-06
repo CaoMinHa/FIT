@@ -374,11 +374,26 @@ $(function() {
 						<span class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
 					</div>
 					<div id="BiMenu" class="pull-left" style="display: none;">
-						<c:forEach items="<%=EnumMenu.values() %>" var="menu">
-							<input id="M_${menu.code }" type="checkbox" name="menus" style="width:20px;" value="${menu.code }"/>
-							<label for="M_${menu.code }" class="MLabel"><spring:message code='${menu.code }'/></label>
-							<br>
-						</c:forEach>
+<%--						<c:forEach items="<%=EnumMenu.values() %>" var="menu">--%>
+<%--							<input id="M_${menu.code }" type="checkbox" name="menus" style="width:20px;" value="${menu.code }"/>--%>
+<%--							<label for="M_${menu.code }" class="MLabel"><spring:message code='${menu.code }'/></label>--%>
+<%--							<br>--%>
+<%--						</c:forEach>--%>
+
+<c:forEach items="${menuList}" var="menu">
+	<input id="M_${menu.menuCode }" type="checkbox" name="menus" ${checked } style="width:20px;" value="${menu.menuCode }"/>
+	<label for="M_${menu.menuCode }" class="MLabel">
+		<c:choose>
+			<c:when test="${languageS == 'en_US'}">
+				${menu.menuNameE }
+			</c:when>
+			<c:when test="${languageS == 'zh_CN'}">
+				${menu.menuName }
+			</c:when>
+		</c:choose>
+	</label>
+	<br>
+</c:forEach>
 					</div>
 					<div id="BudgetMenu" class="pull-left" style="display: none;">
 						<c:forEach items="<%=EnumBudgetMenu.values() %>" var="menu">

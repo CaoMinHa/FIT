@@ -254,7 +254,10 @@ $(function() {
 			window.location.href="${ctx}/static/template/budget/產品料號單位成本實際數.xlsx";
 		}
 	});
-	
+	$("#simplifyTemplate").click(function(){
+		window.location.href="${ctx}/static/template/budget/簡化版成本預算.xlsx";
+	});
+
 	$("#Content").load("${ctx}/budget/productNoUnitCost/list",{orderBy:"year,product,scenarios",orderDir:"desc,asc,asc"});
 	$("#QueryBtn").click(function(){
 		clickPage(1);
@@ -405,6 +408,9 @@ $(function() {
 							</div>
 							<div style="text-align: center;margin-bottom:30px;">
 							    <button id="DownloadTemplate" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='budgetForecast'/></button>
+							    <button id="simplifyTemplate" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
+									簡化版成本預算
+								</button>
 							    <button id="ActualTemplate" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='actual'/></button>
 							</div>
 					    </div>

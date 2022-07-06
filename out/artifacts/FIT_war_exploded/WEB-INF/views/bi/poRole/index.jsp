@@ -237,18 +237,51 @@
                     }else{
                         $("#allCheck").html("")
                         var list=data.poTableList;
-                        console.log(list.length)
+                        var list1=data.poTableList1;
+                        console.error(list);
+                        console.error(list1);
                         var html='';
-                        for(var i=0;i<list.length;i++){
+                        for(var j=0;j<list1.length;j++){
                             html+='<li class="Check" style="padding:0 10px;clear:both;">'
-                            html+='<span style="font-size:15px;color:#7e8978;float:left;line-height:38px;display:contents;">'
-                            html+=list[i].comment;
-                            html+='</span>';
-                            if(list[i].flag=="1"){
-                                html+='<input type="checkbox" name="tableName" checked style="font-size:15px;color:#7e8978;float:right;width:20px;" value="'+list[i].name+'">'
-                            }else{
-                                html+='<input type="checkbox" name="tableName"  style="font-size:15px;color:#7e8978;float:right;width:20px;" value="'+list[i].name+'">'
+                            html+='<span style="font-size:15px;color:#7e8978;float:left;line-height:38px;width:100%">'
+                            for (var i=0;i<list.length;i++){
+                                if(list1[j]==list[i].name){
+                                    switch (list[i].type) {
+                                        case "1":
+                                            html+=list[i].comment;
+                                            html+='<dev style="float:right;">';
+                                            if(list[i].flag=="1"){
+                                                html+='<font style="color: #7e8978;font-size:14px;">下載：</font><input type="checkbox" name="tableName" checked value="'+list[i].roleId+'">&nbsp;'
+                                            }else{
+                                                html+='<font style="color: #7e8978;font-size:14px;">下載：</font><input type="checkbox" name="tableName"  value="'+list[i].roleId+'">&nbsp;'
+                                            }
+                                            break;
+                                        case "2":
+                                            if(list[i].flag=="1"){
+                                                html+='<font style="color: #7e8978;font-size:14px;">上傳：</font><input type="checkbox" name="tableName" checked value="'+list[i].roleId+'">&nbsp;'
+                                            }else{
+                                                html+='<font style="color: #7e8978;font-size:14px;">上傳：</font><input type="checkbox" name="tableName"  value="'+list[i].roleId+'">&nbsp;'
+                                            }
+                                            break;
+                                        case "3":
+                                            if(list[i].flag=="1"){
+                                                html+='<font style="color: #7e8978;font-size:14px;">查詢：</font><input type="checkbox" name="tableName" checked value="'+list[i].roleId+'">&nbsp;'
+                                            }else{
+                                                html+='<font style="color: #7e8978;font-size:14px;">查詢：</font><input type="checkbox" name="tableName"  value="'+list[i].roleId+'">&nbsp;'
+                                            }
+                                            break;
+                                        case "4":
+                                            if(list[i].flag=="1"){
+                                                html+='<font style="color: #7e8978;font-size:14px;">創建任務：</font><input type="checkbox" name="tableName" checked value="'+list[i].roleId+'">&nbsp;'
+                                            }else{
+                                                html+='<font style="color: #7e8978;font-size:14px;">創建任務：</font><input type="checkbox" name="tableName"  value="'+list[i].roleId+'">&nbsp;'
+                                            }
+                                            break;
+                                    }
+                                }
                             }
+                            html+='</dev>';
+                            html+='</span>';
                             html+='</li>'
                         }
                         $("#allCheck").append(html);
@@ -256,7 +289,7 @@
                             modal:true,
                             title: "添加角色数据采集权限",
                             height:350,
-                            width:500,
+                            width:600,
                             position:"center",
                             draggable: true,
                             resizable: true,
@@ -277,7 +310,6 @@
                                             id:id,
                                             perms:tableNames
                                         }
-
                                         $.ajax({
                                             type:"POST",
                                             url:"${ctx}/bi/poRole/updatePerms",
@@ -308,24 +340,12 @@
                             }
                         }).dialog("open");
                     }
-
-
-
-
-
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     layer.alert("<spring:message code='connect_fail'/>");
                 }
             });
-
         }
-
-
-
-
-
-
         var periodId;
     </script>
 </head>
@@ -406,7 +426,7 @@
         <div id="modal-perm-add" style="display:none;">
             <form id="permForm" class="form-horizontal">
                 <div class="control-group" style="margin:0px 0px 20px 10px;">
-                    <ul  style="left:-20%;max-height:350px;overflow-y:scroll;min-width:330px;">
+                    <ul  style="left:-20%;">
                         <li class="AllCheck" style="padding:0 10px;clear:both;" id="allCheck">
                             <span style="font-size: 20px;color: #938a8a;float: left;line-height: 38px;font-weight: bold;"><spring:message code='all_check'/></span>
                             <input type="checkbox" style="font-size:15px;color:#7e8978;float:right;width:20px;" value=""/>
