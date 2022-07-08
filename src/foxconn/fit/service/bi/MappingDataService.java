@@ -36,23 +36,23 @@ public class MappingDataService extends BaseService<Parameter>{
 	}
 
 	public String refreshMasterData(String masterData) throws Exception {
-		Connection c = SessionFactoryUtils.getDataSource(userDao.getSessionFactory()).getConnection();  
-		CallableStatement cs = c.prepareCall("{call EPMEBS.CUX_MASTERDATA_IMPORT_PKG.main(?,?)}");  
+		Connection c = SessionFactoryUtils.getDataSource(userDao.getSessionFactory()).getConnection();
+		CallableStatement cs = c.prepareCall("{call EPMEBS.CUX_MASTERDATA_IMPORT_PKG.main(?,?)}");
 		cs.setString(1, masterData);
-		cs.registerOutParameter(2, java.sql.Types.VARCHAR);  
-		cs.execute();  
+		cs.registerOutParameter(2, java.sql.Types.VARCHAR);
+		cs.execute();
 		String message = cs.getString(2);
-		
+
 		cs.close();
 		c.close();
-		
+
 		return message;
 	}
 
 	public void saveBatch(String tableName,List<String> columnList,List<List<String>> insertDataList) {
-        String codes="";
+		String codes="";
 		for (List<String> list : insertDataList) {
-				codes+="'"+list.get(0)+"',";
+			codes+="'"+list.get(0)+"',";
 		}
 		if(codes.length()>0){
 			codes=codes.substring(0,codes.length()-1);
@@ -70,7 +70,7 @@ public class MappingDataService extends BaseService<Parameter>{
 				insertSql+=columnList.get(i)+",";
 			}
 			if("CUX_RT_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)||"CUX_RT_SALES_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)){
-				insertSql+=" LAST_UPDATE_BY ,ID ) values( ";
+				insertSql+=" LAST_UPDATED_BY ,ID ) values( ";
 			}else if("CUX_INTERNERL_VENDOR".equalsIgnoreCase("CUX_INTERNERL_VENDOR")){
 				insertSql+=" CREATED_BY,LAST_UPDATED_BY ) values ( ";
 			}else{
@@ -89,7 +89,7 @@ public class MappingDataService extends BaseService<Parameter>{
 			}
 			insertSql+=")";
 			System.out.println(insertSql);
-	     	userDao.getSessionFactory().getCurrentSession().createSQLQuery(insertSql).executeUpdate();
+			userDao.getSessionFactory().getCurrentSession().createSQLQuery(insertSql).executeUpdate();
 
 		}
 	}
@@ -109,7 +109,7 @@ public class MappingDataService extends BaseService<Parameter>{
 				sql+=columnName+",";
 				val+="'"+columnValue+"',";
 			}
-			sql=sql+"LAST_UPDATE_BY,ID ) values("+val+"'"+SecurityUtils.getLoginUsername()+"','"+ UUID.randomUUID()+"')";
+			sql=sql+"LAST_UPDATED_BY,ID ) values("+val+"'"+SecurityUtils.getLoginUsername()+"','"+ UUID.randomUUID()+"')";
 			userDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		}else if("Sales_Account,CUX_RT_SALES_ACCOUNT_MAPPING".equals(type)){
 			sql+=" CUX_RT_SALES_ACCOUNT_MAPPING(";
@@ -124,7 +124,7 @@ public class MappingDataService extends BaseService<Parameter>{
 				sql+=columnName+",";
 				val+="'"+columnValue+"',";
 			}
-			sql=sql+"LAST_UPDATE_BY,ID ) values("+val+"'"+SecurityUtils.getLoginUsername()+"','"+ UUID.randomUUID()+"')";
+			sql=sql+"LAST_UPDATED_BY,ID ) values("+val+"'"+SecurityUtils.getLoginUsername()+"','"+ UUID.randomUUID()+"')";
 			userDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		}
 	}

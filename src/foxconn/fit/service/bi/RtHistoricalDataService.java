@@ -154,17 +154,17 @@ public class RtHistoricalDataService{
                 number++;
                 continue;
             }
-                n = 0;
-                data = new ArrayList<String>(COLUMN_NUM);
-                while (n < COLUMN_NUM) {
-                    if(null==row.getCell(n)){
-                        data.add("");
-                    }else{
-                        value = row.getCell(n).getStringCellValue();
-                        data.add(value);
-                    }
-                    n++;
+            n = 0;
+            data = new ArrayList<String>(COLUMN_NUM);
+            while (n < COLUMN_NUM) {
+                if(null==row.getCell(n)){
+                    data.add("");
+                }else{
+                    value = row.getCell(n).getStringCellValue();
+                    data.add(value);
                 }
+                n++;
+            }
 
             if (yearMonth.indexOf(data.get(1).trim())==-1){
                 yearMonth+="'"+data.get(1).trim()+"',";
@@ -178,22 +178,22 @@ public class RtHistoricalDataService{
                     revenueNTD=revenueNTD.add(new BigDecimal(data.get(76).trim()));
                 }
             }
-                dataList.add(data);
-                if(number%3000==0){
-                        map.put(String.valueOf(number),dataList);
-                        dataList=new ArrayList<List<String>>();
-                    }
-                number++;
+            dataList.add(data);
+            if(number%3000==0){
+                map.put(String.valueOf(number),dataList);
+                dataList=new ArrayList<List<String>>();
             }
+            number++;
+        }
         map.put(String.valueOf(number),dataList);
         if (!map.isEmpty()) {
             //校验需求类型是否存在
-                String  msg=dataCheck(revenueUSD,revenueNTD,yearMonth);
-                if(!"S".equals(msg)){
-                    result.put("flag", "fail");
-                    result.put("msg", getByLocale(locale, msg));
-                    return result.getJson();
-                }
+            String  msg=dataCheck(revenueUSD,revenueNTD,yearMonth);
+            if(!"S".equals(msg)){
+                result.put("flag", "fail");
+                result.put("msg", getByLocale(locale, msg));
+                return result.getJson();
+            }
         } else {
             result.put("flag", "fail");
             result.put("msg", getByLocale(locale, "NO valid data row_無有效數據行"));
@@ -222,9 +222,15 @@ public class RtHistoricalDataService{
         String message="S";
         Connection con=null;
         PreparedStatement pst = null;
+        /** 測試環境*/
         String url = "jdbc:oracle:thin:@10.98.5.21:1521:EPMDEV";
         String user = "EPMODS";
         String password = "Foxconn88";
+//        /**正式環境 */
+//        String url = "jdbc:oracle:thin:@10.98.5.28:1521:EPMDEV";
+//        String user = "EPMODS";
+//        String password = "foxoracle-db";
+
         List<PoColumns> columns = poTable.getColumns();
         String columnStr = "";
         String valStr = "";
@@ -487,10 +493,10 @@ public class RtHistoricalDataService{
             deleteSql += whereSql + ")";
             poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
         } catch (Exception e) {
-        ajaxResult.put("flag", "fail");
-        ajaxResult.put("msg", "刪除失敗(delete Fail) : " + ExceptionUtil.getRootCauseMessage(e));
+            ajaxResult.put("flag", "fail");
+            ajaxResult.put("msg", "刪除失敗(delete Fail) : " + ExceptionUtil.getRootCauseMessage(e));
         }
-    return ajaxResult;
+        return ajaxResult;
     }
 
 

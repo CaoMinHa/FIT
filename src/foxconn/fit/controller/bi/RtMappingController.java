@@ -59,7 +59,7 @@ public class RtMappingController extends BaseController{
 		model.addAttribute("supplierList", supplierList);
 		return "/bi/rtMix/index";
 	}
-	
+
 	@RequestMapping(value = "queryRtMapping")
 	@ResponseBody
 	public String queryMasterData(HttpServletRequest request,HttpServletResponse response,AjaxResult result,String masterData){
@@ -77,10 +77,10 @@ public class RtMappingController extends BaseController{
 			result.put("flag", "fail");
 			result.put("msg", ExceptionUtil.getRootCauseMessage(e));
 		}
-		
+
 		return result.getJson();
 	}
-	
+
 	@RequestMapping(value = "refresh")
 	@ResponseBody
 	public String refresh(HttpServletRequest request,HttpServletResponse response,AjaxResult result,@Log(name = "營收映射表") String masterData){
@@ -100,14 +100,14 @@ public class RtMappingController extends BaseController{
 			result.put("flag", "fail");
 			result.put("msg", ExceptionUtil.getRootCauseMessage(e));
 		}
-		
+
 		return result.getJson();
 	}
-	
+
 	@RequestMapping(value = "update")
 	@ResponseBody
 	public String update(HttpServletRequest request,HttpServletResponse response,AjaxResult result,@Log(name = "營收映射表数据") String masterData,@Log(name = "更新条件") String updateData){
-		try {			
+		try {
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 			Assert.hasText(masterData, getLanguage(locale,"營收映射表不能为空","Master data can not be null"));
 			String tableName=masterData.split(",")[1];
@@ -129,7 +129,7 @@ public class RtMappingController extends BaseController{
 				}
 				updateSql=updateSql.substring(0, updateSql.length()-1);
 				updateSql+=where;
-				
+
 				masterDataService.updateMasterData(updateSql);
 			}
 		} catch (Exception e) {
@@ -137,10 +137,10 @@ public class RtMappingController extends BaseController{
 			result.put("flag", "fail");
 			result.put("msg", ExceptionUtil.getRootCauseMessage(e));
 		}
-		
+
 		return result.getJson();
 	}
-	
+
 	@RequestMapping(value="/list")
 	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,String masterData,String queryCondition) {
 		try {
@@ -151,9 +151,9 @@ public class RtMappingController extends BaseController{
 			String language=getLanguage(locale,"CN","EN");
 			List<Object[]> titleList = masterDataService.listBySql("SELECT COL_NAME,COL_DESC,READ_WRITE,LOV,DATA_TYPE FROM CUX_PO_MAP_DATA_COLS WHERE CATEGORY = '"+masterType+"' AND LANGUAGE = '"+language+"' AND IS_DISPLAY = 'Y' AND ENABLED_FLAG = 'Y' ORDER BY to_number(COL_SEQ)");
 			model.addAttribute("titleList", titleList);
-			
+
 			List<Object[]> optionList = masterDataService.listBySql("SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+
-																	"WHERE c.CATEGORY = '"+masterType+"' AND c.LANGUAGE = '"+language+"' AND c.IS_DISPLAY = 'Y' AND c.ENABLED_FLAG = 'Y' and c.LOV is not null and c.lov=v.lov_type and v.language='"+language+"' and v.enabled_flag='Y' order by c.lov,v.lov_code desc");
+					"WHERE c.CATEGORY = '"+masterType+"' AND c.LANGUAGE = '"+language+"' AND c.IS_DISPLAY = 'Y' AND c.ENABLED_FLAG = 'Y' and c.LOV is not null and c.lov=v.lov_type and v.language='"+language+"' and v.enabled_flag='Y' order by c.lov,v.lov_code desc");
 			Map<String,String> optionMap=new HashMap<String,String>();
 			if (optionList!=null && optionList.size()>0) {
 				for (Object[] objects : optionList) {
@@ -169,21 +169,21 @@ public class RtMappingController extends BaseController{
 					optionMap.put(lov, value);
 				}
 			}
-			
+
 			String sql="select id,";
 			for (Object[] titleObjects : titleList) {
 				Object column = titleObjects[0];
 				Object read = titleObjects[2];
 				Object lov = titleObjects[3];
-                Object dataType = titleObjects[4];
+				Object dataType = titleObjects[4];
 				if (lov!=null && StringUtils.isNotEmpty(lov.toString())) {
 					sql+="'"+column+"|"+read+"S|'||nvl("+column+",' ')||'|"+optionMap.get(lov)+"',";
 				}else{
-				    if("DATE".equals(dataType.toString())){
-                        sql+="'"+column+"|"+read+"|'||to_char("+column+",'yyyy-mm-dd hh24:mi:ss'),";
-				    }else{
-                        sql+="'"+column+"|"+read+"|'||"+column+",";
-                    }
+					if("DATE".equals(dataType.toString())){
+						sql+="'"+column+"|"+read+"|'||to_char("+column+",'yyyy-mm-dd hh24:mi:ss'),";
+					}else{
+						sql+="'"+column+"|"+read+"|'||"+column+",";
+					}
 				}
 			}
 			sql=sql.substring(0, sql.length()-1);
@@ -202,7 +202,7 @@ public class RtMappingController extends BaseController{
 					}
 				}
 			}
-			Page<Object[]> page = masterDataService.findPageBySql(pageRequest, sql+" order by LAST_UPDATE_DATE desc,ID");
+			Page<Object[]> page = masterDataService.findPageBySql(pageRequest, sql+" order by LAST_UPDATED_DATE desc,ID");
 			int index=1;
 			if(pageRequest.getPageNo()>1){
 				index=2;
@@ -216,7 +216,7 @@ public class RtMappingController extends BaseController{
 		}
 		return "/bi/rtMix/list";
 	}
-	
+
 	@RequestMapping(value = "upload")
 	@ResponseBody
 	@Log(name = "營收映射表-->上传")
@@ -321,7 +321,7 @@ public class RtMappingController extends BaseController{
 						}
 						value = value.replaceAll("'","''");
 //						if(!"".equals(value.trim())){
-							insertdata.add(value.trim());
+						insertdata.add(value.trim());
 //						}
 					}
 
@@ -351,11 +351,11 @@ public class RtMappingController extends BaseController{
 
 		return result.getJson();
 	}
-	
+
 	@RequestMapping(value = "download")
 	@ResponseBody
 	public String download(HttpServletRequest request,HttpServletResponse response,AjaxResult result,@Log(name = "營收映射表") String masterData,@Log(name = "查询条件") String queryCondition){
-		try {			
+		try {
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 			Assert.hasText(masterData, getLanguage(locale,"營收映射表不能為空","Master data can not be null"));
 
@@ -388,15 +388,15 @@ public class RtMappingController extends BaseController{
 				String columnDescStr=(columnDesc==null?"":columnDesc.toString());
 				String readStr=(read==null?"":read.toString());
 				String lovStr=(lov==null?"":lov.toString());
-				
+
 				readMap.put(i+1, readStr);
 				lovMap.put(i+1, lovStr);
-				
+
 				columnList.add(columnStr);
 				columnDescList.add(columnDescStr);
 				readList.add(readStr);
 				lovList.add(lovStr);
-				
+
 				sql+=column+",";
 			}
 			sql=sql.substring(0, sql.length()-1);
@@ -429,7 +429,7 @@ public class RtMappingController extends BaseController{
 					String lovCode=(String) objects[1];
 					String lovDesc=(String) objects[2];
 					optionMap.put(lov+"&"+lovCode, lovDesc);
-					
+
 					List<String> lovDescList = selectMap.get(lov);
 					if (lovDescList==null) {
 						lovDescList=new ArrayList<String>();
@@ -438,17 +438,17 @@ public class RtMappingController extends BaseController{
 					selectMap.put(lov, lovDescList);
 				}
 			}
-			
+
 			List<BigDecimal> countList = (List<BigDecimal>)masterDataService.listBySql("select count(1) from ("+sql+")");
 			int count = countList.get(0).intValue();
-			
+
 			List<Object[]> dataList = masterDataService.listBySql(sql);
 //			if (dataList.isEmpty()) {
 //				result.put("flag", "fail");
 //				result.put("msg", getLanguage(locale,"沒有查詢到可下載的數據","No data found"));
 //				return result.getJson();
 //			}
-			
+
 			String realPath = request.getRealPath("");
 			File file=new File(request.getRealPath("")+File.separator+"static"+File.separator+"template"+File.separator+"admin"+File.separator+"營收映射表信息.xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(new FileInputStream(file));
@@ -460,17 +460,17 @@ public class RtMappingController extends BaseController{
 			font.setColor(IndexedColors.WHITE.index);
 			font.setBold(true);
 			titleStyle.setFont(font);
-			
+
 			XSSFCellStyle lockStyle = workBook.createCellStyle();
 			lockStyle.setLocked(true);
 			lockStyle.setFillForegroundColor(new XSSFColor(new Color(255, 247, 251)));
 			lockStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-			
+
 			XSSFCellStyle unlockStyle = workBook.createCellStyle();
 			unlockStyle.setLocked(false);
 			unlockStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			unlockStyle.setFillForegroundColor(IndexedColors.WHITE.index);
-			
+
 			SXSSFWorkbook sxssfWorkbook=new SXSSFWorkbook(workBook);
 			String sheetName="";
 			if("CUX_RT_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)){
@@ -482,7 +482,7 @@ public class RtMappingController extends BaseController{
 			Sheet sheet = sxssfWorkbook.getSheetAt(0);
 			sheet.setColumnHidden(0, true);
 			//sheet.protectSheet(new SimpleDateFormat("ddHHmmss").format(new Date()));
-			
+
 			Row columnRow = sheet.createRow(0);
 			Cell columnCell = columnRow.createCell(0);
 			columnCell.setCellValue(language);
@@ -494,7 +494,7 @@ public class RtMappingController extends BaseController{
 				cell.setCellStyle(lockStyle);
 			}
 			columnRow.setZeroHeight(true);
-			
+
 			Row readRow = sheet.createRow(1);
 			Cell readCell = readRow.createCell(0);
 			readCell.setCellValue(tableName);
@@ -506,7 +506,7 @@ public class RtMappingController extends BaseController{
 				cell.setCellStyle(lockStyle);
 			}
 			readRow.setZeroHeight(true);
-			
+
 			Row lovRow = sheet.createRow(2);
 			Cell lovCell = lovRow.createCell(0);
 			lovCell.setCellValue("");
@@ -518,7 +518,7 @@ public class RtMappingController extends BaseController{
 				cell.setCellStyle(lockStyle);
 			}
 			lovRow.setZeroHeight(true);
-			
+
 			Row columnDescRow = sheet.createRow(3);
 			for (int i = 0; i < columnDescList.size(); i++) {
 				String columnDesc = columnDescList.get(i);
@@ -589,7 +589,7 @@ public class RtMappingController extends BaseController{
 			sxssfWorkbook.close();
 			out.flush();
 			out.close();
-			
+
 			result.put("fileName", outFile.getName());
 			result.put("templateName", sheetName+".xlsx");
 			System.gc();
@@ -598,7 +598,7 @@ public class RtMappingController extends BaseController{
 			result.put("flag", "fail");
 			result.put("msg", ExceptionUtil.getRootCauseMessage(e));
 		}
-		
+
 		return result.getJson();
 	}
 
@@ -641,11 +641,11 @@ public class RtMappingController extends BaseController{
 				String where="";
 				String[] params = updateData.split("&");
 
-					String columnName = params[0].substring(0, params[0].indexOf("="));
-					String columnValue =  params[0].substring( params[0].indexOf("=")+1).trim();
-					if ("ID".equalsIgnoreCase(columnName)) {
-						where=" where ID='"+columnValue+"'";
-					}
+				String columnName = params[0].substring(0, params[0].indexOf("="));
+				String columnValue =  params[0].substring( params[0].indexOf("=")+1).trim();
+				if ("ID".equalsIgnoreCase(columnName)) {
+					where=" where ID='"+columnValue+"'";
+				}
 
 				deleteSql+=where;
 				masterDataService.updateMasterData(deleteSql);
