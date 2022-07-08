@@ -30,7 +30,7 @@ public class TaskJob {
     @Autowired
     private ParameterDao userDao;
 
-    @Scheduled(cron = "0 0 8 * * MON-SAT")
+//    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void job(){
         try{
             System.out.print("任務截止日當天及前一天上午8點檢查。");
@@ -131,7 +131,7 @@ public class TaskJob {
         }
     }
 
-    @Scheduled(cron = "0 0 13 * * MON-SAT")
+//    @Scheduled(cron = "0 0 13 * * MON-SAT")
     public void jobOne(){
         try{
             System.out.print("任務截止日當天下午1點檢查。");
@@ -420,7 +420,7 @@ public class TaskJob {
      * 檢查損益單位明細質料
      * **/
 //    @Scheduled(cron = "0 0 1 * * MON-SAT")
-//    @Scheduled(cron = "0 50 9 8 6 MON-SAT")
+    @Scheduled(cron = "0 5 13 8 7 MON-SAT")
     public void checkPLUpdate(){
         try{
             String sql="SELECT COUNT(1) FROM epmebs.ecux_expense_pl_all t WHERE t.attribute8 IS NULL ";
