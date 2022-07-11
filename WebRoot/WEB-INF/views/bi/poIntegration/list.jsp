@@ -128,7 +128,7 @@ function refresh(){
 											<input name="ID" type="checkbox" value="${mapping[i]}"/>
 										</td>
 									</c:when>
-									<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==27 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
+									<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
 										<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 									</c:when>
                                     <c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index >fn:length(mapping)-4}">
@@ -151,7 +151,7 @@ function refresh(){
 											<input name="ID" type="checkbox" value="${mapping[i]}"/>
 										</td>
 									</c:when>
-									<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==27|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
+									<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
 										<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 									</c:when>
                                     <c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index > fn:length(mapping)-index-3}">

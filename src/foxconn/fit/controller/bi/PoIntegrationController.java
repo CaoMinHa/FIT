@@ -367,7 +367,6 @@ public class PoIntegrationController extends BaseController {
         return "/bi/poIntegration/list";
     }
 
-
     @RequestMapping(value = "upload")
     @ResponseBody
     @Log(name = "採購模块-->上传")
@@ -1056,6 +1055,8 @@ public class PoIntegrationController extends BaseController {
                     sheet.setDefaultColumnStyle(4, lockStyle);
                     sheet.setDefaultColumnStyle(20, lockStyle);
                     sheet.setDefaultColumnStyle(26, lockStyle);
+                    sheet.setDefaultColumnStyle(27, lockStyle);
+                    sheet.setDefaultColumnStyle(28, lockStyle);
 //                    sheet.setDefaultColumnStyle(28, lockStyle);
                 } else if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
                     sheet.setDefaultColumnStyle(1, lockStyle);
