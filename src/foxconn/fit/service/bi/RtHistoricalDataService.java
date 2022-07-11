@@ -222,14 +222,14 @@ public class RtHistoricalDataService{
         String message="S";
         Connection con=null;
         PreparedStatement pst = null;
-        /** 測試環境*/
-        String url = "jdbc:oracle:thin:@10.98.5.21:1521:EPMDEV";
-        String user = "EPMODS";
-        String password = "Foxconn88";
-//        /**正式環境 */
-//        String url = "jdbc:oracle:thin:@10.98.5.28:1521:EPMDEV";
+//        /** 測試環境*/
+//        String url = "jdbc:oracle:thin:@10.98.5.21:1521:EPMDEV";
 //        String user = "EPMODS";
-//        String password = "foxoracle-db";
+//        String password = "Foxconn88";
+        /**正式環境 */
+        String url = "jdbc:oracle:thin:@10.98.5.28:1521:EPMDEV";
+        String user = "EPMODS";
+        String password = "foxoracle-db";
 
         List<PoColumns> columns = poTable.getColumns();
         String columnStr = "";

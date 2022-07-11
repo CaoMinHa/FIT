@@ -7,15 +7,15 @@
 	   xmlns:task="http://www.springframework.org/schema/tool"
 	   xmlns:tasks="http://www.springframework.org/schema/task"
 	   xsi:schemaLocation=
-			   "				http://www.springframework.org/schema/beans
-						http://www.springframework.org/schema/beans/spring-beans.xsd
-						http://www.springframework.org/schema/tx
-						http://www.springframework.org/schema/tx/spring-tx.xsd
-						http://www.springframework.org/schema/context
-						http://www.springframework.org/schema/context/spring-context.xsd
-						http://www.springframework.org/schema/jdbc
+	   "				http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd 
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx.xsd 
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context.xsd 
+						http://www.springframework.org/schema/jdbc 
 						http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-						http://www.springframework.org/schema/util
+						http://www.springframework.org/schema/util 
 						http://www.springframework.org/schema/util/spring-util.xsd
 						http://www.springframework.org/schema/tool
 						http://www.springframework.org/schema/tool/spring-tool.xsd
@@ -39,7 +39,7 @@
 		</property>
 	</bean>
 
-	<!-- 实例化@Controller类时，Spring会自动把关联的@Service（此@Service已做了@Transaction事务注解）类实例化，此时事务并未生效，导致@Transaction注解无效，事务未被注册
+	<!-- 实例化@Controller类时，Spring会自动把关联的@Service（此@Service已做了@Transaction事务注解）类实例化，此时事务并未生效，导致@Transaction注解无效，事务未被注册 
 		因此需要把@Controller和其它的@Service,@Components,@Reposity等分开实例化，在事务生效后，并且其它组件都实例化完成后，@Controller最后实例化 -->
 	<context:component-scan base-package="foxconn.fit">
 		<context:exclude-filter type="annotation"
@@ -124,7 +124,7 @@
         <property name="targetObject" ref="sixProcessInterfaceJob" />
         <property name="targetMethod" value="sendAlert" />
     </bean>
-
+ 
     <bean id="cleanDownloadFileTrigger"  class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="cleanDownloadFileDetail" />
         <property name="cronExpression" value="0 0 1 * * ?" />
@@ -133,7 +133,7 @@
         <property name="jobDetail" ref="sixProcessInterfaceDetail" />
         <property name="cronExpression" value="0 0/10 5-23 * * ?" />
     </bean>
-
+ 
     <!-- Scheduler factory bean to glue together jobDetails and triggers to Configure Quartz Scheduler -->
     <bean  class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="jobDetails">
@@ -142,7 +142,7 @@
 <!--                 <ref bean="sixProcessInterfaceDetail" /> -->
             </list>
         </property>
-
+ 
         <property name="triggers">
             <list>
                 <ref bean="cleanDownloadFileTrigger" />

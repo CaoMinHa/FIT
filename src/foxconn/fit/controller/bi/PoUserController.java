@@ -1,11 +1,8 @@
 package foxconn.fit.controller.bi;
 
-import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
-import foxconn.fit.dao.base.PropertyFilter;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.base.User;
-import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.service.base.UserService;
 import foxconn.fit.service.bi.PoRoleService;
@@ -27,7 +24,10 @@ import org.springside.modules.orm.PageRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Yang DaiSheng

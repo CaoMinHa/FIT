@@ -2,16 +2,11 @@ package foxconn.fit.controller.bi;
 
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
-import foxconn.fit.dao.base.PropertyFilter;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.base.User;
-import foxconn.fit.entity.bi.PoColumns;
-import foxconn.fit.entity.bi.PoTable;
-import foxconn.fit.service.base.MasterDataService;
 import foxconn.fit.service.base.UserService;
 import foxconn.fit.service.bi.PoFlowService;
 import foxconn.fit.service.bi.PoTableService;
-import foxconn.fit.util.DateUtil;
 import foxconn.fit.util.ExceptionUtil;
 import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.lang.StringUtils;

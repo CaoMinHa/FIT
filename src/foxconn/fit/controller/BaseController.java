@@ -385,23 +385,11 @@ public abstract class BaseController {
 				} else {
 					sql += columnName + ",";
 				}
-
 				Cell cell = titleRow.createCell(i);
 				cell.setCellValue(comments);
 				cell.setCellStyle(titleStyle);
 				sheet.setColumnWidth(i, comments.getBytes("GBK").length * 400 + 400);
 			}
-
-//			//排序列
-//			String orderBy = "";
-//			List<PoKey> keys = poTable.getKeys();
-//			if (keys != null && keys.size() > 0) {
-//				orderBy = " order by ";
-//				for (PoKey key : keys) {
-//					orderBy += key.getColumnName() + ",";
-//				}
-//				orderBy = orderBy.substring(0, orderBy.length() - 1);
-//			}
 
 			//页面条件
 			String regEx="[^0-9]";
@@ -451,9 +439,8 @@ public abstract class BaseController {
 					if (CollectionUtils.isNotEmpty(dataList)) {
 						for (Object[] objects : dataList) {
 							Row contentRow = sheet.createRow(rowIndex++);
-							String generateType = objects[0].toString();
-							for (int i = 0; i < objects.length; i++) {
-								Cell cell = contentRow.createCell(i);
+							for (int i = 1; i < objects.length-1; i++) {
+								Cell cell = contentRow.createCell(i-1);
 								String text = (objects[i] != null ? objects[i].toString() : "");
 								if (StringUtils.isNotEmpty(text) && numberList.contains(i-1)) {
 									cell.setCellValue(Double.parseDouble(text));
