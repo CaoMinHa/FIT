@@ -1,22 +1,12 @@
 package foxconn.fit.controller;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoKey;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.UserDetailImpl;
-import foxconn.fit.service.base.UserService;
 import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.util.DateUtil;
 import foxconn.fit.util.ExcelUtil;
@@ -35,23 +25,30 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetProtection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.util.WebUtils;
 import org.springside.modules.orm.PageRequest;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public abstract class BaseController {
-	
+
 	public Log logger = LogFactory.getLog(this.getClass());
-	
+
 	@Autowired
 	public SpringValidatorAdapter validator;
 
 	@Autowired
 	private PoTableService poTableService;
-	
+
 	protected void out(Object result, HttpServletResponse response) throws IOException {
 		ServletOutputStream out = response.getOutputStream();
 
@@ -59,7 +56,7 @@ public abstract class BaseController {
 		objectMapper.writeValue(out, result);
 		out.flush();
 	}
-	
+
 	protected String getByLocale(Locale locale,String value){
 		if (StringUtils.isNotEmpty(value) && value.indexOf("_")>0) {
 			if (locale!=null && "en_US".equals(locale.toString())) {
@@ -70,7 +67,7 @@ public abstract class BaseController {
 		}
 		return value;
 	}
-	
+
 	protected String getLanguage(Locale locale,String zh,String en){
 		if ("en_US".equals(locale.toString())) {
 			return en;
@@ -385,23 +382,11 @@ public abstract class BaseController {
 				} else {
 					sql += columnName + ",";
 				}
-
 				Cell cell = titleRow.createCell(i);
 				cell.setCellValue(comments);
 				cell.setCellStyle(titleStyle);
 				sheet.setColumnWidth(i, comments.getBytes("GBK").length * 400 + 400);
 			}
-
-//			//排序列
-//			String orderBy = "";
-//			List<PoKey> keys = poTable.getKeys();
-//			if (keys != null && keys.size() > 0) {
-//				orderBy = " order by ";
-//				for (PoKey key : keys) {
-//					orderBy += key.getColumnName() + ",";
-//				}
-//				orderBy = orderBy.substring(0, orderBy.length() - 1);
-//			}
 
 			//页面条件
 			String regEx="[^0-9]";
@@ -451,9 +436,8 @@ public abstract class BaseController {
 					if (CollectionUtils.isNotEmpty(dataList)) {
 						for (Object[] objects : dataList) {
 							Row contentRow = sheet.createRow(rowIndex++);
-							String generateType = objects[0].toString();
-							for (int i = 0; i < objects.length; i++) {
-								Cell cell = contentRow.createCell(i);
+							for (int i = 1; i < objects.length-1; i++) {
+								Cell cell = contentRow.createCell(i-1);
 								String text = (objects[i] != null ? objects[i].toString() : "");
 								if (StringUtils.isNotEmpty(text) && numberList.contains(i-1)) {
 									cell.setCellValue(Double.parseDouble(text));
