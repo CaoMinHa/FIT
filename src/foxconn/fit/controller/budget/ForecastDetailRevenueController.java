@@ -369,7 +369,11 @@ public class ForecastDetailRevenueController extends BaseController {
 						values = productMap.values();
 						forecastDetailRevenueService.saveCheckExist(values);
 //						List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from FIT_CHECK_EXIST c where not exists (select distinct product from (select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' union all select distinct trim(partno_col) as product from bidev.if_bd_fitpartno) b where b.product=c.value)");
-						List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct ITEM_CODE from epmods.cux_inv_sbu_item_info_mv m where m.item_code=c.value)");
+						List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
+								"select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' \n" +
+								"union all\n" +
+								"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv\n" +
+								") b where b.product=c.value)");
 						if (!partNoList.isEmpty()) {
 							result.put("flag", "fail");
 							result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
@@ -682,7 +686,11 @@ public class ForecastDetailRevenueController extends BaseController {
 						values = productMap.values();
 						forecastDetailRevenueService.saveCheckExist(values);
 //						List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from FIT_CHECK_EXIST c where not exists (select distinct product from (select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' union all select distinct trim(partno_col) as product from bidev.if_bd_fitpartno) b where b.product=c.value)");
-						List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct ITEM_CODE from epmods.cux_inv_sbu_item_info_mv m where m.item_code=c.value)");
+						List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
+								"select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' \n" +
+								"union all\n" +
+								"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv\n" +
+								") b where b.product=c.value)");
 						if (!partNoList.isEmpty()) {
 							result.put("flag", "fail");
 							result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
