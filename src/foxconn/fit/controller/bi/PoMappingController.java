@@ -240,7 +240,7 @@ public class PoMappingController extends BaseController{
 				}else if("CUX_PO_COMMODITY_MAPPING".equalsIgnoreCase(tableName)){
 					sql+=" order by COMMODITY_NO";
 				}else if("CUX_INTERNERL_VENDOR".equalsIgnoreCase(tableName)){
-					sql+=" order by LAST_UPDATED_DATE desc,vendor_code";
+					sql+=" order by to_number(NO)";
 				}
 				else{
 					sql+=" order by ID";
