@@ -41,6 +41,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -189,194 +190,19 @@ public class PoIntegrationController extends BaseController {
         return "/bi/poIntegration/index";
     }
 
-    @RequestMapping(value = "/list")
-    public String list(Model model, PageRequest pageRequest, HttpServletRequest request, String DateYear,
-                       String date, String dateEnd, String tableName, String poCenter, String sbuVal,String commodity) {
-        try {
-            Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-            Assert.hasText(tableName, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
-            HttpSession session = request.getSession(false);
-            if(String.valueOf(session.getAttribute("detailsTsak")).equalsIgnoreCase("ok")){
-                session.setAttribute("detailsTsak","");
-            }
-            if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-                tableName = "FIT_PO_CD_MONTH_DOWN";
-            }
-            PoTable poTable = poTableService.get(tableName);
-
-            List<PoColumns> columns = poTable.getColumns();
-            for (PoColumns poColumns : columns) {
-                poColumns.setComments(getByLocale(locale, poColumns.getComments()));
-            }
-            String sql = "select ID,";
-            String sqlSum = "select '' ID,";
-            for (PoColumns column : columns) {
-                String columnName = column.getColumnName();
-                if (column.getDataType().equalsIgnoreCase("number")) {
-                    //改成原样输出
-                    sql += columnName + ",";
-                    if ("FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-                        switch (columnName) {
-                            case "CPO_PRO":
-                                sqlSum += "to_char(decode((sum(YEAR_TOTAL)+sum(PO_TARGET_CD)),0,null,sum(PO_TARGET_CD)/(sum(YEAR_TOTAL)+sum(PO_TARGET_CD))*100),9999999999.9999) CPO_PRO,";
-                                break;
-                            case "PO_TARGET_CPO":
-                                sqlSum += "to_char(decode((sum(YEAR_TOTAL)+sum(PO_TARGET_CD)),0,null,sum(PO_TARGET_CD)/(sum(YEAR_TOTAL)+sum(PO_TARGET_CD))*100),9999999999.9999) PO_TARGET_CD,";
-                                break;
-                            case "ONE_CPO":
-                                sqlSum += "to_char(decode((sum(ONE_PO_MONEY)+sum(ONE_CD)),0,null,sum(ONE_CD)/(sum(ONE_PO_MONEY)+sum(ONE_CD))*100),9999999999.9999) ONE_CPO,";
-                                break;
-                            case "TWO_CPO":
-                                sqlSum += "to_char(decode((sum(TWO_PO_MONEY)+sum(TWO_CD)),0,null,sum(TWO_CD)/(sum(TWO_PO_MONEY)+sum(TWO_CD))*100),9999999999.9999) TWO_CPO,";
-                                break;
-                            case "THREE_CPO":
-                                sqlSum += "to_char(decode((sum(THREE_PO_MONEY)+sum(THREE_CD)),0,null,sum(THREE_CD)/(sum(THREE_PO_MONEY)+sum(THREE_CD))*100),9999999999.9999) THREE_CPO,";
-                                break;
-                            case "FOUR_CPO":
-                                sqlSum += "to_char(decode((sum(FOUR_PO_MONEY)+sum(FOUR_CD)),0,null,sum(FOUR_CD)/(sum(FOUR_PO_MONEY)+sum(FOUR_CD))*100),9999999999.9999) FOUR_CPO,";
-                                break;
-                            case "FIVE_CPO":
-                                sqlSum += "to_char(decode((sum(FIVE_PO_MONEY)+sum(FIVE_CD)),0,null,sum(FIVE_CD)/(sum(FIVE_PO_MONEY)+sum(FIVE_CD))*100),9999999999.9999) FIVE_CPO,";
-                                break;
-                            case "SIX_CPO":
-                                sqlSum += "to_char(decode((sum(SIX_PO_MONEY)+sum(SIX_CD)),0,null,sum(SIX_CD)/(sum(SIX_PO_MONEY)+sum(SIX_CD))*100),9999999999.9999) SIX_CPO,";
-                                break;
-                            case "SEVEN_CPO":
-                                sqlSum += "to_char(decode((sum(SEVEN_PO_MONEY)+sum(SEVEN_CD)),0,null,sum(SEVEN_CD)/(sum(SEVEN_PO_MONEY)+sum(SEVEN_CD))*100),9999999999.9999) SEVEN_CPO,";
-                                break;
-                            case "EIGHT_CPO":
-                                sqlSum += "to_char(decode((sum(EIGHT_PO_MONEY)+sum(EIGHT_CD)),0,null,sum(EIGHT_CD)/(sum(EIGHT_PO_MONEY)+sum(EIGHT_CD))*100),9999999999.9999) EIGHT_CPO,";
-                                break;
-                            case "NINE_CPO":
-                                sqlSum += "to_char(decode((sum(NINE_PO_MONEY)+sum(NINE_CD)),0,null,sum(NINE_CD)/(sum(NINE_PO_MONEY)+sum(NINE_CD))*100),9999999999.9999) NINE_CPO,";
-                                break;
-                            case "TEN_CPO":
-                                sqlSum += "to_char(decode((sum(TEN_PO_MONEY)+sum(TEN_CD)),0,null,sum(TEN_CD)/(sum(TEN_PO_MONEY)+sum(TEN_CD))*100),9999999999.9999) TEN_CPO,";
-                                break;
-                            case "ELEVEN_CPO":
-                                sqlSum += "to_char(decode((sum(ELEVEN_PO_MONEY)+sum(ELEVEN_CD)),0,null,sum(ELEVEN_CD)/(sum(ELEVEN_PO_MONEY)+sum(ELEVEN_CD))*100),9999999999.9999) ELEVEN_CPO,";
-                                break;
-                            case "TWELVE_CPO":
-                                sqlSum += "to_char(decode((sum(TWELVE_PO_MONEY)+sum(TWELVE_CD)),0,null,sum(TWELVE_CD)/(sum(TWELVE_PO_MONEY)+sum(TWELVE_CD))*100),9999999999.9999) TWELVE_CPO,";
-                                break;
-                            case "PO_CPO":
-                                sqlSum += "to_char(decode((sum(PO_TOTAL)+sum(PO_CD)),0,null,sum(PO_CD)/(sum(PO_TOTAL)+sum(PO_CD))*100),9999999999.9999) PO_CPO,";
-                                break;
-                            default:
-                                sqlSum += "sum(" + columnName + "),";
-                                break;
-                        }
-                    }else if("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())){
-                        switch (columnName) {
-                            case "YEAR_CD":
-                                sqlSum += " sum(YEAR_CD_AMOUNT)/(sum(YEAR_CD_AMOUNT)+sum(PO_AMOUNT))*100 YEAR_CD ,";
-                                break;
-                            default:
-                                sqlSum += "sum(" + columnName + "),";
-                                break;
-                        }
-                    }else {
-                        sqlSum += "sum(" + columnName + "),";
-                    }
-                } else if (column.getDataType().equalsIgnoreCase("date")) {
-                    sql += "to_char(" + columnName + ",'dd/mm/yyyy'),";
-                    sqlSum += "'' " + columnName + ",";
-                } else {
-                    sql += columnName + ",";
-                    sqlSum += "'' " + columnName + ",";
-                }
-            }
-            sql = sql.substring(0, sql.length() - 1);
-            sql += " from " + poTable.getTableName() + " where 1=1";
-            sqlSum = sqlSum.substring(0, sqlSum.length() - 1);
-            sqlSum += " from " + poTable.getTableName() + " where 1=1";
-            String whereSql = "";
-            String orderBy = " order by ";
-            if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())) {
-                if (StringUtils.isNotEmpty(DateYear)) {
-                    whereSql += " and " + columns.get(0).getColumnName() + "='" + DateYear + "'";
-                }
-                if (StringUtils.isNotEmpty(poCenter)) {
-                    whereSql += " and " + columns.get(1).getColumnName() + "='" + poCenter + "'";
-                }
-            } else {
-                if (StringUtils.isNotEmpty(date) && StringUtils.isNotEmpty(dateEnd)) {
-                    Date d = DateUtil.parseByYyyy_MM(date);
-                    Assert.notNull(d, getLanguage(locale, "年月格式錯誤", "The format of year/month is error"));
-                    String[] split = date.split("-");
-                    String[] split1 = dateEnd.split("-");
-                    String year = split[0];
-                    String period = split[1];
-                    String period1 = split1[1];
-                    if (period.length() < 2) {
-                        period = "0" + period;
-                    }
-                    if (period1.length() < 2) {
-                        period1 = "0" + period1;
-                    }
-                    orderBy += columns.get(1).getColumnName() + ", ";
-                    whereSql += " and " + columns.get(0).getColumnName() + " =" + year + " and " + columns.get(1).getColumnName() + ">=" + period + " and " + columns.get(1).getColumnName() + "<=" + period1;
-                }
-                if (StringUtils.isNotEmpty(poCenter)) {
-                    whereSql += " and " + columns.get(2).getColumnName() + "='" + poCenter + "'";
-                }
-            }
-            if ("FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-                whereSql = "";
-                whereSql += " and year= " + DateYear;
-            }
-
-            if(null!=commodity && !"".equalsIgnoreCase(commodity)){
-                String commotityVal="";
-                for (int i=0;i<commodity.split(",").length;i++) {
-                    commotityVal+="'"+commodity.split(",")[i]+"',";
-                }
-                if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())||
-                        "FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(poTable.getTableName())||
-                        "FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-                    whereSql += " and COMMODITY_MAJOR in(" + commotityVal.substring(0,commotityVal.length()-1) + ")";
-                }else{
-                    whereSql += " and COMMODITY in (" + commotityVal.substring(0,commotityVal.length()-1) + ")";
-                }
-            }
-            if (StringUtils.isNotEmpty(sbuVal)) {
-                whereSql += " and sbu LIKE " + "'%" + sbuVal + "%'";
-            }
-            orderBy += " ID,SBU";
-            sql = sql+" and flag!='-1' " + whereSql + orderBy;
-            sqlSum += whereSql+" and flag!='-1' ";
-            System.out.println(sql + "合計：" + sqlSum);
-
-            Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
-            PageRequest pageRequest1 = new PageRequest();
-            pageRequest1.setPageNo(1);
-            pageRequest1.setPageSize(1);
-            Page<Object[]> pages = poTableService.findPageBySql(pageRequest1, sqlSum);
-            page.getResult().addAll(pages.getResult());
-            int index = 1;
-            if (pageRequest.getPageNo() > 1) {
-                index = 2;
-            }
-            model.addAttribute("index", index);
-            model.addAttribute("tableName", poTable.getTableName());
-            model.addAttribute("page", page);
-            model.addAttribute("columns", columns);
-        } catch (Exception e) {
-            logger.error("查询明细配置表列表失败:", e);
-        }
-        return "/bi/poIntegration/list";
-    }
 
     @RequestMapping(value = "upload")
     @ResponseBody
     @Log(name = "採購模块-->上传")
-    public String upload(HttpServletRequest request, HttpServletResponse response, AjaxResult result,
-                         @Log(name = "年月") String dateDownLoad, @Log(name = "明细表名称") String[] tableNamesOut1) {
+    public String upload(HttpServletRequest request, HttpServletResponse response, AjaxResult result, @Log(name = "明细表名称") String[] tableNamesOut1) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
-        List<String> subs = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie  where tie.NEW_SBU_NAME in('PSS','ASD','FIAD','ACD','CRD','EMS','TMTS','IoT','ABS','Tengyang','FAB','TSC','IDS','APS','CW','AEC','CIDA','ACE','APS','OLU','Other','FAD') order by tie.NEW_SBU_NAME   ");
+        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+        List<String> subs = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie  where tie.NEW_SBU_NAME in('PSS','ASD','FIAD','ACD','CRD','EMS','TMTS','IoT','ABS','Tengyang','FAB','TSC','IDS','APS','CW','AEC','CIDA','ACE','APS','OLU','Other','FAD') order by tie.NEW_SBU_NAME");
         List<String> commoditys = poCenterService.findCommoditys();
-        List<String> monthList = new ArrayList<>(); //月list
+        List<String> monthList = new ArrayList<>();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        String[] date =formatter.format(new Date()).split("-");
         String tableName = "";
         HttpSession session = request.getSession();
         String dataRangeStr = "";
@@ -386,18 +212,19 @@ public class PoIntegrationController extends BaseController {
             result.put("msg", "系统繁忙，请重新登录");
             return result.getJson();
         }
-        dateDownLoad=dateDownLoad.replace(",","").trim();
-        if(tableNamesOut1[0].equalsIgnoreCase("FIT_PO_SBU_YEAR_CD_SUM")
-                ||tableNamesOut1[0].equalsIgnoreCase("FIT_PO_CD_MONTH_DTL")){
-            dateDownLoad=dateDownLoad+"-01";
-        }
         try {
+            if(!poTableService.updateState(loginUser.getUsername())){
+                if("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableNamesOut1[0])||"FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableNamesOut1[0])){
+                    if(Integer.parseInt(date[0])>10){
+                        result.put("flag", "fail");
+                        result.put("msg", getLanguage(locale, "上傳時間為每月1-10號，現已逾期，請聯係管理員。", "The upload time is from the 1st to the 10th of each month, it is overdue, please contact the administrator"));
+                        return result.getJson();
+                    }
+                }
+            }
             Assert.isTrue(tableNamesOut1 != null && tableNamesOut1.length > 0, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
-            Date d = DateUtil.parseByYyyy_MM(dateDownLoad);
-            Assert.notNull(d, getLanguage(locale, "年月格式錯誤", "The format of year/month is error"));
-            String[] split = dateDownLoad.split("-");
-            String year = split[0];
-            String period = split[1];
+            String year = date[2];
+            String period = Integer.toString(Integer.valueOf(date[1])-1);
             List<String> sbuList = new ArrayList<>();
             List<String> commodityList = new ArrayList<>();
             Set<String> sbuSet = new HashSet<>();
@@ -411,7 +238,6 @@ public class PoIntegrationController extends BaseController {
             Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
             if (mutipartFiles != null && mutipartFiles.size() > 0) {
                 MultipartFile file = (MultipartFile) mutipartFiles.values().toArray()[0];
-
                 String suffix = "";
                 if (file.getOriginalFilename().lastIndexOf(".") != -1) {
                     suffix = file.getOriginalFilename().substring(
@@ -424,7 +250,6 @@ public class PoIntegrationController extends BaseController {
                     result.put("msg", getLanguage(locale, "請上傳正確格式的Excel文件", "The format of excel is error"));
                     return result.getJson();
                 }
-
                 Workbook wb = null;
                 if ("xls".equals(suffix)) {
                     //Excel2003
@@ -445,13 +270,11 @@ public class PoIntegrationController extends BaseController {
                     Row firstRow = sheet.getRow(0);
                     Assert.notNull(firstRow, getLanguage(locale, "第" + (i + 1) + "個sheet的第一行為標題行，不允許為空", "The title line of the " + (i + 1) + "th sheet cannot be empty"));
                     int columnNum = firstRow.getPhysicalNumberOfCells();
-
                     if (columnNum < COLUMN_NUM) {
                         result.put("flag", "fail");
                         result.put("msg", getLanguage(locale, "第" + (i + 1) + "個sheet的列數不能小於" + COLUMN_NUM, "The number of columns in sheet " + (i + 1) + " cannot be less than " + COLUMN_NUM));
                         return result.getJson();
                     }
-
                     int rowNum = sheet.getPhysicalNumberOfRows();
                     if (rowNum < 3) {
                         result.put("flag", "fail");
@@ -713,7 +536,6 @@ public class PoIntegrationController extends BaseController {
             result.put("flag", "fail");
             result.put("msg", ExceptionUtil.getRootCauseMessage(e));
         }
-
         return result.getJson();
     }
 
@@ -723,7 +545,7 @@ public class PoIntegrationController extends BaseController {
     public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
                                         String DateYear,
                                         String date, String dateEnd, String tableNames,
-                                        String poCenter, String sbuVal,String commodity) {
+                                        String poCenter, String sbuVal, String priceControl,String commodity) {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 
@@ -745,7 +567,6 @@ public class PoIntegrationController extends BaseController {
             String[] tables = tableNames.split(",");
             SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook(workBook);
             for (String tableName : tables) {
-
                 if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
                     tableName = "FIT_PO_CD_MONTH_DOWN";
                 }
@@ -793,8 +614,6 @@ public class PoIntegrationController extends BaseController {
                 if("EPMEBS.CUX_PO_RECEIPT_DTL_STA".equalsIgnoreCase(tableName)){
                     orderBy = " order by ENTERNO";
                 }
-                String yearColumn = columns.get(0).getColumnName();
-                String periodColumn = columns.get(1).getColumnName();
                 String whereSql = " where 1=1 ";
                 if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())) {
                     if (StringUtils.isNotEmpty(DateYear)) {
@@ -802,6 +621,9 @@ public class PoIntegrationController extends BaseController {
                     }
                     if (StringUtils.isNotEmpty(poCenter)) {
                         whereSql += " and " + columns.get(1).getColumnName() + "='" + poCenter + "'";
+                    }
+                    if (StringUtils.isNotEmpty(priceControl)) {
+                        whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
                     }
                 } else {
                     if (StringUtils.isNotEmpty(date) && StringUtils.isNotEmpty(dateEnd)) {
@@ -846,6 +668,9 @@ public class PoIntegrationController extends BaseController {
                 if ("FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
                     whereSql = " where 1=1";
                     whereSql += " and year= " + DateYear;
+                    if (StringUtils.isNotEmpty(priceControl)) {
+                        whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
+                    }
                 }
                 if(null!=commodity && !"".equalsIgnoreCase(commodity)){
                     String commotityVal="";
@@ -938,9 +763,7 @@ public class PoIntegrationController extends BaseController {
             sxssfWorkbook.close();
             out.flush();
             out.close();
-
             result.put("fileName", outFile.getName());
-
             System.gc();
         } catch (Exception e) {
             logger.error("下载Excel失败", e);
@@ -957,11 +780,6 @@ public class PoIntegrationController extends BaseController {
     public synchronized String template(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result, String tableNames, String table_type) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         try {
-//            Assert.hasText(tableNames, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
-//            if (tableNames.endsWith(",")) {
-//                tableNames = tableNames.substring(0, tableNames.length() - 1);
-//            }
-
             XSSFWorkbook workBook = new XSSFWorkbook();
             XSSFCellStyle titleStyle = workBook.createCellStyle();
             titleStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -982,7 +800,6 @@ public class PoIntegrationController extends BaseController {
             font.setColor(IndexedColors.WHITE.index);
             font.setBold(true);
             titleStyle.setFont(font);
-
             //	单元格不锁定的样式
             XSSFCellStyle unlockstyle = workBook.createCellStyle();
             unlockstyle.setLocked(false);
@@ -1021,11 +838,6 @@ public class PoIntegrationController extends BaseController {
                         sheet.setColumnWidth(i, examples.getBytes("GBK").length * 300 + 300);
                     }
                 }
-                //sheet.setColumnHidden(0, true);
-
-                //	设置锁定的单元格为写保护
-                //	可以单独设置密码
-                //	sheet.protectSheet(new String("GaoMinYa"));
                 sheet.enableLocking();
                 CTSheetProtection sheetProtection = sheet.getCTWorksheet().getSheetProtection();
                 sheetProtection.setSelectLockedCells(false);
@@ -1043,12 +855,10 @@ public class PoIntegrationController extends BaseController {
                 sheetProtection.setPivotTables(true);
                 sheetProtection.setObjects(true);
                 sheetProtection.setScenarios(true);
-
                 //统一先去掉表锁定
                 for (short i = 0; i < columns.size(); i++) {
                     sheet.setDefaultColumnStyle(i, unlockstyle);
                 }
-
                 //置灰一些表字段
                 if ("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableName)) {
                     sheet.setDefaultColumnStyle(2, lockStyle);
@@ -1127,7 +937,6 @@ public class PoIntegrationController extends BaseController {
             }
 
             File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download/" + fileName + ".xlsx");
-            //File outFile=new File(request.getRealPath("")+File.separator+"static"+File.separator+"download"+File.separator+System.currentTimeMillis()+".xlsx");
             OutputStream out = new FileOutputStream(outFile);
             workBook.write(out);
             workBook.close();
@@ -1143,55 +952,6 @@ public class PoIntegrationController extends BaseController {
 
         return result.getJson();
     }
-
-
-    @RequestMapping(value = "/delete")
-    @ResponseBody
-    public String deleteAll(AjaxResult ajaxResult, HttpServletRequest request, String id, String tableName) {
-        try {
-            if (StringUtils.isNotEmpty(id)) {
-                String[] ids = id.split(",");
-                String idStr = "";
-                for (String s : ids) {
-                    idStr = idStr + "'" + s + "',";
-                }
-                idStr = idStr.substring(0, idStr.length() - 1);
-                if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-                    tableName = "FIT_PO_CD_MONTH_DOWN";
-                } else if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                    String cpoSql = " select COUNT(*) FROM FIT_PO_Target_CPO_CD_DTL " +
-                            " WHERE FLAG='0' AND YEAR IN (SELECT YEAR FROM FIT_PO_SBU_YEAR_CD_SUM " +
-                            " WHERE ID IN (" + idStr + "))";
-                    List<Map> maps = poTableService.listMapBySql(cpoSql);
-                    if (maps != null && !"0".equals(maps.get(0).get("COUNT(*)").toString())) {
-                        ajaxResult.put("flag", "fail");
-                        ajaxResult.put("msg", "删除的sbu数据所对应的CPO任务已流转，不能删除");
-                        return ajaxResult.getJson();
-                    }
-                }
-                String sql = " SELECT COUNT(*) FROM "
-                        + tableName + " WHERE ID IN ( "
-                        + idStr + ") AND FLAG!='0'";
-                List<Map> countMaps = poTableService.listMapBySql(sql);
-                if (countMaps != null && !"0".equals(countMaps.get(0).get("COUNT(*)").toString())) {
-                    ajaxResult.put("flag", "fail");
-                    ajaxResult.put("msg", "删除数据对应的任务已提交，数据不能删除");
-                    return ajaxResult.getJson();
-                } else {
-                    poTableService.deleteAll(idStr, tableName);
-                }
-            } else {
-                ajaxResult.put("flag", "fail");
-                ajaxResult.put("msg", "删除数据异常,请稍后再试");
-            }
-        } catch (Exception e) {
-            logger.error("刪除" + tableName + "数据失败", e);
-            ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", "刪除" + tableName + "失败(delete " + tableName + " Fail) : " + ExceptionUtil.getRootCauseMessage(e));
-        }
-        return ajaxResult.getJson();
-    }
-
 
     /**
       遍历数组，去重

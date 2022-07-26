@@ -168,6 +168,7 @@
                     tableName: tableName,
                     poCenter: entity,
                     sbuVal: sbuVal,
+                    priceControl:$("#priceControl").val(),
                     commodity:$("#commodity").val()
                 }, function () {
                     $("#loading").fadeOut(1000);
@@ -325,6 +326,7 @@
                     tableNames: tableName,
                     poCenter: entity,
                     sbuVal: sbuVal,
+                    priceControl:$("#priceControl").val(),
                     commodity:$("#commodity").val()
                 },
                 success: function (data) {
@@ -375,7 +377,7 @@
                     </li>
                     <li style="height:20px;">
                         <span id="DateYearTip" style="display:none;"
-                              class="Validform_checktip Validform_wrong">請填寫正確的年份(Please fill in the correct year)</span>
+                              class="Validform_checktip Validform_wrong">請填寫正確的年份<br>(Please fill in the correct year)</span>
                     </li>
                 </ul>
                 <ul style="float:left;margin-left:-10px;" name="YYYYMM">
@@ -424,8 +426,15 @@
                         <input type="text" style="width: 140px;" id="sbuVal" value="${sbuVal}"  placeholder="sbu">
                     </li>
                 </ul>
-
-
+                <ul style="float:left;display: none;margin-left:10px;" name="YYYY">
+                    <li>
+                        <select id="priceControl" name="priceControl" class="input-large" style="width:140px;">
+                            <option value="">請選擇是否客指</option>
+                            <option value="客指">客指</option>
+                            <option value="非客指">非客指</option>
+                        </select>
+                    </li>
+                </ul>
                 <button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;"
                         type="submit"><spring:message code='query'/></button>
                 <c:if test="${hasKey eq '1'}">

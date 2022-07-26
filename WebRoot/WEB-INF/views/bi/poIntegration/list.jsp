@@ -93,6 +93,7 @@ function clickPage(page){
 				tableName: tableName,
 				poCenter: entity,
 				sbuVal: sbuVal,
+				priceControl:$("#priceControl").val(),
 				commodity:$("#commodity").val()
 			},function(){$("#loading").fadeOut(1000);});
 }

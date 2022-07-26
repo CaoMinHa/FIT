@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.*;
@@ -314,7 +313,6 @@ public class PoMappingController extends BaseController{
 				String language = columnRow.getCell(0).getStringCellValue();
 				String tableNAME = readRow.getCell(0).getStringCellValue();
 				Assert.isTrue(tableName.equals(tableNAME), getLanguage(locale,"採購映射表选择错误","The selected master data is error"));
-
 				List<Integer> indexList=new ArrayList<Integer>();
 				List<String> columnList=new ArrayList<String>();
 				Map<Integer,String> readMap=new HashMap<Integer, String>();
@@ -334,7 +332,6 @@ public class PoMappingController extends BaseController{
 						indexList.add(Integer.valueOf(i));
 					}
 				}
-
 				List<Object[]> optionList = masterDataService.listBySql("SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+
 						"WHERE c.CATEGORY = '"+masterType+"' AND c.LANGUAGE = '"+language+"' AND c.IS_DISPLAY = 'Y' AND c.ENABLED_FLAG = 'Y' and c.LOV is not null and c.lov=v.lov_type and v.language='"+language+"' and v.enabled_flag='Y' order by c.lov,v.lov_code desc");
 				Map<String,String> optionMap=new HashMap<String,String>();
@@ -349,14 +346,10 @@ public class PoMappingController extends BaseController{
 				List<List<String>> insertdataList=new ArrayList<List<String>>();
 				for (int i = 4; i < rowNum; i++) {
 					Row row = sheet.getRow(i);
-
 					if (row==null) {
 						continue;
 					}
-
 					List<String> insertdata=new ArrayList<String>();
-
-
 						for (Integer index : indexList) {
 							String value = ExcelUtil.getCellStringValue(row.getCell(index),i);
 							if ("WS".equals(readMap.get(index)) && StringUtils.isNotEmpty(value)) {
@@ -371,10 +364,7 @@ public class PoMappingController extends BaseController{
                     if(!insertdata.isEmpty()&&!"".equals(insertdata.get(0))){
                         insertdataList.add(insertdata);
                     }
-
-
 				}
-
 				insertdataList=ifRepeat(insertdataList);
 				if (!insertdataList.isEmpty()) {
 					mappingDataService.saveBatch(tableNAME,columnList,insertdataList);
@@ -483,8 +473,8 @@ public class PoMappingController extends BaseController{
 				}
 			}
 
-			List<BigDecimal> countList = (List<BigDecimal>)masterDataService.listBySql("select count(1) from ("+sql+")");
-			int count = countList.get(0).intValue();
+//			List<BigDecimal> countList = (List<BigDecimal>)masterDataService.listBySql("select count(1) from ("+sql+")");
+//			int count = countList.get(0).intValue();
 
 			List<Object[]> dataList = masterDataService.listBySql(sql);
 			if (dataList.isEmpty()) {

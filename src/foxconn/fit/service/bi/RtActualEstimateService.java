@@ -39,11 +39,17 @@ public class RtActualEstimateService {
     public String selectDataSql(String queryCondition, PoTable poTable, Model model,String saleSorg) {
         List<PoColumns> columns = poTable.getColumns();
         List<PoColumns> columnsList=new ArrayList<>();
+        String sql = "select ";
         for (PoColumns poColumns : columns) {
                 poColumns.setComments(poColumns.getComments());
                 columnsList.add(poColumns);
+            if(poColumns.getDataType().equalsIgnoreCase("DATE")){
+                sql+="to_char("+poColumns.getColumnName()+",'yyyy/mm/dd hh24:mi:ss'),";
+            }else{
+                sql+=poColumns.getColumnName()+",";
+            }
         }
-        String sql = "select * from bidev.cux_actual_target_rev_v where 1=1 ";
+        sql = sql.substring(0,sql.length()-1)+ " from bidev.cux_actual_target_rev_v where 1=1 ";
         if (StringUtils.isNotEmpty(queryCondition)) {
             String[] params = queryCondition.split("&");
             params[params.length-1]="SALES_ORG="+saleSorg;

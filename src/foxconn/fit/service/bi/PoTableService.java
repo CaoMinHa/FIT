@@ -356,7 +356,7 @@ public class PoTableService extends BaseService<PoTable> {
             }
         }
     }
-    /*
+    /**
         系统管理员可以删除数据
         每张表任务处于已提交后都不能删除
         特殊 sbu删除规则，当cpo当年度任务新建则不能删除
@@ -377,9 +377,8 @@ public class PoTableService extends BaseService<PoTable> {
 
     }
 
-
-    //保存数据
-    @Transactional
+    /** 保存数据**/
+    @Transactional(rollbackFor = Exception.class)
     public void saveData(Map<PoTable, List<List<String>>> dataMap) {
         int cnt = 1;
         for (PoTable poTable : dataMap.keySet()) {
@@ -421,6 +420,15 @@ public class PoTableService extends BaseService<PoTable> {
     }
     public void updateSql(String sql){
         poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
+    }
+
+    public Boolean updateState(String user){
+        String sql="select count(1) from fit_user_po_upload_v v where v.state='Y' and v.USERNAME='"+user+"'";
+        List<Map> maps = poTableDao.listMapBySql(sql);
+        if (maps != null && !"0".equals(maps.get(0).get("COUNT(1)").toString())) {
+            return true;
+        }
+        return false;
     }
 }
 

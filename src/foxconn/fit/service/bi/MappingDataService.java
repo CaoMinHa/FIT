@@ -61,36 +61,28 @@ public class MappingDataService extends BaseService<Parameter>{
 			System.out.println(deleteSql);
 			userDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
 		}
-
-
-
 		for (List<String> list : insertDataList) {
 			String insertSql = "insert into " + tableName +"(";
 			for (int i = 0; i < columnList.size(); i++) {
 				insertSql+=columnList.get(i)+",";
 			}
-			if("CUX_RT_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)||"CUX_RT_SALES_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)){
+			String insert="";
+			if("CUX_PO_SINGLESOURCE_PN_MAPPING".equalsIgnoreCase(tableName)||"CUX_RT_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)||"CUX_RT_SALES_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)){
 				insertSql+=" LAST_UPDATED_BY ,ID ) values( ";
+				insert=",'"+SecurityUtils.getLoginUsername()+"','"+ UUID.randomUUID()+"'";
 			}else if("CUX_INTERNERL_VENDOR".equalsIgnoreCase("CUX_INTERNERL_VENDOR")){
 				insertSql+=" CREATED_BY,LAST_UPDATED_BY ) values ( ";
+				insert=",'"+SecurityUtils.getLoginUsername()+"','"+SecurityUtils.getLoginUsername()+"'";
 			}else{
 				insertSql+=" LAST_UPDATED_BY ) values ( ";
+				insert=",'"+SecurityUtils.getLoginUsername()+"'";
 			}
 			for (int i = 0; i < list.size(); i++) {
 				insertSql+="'"+list.get(i)+"',";
 			}
-			insertSql=insertSql.substring(0,insertSql.length()-1);
-			if("CUX_RT_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)||"CUX_RT_SALES_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)){
-				insertSql+=",'"+SecurityUtils.getLoginUsername()+"','"+ UUID.randomUUID()+"'";
-			}else if("CUX_INTERNERL_VENDOR".equalsIgnoreCase(tableName)){
-				insertSql+=",'"+SecurityUtils.getLoginUsername()+"','"+SecurityUtils.getLoginUsername()+"'";
-			}else{
-				insertSql+=",'"+SecurityUtils.getLoginUsername()+"'";
-			}
-			insertSql+=")";
+			insertSql=insertSql.substring(0,insertSql.length()-1)+insert+")";
 			System.out.println(insertSql);
 			userDao.getSessionFactory().getCurrentSession().createSQLQuery(insertSql).executeUpdate();
-
 		}
 	}
 	public void insert(String formVal,String type){

@@ -126,7 +126,6 @@ public class RtEBSHistoricalDataService {
         Sheet sheet = sxssfWorkbook.createSheet(getByLocale(locale, poTable.getComments()));
         sheet.createFreezePane(0, 1, 0, 1);
         Row titleRow = sheet.createRow(0);
-        List<Integer> numberList = new ArrayList<Integer>();
         for (int i = 0; i < columnsList.size(); i++) {
             PoColumns poColumn = columnsList.get(i);
             String columnName = poColumn.getColumnName();
@@ -134,10 +133,10 @@ public class RtEBSHistoricalDataService {
             if (poColumn.getLocked()) {
                 lockSerialList.add(poColumn.getSerial());
             }
-            if (poColumn.getDataType().equalsIgnoreCase("number")) {
-                sql += "regexp_replace(to_char(" + columnName + ",'FM99999999999999.999999999'),'\\.$',''),";
-                numberList.add(i);
-            } else if (poColumn.getDataType().equalsIgnoreCase("date")) {
+//            if (poColumn.getDataType().equalsIgnoreCase("number")) {
+//                sql += "regexp_replace(to_char(" + columnName + ",'FM99999999999999.999999999'),'\\.$',''),";
+//            } else
+            if (poColumn.getDataType().equalsIgnoreCase("date")) {
                 sql += "to_char(" + columnName + ",'dd/mm/yyyy'),";
             } else {
                 sql += columnName + ",";
@@ -168,7 +167,7 @@ public class RtEBSHistoricalDataService {
                     }
                 }
             }
-            whereSql+=" order by YEAR||MONTH desc,P_N,CUST_CODE,SALE_ORDER,INVOICE_NO desc";
+            whereSql+=" order by no";
         }
         sql = sql.substring(0, sql.length() - 1) + " from " + poTable.getTableName() + whereSql;
         System.out.println(sql);

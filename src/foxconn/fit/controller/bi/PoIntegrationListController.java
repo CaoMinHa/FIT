@@ -170,7 +170,7 @@ public class PoIntegrationListController extends BaseController {
 
     @RequestMapping(value = "/list")
     public String list(Model model, PageRequest pageRequest, HttpServletRequest request, String DateYear,
-                       String date, String dateEnd, String tableName, String poCenter, String sbuVal,String commodity) {
+                       String date, String dateEnd, String tableName, String poCenter, String sbuVal,String commodity,String priceControl) {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
             Assert.hasText(tableName, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
@@ -278,6 +278,9 @@ public class PoIntegrationListController extends BaseController {
                 if (StringUtils.isNotEmpty(poCenter)) {
                     whereSql += " and " + columns.get(1).getColumnName() + "='" + poCenter + "'";
                 }
+                if (StringUtils.isNotEmpty(priceControl)) {
+                    whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
+                }
             } else {
                 if (StringUtils.isNotEmpty(date) && StringUtils.isNotEmpty(dateEnd)) {
                     Date d = DateUtil.parseByYyyy_MM(date);
@@ -303,6 +306,9 @@ public class PoIntegrationListController extends BaseController {
             if ("FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
                 whereSql = "";
                 whereSql += " and year= " + DateYear;
+                if (StringUtils.isNotEmpty(priceControl)) {
+                    whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
+                }
             }
 
             if(null!=commodity && !"".equalsIgnoreCase(commodity)){
@@ -413,7 +419,7 @@ public class PoIntegrationListController extends BaseController {
         try {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String userName = loginUser.getUsername();
-            String permSql = "  select listagg(r.TABLE_PERMS, ',') within GROUP(ORDER BY r.id) as TABLE_PERMS  from  fit_user u \n" +
+            String permSql = "select listagg(r.TABLE_PERMS, ',') within GROUP(ORDER BY r.id) as TABLE_PERMS  from  fit_user u \n" +
                     " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                     " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                     " where u.username=" + "'" + userName + "'";
@@ -431,7 +437,7 @@ public class PoIntegrationListController extends BaseController {
             }
             whereSql += "'a'";
             String uploadSql = "select count(1) from FIT_PO_TABLE a,FIT_PO_BUTTON_ROLE b" +
-                    " where a.table_name=b.form_name and type in('PO','CPO') and b.BUTTONS_TYPE=2 and b.role_id in ("+whereSql+") and a.TABLE_NAME ='"+tableName+"'";
+                    " where a.table_name=b.form_name and type in('PO','CPO') and b.BUTTONS_TYPE=1 and b.role_id in ("+whereSql+") and a.TABLE_NAME ='"+tableName+"'";
             List<Map> maps = poTableService.listMapBySql(uploadSql);
             if (maps == null || "0".equals(maps.get(0).get("COUNT(1)").toString())) {
                 ajaxResult.put("flag", "fail");
