@@ -525,7 +525,7 @@ public class RtIntegrationController extends BaseController {
                             for (Object[] objects : dataList) {
                                 Row contentRow = sheet.createRow(rowIndex++);
                                 String generateType = objects[0].toString();
-                                for (int i = 0; i < objects.length; i++) {
+                                for (int i = 0; i < objects.length-1; i++) {
                                     Cell cell = contentRow.createCell(i);
                                     String text = (objects[i] != null ? objects[i].toString() : "");
                                     if (StringUtils.isNotEmpty(text) && numberList.contains(i)) {

@@ -38,7 +38,6 @@ import java.util.Map;
  * @author maggao
  */
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class PlOfflineDataSupplementService {
 
     @Autowired
@@ -222,6 +221,7 @@ public class PlOfflineDataSupplementService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     private String saveRtData(List<List<String>> list ,List<PoColumns> columns,String tableName){
         System.out.print("处理数据插入表中");
         String message="S";
@@ -235,11 +235,11 @@ public class PlOfflineDataSupplementService {
                 sql=columnStr.substring(0,columnStr.length()-1)+") values(";
                 if(tableName.equals("cux_pl_manual")){
                     for (int i=0;i<11;i++){
-                        sql+="'"+val.get(i)+"',";
+                        sql+="'"+val.get(i).trim()+"',";
                     }
                 }else if(tableName.equals("cux_pl_fit_inter_manual")){
                     for (int i=0;i<val.size();i++){
-                        sql+="'"+val.get(i)+"',";
+                        sql+="'"+val.get(i).trim()+"',";
                     }
                 }
                 poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(sql.substring(0,sql.length()-1)+")").executeUpdate();
@@ -303,10 +303,12 @@ public class PlOfflineDataSupplementService {
                 String columnName = param.substring(0,param.indexOf("="));
                 String columnValue = param.substring(param.indexOf("=")+1).trim();
                 if (StringUtils.isNotEmpty(columnValue)) {
-                    if(columnName.equals("YEAR_MONTH")){
+                    if(columnName.equals("PERIOD")){
                         columnValue=columnValue.replace("-","");
                         if(columnValue.length()==5){
-                            columnValue=columnValue.substring(0,4)+"0"+columnValue.substring(4,5);
+                            columnValue=columnValue.substring(0,4)+"-0"+columnValue.substring(4,5);
+                        }else{
+                            columnValue=columnValue.substring(0,4)+"-"+columnValue.substring(4,6);
                         }
                         whereSql += " and " + columnName + "='" + columnValue + "'";
                     }else{
@@ -342,7 +344,7 @@ public class PlOfflineDataSupplementService {
                 if (CollectionUtils.isNotEmpty(dataList)) {
                     for (Object[] objects : dataList) {
                         Row contentRow = sheet.createRow(rowIndex++);
-                        for (int i = 0; i < objects.length; i++) {
+                        for (int i = 0; i < objects.length-1; i++) {
                             Cell cell = contentRow.createCell(i);
                             String text = (objects[i] != null ? objects[i].toString() : "");
                             if (StringUtils.isNotEmpty(text) && numberList.contains(i)) {

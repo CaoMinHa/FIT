@@ -230,7 +230,7 @@ public class RtActualEstimateService {
                 if (CollectionUtils.isNotEmpty(dataList)) {
                     for (Object[] objects : dataList) {
                         Row contentRow = sheet.createRow(rowIndex++);
-                        for (int i = 0; i < objects.length; i++) {
+                        for (int i = 0; i < objects.length-1; i++) {
                             Cell cell = contentRow.createCell(i);
                             String text = (objects[i] != null ? objects[i].toString() : "");
                             if (StringUtils.isNotEmpty(text) && numberList.contains(i)) {
