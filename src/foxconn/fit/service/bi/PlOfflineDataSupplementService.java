@@ -205,7 +205,7 @@ public class PlOfflineDataSupplementService {
                     cs.setString(2, period);
                     cs.execute();
                     cs.close();
-                    c.close();
+//                    c.close();
                 }
                 return result.getJson();
             }else{
