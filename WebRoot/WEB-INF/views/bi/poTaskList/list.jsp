@@ -136,14 +136,12 @@ function toUser(index){
 									</c:when>
 									<c:when test="${mapping[i] eq '1'}">
 										<td style="border-right:1px solid #eee;">
-											<c:if test="${languageS eq 'zh_CN'}">初審</c:if>
-											<c:if test="${languageS eq 'en_US'}">Praeiudicium</c:if></td>
+											<spring:message code='praeiudicium'/></td>
 										</td>
 									</c:when>
 									<c:when test="${mapping[i] eq '2'}">
 										<td  style="border-right:1px solid #eee;">
-											<c:if test="${languageS eq 'zh_CN'}">终審中</c:if>
-											<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if>
+											<spring:message code='finalJudgment'/>
 										</td>
 									</c:when>
 									<c:when test="${mapping[i] eq '3'}">

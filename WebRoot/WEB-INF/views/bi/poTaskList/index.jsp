@@ -110,8 +110,7 @@
                                 </option>
                             <option value="0"><c:if test="${languageS eq 'zh_CN'}">未提交</c:if>
                                 <c:if test="${languageS eq 'en_US'}">Unsubmitted</c:if></td></option>
-                            <option value="1"><c:if test="${languageS eq 'zh_CN'}">初審</c:if>
-                                <c:if test="${languageS eq 'en_US'}">Praeiudicium</c:if></option>
+                            <option value="1"><spring:message code='praeiudicium'/></option>
                             <option value="2">
                                 <c:if test="${languageS eq 'zh_CN'}">終審</c:if>
                                 <c:if test="${languageS eq 'en_US'}">Final Judgment</c:if>

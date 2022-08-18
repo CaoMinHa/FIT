@@ -188,8 +188,7 @@ function fileClick(e,val) {
 <%--<input type="hidden" id="OrderDir" value="${fn:escapeXml(page.orderDir)}" />--%>
 <c:if test="${fn:length(taskLogList) gt 0}">
 	<h3>
-		<c:if test="${languageS eq 'zh_CN'}">審批日志</c:if>
-		<c:if test="${languageS eq 'en_US'}">Approval log</c:if>
+		<spring:message code='approvalLog'/>
 	</h3><br>
 	<table style="margin-top: -25px" class="table table-condensed table-hover">
 		<thead>
@@ -208,18 +207,15 @@ function fileClick(e,val) {
 				<c:choose>
 					<c:when test="${taskLog.FLAG eq '1'}">
 						<td style="border-right:1px solid #eee;">
-							<c:if test="${languageS eq 'zh_CN'}">提交</c:if>
-							<c:if test="${languageS eq 'en_US'}">Submit</c:if></td>
+							<spring:message code='submit'/></td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '2'}">
 						<td  style="border-right:1px solid #eee;">
-							<c:if test="${languageS eq 'zh_CN'}">初審</c:if>
-							<c:if test="${languageS eq 'en_US'}">Praeiudicium</c:if>
+							<spring:message code='praeiudicium'/>
 						</td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '3'}">
-						<td  style="border-right:1px solid #eee;"><c:if test="${languageS eq 'zh_CN'}">终審</c:if>
-							<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></td>
+						<td  style="border-right:1px solid #eee;"><spring:message code='finalJudgment'/></td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '-1'}">
 						<td  style="border-right:1px solid #eee;">

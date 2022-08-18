@@ -395,8 +395,7 @@ function cancelTask(index) {
 									</c:when>
 									<c:when test="${mapping[i] eq '2'}">
 										<td  style="border-right:1px solid #eee;">
-											<c:if test="${languageS eq 'zh_CN'}">终審中</c:if>
-											<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if>
+											<spring:message code='finalJudgment'/>
 										</td>
 									</c:when>
 									<c:when test="${mapping[i] eq '3'}">
@@ -429,8 +428,7 @@ function cancelTask(index) {
 							</c:when>
 						    <c:when test="${mapping[3] eq '1' && role eq 'CLASS' || mapping[3] eq '1' && role eq 'T_MANAGER' || mapping[3] eq '1' && role eq 'PD'}">
 						    <a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index})">
-								<c:if test="${languageS eq 'zh_CN'}">初審</c:if>
-								<c:if test="${languageS eq 'en_US'}">Praeiudicium</c:if>
+								<spring:message code='praeiudicium'/>
 							</a>
 						    </c:when>
 						    <c:when test="${mapping[3] eq '2' && role eq 'MANAGER' || mapping[3] eq '2' && role eq 'CPO'}">

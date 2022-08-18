@@ -428,8 +428,7 @@ function fileClick(e,val) {
 					<button  class="btn search-btn btn-warning"
 							 <c:if test="${user != 'C' || statusType != '1'}">style="display: none;"</c:if>
 							 type="button"
-							 onclick="submitOneAuditXQ(this)"><c:if test="${languageS eq 'zh_CN'}">初審</c:if>
-						<c:if test="${languageS eq 'en_US'}">Praeiudicium</c:if></button>
+							 onclick="submitOneAuditXQ(this)"><spring:message code='praeiudicium'/></button>
 					<button  class="btn search-btn btn-warning"
 							 <c:if test="${user != 'Z' || statusType != '2'}">style="display: none;"</c:if>
 							 type="button"
@@ -557,18 +556,15 @@ function fileClick(e,val) {
 				<c:choose>
 					<c:when test="${taskLog.FLAG eq '1'}">
 						<td style="border-right:1px solid #eee;">
-							<c:if test="${languageS eq 'zh_CN'}">提交</c:if>
-							<c:if test="${languageS eq 'en_US'}">Submit</c:if></td>
+							<spring:message code='submit'/></td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '2'}">
 						<td  style="border-right:1px solid #eee;">
-							<c:if test="${languageS eq 'zh_CN'}">初審</c:if>
-							<c:if test="${languageS eq 'en_US'}">Praeiudicium</c:if>
+							<spring:message code='praeiudicium'/>
 						</td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '3'}">
-						<td  style="border-right:1px solid #eee;"><c:if test="${languageS eq 'zh_CN'}">终審</c:if>
-							<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></td>
+						<td  style="border-right:1px solid #eee;"><spring:message code='finalJudgment'/></td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '-1'}">
 						<td  style="border-right:1px solid #eee;">
