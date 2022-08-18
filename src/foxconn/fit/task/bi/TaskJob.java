@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -30,7 +31,11 @@ public class TaskJob {
     @Autowired
     private ParameterDao userDao;
 
-//    @Scheduled(cron = "0 0 8 * * MON-SAT")
+    /**
+     * 根據SBU VOC收集的數據給相關未完成任務的用戶發送跟催郵件
+     * 任務截止日當天及前一天上午8點檢查
+    @Scheduled(cron = "0 0 8 * * MON-SAT")
+     */
     public void job(){
         try{
             System.out.print("任務截止日當天及前一天上午8點檢查。");
@@ -131,7 +136,11 @@ public class TaskJob {
         }
     }
 
-//    @Scheduled(cron = "0 0 13 * * MON-SAT")
+    /**
+     * 根據SBU VOC收集的數據給相關未完成任務的用戶發送跟催郵件
+     * 任務截止日當天下午1點檢查
+     @Scheduled(cron = "0 0 13 * * MON-SAT")
+     */
     public void jobOne(){
         try{
             System.out.print("任務截止日當天下午1點檢查。");
@@ -204,7 +213,6 @@ public class TaskJob {
         }
     }
 
-
     public String userEmail(String sql,String sqlUser){
         String username="";
         List <String> countNotUploadlist= poTableService.listBySql(sql);
@@ -229,13 +237,12 @@ public class TaskJob {
     }
 
     /**
+     *数据更新邮件通知
      SELECT send_email_flag  FROM epmexp.cux_cf_default_bi   /shared/FIT-BI Platform v2/01.分析/CF/D.SBU現金流量表
      SELECT send_email_flag  FROM epmexp.cux_pl_default_bi   /shared/FIT-BI Platform v2/01.分析/PL/D.SBU损益表
      SELECT send_email_flag  FROM epmexp.cux_bs_default_bi   /shared/FIT-BI Platform v2/01.分析/BS/D.SBU資產負債表
-     发邮件标志,  这个三个表
      */
-
-//      @Scheduled(cron = "0 18 20 * * MON-SAT")
+//    @Scheduled(cron = "0 0 1 * * MON-SAT")
     public void jobBIEmail(){
         try{
             System.out.print("BI平台三表检验是否有同步数据 如果有给有权限的人发送邮件");
@@ -292,8 +299,8 @@ public class TaskJob {
 //            String sqlEmail="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||u.BI_GROUP||';',';"+type+";') > 0  and u.BI_USER in('Maggie','Amber')";
             String sqlEmail="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||u.BI_GROUP||';',';"+type+";') > 0";
             if("menu_plUnit".equals(type)){
-                sqlEmail="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||u.BI_GROUP||';',';menu_plUnit;') > 0 and instr(';'||u.BI_GROUP||';',';SY_SBU;') <= 0 and u.BI_USER in('Maggie','Amber')";
-//                sqlEmail="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||u.BI_GROUP||';',';menu_plUnit;') > 0 and instr(';'||u.BI_GROUP||';',';SY_SBU;') <= 0 ";
+//                sqlEmail="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||u.BI_GROUP||';',';menu_plUnit;') > 0 and instr(';'||u.BI_GROUP||';',';SY_SBU;') <= 0 and u.BI_USER in('Maggie','Amber')";
+                sqlEmail="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||u.BI_GROUP||';',';menu_plUnit;') > 0 and instr(';'||u.BI_GROUP||';',';SY_SBU;') <= 0 ";
             }
             List<Map> emailListC=poTableService.listMapBySql(sqlEmail);
             String typeVal="";
@@ -334,20 +341,20 @@ public class TaskJob {
                         }
                     }
                     if(null==rtUserEmailAuthorities||rtUserEmailAuthorities.size()==0){
-                        if(type.indexOf("ZC_BU")!=-1){
+                        if(type.indexOf("PL_BU")!=-1){
                             title=date+"BU資產負債表";
-                            content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"http://10.98.5.25:7900/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                         }else{
                             title=date+"FIT"+typeVal;
-                            content+=date+"FIT"+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"http://10.98.5.25:7900/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+"FIT"+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                         }
                     }else{
-                        if(type.indexOf("ZC_BU")!=-1){
+                        if(type.indexOf("PL_BU")!=-1){
                             title=date+"BU資產負債表";
-                            content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"http://10.98.5.25:7900/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                         }else{
                             title=date+rtUserEmailAuthorities.toString()+typeVal;
-                            content+=date+rtUserEmailAuthorities.toString()+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"http://10.98.5.25:7900/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+rtUserEmailAuthorities.toString()+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                         }
                     }
                     System.out.print("发送邮件："+map.get("EMAIL").toString()+"****主题："+title+"****内容："+content);
@@ -411,16 +418,15 @@ public class TaskJob {
     }
 
     /**
+     * 檢查損益單位明細質料
      * SELECT COUNT(1)
      *   FROM ecux_expense_pl_all t
      *  WHERE t.attribute8 IS NULL
      * 这个SQL有记录，就需要发邮件
      * 发送邮件后， 把attribute8 改为N
-     *
-     * 檢查損益單位明細質料
      * **/
 //    @Scheduled(cron = "0 0 1 * * MON-SAT")
-    @Scheduled(cron = "0 5 13 8 7 MON-SAT")
+//    @Scheduled(cron = "0 5 13 8 7 MON-SAT")
     public void checkPLUpdate(){
         try{
             String sql="SELECT COUNT(1) FROM epmebs.ecux_expense_pl_all t WHERE t.attribute8 IS NULL ";
@@ -439,7 +445,7 @@ public class TaskJob {
                     }else{
                         yearMonth=yearMonth.substring(0,4)+"年"+yearMonth.substring(5,7)+"月份";
                     }
-                    String content =yearMonth+"损益Rawdata数据已發佈，請點擊以下鏈接登錄BI平臺進行檢查，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"http://10.98.5.25:7900/analytics\" style=\"color: blue;\">损益Rawdata</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，系統登錄、數據核對如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：ambcai@deloitte.com.cn。<br></br><br>Best Regards!";
+                    String content =yearMonth+"损益Rawdata数据已發佈，請點擊以下鏈接登錄BI平臺進行檢查，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">损益Rawdata</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，系統登錄、數據核對如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：ambcai@deloitte.com.cn。<br></br><br>Best Regards!";
                     for (Map map : emailListC) {
                         String c ="Dear " + map.get("BI_USERNAME").toString() + "主管：<br></br>&nbsp;&nbsp;&nbsp;"+content;
                         Boolean b= EmailUtil.emailsMany(map.get("EMAIL").toString(), yearMonth+"損益Rawdata數據", c);
@@ -457,29 +463,184 @@ public class TaskJob {
         }
     }
 
-    //    @Scheduled(cron = "0 57 17 * * MON-SAT")
-    public void bsSendEamil(){
+    /**
+     * 三表BU表发布邮件提醒
+     */
+//    @Scheduled(cron = "0 8 21 15 8 MON-SAT")
+    @Scheduled(cron = "0 24 21 15 8 MON-SAT")
+    public void plSendEamil(){
         try{
-            System.out.print("BI平台三表检验是否有同步数据 如果有给有权限的人发送邮件");
+            System.out.print("BU三表检验是否有同步数据 如果有给有权限的人发送邮件");
             String sql="SELECT YEARS,period  FROM epmexp.cux_bs_default_bi  where send_email_flag='Y' and years not in ('2021') group by YEARS,period order by period";
-            Boolean b=this.biSendEamil(sql,"ZC_BU");
-            if(b){
-                poTableService.updateSql("update epmexp.cux_bs_default_bi set send_email_flag='N' where send_email_flag='Y' and years not in ('2021')");
-                poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表' where instr(';'||BI_GROUP||';',';ZC_BU;') > 0  ");
-            }
-            b=this.biSendEamil(sql,"ZC_BU1");
-            if(b){
-                poTableService.updateSql("update epmexp.cux_bs_default_bi set send_email_flag='N' where send_email_flag='Y' and years not in ('2021')");
-                poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表-不含Total' where instr(';'||BI_GROUP||';',';ZC_BU1;') > 0  ");
-            }
-            b=this.biSendEamil(sql,"ZC_BU2");
-            if(b){
-                poTableService.updateSql("update epmexp.cux_bs_default_bi set send_email_flag='N' where send_email_flag='Y' and years not in ('2021')");
-                poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表-特殊' where instr(';'||BI_GROUP||';',';ZC_BU2;') > 0  ");
+            String sqlCF="SELECT YEARS,period  FROM epmexp.cux_cf_default_bi  where send_email_flag='Y' and years not in ('2021') group by YEARS,period order by period";
+            List<Map> list=poTableService.listMapBySql(sql);
+            List<Map> list1=poTableService.listMapBySql(sqlCF);
+            if(list.isEmpty()&&!list1.isEmpty()){
+                Boolean b=this.biBuSendEamil(list1,"CF");
+                if(b){
+                    poTableService.updateSql("update epmexp.cux_cf_default_bi set send_email_flag='N' where send_email_flag='Y' and years not in ('2021')");
+                    poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/CF/D.BU現金流量表' where instr(';'||BI_GROUP||';',';PL_BU;') > 0 ");
+                    poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/CF/D.BU現金流量表-不含Total' where instr(';'||BI_GROUP||';',';PL_BU1;') > 0 ");
+                    poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/CF/D.BU現金流量表-特殊' where instr(';'||BI_GROUP||';',';PL_BU2;') > 0 ");
+                }
+            }else if(!list.isEmpty()&&list1.isEmpty()){
+                Boolean b=this.biBuSendEamil(list,"BS");
+                if(b){
+                    poTableService.updateSql("update epmexp.cux_bs_default_bi set send_email_flag='N' where send_email_flag='Y' and years not in ('2021')");
+                    poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表' where instr(';'||BI_GROUP||';',';PL_BU;') > 0 ");
+                    poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表-不含Total' where instr(';'||BI_GROUP||';',';PL_BU1;') > 0 ");
+                    poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表-特殊' where instr(';'||BI_GROUP||';',';PL_BU2;') > 0 ");
+                }
+            }else{
+                Boolean b=this.biBuSendEamil(list,"ALL");
+                if(b){
+                    poTableService.updateSql("update epmexp.cux_bs_default_bi set send_email_flag='N' where send_email_flag='Y' and years not in ('2021')");
+                    poTableService.updateSql("update epmexp.cux_cf_default_bi set send_email_flag='N' where send_email_flag='Y' and years not in ('2021')");
+                    poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表' where instr(';'||BI_GROUP||';',';PL_BU;') > 0 ");
+                    poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表-不含Total' where instr(';'||BI_GROUP||';',';PL_BU1;') > 0 ");
+                    poTableService.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表-特殊' where instr(';'||BI_GROUP||';',';PL_BU2;') > 0 ");
+                }
             }
         }catch (Exception e){
             System.out.print("系統定時任務失敗");
             e.printStackTrace();
+        }
+    }
+
+    public Boolean biBuSendEamil(List<Map> list,String type) {
+        Boolean isSend=false;
+        List<String> listMonth=new ArrayList<>();
+        if(null !=list && list.size()>0){
+            String date=String.valueOf(list.get(0).get("YEARS"));
+            date+="年";
+            for (int i=0;i<list.size();i++) {
+                String month=String.valueOf(list.get(i).get("PERIOD"));
+                listMonth.add(list.get(0).get("YEARS").toString()+month);
+                if(month.substring(0,1).equalsIgnoreCase("0")){
+                    month=month.substring(1,2);
+                }
+                date+=month;
+                if(i!=list.size()-1){
+                    date+=",";
+                }
+            }
+//            String sqlEmail="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and u.BI_USER in('Maggie','Amber') and (instr(';'||u.BI_GROUP||';',';PL_BU;') > 0 or instr(';'||u.BI_GROUP||';',';PL_BU1;') > 0 or instr(';'||u.BI_GROUP||';',';PL_BU2;') > 0)";
+            String sqlEmail="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||u.BI_GROUP||';',';PL_BU;') > 0 or instr(';'||u.BI_GROUP||';',';PL_BU1;') > 0 or instr(';'||u.BI_GROUP||';',';PL_BU2;') > 0 ";
+            List<Map> emailListC=poTableService.listMapBySql(sqlEmail);
+            if(null!=emailListC&&emailListC.size()>0){
+                date+="月份";
+                String erro="未发送成功的邮箱：";
+                String title="";
+                String content="";
+                for (Map map:emailListC) {
+                    content="Dear "+map.get("BI_USERNAME").toString()+"主管：<br></br>&nbsp;&nbsp;&nbsp;";
+                    if("BS".equals(type)){
+                        title=date+"BU資產負債表";
+                        content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU資產負債表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                    }else if("CF".equals(type)){
+                        title=date+"BU现金流量表";
+                        content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU现金流量表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                    }else if("ALL".equals(type)){
+                        title=date+"BU資產負債表 & BU现金流量表";
+                        content+=date+"BU資產負債表 & BU现金流量表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU資產負債表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                    }
+                    System.out.print("发送邮件："+map.get("EMAIL").toString()+"****主题："+title+"****内容："+content);
+                    isSend= EmailUtil.emailsMany(map.get("EMAIL").toString(),title,content);
+                    if(!isSend){
+                        erro+=map.get("BI_USER").toString()+",";
+                        isSend=true;
+                    }
+                }
+                System.out.print(erro);
+            }
+        }
+        return isSend;
+    }
+
+    /**
+     * 實際非價格CD報表、採購CD手動匯總表
+     * 1-8號每天9點發送郵件提醒
+     * 8-10號未上傳需要同時增加核准人郵箱
+     * 實際採購非價格CD匯總表:FIT_ACTUAL_PO_NPRICECD_DTL
+     * 採購CD手動匯總表:FIT_PO_BUDGET_CD_DTL
+     */
+//    @Scheduled(cron = "0 51 16 * * *")
+//    @Scheduled(cron = "30 18 * * * *")
+    public void poSendTaskEamil(){
+        poEamil("FIT_ACTUAL_PO_NPRICECD_DTL");
+        poEamil("FIT_PO_BUDGET_CD_DTL");
+    }
+    public void poEamil(String type){
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String[] date =formatter.format(new Date()).split("-");
+        String dateStr=date[0]+date[1];
+        if (date[1].equals("01")||date[1].equals("1")){
+            dateStr= (Integer.valueOf(date[0]) - 1) +"12";
+        }
+//        date[2]= "9";
+        String content="";
+        String title="";
+        String sql="";
+        if("FIT_ACTUAL_PO_NPRICECD_DTL".equals(type)){
+            content+="《實際採購非價格CD匯總表》";
+            title+="《實際採購非價格CD匯總表》數據上傳提醒";
+        }else{
+            content+="《採購CD手動匯總表》";
+            title+="《採購CD手動匯總表》數據上傳提醒";
+        }
+        if(Integer.valueOf(date[2])<9){
+            content="尊敬的用戶:<br></br>&nbsp;&nbsp;請于規定時間内（1號至8號）上傳"+content+"上月數據。<br></br>（提醒：若截止8號您還未上傳表單，超时提醒郵件將抄送至您的審核人，還請及時上傳。）";
+        }else{
+            content="尊敬的用戶:<br></br>&nbsp;&nbsp;<font style=\"color: red;\">【您已超时！10號將關閉"+content+"上月數據的上傳】</font>請立即采取行動！";
+        }
+        content+="<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>Best Regards!";
+        if(Integer.valueOf(date[2])<=8){
+            sql="select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur\n" +
+                    "where u.id=ur.user_id and r.id=ur.role_id and r.code='SOURCER' and type='BI' and u.COMMODITY_MAJOR is not null\n" +
+                    "and u.username not in \n" +
+                    "(select t.create_user from fit_po_task t where t.type ='"+type+"' and substr(t.name,0,6)='"+dateStr+"'\n" +
+                    "and  instr(','||u.COMMODITY_MAJOR||',',','||commodity_major||',') > 0 )";
+            List<String> emailListC=poTableService.listBySql(sql);
+            if(null!=emailListC&&emailListC.size()>0) {
+                emailListC=emailListC.stream().distinct().collect(Collectors.toList());
+                EmailUtil.emailsMany(emailListC,title,content);
+            }
+        }else if(Integer.valueOf(date[2])>8&&Integer.valueOf(date[2])<11){
+            sql="select distinct u.username,u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur\n" +
+                    "where u.id=ur.user_id and r.id=ur.role_id and r.code='SOURCER' and type='BI' and u.COMMODITY_MAJOR is not null\n" +
+                    "and u.username not in \n" +
+                    "(select t.create_user from fit_po_task t where t.type ='"+type+"' and substr(t.name,0,6)='"+dateStr+"'\n" +
+                    "and  instr(','||u.COMMODITY_MAJOR||',',','||commodity_major||',') > 0 )";
+            List<Map> userList=poTableService.listMapBySql(sql);
+            String error="發送失敗郵箱：";
+            List<String> emailList=new ArrayList<>();
+            if(null!=userList&&userList.size()>0){
+                for (Map user:userList) {
+                    sql="select distinct COMMODITY_MAJOR from BIDEV.v_dm_d_commodity_major where COMMODITY_MAJOR not in(\n" +
+                            "select t.commodity_major from fit_po_task t\n" +
+                            "where t.type ='"+type+"' and substr(t.name,0,6)='"+dateStr+"'\n" +
+                            ") and instr(','||(select u.commodity_major from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur \n" +
+                            "where u.id=ur.user_id and r.id=ur.role_id and r.code='SOURCER' and type='BI' and u.username='"+user.get("USERNAME").toString()+"' and COMMODITY_MAJOR is not null)||',',','||COMMODITY_MAJOR||',')> 0";
+                    List<String> commodity=poTableService.listBySql(sql);
+                    if(null!=commodity.get(0)&&commodity.get(0).length()>0){
+                        String[] commodityStr=commodity.get(0).split(",");
+                        for (String c:commodityStr) {
+                            sql="select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and r.code='CLASS' and type='BI' and u.COMMODITY_MAJOR is not null\n" +
+                                    "and instr(','||u.commodity_major||',',','||'"+c+"'||',')> 0";
+                            emailList.addAll(poTableService.listBySql(sql));
+                        }
+                    }
+                    sql="";
+                    for (String e:emailList) {
+                        sql=sql+e+",";
+                    }
+                    Boolean b=EmailUtil.emailCC(user.get("EMAIL").toString(),sql.substring(0,sql.length()-1),title,content);
+                    if(!b){
+                        error+=user.get("EMAIL").toString()+",";
+                    }
+                }
+            }
+            System.out.print(error);
         }
     }
 }
