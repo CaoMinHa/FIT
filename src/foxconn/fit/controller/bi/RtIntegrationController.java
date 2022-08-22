@@ -8,6 +8,7 @@ import foxconn.fit.entity.base.EnumGenerateType;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoKey;
 import foxconn.fit.entity.bi.PoTable;
+import foxconn.fit.service.bi.InstrumentClassService;
 import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.util.DateUtil;
 import foxconn.fit.util.ExcelUtil;
@@ -23,7 +24,6 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
@@ -48,6 +48,9 @@ import java.util.*;
 public class RtIntegrationController extends BaseController {
     @Autowired
     private PoTableService poTableService;
+    @Autowired
+    private InstrumentClassService instrumentClassService;
+
 
     @RequestMapping(value = "index")
     public String index(PageRequest pageRequest, Model model, HttpServletRequest request) {
@@ -328,8 +331,8 @@ public class RtIntegrationController extends BaseController {
                 return msg;
             }
          }
-        demandType=removeDuplicate(demandType);
-        accountMgr=removeDuplicate(accountMgr);
+        demandType=instrumentClassService.removeDuplicate(demandType);
+        accountMgr=instrumentClassService.removeDuplicate(accountMgr);
         String demandTypeVal=JSONObject.toJSONString(JSONArray.fromObject(demandType)).replace('\"','\'');
         String accountMgrVal=JSONObject.toJSONString(JSONArray.fromObject(accountMgr)).replace('\"','\'');
         String demandTypeSql="select DEMAND_TYPE_NAME  from CUX_RT_BUDGET_DEMAND_TYPE where DEMAND_TYPE_NAME in ("+demandTypeVal.substring(1,demandTypeVal.length()-1)+")";
@@ -337,12 +340,12 @@ public class RtIntegrationController extends BaseController {
         List<String> demandTypeCount=poTableService.listBySql(demandTypeSql);
         List<String> accountMgrCount=poTableService.listBySql(accountMgrSql);
         if(demandTypeCount.size()!=demandType.size()){
-            msg.add("("+getDiffrent(demandType,demandTypeCount)+")需求類型有誤，請檢查！");
+            msg.add("("+instrumentClassService.getDiffrent(demandType,demandTypeCount)+")需求類型有誤，請檢查！");
             msg.add("Wrong requirement type, please check!");
             return msg;
         }
         if(accountMgrCount.size()!=accountMgr.size()){
-            msg.add("("+getDiffrent(accountMgr,accountMgrCount)+")銷售區域主管錯誤，請檢查!");
+            msg.add("("+instrumentClassService.getDiffrent(accountMgr,accountMgrCount)+")銷售區域主管錯誤，請檢查!");
             msg.add("Account Mgr error，please check!");
             return msg;
         }
@@ -358,45 +361,26 @@ public class RtIntegrationController extends BaseController {
             sbu.add(s.get(13));
             salesOrg.add(s.get(3));
         }
-        salesOrg=removeDuplicate(salesOrg);
-        sbu=removeDuplicate(sbu);
+        salesOrg=instrumentClassService.removeDuplicate(salesOrg);
+        sbu=instrumentClassService.removeDuplicate(sbu);
         String sbuVal=JSONObject.toJSONString(JSONArray.fromObject(sbu)).replace('\"','\'');
         String salesOrgVal=JSONObject.toJSONString(JSONArray.fromObject(salesOrg)).replace('\"','\'');
         String sbuSql="select NEW_SBU_NAME from bidev.v_if_sbu_mapping where NEW_SBU_NAME in ("+sbuVal.substring(1,sbuVal.length()-1)+")";
         String salesOrgSql="select SALES_ORG from CUX_RT_ACCOUNT_MAPPING where SALES_ORG in ("+salesOrgVal.substring(1,salesOrgVal.length()-1)+")";
-        List<String> sbuCount=removeDuplicate(poTableService.listBySql(sbuSql));
-        List<String> salesOrgCount=removeDuplicate(poTableService.listBySql(salesOrgSql));
+        List<String> sbuCount=instrumentClassService.removeDuplicate(poTableService.listBySql(sbuSql));
+        List<String> salesOrgCount=instrumentClassService.removeDuplicate(poTableService.listBySql(salesOrgSql));
         if(salesOrgCount.size()!=salesOrg.size()){
-            msg.add("("+getDiffrent(salesOrg,salesOrgCount)+")銷售組織有誤，請檢查！");
+            msg.add("("+instrumentClassService.getDiffrent(salesOrg,salesOrgCount)+")銷售組織有誤，請檢查！");
             msg.add("Wrong requirement type, please check!");
             return msg;
         }
         if(sbuCount.size()!=sbu.size()){
-            msg.add("("+getDiffrent(sbu,sbuCount)+")SBU錯誤，請檢查!");
+            msg.add("("+instrumentClassService.getDiffrent(sbu,sbuCount)+")SBU錯誤，請檢查!");
             msg.add("Sbu error，please check!");
             return msg;
         }
         msg.add("成功");
         return msg;
-    }
-    //list去重
-    public static List<String> removeDuplicate(List<String> list) {
-        HashSet h = new HashSet(list);
-        list.clear();
-        list.addAll(h);
-        return list;
-    }
-
-    private static String getDiffrent(List<String> list1, List<String> list2) {
-        String string="";
-        for(String str:list1)
-        {
-            if(!list2.contains(str))
-            {
-                string+=str+",";
-            }
-        }
-        return string.substring(0,string.length()-1);
     }
 
     @RequestMapping(value = "download")
