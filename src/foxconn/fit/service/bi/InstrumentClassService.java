@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class InstrumentClassService{
@@ -24,6 +25,18 @@ public class InstrumentClassService{
                 string+=str+",";
             }
         }
-        return string.substring(0,string.length()-1);
+        if(string.length()>0){
+            return string.substring(0,string.length()-1);
+        }else{
+            return string;
+        }
+    }
+
+    public String getLanguage(Locale locale, String zh, String en){
+        if ("en_US".equals(locale.toString())) {
+            return en;
+        }else{
+            return zh;
+        }
     }
 }

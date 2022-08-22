@@ -12,8 +12,11 @@ public enum EnumDimensionType {
 	Segment("產業"),
 	Currency("貨幣"),
 	Years("年"),
-	Project("项目");
-	
+	Project("项目"),
+	Bak2("主要業務"),
+	View("交易類型"),
+	Bak1("Segment");
+
 	private EnumDimensionType(String name){
 		this.name = name;
 	}

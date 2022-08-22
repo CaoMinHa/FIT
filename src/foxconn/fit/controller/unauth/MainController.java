@@ -146,6 +146,7 @@ public class MainController extends BaseController{
 				model.put("error", "");
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			model.put("error", "");
 		}
 

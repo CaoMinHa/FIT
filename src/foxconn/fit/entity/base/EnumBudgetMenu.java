@@ -6,6 +6,8 @@ package foxconn.fit.entity.base;
  */
 public enum EnumBudgetMenu {
 	productNoUnitCost("產品料號單位成本"),
+	budgetProductNoUnitCost("預算產品料號單位成本"),
+	budgetForecastDetailRevenue("預算營收明細"),
 	forecastDetailRevenue("營收明細");
 	
 	private EnumBudgetMenu(String name){
