@@ -95,11 +95,12 @@ function clickPage(page){
 						<th rowspan="3"><spring:message code='operation'/></th>
 						<th rowspan="3">SBU_法人</th>
 						<th rowspan="3">產品系列</th>
-						<th colspan="60">${year}</th>
-						<th rowspan="2" colspan="4">${year+1}</th>
-						<th rowspan="2" colspan="4">${year+2}</th>
-						<th rowspan="2" colspan="4">${year+3}</th>
-						<th rowspan="2" colspan="4">${year+4}</th>
+						<th colspan="60">FY${year}</th>
+						<th rowspan="2" colspan="4">FY${year}</th>
+						<th rowspan="2" colspan="4">FY${year+1}</th>
+						<th rowspan="2" colspan="4">FY${year+2}</th>
+						<th rowspan="2" colspan="4">FY${year+3}</th>
+						<th rowspan="2" colspan="4">FY${year+4}</th>
 					</tr>
 					<tr>
 						<th colspan="5">1月</th>
@@ -183,6 +184,11 @@ function clickPage(page){
 						<th>銷貨成本</th>
 
 						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
 						<th>材料成本</th>
 						<th>人工成本</th>
 						<th>製造費用</th>
@@ -292,6 +298,11 @@ function clickPage(page){
 					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.laborCost12}" pattern="#,##0.##"></fmt:formatNumber></td>
 					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manufactureCost12}" pattern="#,##0.##"></fmt:formatNumber></td>
 					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.sellingCost12}" pattern="#,##0.##"></fmt:formatNumber></td>
+
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCost}" pattern="#,##0.##"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.laborCost}" pattern="#,##0.##"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.manufactureCost}" pattern="#,##0.##"></fmt:formatNumber></td>
+					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.sellingCost}" pattern="#,##0.##"></fmt:formatNumber></td>
 
 					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCostNextyear}" pattern="#,##0.##"></fmt:formatNumber></td>
 					<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.laborCostNextyear}" pattern="#,##0.##"></fmt:formatNumber></td>

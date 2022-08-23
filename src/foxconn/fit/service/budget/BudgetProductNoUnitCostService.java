@@ -67,7 +67,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		Calendar calendar=Calendar.getInstance();
 		int year=calendar.get(Calendar.YEAR)+1;
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sqlVersion="select distinct version  from FIT_BUDGET_PRODUCT_UNIT_COST where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"' order by version";
+		String sqlVersion="select distinct version  from FIT_BUDGET_PRODUCT_UNIT_COST where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"' and version<>'V00' order by version ";
 		List<String> versionList=budgetProductNoUnitCostDao.listBySql(sqlVersion);
 		return  versionList;
 	}
@@ -771,10 +771,11 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			int year=Integer.parseInt(y.substring(2));
 
 			row.getCell(2).setCellValue(y);
-			row.getCell(62).setCellValue("FY"+(year+1));
-			row.getCell(66).setCellValue("FY"+(year+2));
-			row.getCell(70).setCellValue("FY"+(year+3));
-			row.getCell(74).setCellValue("FY"+(year+4));
+			row.getCell(62).setCellValue("FY"+(year));
+			row.getCell(66).setCellValue("FY"+(year+1));
+			row.getCell(70).setCellValue("FY"+(year+2));
+			row.getCell(74).setCellValue("FY"+(year+3));
+			row.getCell(78).setCellValue("FY"+(year+4));
 
 			String sql="select * from FIT_BUDGET_PRODUCT_UNIT_COST where YEAR='"+y+"'";
 			if(null !=version &&version.isEmpty()){
@@ -808,13 +809,13 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					Row contentRow = sheet.createRow(rowIndex++);
 					col=0;
 					for (int i = 3; i < objects.length-7; i++) {
-						if(i==65||i==70||i==75||i==80){
+						if(i==65||i==70||i==75||i==80||i==85){
 							continue;
 						}
 						Cell cell = contentRow.createCell(col);
 						col++;
 						String text = (objects[i] != null ? objects[i].toString() : "");
-						if (StringUtils.isNotEmpty(text) && i>4 && i<85) {
+						if (StringUtils.isNotEmpty(text) && i>4 && i<90) {
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
@@ -830,13 +831,13 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 							col=0;
 							Row contentRow = sheet.createRow(rowIndex++);
 							for (int i = 3; i < objects.length-8; i++) {
-								if(i==65||i==70||i==75||i==80){
+								if(i==65||i==70||i==75||i==80||i==85){
 									continue;
 								}
 								Cell cell = contentRow.createCell(col);
 								col++;
 								String text = (objects[i] != null ? objects[i].toString() : "");
-								if (StringUtils.isNotEmpty(text) && i>4 && i<85) {
+								if (StringUtils.isNotEmpty(text) && i>4 && i<90) {
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);

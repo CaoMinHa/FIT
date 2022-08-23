@@ -256,8 +256,9 @@
 					</c:forEach>
 				</select>
 				<select id="QVersion" class="input-large" style="width:100px;">
+					<option value="V00" selected>V00</option>
 					<c:forEach items="${versionList}" var="version">
-						<option value="${version}" <c:if test="${version eq 'V00'}">selected</c:if>>${version }</option>
+						<option value="${version}">${version }</option>
 					</c:forEach>
 				</select>
 				<ul class="nav dropdown" style="float:left;margin-right:10px;">

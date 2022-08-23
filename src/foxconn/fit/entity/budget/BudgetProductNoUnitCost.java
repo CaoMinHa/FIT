@@ -146,6 +146,18 @@ public class BudgetProductNoUnitCost {
 	@Column(name = "selling_cost12")
 	private String sellingCost12;
 
+	@Column(name = "sales_quantity")
+	private String salesQuantity;
+	@Column(name = "material_cost")
+	private String materialCost;
+	@Column(name = "labor_cost")
+	private String laborCost;
+	@Column(name = "manufacture_cost")
+	private String manufactureCost;
+	@Column(name = "selling_cost")
+	private String sellingCost;
+
+
 	@Column(name = "sales_quantity_nextyear")
 	private String salesQuantityNextyear;
 	@Column(name = "material_cost_nextyear")
@@ -204,6 +216,46 @@ public class BudgetProductNoUnitCost {
 	private String makeEntity;// SBU_製造法人
 	@Column(name = "trade_type")
 	private String tradeType;// 交易類型
+
+	public String getSalesQuantity() {
+		return salesQuantity;
+	}
+
+	public void setSalesQuantity(String salesQuantity) {
+		this.salesQuantity = salesQuantity;
+	}
+
+	public String getMaterialCost() {
+		return materialCost;
+	}
+
+	public void setMaterialCost(String materialCost) {
+		this.materialCost = materialCost;
+	}
+
+	public String getLaborCost() {
+		return laborCost;
+	}
+
+	public void setLaborCost(String laborCost) {
+		this.laborCost = laborCost;
+	}
+
+	public String getManufactureCost() {
+		return manufactureCost;
+	}
+
+	public void setManufactureCost(String manufactureCost) {
+		this.manufactureCost = manufactureCost;
+	}
+
+	public String getSellingCost() {
+		return sellingCost;
+	}
+
+	public void setSellingCost(String sellingCost) {
+		this.sellingCost = sellingCost;
+	}
 
 	public String getProductNo() {
 		return productNo;

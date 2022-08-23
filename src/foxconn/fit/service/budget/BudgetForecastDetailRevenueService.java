@@ -68,7 +68,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		Calendar calendar=Calendar.getInstance();
 		int year=calendar.get(Calendar.YEAR)+1;
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sqlVersion="select distinct version  from FIT_BUDGET_DETAIL_REVENUE where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"' order by version";
+		String sqlVersion="select distinct version  from FIT_BUDGET_DETAIL_REVENUE where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"' and version<>'V00' order by version";
 		List<String> versionList=budgetDetailRevenueDao.listBySql(sqlVersion);
 		return  versionList;
 	}
@@ -328,15 +328,12 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					}
 					/**產品料號*/
 					productNoList = instrumentClassService.removeDuplicate(productNoList);
-//					List<String> partNoList = budgetDetailRevenueDao.listBySql("select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv");
-//					check = instrumentClassService.getDiffrent(partNoList,productNoList);
-//					if (!check.equals("") && check.length() > 0){
-//						result.put("flag", "fail");
-//						result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---> "+Arrays.toString(partNoList.toArray()));
-//						return result.getJson();
-//					}
 					forecastDetailRevenueService.saveCheckExist(productNoList);
-					List<String> partNoList = forecastDetailRevenueService.listBySql(" select distinct value from epmods.FIT_CHECK_EXIST c where  not exists (select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv where ITEM_CODE=c.value)");
+					List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
+							"select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' \n" +
+							"union all\n" +
+							"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv\n" +
+							") b where b.product=c.value)");
 					if (!partNoList.isEmpty()) {
 						result.put("flag", "fail");
 						result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
@@ -491,7 +488,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				int rowIndex = 3;
 				for (Object[] objects : dataList) {
 					Row contentRow = sheet.createRow(rowIndex++);
-					for (int i = 3; i < objects.length-4; i++) {
+					for (int i = 3; i < objects.length-6; i++) {
 						Cell cell = contentRow.createCell(i-3);
 						String text = (objects[i] != null ? objects[i].toString() : "");
 						if (StringUtils.isNotEmpty(text) && i>17 && i<64) {
@@ -500,6 +497,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 							cell.setCellValue(text);
 						}
 					}
+					Cell cell = contentRow.createCell(61);
+					cell.setCellValue(Double.parseDouble(objects[18].toString()));
 				}
 
 				while (dataList != null && dataList.size() >= ExcelUtil.PAGE_SIZE) {
@@ -508,7 +507,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					if (CollectionUtils.isNotEmpty(dataList)) {
 						for (Object[] objects : dataList) {
 							Row contentRow = sheet.createRow(rowIndex++);
-							for (int i = 3; i < objects.length-5; i++) {
+							for (int i = 3; i < objects.length-7; i++) {
 								Cell cell = contentRow.createCell(i-3);
 								String text = (objects[i] != null ? objects[i].toString() : "");
 								if (StringUtils.isNotEmpty(text) && i>17 && i<64) {
@@ -517,6 +516,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 									cell.setCellValue(text);
 								}
 							}
+							Cell cell = contentRow.createCell(61);
+							cell.setCellValue(Double.parseDouble(objects[18].toString()));
 						}
 					}
 				}
