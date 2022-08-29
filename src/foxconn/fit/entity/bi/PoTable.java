@@ -1,8 +1,5 @@
 package foxconn.fit.entity.bi;
 
-import foxconn.fit.entity.hfm.AuditColumns;
-import foxconn.fit.entity.hfm.AuditKey;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;

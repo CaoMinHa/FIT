@@ -1,7 +1,6 @@
 package foxconn.fit.entity.bi;
 
 import foxconn.fit.entity.base.IdEntity;
-import foxconn.fit.entity.hfm.AuditTable;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
