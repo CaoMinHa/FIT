@@ -78,10 +78,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
 		}
-		if (null!=version && StringUtils.isEmpty(version)) {
-			version="V1";
+		if (null!=version && StringUtils.isNotEmpty(version)) {
+			sql+=" and version='"+version+"'";
 		}
-		sql+=" and version='"+version+"'";
 
 		List<String> tarList=new ArrayList<String>();
 		String corporationCode = SecurityUtils.getCorporationCode();
@@ -778,7 +777,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			row.getCell(78).setCellValue("FY"+(year+4));
 
 			String sql="select * from FIT_BUDGET_PRODUCT_UNIT_COST where YEAR='"+y+"'";
-			if(null !=version &&version.isEmpty()){
+			if (null!=version && StringUtils.isNotEmpty(version)) {
 				sql+=" and VERSION='"+version+"'";
 			}
 			//獲取當前用戶的SBU權限

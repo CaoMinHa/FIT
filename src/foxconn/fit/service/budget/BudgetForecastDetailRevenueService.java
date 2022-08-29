@@ -14,7 +14,10 @@ import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,11 +82,9 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
 		}
-		if (null!=version && StringUtils.isEmpty(version)) {
-			version="V1";
+		if (null!=version && StringUtils.isNotEmpty(version)) {
+			sql+=" and version='"+version+"'";
 		}
-		sql+=" and version='"+version+"'";
-
 		List<String> tarList=new ArrayList<String>();
 		String corporationCode = SecurityUtils.getCorporationCode();
 		if (StringUtils.isNotEmpty(corporationCode)) {
@@ -460,7 +461,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			row.getCell(49).setCellValue(y);
 
 			String sql="select * from FIT_BUDGET_DETAIL_REVENUE where YEAR='"+y+"'";
-			if(null !=version &&version.isEmpty()){
+			if (null!=version && StringUtils.isNotEmpty(version)) {
 				sql+=" and VERSION='"+version+"'";
 			}
 			//獲取當前用戶的SBU權限
@@ -488,7 +489,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				int rowIndex = 3;
 				for (Object[] objects : dataList) {
 					Row contentRow = sheet.createRow(rowIndex++);
-					for (int i = 3; i < objects.length-6; i++) {
+					for (int i = 3; i < objects.length-7; i++) {
 						Cell cell = contentRow.createCell(i-3);
 						String text = (objects[i] != null ? objects[i].toString() : "");
 						if (StringUtils.isNotEmpty(text) && i>17 && i<64) {
@@ -499,6 +500,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					}
 					Cell cell = contentRow.createCell(61);
 					cell.setCellValue(Double.parseDouble(objects[18].toString()));
+					cell = contentRow.createCell(14);
+					cell.setCellValue(objects[70].toString());
 				}
 
 				while (dataList != null && dataList.size() >= ExcelUtil.PAGE_SIZE) {
@@ -507,7 +510,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					if (CollectionUtils.isNotEmpty(dataList)) {
 						for (Object[] objects : dataList) {
 							Row contentRow = sheet.createRow(rowIndex++);
-							for (int i = 3; i < objects.length-7; i++) {
+							for (int i = 3; i < objects.length-8; i++) {
 								Cell cell = contentRow.createCell(i-3);
 								String text = (objects[i] != null ? objects[i].toString() : "");
 								if (StringUtils.isNotEmpty(text) && i>17 && i<64) {
@@ -518,6 +521,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 							}
 							Cell cell = contentRow.createCell(61);
 							cell.setCellValue(Double.parseDouble(objects[18].toString()));
+							cell = contentRow.createCell(14);
+							cell.setCellValue(objects[70].toString());
 						}
 					}
 				}

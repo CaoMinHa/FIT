@@ -400,6 +400,13 @@ function updateTask(id,status,time){
 							</a>
 						</li>
 						<li class="nav-body">
+							<a href="javascript:void(0);" url="${ctx}/admin/budget/index">
+								<div class="div-middle">
+									<span>預算管理</span>
+								</div>
+							</a>
+						</li>
+						<li class="nav-body">
 							<a href="javascript:void(0);" url="${ctx}/admin/masterData/index">
 								<div class="div-middle"> 
 									<span><spring:message code='masterDataPlatform'/></span>

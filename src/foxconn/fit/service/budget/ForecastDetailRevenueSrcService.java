@@ -5,10 +5,8 @@ import foxconn.fit.dao.budget.ForecastDetailRevenueSrcDao;
 import foxconn.fit.entity.base.EnumDimensionType;
 import foxconn.fit.entity.budget.ForecastDetailRevenueSrc;
 import foxconn.fit.service.base.BaseService;
-import foxconn.fit.util.ExcelUtil;
 import foxconn.fit.util.ExceptionUtil;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -67,49 +65,59 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Entity.getCode()+"' and PARENT = 'FOET'";
 			this.selectDimension(sql,sheet);
 
-			/**產品系列*/
+			/**次產業*/
 			sheet = workBook.getSheetAt(3);
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Segment.getCode()+"'";
+			this.selectDimension(sql,sheet);
+
+			/**Main Business*/
+			sheet = workBook.getSheetAt(4);
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Bak2.getCode()+"'";
+			this.selectDimension(sql,sheet);
+
+			/**3+3*/
+			sheet = workBook.getSheetAt(5);
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Project.getCode()+"'";
+			this.selectDimension(sql,sheet);
+
+			/**產品系列*/
+			sheet = workBook.getSheetAt(6);
 			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and PARENT not in('7EB','7EE','7ED','7EA','7EG','7ER','7RD','7RE','7RA','7RC','7RF','7RB','7SB','7SC','7SA','7PF','7PC','7PB','7PG','7PD','7PA','7EU','7RG','7ET')";
 			this.selectDimension(sql,sheet);
 
 			/**Product series for FOIT*/
-			sheet = workBook.getSheetAt(4);
+			sheet = workBook.getSheetAt(7);
 			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and PARENT in('7EB','7EE','7ED','7EA','7EG','7ER','7RD','7RE','7RA','7RC','7RF','7RB','7SB','7SC','7SA','7PF','7PC','7PB','7PG','7PD','7PA','7EU','7RG','7ET')";
 			this.selectDimension(sql,sheet);
 
 			/**產品料号维度表*/
-			sheet = workBook.getSheetAt(5);
+			sheet = workBook.getSheetAt(8);
 			sql="SELECT distinct SBU,PRODUCT_TYPE_DESC,PRODUCT_FAMILY_DESC,PRODUCT_SERIES_DESC,ITEM_CODE FROM epmods.cux_inv_sbu_item_info_mv t";
 			this.selectProduct(sql,sheet);
 
 			/**Product number for FOIT*/
-			sheet = workBook.getSheetAt(6);
+			sheet = workBook.getSheetAt(9);
 			sql="SELECT distinct SBU,PRODUCT_TYPE_DESC,PRODUCT_FAMILY_DESC,PRODUCT_SERIES_DESC,ITEM_CODE FROM epmods.cux_inv_sbu_item_info_mv t  WHERE t.sbu = 'FOET' ";
 			this.selectProduct(sql,sheet);
 
-			/**次產業*/
-			sheet = workBook.getSheetAt(7);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Segment.getCode()+"'";
-			this.selectDimension(sql,sheet);
-
-			/**賬款客戶*/
-			sheet = workBook.getSheetAt(8);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"'";
-			this.selectDimension(sql,sheet);
-
 			/**最終客戶*/
-			sheet = workBook.getSheetAt(9);
+			sheet = workBook.getSheetAt(10);
 			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Combine.getCode()+"'";
 			this.selectDimension(sql,sheet);
 
-			/**主要業務*/
-			sheet = workBook.getSheetAt(10);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Bak2.getCode()+"'";
+			/**賬款客戶*/
+			sheet = workBook.getSheetAt(11);
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"'";
 			this.selectDimension(sql,sheet);
 
 			/**交易類型*/
-			sheet = workBook.getSheetAt(11);
+			sheet = workBook.getSheetAt(12);
 			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.View.getCode()+"'";
+			this.selectDimension(sql,sheet);
+
+			/**交易貨幣*/
+			sheet = workBook.getSheetAt(13);
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Currency.getCode()+"'";
 			this.selectDimension(sql,sheet);
 
 			File outFile = new File(filePath);

@@ -152,6 +152,16 @@ public class BudgetDetailRevenue {
 	private Date versionDate;//版本存檔時間
 	private String OU;//銷售法人 OU Code
 	private String MAKEOU;//製造法人OU Code
+	@Column(name = "currency_transition")
+	private String currencyTransition;// 轉換幣種
+
+	public String getCurrencyTransition() {
+		return currencyTransition;
+	}
+
+	public void setCurrencyTransition(String currencyTransition) {
+		this.currencyTransition = currencyTransition;
+	}
 
 	public BudgetDetailRevenue(String entity, String makeEntity, String segment, String mainIndustry, String industry, String mainBusiness, String three, String productSeries, String productNo, String loanCustomer, String endCustomer, String typeOfAirplane, String tradeType, String currency, String pm, String revenue, String revenueNextyear, String revenueTwoyear, String revenueThreeyear, String revenueFouryear, String quantity, String quantityNextyear, String quantityTwoyear, String quantityThreeyear, String quantityFouryear, String quantityMonth1, String quantityMonth2, String quantityMonth3, String quantityMonth4, String quantityMonth5, String quantityMonth6, String quantityMonth7, String quantityMonth8, String quantityMonth9, String quantityMonth10, String quantityMonth11, String quantityMonth12, String priceMonth1, String priceMonth2, String priceMonth3, String priceMonth4, String priceMonth5, String priceMonth6, String priceMonth7, String priceMonth8, String priceMonth9, String priceMonth10, String priceMonth11, String priceMonth12, String revenueMonth1, String revenueMonth2, String revenueMonth3, String revenueMonth4, String revenueMonth5, String revenueMonth6, String revenueMonth7, String revenueMonth8, String revenueMonth9, String revenueMonth10, String revenueMonth11, String revenueMonth12, String createName) {
 		this.entity = entity;

@@ -264,7 +264,7 @@ public class DimensionController extends BaseController {
 				}
 
 
-				File outFile=new File(realPath+File.separator+"static"+File.separator+"download"+File.separator+time+".xlsx");
+				File outFile=new File(realPath+File.separator+"static"+File.separator+"download"+File.separator+"Dimension.xlsx");
 				OutputStream out = new FileOutputStream(outFile);
 				sxssfWorkbook.write(out);
 				sxssfWorkbook.close();
