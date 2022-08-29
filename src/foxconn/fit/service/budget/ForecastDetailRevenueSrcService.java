@@ -67,7 +67,7 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**次產業*/
 			sheet = workBook.getSheetAt(3);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Segment.getCode()+"'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Segment.getCode()+"' and PARENT='Segment_Total'";
 			this.selectDimension(sql,sheet);
 
 			/**Main Business*/
@@ -82,7 +82,7 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**產品系列*/
 			sheet = workBook.getSheetAt(6);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and PARENT not in('7EB','7EE','7ED','7EA','7EG','7ER','7RD','7RE','7RA','7RC','7RF','7RB','7SB','7SC','7SA','7PF','7PC','7PB','7PG','7PD','7PA','7EU','7RG','7ET')";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and PARENT not in('Product_Total')";
 			this.selectDimension(sql,sheet);
 
 			/**Product series for FOIT*/
