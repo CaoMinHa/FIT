@@ -500,7 +500,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					}
 					Cell cell = contentRow.createCell(61);
 					cell.setCellValue(Double.parseDouble(objects[18].toString()));
-					cell = contentRow.createCell(14);
+					cell = contentRow.createCell(13);
 					cell.setCellValue(objects[70].toString());
 				}
 
@@ -521,7 +521,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 							}
 							Cell cell = contentRow.createCell(61);
 							cell.setCellValue(Double.parseDouble(objects[18].toString()));
-							cell = contentRow.createCell(14);
+							cell = contentRow.createCell(13);
 							cell.setCellValue(objects[70].toString());
 						}
 					}
