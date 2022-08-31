@@ -127,7 +127,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         }else {
             content=content.replace("\n","</br>");
             content=content.replace(" ","&nbsp;");
-            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\"http://10.98.5.23:8080/fit/login\" style=\"color: blue;\">接口平臺</a>");
+            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a>");
             if(isSend){
                 String sql="insert into CUX_PO_EMAIL(CREATED_BY,CREATED_NAME,EMAIL_TITLE,EMAIL_CONTENT,EMAIL_TEAM,END_DATE) values('"+user
                         +"','"+userName.get(0)+"','"+title+"','"+content+"','"+emailGroup+"','"+endDate+"')";
@@ -163,6 +163,6 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         String sqlC="select distinct EMAIL from EPMODS.fit_user where USERNAME in ("+username+") and type='BI' and EMAIL is not null";
         List<String> emailListC=poTableService.listBySql(sqlC);
         emailListC=emailListC.stream().distinct().collect(Collectors.toList());
-        EmailUtil.emailsMany(emailListC,title,content+"</br>&nbsp;&nbsp;<a href=\"http://10.98.5.23:8080/fit/login?task=Y\" style=\"color: blue;\">接口平臺</a>");
+        EmailUtil.emailsMany(emailListC,title,content+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?task=Y\" style=\"color: blue;\">接口平臺</a>");
     }
 }
