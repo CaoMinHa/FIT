@@ -673,11 +673,11 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	public String templateVal(String year){
 		String corporationCode = SecurityUtils.getCorporationCode();
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sql="SELECT DISTINCT b.entity,b.make_entity,\n" +
+		String sql="SELECT b.entity,b.make_entity,\n" +
 				"                b.product_no,\n" +
 				"                b.product_series,\n" +
-				"                round(t.material_cost,2) material_cost,\n" +
-				"                round(t.laber_cost,2) laber_cost,\n" +
+				"                nvl(round(t.material_cost,2),0) material_cost,\n" +
+				"                nvl(round(t.laber_cost,2),0) laber_cost,\n" +
 				"                round((nvl(t.overhead_cost,0) + nvl(t.outsite_processing_cost,0)),2) overhead_cost, \n" +
 				"                b.quantity_month1,\n" +
 				"                b.quantity_month2,\n" +
@@ -696,16 +696,15 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				"                b.quantity_twoyear,\n" +
 				"                b.quantity_threeyear,\n" +
 				"                b.quantity_fouryear\n" +
-				"  FROM bidev.if_ebs_ar_revenue_dtl_cst_v t,\n" +
+				"  FROM epmods.if_ebs_ar_revenue_dtl_cst_v2 t,\n" +
 				"       (SELECT a.*\n" +
 				"          FROM epmods.fit_budget_detail_revenue a\n" +
 				"         WHERE a.version = 'V00'\n" +
 				"           AND a.year = 'FY' || (to_char(SYSDATE,'YY') + 1)) b\n" +
-				" WHERE t.p_n = b.product_no\n" +
-				"   AND t.entity_code = b.ou\n" +
-				"   AND t.year_month = to_char(add_months(SYSDATE,-1),'YYYYMM')\n" +
+				" WHERE t.p_n(+) = b.product_no\n" +
+				"   AND t.entity_code(+) = b.ou\n" +
+				"   AND t.rn(+)= 1\n" +
 				"   and b.year='"+year+"' and b.create_name='"+loginUser.getUsername()+"'";
-
 		if (StringUtils.isNotEmpty(corporationCode)) {
 			sql+=" and (";
 			for (String string : corporationCode.split(",")) {

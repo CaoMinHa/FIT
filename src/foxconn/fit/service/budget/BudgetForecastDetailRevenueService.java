@@ -78,7 +78,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 
 	/**頁面查詢*/
 	public String list(String year,String version,String entity){
-		String sql="select * from FIT_BUDGET_DETAIL_REVENUE where 1=1";
+		String sql="select * from FIT_BUDGET_DETAIL_REVENUE_V where 1=1";
 		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
 		}
@@ -460,7 +460,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			row.getCell(37).setCellValue(y);
 			row.getCell(49).setCellValue(y);
 
-			String sql="select * from FIT_BUDGET_DETAIL_REVENUE where YEAR='"+y+"'";
+			String sql="select * from FIT_BUDGET_DETAIL_REVENUE_V where YEAR='"+y+"'";
 			if (null!=version && StringUtils.isNotEmpty(version)) {
 				sql+=" and VERSION='"+version+"'";
 			}
@@ -489,19 +489,15 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				int rowIndex = 3;
 				for (Object[] objects : dataList) {
 					Row contentRow = sheet.createRow(rowIndex++);
-					for (int i = 3; i < objects.length-7; i++) {
-						Cell cell = contentRow.createCell(i-3);
+					for (int i = 0; i < objects.length-10; i++) {
+						Cell cell = contentRow.createCell(i);
 						String text = (objects[i] != null ? objects[i].toString() : "");
-						if (StringUtils.isNotEmpty(text) && i>17 && i<64) {
+						if (StringUtils.isNotEmpty(text) && i>14 && i<62) {
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
 						}
 					}
-					Cell cell = contentRow.createCell(61);
-					cell.setCellValue(Double.parseDouble(objects[18].toString()));
-					cell = contentRow.createCell(13);
-					cell.setCellValue(objects[70].toString());
 				}
 
 				while (dataList != null && dataList.size() >= ExcelUtil.PAGE_SIZE) {
@@ -510,19 +506,15 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					if (CollectionUtils.isNotEmpty(dataList)) {
 						for (Object[] objects : dataList) {
 							Row contentRow = sheet.createRow(rowIndex++);
-							for (int i = 3; i < objects.length-8; i++) {
-								Cell cell = contentRow.createCell(i-3);
+							for (int i = 0; i < objects.length-11; i++) {
+								Cell cell = contentRow.createCell(i);
 								String text = (objects[i] != null ? objects[i].toString() : "");
-								if (StringUtils.isNotEmpty(text) && i>17 && i<64) {
+								if (StringUtils.isNotEmpty(text) && i>14 && i<62) {
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);
 								}
 							}
-							Cell cell = contentRow.createCell(61);
-							cell.setCellValue(Double.parseDouble(objects[18].toString()));
-							cell = contentRow.createCell(13);
-							cell.setCellValue(objects[70].toString());
 						}
 					}
 				}

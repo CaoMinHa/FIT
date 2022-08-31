@@ -198,7 +198,7 @@ function refresh(){
 					<td style="border-right:1px solid #eee;text-align: left;">${mapping.endCustomer}</td>
 					<td style="border-right:1px solid #eee;text-align: left;">${mapping.typeOfAirplane}</td>
 					<td style="border-right:1px solid #eee;text-align: left;">${mapping.tradeType}</td>
-					<td style="border-right:1px solid #eee;text-align: left;">${mapping.currencyTransition}</td>
+					<td style="border-right:1px solid #eee;text-align: left;">${mapping.currency}</td>
 					<td style="border-right:1px solid #eee;text-align: left;">${mapping.pm}</td>
 					<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.revenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 					<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.revenueNextyear}" pattern="#,##0.##"></fmt:formatNumber></td>
