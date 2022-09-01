@@ -156,7 +156,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
 				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				Row thirdRow = sheet.getRow(3);
-				int column = thirdRow.getPhysicalNumberOfCells();
+				int column = thirdRow.getLastCellNum();
 				if (column < COLUMN_NUM) {
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "Excel列数不能小于" + COLUMN_NUM + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + COLUMN_NUM + ",Please download the correct template to upload the data"));

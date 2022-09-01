@@ -164,7 +164,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
 				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				Row thirdRow = sheet.getRow(3);
-				int column = thirdRow.getPhysicalNumberOfCells();
+				int column = thirdRow.getLastCellNum();
 				if (column < COLUMN_NUM) {
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "Excel列数不能小于" + COLUMN_NUM + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + COLUMN_NUM + ",Please download the correct template to upload the data"));
@@ -463,44 +463,44 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(2).setCellValue(map.get("PRODUCT_SERIES").toString());
 				row.createCell(3).setCellValue(map.get("PRODUCT_NO").toString());
 
-				row.createCell(4).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(6).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(8).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(10).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(12).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(14).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(16).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(18).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(20).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(22).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(24).setCellValue(map.get("MATERIAL_COST").toString());
-				row.createCell(26).setCellValue(map.get("MATERIAL_COST").toString());
+				row.createCell(4).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(6).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(8).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(10).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(12).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(14).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(16).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(18).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(20).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(22).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(24).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(26).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 
-				row.createCell(28).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(30).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(32).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(34).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(36).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(38).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(40).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(42).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(44).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(46).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(48).setCellValue(map.get("LABER_COST").toString());
-				row.createCell(50).setCellValue(map.get("LABER_COST").toString());
+				row.createCell(28).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(30).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(32).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(34).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(36).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(38).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(40).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(42).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(44).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(46).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(48).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(50).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 
-				row.createCell(52).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(54).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(56).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(58).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(60).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(62).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(64).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(66).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(68).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(70).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(72).setCellValue(map.get("OVERHEAD_COST").toString());
-				row.createCell(74).setCellValue(map.get("OVERHEAD_COST").toString());
+				row.createCell(52).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(54).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(56).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(58).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(60).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(62).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(64).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(66).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(68).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(70).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(72).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(74).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 
 				row.createCell(76).setCellFormula("F"+rowNo);
 				row.createCell(77).setCellFormula("AD"+rowNo);
@@ -554,90 +554,90 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(121).setCellFormula("AZ"+rowNo);
 				row.createCell(122).setCellFormula("BX"+rowNo);
 				row.createCell(123).setCellFormula("SUM(DQ"+rowNo+":DS"+rowNo+")");
-				row.createCell(124).setCellValue(map.get("QUANTITY_MONTH1").toString());
+				row.createCell(124).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH1").toString()));
 				row.createCell(125).setCellFormula("BY"+rowNo+"*$DU"+rowNo);
 				row.createCell(126).setCellFormula("BZ"+rowNo+"*$DU"+rowNo);
 				row.createCell(127).setCellFormula("CA"+rowNo+"*$DU"+rowNo);
 				row.createCell(128).setCellFormula("SUM(DV"+rowNo+":DX"+rowNo+")");
-				row.createCell(129).setCellValue(map.get("QUANTITY_MONTH2").toString());
+				row.createCell(129).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH2").toString()));
 				row.createCell(130).setCellFormula("CC"+rowNo+"*$DZ"+rowNo);
 				row.createCell(131).setCellFormula("CD"+rowNo+"*$DZ"+rowNo);
 				row.createCell(132).setCellFormula("CE"+rowNo+"*$DZ"+rowNo);
 				row.createCell(133).setCellFormula("SUM(EA"+rowNo+":EC"+rowNo+")");
-				row.createCell(134).setCellValue(map.get("QUANTITY_MONTH3").toString());
+				row.createCell(134).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH3").toString()));
 				row.createCell(135).setCellFormula("CG"+rowNo+"*$EE"+rowNo);
 				row.createCell(136).setCellFormula("CH"+rowNo+"*$EE"+rowNo);
 				row.createCell(137).setCellFormula("CI"+rowNo+"*$EE"+rowNo);
 				row.createCell(138).setCellFormula("SUM(EF"+rowNo+":EH"+rowNo+")");
-				row.createCell(139).setCellValue(map.get("QUANTITY_MONTH4").toString());
+				row.createCell(139).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH4").toString()));
 				row.createCell(140).setCellFormula("CK"+rowNo+"*$EJ"+rowNo);
 				row.createCell(141).setCellFormula("CL"+rowNo+"*$EJ"+rowNo);
 				row.createCell(142).setCellFormula("CM"+rowNo+"*$EJ"+rowNo);
 				row.createCell(143).setCellFormula("SUM(EK"+rowNo+":EM"+rowNo+")");
-				row.createCell(144).setCellValue(map.get("QUANTITY_MONTH5").toString());
+				row.createCell(144).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH5").toString()));
 				row.createCell(145).setCellFormula("CO"+rowNo+"*$EO"+rowNo);
 				row.createCell(146).setCellFormula("CP"+rowNo+"*$EO"+rowNo);
 				row.createCell(147).setCellFormula("CQ"+rowNo+"*$EO"+rowNo);
 				row.createCell(148).setCellFormula("SUM(EP"+rowNo+":ER"+rowNo+")");
-				row.createCell(149).setCellValue(map.get("QUANTITY_MONTH6").toString());
+				row.createCell(149).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH6").toString()));
 				row.createCell(150).setCellFormula("CS"+rowNo+"*$ET"+rowNo);
 				row.createCell(151).setCellFormula("CT"+rowNo+"*$ET"+rowNo);
 				row.createCell(152).setCellFormula("CU"+rowNo+"*$ET"+rowNo);
 				row.createCell(153).setCellFormula("SUM(EU"+rowNo+":EW"+rowNo+")");
-				row.createCell(154).setCellValue(map.get("QUANTITY_MONTH7").toString());
+				row.createCell(154).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH7").toString()));
 				row.createCell(155).setCellFormula("CW"+rowNo+"*$EY"+rowNo);
 				row.createCell(156).setCellFormula("CX"+rowNo+"*$EY"+rowNo);
 				row.createCell(157).setCellFormula("CY"+rowNo+"*$EY"+rowNo);
 				row.createCell(158).setCellFormula("SUM(EZ"+rowNo+":FB"+rowNo+")");
-				row.createCell(159).setCellValue(map.get("QUANTITY_MONTH8").toString());
+				row.createCell(159).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH8").toString()));
 				row.createCell(160).setCellFormula("DA"+rowNo+"*$FD"+rowNo);
 				row.createCell(161).setCellFormula("DB"+rowNo+"*$FD"+rowNo);
 				row.createCell(162).setCellFormula("DC"+rowNo+"*$FD"+rowNo);
 				row.createCell(163).setCellFormula("SUM(FE"+rowNo+":FG"+rowNo+")");
-				row.createCell(164).setCellValue(map.get("QUANTITY_MONTH9").toString());
+				row.createCell(164).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH9").toString()));
 				row.createCell(165).setCellFormula("DE"+rowNo+"*$FI"+rowNo);
 				row.createCell(166).setCellFormula("DF"+rowNo+"*$FI"+rowNo);
 				row.createCell(167).setCellFormula("DG"+rowNo+"*$FI"+rowNo);
 				row.createCell(168).setCellFormula("SUM(FJ"+rowNo+":FL"+rowNo+")");
-				row.createCell(169).setCellValue(map.get("QUANTITY_MONTH10").toString());
+				row.createCell(169).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH10").toString()));
 				row.createCell(170).setCellFormula("DI"+rowNo+"*$FN"+rowNo);
 				row.createCell(171).setCellFormula("DJ"+rowNo+"*$FN"+rowNo);
 				row.createCell(172).setCellFormula("DK"+rowNo+"*$FN"+rowNo);
 				row.createCell(173).setCellFormula("SUM(FO"+rowNo+":FQ"+rowNo+")");
-				row.createCell(174).setCellValue(map.get("QUANTITY_MONTH11").toString());
+				row.createCell(174).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH11").toString()));
 				row.createCell(175).setCellFormula("DM"+rowNo+"*$FS"+rowNo);
 				row.createCell(176).setCellFormula("DN"+rowNo+"*$FS"+rowNo);
 				row.createCell(177).setCellFormula("DO"+rowNo+"*$FS"+rowNo);
 				row.createCell(178).setCellFormula("SUM(FT"+rowNo+":FV"+rowNo+")");
-				row.createCell(179).setCellValue(map.get("QUANTITY_MONTH12").toString());
+				row.createCell(179).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH12").toString()));
 				row.createCell(180).setCellFormula("DQ"+rowNo+"*$FX"+rowNo);
 				row.createCell(181).setCellFormula("DR"+rowNo+"*$FX"+rowNo);
 				row.createCell(182).setCellFormula("DS"+rowNo+"*$FX"+rowNo);
 				row.createCell(183).setCellFormula("SUM(FY"+rowNo+":GA"+rowNo+")");
 
 				row.createCell(187).setCellFormula("SUM(GC"+rowNo+":GE"+rowNo+")");
-				row.createCell(188).setCellFormula(map.get("QUANTITY_NEXTYEAR").toString());
+				row.createCell(188).setCellValue(Double.parseDouble(map.get("QUANTITY_NEXTYEAR").toString()));
 				row.createCell(189).setCellFormula("GC"+rowNo+"*$GG"+rowNo);
 				row.createCell(190).setCellFormula("GD"+rowNo+"*$GG"+rowNo);
 				row.createCell(191).setCellFormula("GE"+rowNo+"*$GG"+rowNo);
 				row.createCell(192).setCellFormula("SUM(GH"+rowNo+":GJ"+rowNo+")");
 
 				row.createCell(196).setCellFormula("SUM(GL"+rowNo+":GN"+rowNo+")");
-				row.createCell(197).setCellFormula(map.get("QUANTITY_TWOYEAR").toString());
+				row.createCell(197).setCellValue(Double.parseDouble(map.get("QUANTITY_TWOYEAR").toString()));
 				row.createCell(198).setCellFormula("GL"+rowNo+"*$GP"+rowNo);
 				row.createCell(199).setCellFormula("GM"+rowNo+"*$GP"+rowNo);
 				row.createCell(200).setCellFormula("GN"+rowNo+"*$GP"+rowNo);
 				row.createCell(201).setCellFormula("SUM(GQ"+rowNo+":GS"+rowNo+")");
 
 				row.createCell(205).setCellFormula("SUM(GU"+rowNo+":GW"+rowNo+")");
-				row.createCell(206).setCellFormula(map.get("QUANTITY_THREEYEAR").toString());
+				row.createCell(206).setCellValue(Double.parseDouble(map.get("QUANTITY_THREEYEAR").toString()));
 				row.createCell(207).setCellFormula("GU"+rowNo+"*$GY"+rowNo);
 				row.createCell(208).setCellFormula("GV"+rowNo+"*$GY"+rowNo);
 				row.createCell(209).setCellFormula("GW"+rowNo+"*$GY"+rowNo);
 				row.createCell(210).setCellFormula("SUM(GZ"+rowNo+":HB"+rowNo+")");
 
 				row.createCell(214).setCellFormula("SUM(HD"+rowNo+":HF"+rowNo+")");
-				row.createCell(215).setCellFormula(map.get("QUANTITY_FOURYEAR").toString());
+				row.createCell(215).setCellValue(Double.parseDouble(map.get("QUANTITY_FOURYEAR").toString()));
 				row.createCell(216).setCellFormula("HD"+rowNo+"*$HH"+rowNo);
 				row.createCell(217).setCellFormula("HE"+rowNo+"*$HH"+rowNo);
 				row.createCell(218).setCellFormula("HF"+rowNo+"*$HH"+rowNo);
@@ -676,9 +676,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		String sql="SELECT b.entity,b.make_entity,\n" +
 				"                b.product_no,\n" +
 				"                b.product_series,\n" +
-				"                nvl(round(t.material_cost,2),0) material_cost,\n" +
-				"                nvl(round(t.laber_cost,2),0) laber_cost,\n" +
-				"                round((nvl(t.overhead_cost,0) + nvl(t.outsite_processing_cost,0)),2) overhead_cost, \n" +
+				"                nvl(t.material_cost,0) material_cost,\n" +
+				"                nvl(t.laber_cost,0) laber_cost,\n" +
+				"                nvl(t.overhead_cost,0) + nvl(t.outsite_processing_cost,0) overhead_cost, \n" +
 				"                b.quantity_month1,\n" +
 				"                b.quantity_month2,\n" +
 				"                b.quantity_month3,\n" +

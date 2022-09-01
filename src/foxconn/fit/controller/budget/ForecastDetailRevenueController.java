@@ -390,7 +390,7 @@ public class ForecastDetailRevenueController extends BaseController {
 					String v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(11),0);
 					Assert.isTrue(year.substring(2).equals(v_year.substring(2)), getLanguage(locale, "第1行11列值與選擇的年份不匹配！", "The value of row 1,column 11 do not match the selected year"));
 					Row thirdRow = sheet.getRow(2);
-					int column = thirdRow.getPhysicalNumberOfCells();
+					int column = thirdRow.getLastCellNum();
 					if(column<COLUMN_NUM){
 						result.put("flag", "fail");
 						result.put("msg", getLanguage(locale, "Excel列数不能小于"+COLUMN_NUM, "Number Of Columns Can Not Less Than"+COLUMN_NUM));
