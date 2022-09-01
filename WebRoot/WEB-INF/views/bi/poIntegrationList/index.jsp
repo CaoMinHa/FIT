@@ -57,7 +57,7 @@
                 showButtonPanel: true,
                 closeText: "<spring:message code='confirm'/>"
             });
-            $("#Date,#QDate,#DateEnd,#QDateEnd").click(function () {
+            $("#QDate,#DateEnd,#QDateEnd").click(function () {
                 periodId = $(this).attr("id");
                 $(this).val("");
             });
@@ -80,6 +80,8 @@
             });
 
             $("#QTableName").change(function () {
+                $("#Content table tr").remove();
+                $("#Fenye").remove();
                 $.ajax({
                     type: "POST",
                     url: "${ctx}/bi/poIntegrationList/downloadCheck",
@@ -99,68 +101,81 @@
                 if ($(this).val().length > 0) {
                     $("#" + $(this).attr("id") + "Tip").hide();
                 }
-                if($(this).val()=='FIT_PO_CD_MONTH_DTL'){
-                    $("#QpoCenter").hide();
-                    $("#NTD").show();
-                }else{
-                    $("#QpoCenter").show();
-                    $("#NTD").hide();
-                }
-                if($(this).val()=='FIT_PO_SBU_YEAR_CD_SUM'||$(this).val()=='FIT_PO_CD_MONTH_DTL'){
-                    $("ul[name='YYYY']").show();
-                    $("#QDateEnd").val("");
-                    $("#QDate").val("");
-                    $("ul[name='YYYYMM']").hide();
-                }else{
-                    $("ul[name='YYYY']").hide();
-                    $("ul[name='YYYYMM']").show();
-                    $("#DateYear").val("");
+                $("#Query input").val("");
+                $("#Query select").val("");
+                $("#NTD").hide();
+                $("#QpoCenter").show();
+                $("#Scenario").text("");
+                $("#buVal").show();
+                $("#priceControl").show();
+                $("#founderVal").hide();
+                switch ($("#QTableName").val()) {
+                    //實際採購非價格CD匯總表
+                    case "FIT_ACTUAL_PO_NPRICECD_DTL":
+                        $("input[name='YYYY']").hide();
+                        $("input[name='YYYYMM']").show();
+                        $("#priceControl").hide();
+                        $("#founderVal").show();
+                        $("#buVal").hide();
+                        break;
+                    //採購CD手動匯總表
+                    case "FIT_PO_BUDGET_CD_DTL":
+                        $("input[name='YYYY']").hide();
+                        $("input[name='YYYYMM']").show();
+                        $("#Scenario").text("Scenario:Actual")
+                        break;
+                    //SBU年度CD目標匯總表
+                    case "FIT_PO_SBU_YEAR_CD_SUM":
+                        $("input[name='YYYY']").show();
+                        $("input[name='YYYYMM']").hide();
+                        $("#Scenario").text("Scenario:Budget");
+                        break;
+                    //採購CD目標by月展開表
+                    case "FIT_PO_CD_MONTH_DTL":
+                        $("input[name='YYYY']").show();
+                        $("input[name='YYYYMM']").hide();
+                        $("#QpoCenter").hide();
+                        $("#QpoCenter").change();
+                        $("#NTD").show();
+                        break;
                 }
             });
 
             $("#QueryBtn").click(function () {
-                $("#QDateTip").hide();
-                $("#QDateTipEnd").hide();
-                $("#DateYearTip").hide();
-                var flag = true;
                 var tableName = $("#QTableName").val();
+                if (tableName.length == 0) {
+                    $("#QTableNameTip").show();
+                    return;
+                }
                 var DateYear = $("#DateYear").val();
                 var date = $("#QDate").val();
                 var dateEnd = $("#QDateEnd").val();
                 if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'){
                     var r = /^\+?[1-9][0-9]*$/;
                     if (DateYear.length!=4 || !r.test(DateYear)) {
-                        $("#DateYearTip").show();
-                        flag = false;
+                      layer.msg("請填寫正確的年份(Please fill in the correct year)");
+                        return;
                     }
                 }else{
                     if (date.length == 0) {
-                        $("#QDateTip").show();
-                        flag = false;
+                        layer.msg("請選擇開始日期！(Please select a start date)");
+                        return;
                     }
                     if (dateEnd.length == 0) {
-                        $("#QDateTipEnd").show();
-                        flag = false;
+                        layer.msg("請選擇結束日期！(Please select an end date)");
+                        return;
                     }
                     if(date.substr(0,3)!=dateEnd.substr(0,3)){
                         layer.msg("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
-                        flag = false;
+                        return;
                     }
-                }
-                if (tableName.length == 0) {
-                    $("#QTableNameTip").show();
-                    flag = false;
                 }
                 var entity = $("#QpoCenter").val();
                 var sbuVal = $("#sbuVal").val();
-                if (!flag) {
-                    return;
-                }
                 $("#QTableNameTip").hide();
                 $("#QpoCenterTip").hide();
                 $("#PageNo").val(1);
                 $("#loading").show();
-
                 $("#Content").load("${ctx}/bi/poIntegrationList/list", {
                     date: date,
                     dateEnd: dateEnd,
@@ -168,8 +183,10 @@
                     tableName: tableName,
                     poCenter: entity,
                     sbuVal: sbuVal,
-                    priceControl:$("#priceControl").val(),
-                    commodity:$("#commodity").val()
+                    priceControl: $("#priceControl").val(),
+                    commodity: $("#commodity").val(),
+                    buVal: $("#buVal").val(),
+                    founderVal: $("#founderVal").val()
                 }, function () {
                     $("#loading").fadeOut(1000);
                 });
@@ -223,13 +240,14 @@
                         functionName:$(this).val()
                     },
                     success: function(data){
-                       $("#commdityTable").empty();
-                        $("#commdityTable").append("<tbody id='commdityTbody'></tbody>")
-                        jQuery.each(data, function(i,item){
-                            if(i%4===0){
-                                $("#commdityTbody").append("<tr>");
+                        $("#commdityTable").empty();
+                        var commdityTr=0;
+                        jQuery.each(data, function (i, item) {
+                            if (i % 4 == 0) {
+                                $("#commdityTable").append("<tr id='commdityTr"+i+"'></tr>");
+                                commdityTr=i;
                             }
-                            $("#commdityTbody").append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal' value='"+item+"'>"+item+"</td>");
+                            $("#commdityTr"+commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal' value='" + item + "'>" + item + "</td>");
                         })
                     },
                     error: function() {
@@ -239,30 +257,12 @@
             })
         });
 
-
-        $("input[name=tableNamesOut]").change(function(){
-            if($("input[name=tableNamesOut]:checked").val()=="FIT_ACTUAL_PO_NPRICECD_DTL"||
-                $("input[name=tableNamesOut]:checked").val()=="FIT_PO_Target_CPO_CD_DTL"||
-                $("input[name=tableNamesOut]:checked").val()=="FIT_PO_BUDGET_CD_DTL"||
-                $("input[name=tableNamesOut]:checked").val()=="BIDEV.V_PO_PRICE_DIFF_SUM"||
-                $("input[name=tableNamesOut]:checked").val()=="BIDEV.V_PO_PRICE_DIFF"||
-                $("input[name=tableNamesOut]:checked").val()=="FIT_PO_SBU_YEAR_CD_SUM"||
-                $("input[name=tableNamesOut]:checked").val()=="FIT_PO_CD_MONTH_DOWN"
-            ){
-                $("#poCenter").show();
-            }else{
-                $("#poCenter").hide();
-                $("#poCenter").val("");
-            }
-        })
-
         var periodId;
         $(document).ready(function(){
             if("${detailsTsak}"=="ok"){
                 setTimeout(function () {
                     $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
-                    $("ul[name='YYYYMM']").hide();
-                    $("ul[name='YYYY']").show();
+                    $("#QTableName").change();
                     $("#QueryBtn").click();
                 },1000)
             }
@@ -289,31 +289,36 @@
 
 
         $("#Download").click(function () {
-            $("#QDateTip").hide();
-            $("#QDateTipEnd").hide();
-            $("#DateYearTip").hide();
-            var flag = true;
+            if ($("#QTableName").val().length == 0) {
+                $("#QTableNameTip").show();
+                return;
+            }
             var tableName = $("#QTableName").val();
             var date = $("#QDate").val();
             var dateEnd = $("#QDateEnd").val();
             var DateYear = $("#DateYear").val();
-            if(tableName!='FIT_PO_SBU_YEAR_CD_SUM'&&tableName!='FIT_PO_CD_MONTH_DTL'){
-                if(date.length!=0||dateEnd.length!=0){
-                    if(date.substr(0,3)!=dateEnd.substr(0,3)){
-                        layer.msg("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
-                        flag = false;
-                    }
+            if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'){
+                var r = /^\+?[1-9][0-9]*$/;
+                if (DateYear.length!=4 || !r.test(DateYear)) {
+                    layer.msg("請填寫正確的年份(Please fill in the correct year)");
+                    return;
                 }
-            }
-            if ($("#QTableName").val().length == 0) {
-                $("#QTableNameTip").show();
-                flag = false;
+            }else{
+                if (date.length == 0) {
+                    layer.msg("請選擇開始日期！(Please select a start date)");
+                    return;
+                }
+                if (dateEnd.length == 0) {
+                    layer.msg("請選擇結束日期！(Please select an end date)");
+                    return;
+                }
+                if(date.substr(0,3)!=dateEnd.substr(0,3)){
+                    layer.msg("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
+                    return;
+                }
             }
             var entity = $("#QpoCenter").val();
             var sbuVal = $("#sbuVal").val();
-            if (!flag) {
-                return;
-            }
             $("#loading").show();
             $.ajax({
                 type: "POST",
@@ -327,7 +332,9 @@
                     poCenter: entity,
                     sbuVal: sbuVal,
                     priceControl:$("#priceControl").val(),
-                    commodity:$("#commodity").val()
+                    commodity:$("#commodity").val(),
+                    buVal: $("#buVal").val(),
+                    founderVal: $("#founderVal").val()
                 },
                 success: function (data) {
                     $("#loading").hide();
@@ -354,8 +361,8 @@
             </h2>
         </div>
         <div class="m-l-md m-t-md m-r-md" style="clear:both;">
-            <div class="controls" style="margin-top: 15px;margin-left: 20px;">
-                <ul style="float:left;margin-right:20px;">
+            <div style="margin-top: 20px;">
+                <ul style="float:left;margin-right:10px;">
                     <li>
                         <select id="QTableName" class="input-large" style="width:200px;margin-bottom:0;">
                             <option value=""><spring:message code='tableSelect'/></option>
@@ -369,83 +376,53 @@
                               class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
                     </li>
                 </ul>
-                <ul style="float:left;display: none;margin-left:-10px;" name="YYYY">
-                    <li>
-                        <input id="DateYear" style="float:left;width:140px;text-align:center;margin-bottom:0;"
-                               placeholder="請填寫年份"
-                               type="text" value="${DateYear}">
-                    </li>
-                    <li style="height:20px;">
-                        <span id="DateYearTip" style="display:none;"
-                              class="Validform_checktip Validform_wrong">請填寫正確的年份<br>(Please fill in the correct year)</span>
-                    </li>
-                </ul>
-                <ul style="float:left;margin-left:-10px;" name="YYYYMM">
-                    <li>
-                        <input id="QDate" style="float:left;width:140px;text-align:center;margin-bottom:0;"
-                               placeholder="<spring:message code='start_time'/>"
-                               type="text" value="" readonly>
-                    </li>
-                    <li style="height:20px;">
-                        <span id="QDateTip" style="display:none;"
-                              class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                    </li>
-                </ul>
-                <ul style="float:left;" name="YYYYMM">
-                    <li>
-                        <input id="QDateEnd" style="float:left;width:140px;text-align:center;margin-bottom:0;"
-                               placeholder="<spring:message code='end_time'/>"
-                               type="text" value="" readonly>
-                    </li>
-                    <li style="height:20px;">
-                        <span id="QDateTipEnd" style="display:none;"
-                              class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                    </li>
-                </ul>
-                <ul style="float:left;margin-left:10px;">
-                    <li>
-                        <select id="QpoCenter" name="QpoCenter" class="input-large" style="width:140px;">
-                            <option value=""><spring:message code='poCenter'/></option>
-                            <c:forEach items="${poCenters}" var="code">
-                                <option value="${code}">${code}</option>
-                            </c:forEach>
-                        </select>
-                    </li>
-                    <li>
-                        <span id="QpoCenterTip" style="display:none;"
-                              class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                    </li>
-                </ul>
-                <ul style="float:left;margin-left:10px;">
-                    <li>
-                        <input type="text" id="commodity" style="width: 140px;"  data-toggle="modal" data-target="#myModal" placeholder="commodity">
-                    </li>
-                </ul>
-                <ul style="float:left;margin-left:10px;">
-                    <li>
-                        <input type="text" style="width: 140px;" id="sbuVal" value="${sbuVal}"  placeholder="sbu">
-                    </li>
-                </ul>
-                <ul style="float:left;display: none;margin-left:10px;" name="YYYY">
-                    <li>
-                        <select id="priceControl" name="priceControl" class="input-large" style="width:140px;">
-                            <option value="">請選擇是否客指</option>
-                            <option value="客指">客指</option>
-                            <option value="非客指">非客指</option>
-                        </select>
-                    </li>
-                </ul>
-                <button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;"
+                <span id="Query">
+                <span id="Scenario"></span>
+                <input id="DateYear" name="YYYY" type="text"
+                       style="width:80px;text-align:center;display: none;"
+                       placeholder="<spring:message code='year'/>">
+                <input id="QDate" name="YYYYMM"
+                       style="width:80px;text-align:center;"
+                       placeholder="<spring:message code='start_time'/>"
+                       type="text" value="" readonly>
+                <input id="QDateEnd" name="YYYYMM"
+                       style="width:80px;text-align:center;"
+                       type="text" value=""
+                       placeholder="<spring:message code='end_time'/>"
+                       readonly>
+                <select id="QpoCenter" name="QpoCenter" class="input-large"
+                        style="width:120px;">
+                    <option value=""><spring:message code='poCenter'/></option>
+                    <c:forEach items="${poCenters}" var="code">
+                        <option value="${code}">${code}</option>
+                    </c:forEach>
+                </select>
+                <input type="text" id="commodity" style="width: 120px;" data-toggle="modal"
+                       data-target="#myModal" placeholder="commodity">
+                <input type="text" style="width: 120px;" id="buVal" value="${buVal}"
+                       placeholder="BU">
+                <input type="text" style="width: 120px;" id="sbuVal" value="${sbuVal}"
+                       placeholder="SBU">
+                <input type="text" style="width: 120px;display: none;" id="founderVal" value="${founderVal}"
+                       placeholder="<spring:message code='founder'/>">
+                <select id="priceControl" name="priceControl" class="input-large"
+                        style="width:100px;display: none;">
+                    <option value="">是否客指</option>
+                    <option value="客指">客指</option>
+                    <option value="非客指">非客指</option>
+                </select>
+                </span>
+                <button id="QueryBtn" class="btn search-btn"
                         type="submit"><spring:message code='query'/></button>
                 <c:if test="${hasKey eq '1'}">
-                    <button id="deleteBtn" class="btn search-btn btn-warning m-l-md" style="float:left;"
+                    <button id="deleteBtn" class="btn search-btn"
                             type="submit"><spring:message code='delete'/></button>
                 </c:if>
-                <button id="Download" style="float:left;" class="btn search-btn" type="button">
+                <button id="Download" class="btn search-btn" type="button">
                     <spring:message code='download'/></button>
             </div>
         </div>
-        <div id="NTD" style="clear: both;margin-left: 20px;display: none;"><h5>單位：NTD</h5></div>
+        <div id="NTD" style="clear: both;margin-left: 20px;display: none;"><h5>單位：K NTD</h5></div>
         <div class="p-l-md p-r-md p-b-md" id="Content"></div>
     </div>
 </div>

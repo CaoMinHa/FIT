@@ -77,7 +77,7 @@
 
         //根据不同浏览器获取路径
         function getvl(obj) {
-        //判断浏览器
+            //判断浏览器
             var Sys = {};
             var ua = navigator.userAgent.toLowerCase();
             var s;
@@ -130,25 +130,6 @@
                     $("#UploadTip").hide();
 
                     $("#FileUpload").click(function () {
-                        // debugger;
-                        // if ($("#tableNamesOut1").val() == 'FIT_PO_SBU_YEAR_CD_SUM' || $("#tableNamesOut1").val() == 'FIT_PO_CD_MONTH_DTL') {
-                        //     if (!$("#DateYearDownLoad").val()) {
-                        //         $("#DateYearTipDownLoad").show();
-                        //         return;
-                        //     } else {
-                        //         var r = /^\+?[1-9][0-9]*$/;
-                        //         if ($("#DateYearDownLoad").val().length != 4 || !r.test($("#DateYearDownLoad").val())) {
-                        //             $("#DateYearTipDownLoad").text("請填寫正確年份");
-                        //             $("#DateYearTipDownLoad").show();
-                        //         }
-                        //     }
-                        // } else {
-                        //     if (!$("#DateDownLoad").val()) {
-                        //         $("#DateTipDownLoad").show();
-                        //         return;
-                        //     }
-                        // }
-
                         if (!$("#tableNamesOut1").val()) {
                             $("#TableNamesTipX1").show();
                             return;
@@ -216,31 +197,36 @@
             });
 
             $("#Download").click(function () {
-                $("#QDateTip").hide();
-                $("#QDateTipEnd").hide();
-                $("#DateYearTip").hide();
-                var flag = true;
+                if ($("#QTableName").val().length == 0) {
+                    $("#QTableNameTip").show();
+                    return;
+                }
                 var tableName = $("#QTableName").val();
                 var date = $("#QDate").val();
                 var dateEnd = $("#QDateEnd").val();
                 var DateYear = $("#DateYear").val();
-                if (tableName != 'FIT_PO_SBU_YEAR_CD_SUM' && tableName != 'FIT_PO_CD_MONTH_DTL') {
-                    if (date.length != 0 || dateEnd.length != 0) {
-                        if (date.substr(0, 3) != dateEnd.substr(0, 3)) {
-                            layer.msg("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
-                            flag = false;
-                        }
+                if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'){
+                    var r = /^\+?[1-9][0-9]*$/;
+                    if (DateYear.length!=4 || !r.test(DateYear)) {
+                        layer.msg("請填寫正確的年份(Please fill in the correct year)");
+                        return;
                     }
-                }
-                if ($("#QTableName").val().length == 0) {
-                    $("#QTableNameTip").show();
-                    flag = false;
+                }else{
+                    if (date.length == 0) {
+                        layer.msg("請選擇開始日期！(Please select a start date)");
+                        return;
+                    }
+                    if (dateEnd.length == 0) {
+                        layer.msg("請選擇結束日期！(Please select an end date)");
+                        return;
+                    }
+                    if(date.substr(0,3)!=dateEnd.substr(0,3)){
+                        layer.msg("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
+                        return;
+                    }
                 }
                 var entity = $("#QpoCenter").val();
                 var sbuVal = $("#sbuVal").val();
-                if (!flag) {
-                    return;
-                }
                 $("#loading").show();
                 $.ajax({
                     type: "POST",
@@ -254,8 +240,10 @@
                         tableNames: tableName,
                         poCenter: entity,
                         sbuVal: sbuVal,
-                        priceControl:$("#priceControl").val(),
-                        commodity: $("#commodity").val()
+                        priceControl: $("#priceControl").val(),
+                        commodity: $("#commodity").val(),
+                        buVal: $("#buVal").val(),
+                        founderVal: $("#founderVal").val()
                     },
                     success: function (data) {
                         $("#loading").hide();
@@ -323,30 +311,51 @@
             });
 
             $("#QTableName").change(function () {
-                if ($(this).val() != 'FIT_PO_SBU_YEAR_CD_SUM' && $(this).val() != 'FIT_PO_CD_MONTH_DOWN'
-                    && $(this).val() != 'FIT_ACTUAL_PO_NPRICECD_DTL' && $(this).val() != 'FIT_PO_BUDGET_CD_DTL') {
-                    $("#downCondition").hide();
-                } else {
+                $("#downCondition input").val("");
+                $("#downCondition select").val("");
+                $("#downCondition").hide();
+                var tableName = $(this).val();
+                if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DOWN' ||
+                    tableName == 'FIT_ACTUAL_PO_NPRICECD_DTL' || tableName == 'FIT_PO_BUDGET_CD_DTL') {
                     $("#downCondition").show();
-                    if ($(this).val() == 'FIT_PO_CD_MONTH_DTL') {
-                        $("#QpoCenter").hide();
-                    } else {
-                        $("#QpoCenter").show();
-                    }
-                    if ($(this).val() == 'FIT_PO_SBU_YEAR_CD_SUM' || $(this).val() == 'FIT_PO_CD_MONTH_DOWN') {
-                        $("ul[name='YYYY']").show();
-                        $("#QDateEnd").val("");
-                        $("#QDate").val("");
-                        $("ul[name='YYYYMM']").hide();
-                    } else {
-                        $("ul[name='YYYY']").hide();
-                        $("ul[name='YYYYMM']").show();
-                        $("#DateYear").val("");
+                    $("#QpoCenter").show();
+                    $("#Scenario").text("");
+                    $("#buVal").show();
+                    $("#priceControl").show();
+                    $("#founderVal").hide();
+                    switch (tableName) {
+                        //實際採購非價格CD匯總表
+                        case "FIT_ACTUAL_PO_NPRICECD_DTL":
+                            $("input[name='YYYY']").hide();
+                            $("input[name='YYYYMM']").show();
+                            $("#priceControl").hide();
+                            $("#founderVal").show();
+                            $("#buVal").hide();
+                            break;
+                        //採購CD手動匯總表
+                        case "FIT_PO_BUDGET_CD_DTL":
+                            $("input[name='YYYY']").hide();
+                            $("input[name='YYYYMM']").show();
+                            $("#Scenario").text("Scenario:Actual")
+                            break;
+                        //SBU年度CD目標匯總表
+                        case "FIT_PO_SBU_YEAR_CD_SUM":
+                            $("input[name='YYYY']").show();
+                            $("input[name='YYYYMM']").hide();
+                            $("#Scenario").text("Scenario:Budget");
+                            break;
+                        //採購CD目標by月展開表
+                        case "FIT_PO_CD_MONTH_DOWN":
+                            $("input[name='YYYY']").show();
+                            $("input[name='YYYYMM']").hide();
+                            $("#QpoCenter").hide();
+                            $("#QpoCenter").change();
+                            break;
                     }
                 }
             });
             $("#tableNamesOut1").change(function () {
-                var tableName=$(this).val();
+                var tableName = $(this).val();
                 $(".remark").hide();
                 switch (tableName) {
                     case "FIT_ACTUAL_PO_NPRICECD_DTL":
@@ -388,12 +397,14 @@
                     },
                     success: function (data) {
                         $("#commdityTable").empty();
+                        var commdityTr=0;
                         jQuery.each(data, function (i, item) {
-                            console.log("hahha" + item + "eee" + i);
                             if (i % 4 == 0) {
-                                $("#commdityTable").append("<tr>");
+                                $("#commdityTable").append("<tr id='commdityTr"+i+"'></tr>");
+                                commdityTr=i;
+                                console.log("進來commdityTr"+commdityTr);
                             }
-                            $("#commdityTable").append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal' value='" + item + "'>" + item + "</td>");
+                            $("#commdityTr"+commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal' value='" + item + "'>" + item + "</td>");
                         })
                     },
                     error: function () {
@@ -404,16 +415,6 @@
 
         })
         var periodId;
-        $(document).ready(function () {
-            if ("${detailsTsak}" == "ok") {
-                setTimeout(function () {
-                    $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
-                    $("ul[name='YYYYMM']").hide();
-                    $("ul[name='YYYY']").show();
-                    $("#QueryBtn").click();
-                }, 1000)
-            }
-        })
 
         $("#affirmBut").click(function () {
             var valueUser = '';
@@ -487,38 +488,11 @@
                                     </select>
                                 </li>
                                 <li>
-                            <span id="TableNamesTipX1" style="display:none;"
-                                  class="Validform_checktip Validform_wrong"><spring:message
-                                    code='please_select'/></span>
+                                    <span id="TableNamesTipX1" style="display:none;"
+                                     class="Validform_checktip Validform_wrong"><spring:message
+                                     code='please_select'/></span>
                                 </li>
                             </ul>
-                            <!-- 不需要修改歷史數據 只能上一個月份數據
-                                <div style="float: left;text-align: right;margin-left: 10px;" id="divMonthDownLoad">
-                                    <div>
-                                        <input id="DateDownLoad" name="dateDownLoad" style="width:100px;text-align:center;"
-                                               placeholder="<spring:message code="date"/>"
-                                               type="text" value="" readonly>
-                                    </div>
-                                    <div style="float:left;">
-                                        <span id="DateTipDownLoad" style="display:none;"
-                                              class="Validform_checktip Validform_wrong"><spring:message
-                                                code='please_select'/></span>
-                                    </div>
-                                </div>
-                                <div style="float: left;text-align: right;margin-left: 10px;" id="divYearDownLoad">
-                                    <div>
-                                        <input id="DateYearDownLoad" name="dateDownLoad"
-                                               style="display:none;float:left;width:100px;text-align:center;margin-bottom:0;"
-                                               placeholder="<spring:message code="year"/>"
-                                               type="text" value="${DateYear}">
-                                    </div>
-                                    <div style="float:left;">
-                                            <span id="DateYearTipDownLoad" style="display:none;"
-                                                  class="Validform_checktip Validform_wrong"><spring:message
-                                                    code='please_select'/></span>
-                                    </div>
-                                </div>
-                            -->
                             <div style="float: left;text-align: right;margin-left: 10px;"
                                  title="<spring:message code='not_exceed_30M'/>">
                                 <div class="upload-tip">
@@ -541,7 +515,7 @@
                         <%--                        第三排--%>
                         <div class="m-l-md m-t-md m-r-md" style="clear:both;">
                             <div style="margin-top: 20px;">
-                                <ul style="float:left;margin-right:20px;">
+                                <ul style="float:left;margin-right:10px;">
                                     <li>
                                         <select id="QTableName" class="input-large"
                                                 style="width:240px;margin-bottom:0;margin-left:-10px;">
@@ -557,69 +531,45 @@
                                                 code='please_select'/></span>
                                     </li>
                                 </ul>
-                                <div id="downCondition">
-                                    <ul style="float:left;display: none;margin-left:-10px;" name="YYYY">
-                                        <li>
-                                            <input id="DateYear"
-                                                   style="float:left;width:100px;text-align:center;"
-                                                   placeholder="<spring:message code='year'/>">
-                                        </li>
-                                        <li style="height:20px;">
-                                            <span id="DateYearTip" style="display:none;"
-                                                  class="Validform_checktip Validform_wrong">請填寫正確的年份(Please fill in the correct year)</span>
-                                        </li>
-                                    </ul>
-                                    <ul style="float:left;margin-left:-10px;" name="YYYYMM">
-                                        <li>
-                                            <input id="QDate"
-                                                   style="float:left;width:100px;text-align:center;margin-bottom:0;"
-                                                   placeholder="<spring:message code='start_time'/>"
-                                                   type="text" value="" readonly>
-                                        </li>
-                                    </ul>
-                                    <ul style="float:left;" name="YYYYMM">
-                                        <li>
-                                            <input id="QDateEnd"
-                                                   style="float:left;width:100px;text-align:center;margin-bottom:0;"
-                                                   type="text" value=""
-                                                   placeholder="<spring:message code='end_time'/>"
-                                                   readonly>
-                                        </li>
-                                    </ul>
-                                    <ul style="float:left;margin-left:10px;">
-                                        <li>
-                                            <select id="QpoCenter" name="QpoCenter" class="input-large"
-                                                    style="width:140px;">
-                                                <option value=""><spring:message code='poCenter'/></option>
-                                                <c:forEach items="${poCenters}" var="code">
-                                                    <option value="${code}">${code}</option>
-                                                </c:forEach>
-                                            </select>
-                                        </li>
-                                    </ul>
-                                    <ul style="float:left;margin-left:10px;">
-                                        <li>
-                                            <input type="text" id="commodity" style="width: 140px;" data-toggle="modal"
-                                                   data-target="#myModal" placeholder="commodity">
-                                        </li>
-                                    </ul>
-                                    <ul style="float:left;margin-left:10px;">
-                                        <li>
-                                            <input type="text" style="width: 140px;" id="sbuVal" value="${sbuVal}"
-                                                   placeholder="sbu">
-                                        </li>
-                                    </ul>
-                                    <ul style="float:left;display: none;margin-left:10px;" name="YYYY">
-                                        <li>
-                                            <select id="priceControl" name="priceControl" class="input-large" style="width:140px;">
-                                                <option value="">請選擇是否客指</option>
-                                                <option value="客指">客指</option>
-                                                <option value="非客指">非客指</option>
-                                            </select>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <button id="Download" style="float:left;" class="btn search-btn" type="button">
+                                <span id="downCondition">
+                                    <span id="Scenario"></span>
+                                    <input id="DateYear" name="YYYY" type="text"
+                                           style="width:80px;text-align:center;display: none;"
+                                           placeholder="<spring:message code='year'/>">
+                                    <span id="DateYearTip" style="display:none;"
+                                          class="Validform_checktip Validform_wrong">請填寫正確的年份(Please fill in the correct year)</span>
+                                    <input id="QDate" name="YYYYMM"
+                                           style="width:80px;text-align:center;margin-bottom:0;"
+                                           placeholder="<spring:message code='start_time'/>"
+                                           type="text" value="" readonly>
+                                    <input id="QDateEnd" name="YYYYMM"
+                                           style="width:80px;text-align:center;margin-bottom:0;"
+                                           type="text" value=""
+                                           placeholder="<spring:message code='end_time'/>"
+                                           readonly>
+                                    <select id="QpoCenter" name="QpoCenter" class="input-large"
+                                            style="width:120px;">
+                                        <option value=""><spring:message code='poCenter'/></option>
+                                        <c:forEach items="${poCenters}" var="code">
+                                            <option value="${code}">${code}</option>
+                                        </c:forEach>
+                                    </select>
+                                    <input type="text" id="commodity" style="width: 120px;" data-toggle="modal"
+                                           data-target="#myModal" placeholder="commodity">
+                                    <input type="text" style="width: 120px;" id="buVal" value="${buVal}"
+                                           placeholder="BU">
+                                    <input type="text" style="width: 120px;" id="sbuVal" value="${sbuVal}"
+                                           placeholder="SBU">
+                                    <input type="text" style="width: 120px;display: none;" id="founderVal" value="${founderVal}"
+                                           placeholder="<spring:message code='founder'/>">
+                                    <select id="priceControl" name="priceControl" class="input-large"
+                                            style="width:100px;display: none;">
+                                        <option value="">是否客指</option>
+                                        <option value="客指">客指</option>
+                                        <option value="非客指">非客指</option>
+                                    </select>
+                                </span>
+                                <button id="Download" class="btn search-btn" type="button">
                                     <spring:message code='download'/></button>
                             </div>
                         </div>
@@ -636,14 +586,13 @@
                                     編制說明：</br>
                                     1.本表為非價格CD金額輸入表，由採購輸入，涉及的Commodity 有標準件，機加工件，...，汽車等等。</br>
                                     2.上傳報表管控邏輯：</br>
-                                    1	Commodity /年/月份/SBU 為必填欄位，報表上傳時，系統需校驗4個欄位的內容是否與值集相同，不相同則報錯；</br>
-                                    2	BI 系統顯示的BU 欄位內容，由SBU 與BU 綁定關係帶出（目前系統無SBU與BU的映射關係，無法實現）；</br>
+                                    &nbsp;&nbsp;1）Commodity /年/月份/SBU 為必填欄位，報表上傳時，系統需校驗4個欄位的內容是否與值集相同，不相同則報錯；</br>
+                                    &nbsp;&nbsp;2）BI 系統顯示的BU 欄位內容，由SBU 與BU 綁定關係帶出；</br>
                                     3.上傳的報表需經對應的課/部級主管審核確認後，才能上傳到BI 系統；</br>
-                                    1）審核流程： 發起人---課級主管---部級主管。提交及審核需觸發郵件通知。</br>
-                                    上傳報表採用開關版管理，由Key User 設定指定時間。上傳報表的時間（年/月份）只能上傳指定月份的數據。</br>
-                                    4.系統只能在開版期間維護數據、更新數據，系統關版後，系統關閉維護和更新的權限。若要維護，則由Key User 強行開版處理。</br>
-                                    1）系統開版由Key User 手動開版並由系統發郵件通知User，開版需設定時間（年/月份），User 只能在開版的時間進行維護；</br>
-                                    2）系統在2天後自動關版，關版時間由系統自動設定為開版時間+2天。
+                                    &nbsp;&nbsp;1）審核流程： 發起人---課級主管---部級主管。提交及審核需觸發郵件通知。</br>
+                                    &nbsp;&nbsp;2）上傳報表採用開關版管理，由Key User 設定指定時間。上傳報表的時間（年/月份）只能上傳指定月份的數據。</br>
+                                    4.SBU 為必填欄位，BU 欄位可為空，BU 欄位信息可由SBU 的綁定關係帶入。SBU 內容要與值集信息做校驗；</br>
+                                    5.其他Free Key in 欄位非必填，內容需為數字格式，不能為文字。若填報文字，系統會進行報錯提醒。</br>
                                 </span>
                                 <span id="PBCD" class="remark" style="color:#000;display: none">
                                     <span style="color:red;">
@@ -653,23 +602,22 @@
                                     </span>
                                     </br>
                                     編制說明：</br>
-                                    1.本表為手工上傳業務數據未對接BI系統的實際採購金額及價格CD金額；</br>
+                                    1.本表為手工上傳業務數據未對接BI系統的實際採購金額及價格CD金額；由採購輸入，涉及的Commodity 有標準件，機加工件，...，汽車等等。</br>
                                     2.上傳報表管控邏輯：</br>
-                                    2.1Commodity /年/月份/SBU 為必填欄位，報表上傳時，系統需校驗4個字段的內容是否與值集相同，不相同則報錯；客指/非客指也需要進行校驗;年月需要與所選擇年月進行匹配；</br>
-                                    2,2BI 系統顯示的BU 字段內容，由SBU 與BU 綁定關係帶出；</br>
+                                    &nbsp;&nbsp;1）Commodity /年/月份/SBU 為必填欄位，報表上傳時，系統需校驗4個字段的內容是否與值集相同，不相同則報錯；客指/非客指也需要進行校驗；年月需要與所選擇年月進行匹配；</br>
+                                    &nbsp;&nbsp;2）BI 系統顯示的BU 字段內容，由SBU 與BU 綁定關係帶出；</br>
                                     3.上傳的報表需經對應的課/部級主管審核確認後，才能上傳到BI 系統；</br>
-                                    1）審核流程： 發起人---課級主管---部級主管。提交及審核需觸發郵件通知。接口平台的四張表單在提交與審核時可以上傳附檔，提交時可以備註/說明。審核主管可根據實際情況增刪附件；</br>
-                                    上傳報表採用開關版管理，由Key User 設定指定時間。上傳報表的時間（年/月份）只能上傳指定月份的數據。</br>
-                                    鎖定時間點：1、每月4號鎖定上月的基礎數據（PR、核價、PO、GR……等直接從業務系統對接過來的業務基礎數據）；每日拉取當日數據，當月4號統一再拉取上個月整月的數據；
+                                    &nbsp;&nbsp;1）審核流程： 發起人---課級主管---部級主管。提交及審核需觸發郵件通知。接口平台的四張表單在提交與審核時可以上傳附檔，提交時可以備註/說明。審核主管可根據實際情況增刪附件；</br>
+                                    &nbsp;&nbsp;2）上傳報表採用開關版管理，開關版時間由Key user管理。上傳報表的時間（年/月份）只能上傳指定月份的數據。</br>
+                                    4.CD比例=價格CD金額/（採購金額+價格CD金額）</br>
                                 </span>
                                 <span id="PSYCS" class="remark" style="color:#000;display: none">
                                     編制說明：</br>
-                                    1	SBU by 年度/by（1~12月份）/by 年度CD 目標上傳數據；</br>
-                                    2	上傳模板不包含年度採購金額合計，但在查詢報表中可查詢到年度採購金額合計；系統自動完成年度計算；</br>
-                                    1）年度金額合計=1月+2月+...+12月採購金額</br>
-                                    3	SBU 上傳成功後需觸發郵件通知到期審核主管；</br>
-                                    4	SBU主管审核通过后需发送邮件通知给到提交人及所有Commodity；</br>
-                                    5	输出表展示样式栏位调整：年度CD目标、年度金额合计放在最前列。</br>
+                                    1.SBU by 年度/by（1~12月份）/by 年度CD 目標上傳數據；</br>
+                                    2.上傳模板不包含年度採購金額合計，但在查詢報表中可查詢到年度採購金額合計；系統自動完成年度計算；</br>
+                                    &nbsp;&nbsp;1）年度金額合計=1月+2月+...+12月採購金額</br>
+                                    3.SBU 上傳成功後需觸發郵件通知到審核主管；</br>
+                                    4.SBU主管審核通過後由系統自動發送郵件通知給到提交人及所有Commodity</br>
                                 </span>
                                 <span id="PCMD" class="remark" style="color:#000;display: none">
                                     編制說明：</br>

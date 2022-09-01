@@ -170,7 +170,8 @@ public class PoIntegrationListController extends BaseController {
 
     @RequestMapping(value = "/list")
     public String list(Model model, PageRequest pageRequest, HttpServletRequest request, String DateYear,
-                       String date, String dateEnd, String tableName, String poCenter, String sbuVal,String commodity,String priceControl) {
+                       String date, String dateEnd, String tableName,
+                       String poCenter, String sbuVal, String priceControl,String commodity,String founderVal,String buVal) {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
             Assert.hasText(tableName, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
@@ -254,7 +255,16 @@ public class PoIntegrationListController extends BaseController {
                                 sqlSum += "sum(" + columnName + "),";
                                 break;
                         }
-                    }else {
+                    }else if("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(poTable.getTableName())){
+                        switch (columnName) {
+                            case "CD_RATIO":
+                                sqlSum += " sum(CD_AMOUNT)/(sum(PO_AMOUNT)+sum(CD_AMOUNT))*100 CD_RATIO ,";
+                                break;
+                            default:
+                                sqlSum += "sum(" + columnName + "),";
+                                break;
+                        }
+                    }else{
                         sqlSum += "sum(" + columnName + "),";
                     }
                 } else if (column.getDataType().equalsIgnoreCase("date")) {
@@ -266,22 +276,11 @@ public class PoIntegrationListController extends BaseController {
                 }
             }
             sql = sql.substring(0, sql.length() - 1);
-            sql += " from " + poTable.getTableName() + " where 1=1";
+            sql += " from " + poTable.getTableName();
             sqlSum = sqlSum.substring(0, sqlSum.length() - 1);
-            sqlSum += " from " + poTable.getTableName() + " where 1=1";
-            String whereSql = "";
+            sqlSum += " from " + poTable.getTableName();
+            String whereSql = " where 1=1";
             String orderBy = " order by ";
-            if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())) {
-                if (StringUtils.isNotEmpty(DateYear)) {
-                    whereSql += " and " + columns.get(0).getColumnName() + "='" + DateYear + "'";
-                }
-                if (StringUtils.isNotEmpty(poCenter)) {
-                    whereSql += " and " + columns.get(1).getColumnName() + "='" + poCenter + "'";
-                }
-                if (StringUtils.isNotEmpty(priceControl)) {
-                    whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
-                }
-            } else {
                 if (StringUtils.isNotEmpty(date) && StringUtils.isNotEmpty(dateEnd)) {
                     Date d = DateUtil.parseByYyyy_MM(date);
                     Assert.notNull(d, getLanguage(locale, "年月格式錯誤", "The format of year/month is error"));
@@ -302,15 +301,42 @@ public class PoIntegrationListController extends BaseController {
                 if (StringUtils.isNotEmpty(poCenter)) {
                     whereSql += " and " + columns.get(2).getColumnName() + "='" + poCenter + "'";
                 }
-            }
-            if ("FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-                whereSql = "";
-                whereSql += " and year= " + DateYear;
-                if (StringUtils.isNotEmpty(priceControl)) {
-                    whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
-                }
-            }
 
+            switch (poTable.getTableName()){
+                //採購CD手動匯總表是否客指
+                case "FIT_PO_BUDGET_CD_DTL":
+                    if (StringUtils.isNotEmpty(priceControl)) {
+                        whereSql += " and PRICE_CONTROL ='"+priceControl+"' ";
+                    }
+                    break;
+                //實際採購非價格CD匯總表增加創建人篩選條件
+                case "FIT_ACTUAL_PO_NPRICECD_DTL":
+                    if (StringUtils.isNotEmpty(founderVal)) {
+                        whereSql += " and TASK_ID in( select ID from FIT_PO_TASK where CREATE_USER ='" + founderVal + "') ";
+                    }
+                    break;
+                //採購CD目標by月展開表
+                case "FIT_PO_CD_MONTH_DOWN":
+                    whereSql = " where 1=1";
+                    whereSql += " and year= " + DateYear;
+                    if (StringUtils.isNotEmpty(priceControl)) {
+                        whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
+                    }
+                    break;
+                //SBU年度CD目標匯總表
+                case "FIT_PO_SBU_YEAR_CD_SUM":
+                    whereSql = " where 1=1";
+                    if (StringUtils.isNotEmpty(DateYear)) {
+                        whereSql += " and " + columns.get(0).getColumnName() + "='" + DateYear + "'";
+                    }
+                    if (StringUtils.isNotEmpty(poCenter)) {
+                        whereSql += " and " + columns.get(1).getColumnName() + "='" + poCenter + "'";
+                    }
+                    if (StringUtils.isNotEmpty(priceControl)) {
+                        whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
+                    }
+                    break;
+            }
             if(null!=commodity && !"".equalsIgnoreCase(commodity)){
                 String commotityVal="";
                 for (int i=0;i<commodity.split(",").length;i++) {
@@ -324,11 +350,15 @@ public class PoIntegrationListController extends BaseController {
                     whereSql += " and COMMODITY in (" + commotityVal.substring(0,commotityVal.length()-1) + ")";
                 }
             }
+
             if (StringUtils.isNotEmpty(sbuVal)) {
                 whereSql += " and sbu LIKE " + "'%" + sbuVal + "%'";
             }
+            if (StringUtils.isNotEmpty(buVal)) {
+                whereSql += " and bu LIKE " + "'%" + buVal + "%'";
+            }
             orderBy += " ID,SBU";
-            sql = sql+" and flag!='-1' " + whereSql + orderBy;
+            sql += whereSql+" and flag!='-1' " +orderBy;
             sqlSum += whereSql+" and flag!='-1' ";
             System.out.println(sql + "合計：" + sqlSum);
 
@@ -403,6 +433,10 @@ public class PoIntegrationListController extends BaseController {
     @RequestMapping(value = "/selectCommdity")
     @ResponseBody
     public List<String> selectCommdity(HttpServletRequest request, String functionName){
+        if(functionName.isEmpty()){
+            List<String> commodityList=poTableService.listBySql("select distinct COMMODITY_MAJOR from BIDEV.v_dm_d_commodity_major ");
+            return  commodityList;
+        }
         List<String> commodityList=poTableService.listBySql("select distinct COMMODITY_MAJOR from BIDEV.v_dm_d_commodity_major where FUNCTION_NAME='"+functionName+"' order by COMMODITY_MAJOR");
         return  commodityList;
     }

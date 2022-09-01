@@ -99,7 +99,9 @@
 						poCenter: entity,
 						sbuVal: sbuVal,
 						priceControl:$("#priceControl").val(),
-						commodity:$("#commodity").val()
+						commodity:$("#commodity").val(),
+						buVal: $("#buVal").val(),
+						founderVal: $("#founderVal").val()
 					},function(){$("#loading").fadeOut(1000);});
 		}
 
