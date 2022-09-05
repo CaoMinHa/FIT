@@ -62,7 +62,7 @@
                 modal:true,
                 title: "添加角色",
                 height:400,
-                width:350,
+                width:390,
                 position:"center",
                 draggable: true,
                 resizable: true,
@@ -74,18 +74,13 @@
                         text: "<spring:message code='submit'/>",
                         click: function() {
                             var $dialog=$(this);
-                            var flag=true;
                             var roleName=$("#roleName").val();
                             if(roleName.length==0){
-                                $("#rolenameTip").show();
-                                flag=false;
-                            }
-                            if(!flag){
-                                return;
+                               layer.msg("角色名稱不能爲空！(The role name cannot be empty)")
+                               return;
                             }
                                 var data=$("#userForm").serialize();
                                 console.log(data)
-
                                 $.ajax({
                                     type:"POST",
                                     url:"${ctx}/bi/poRole/add",
@@ -110,13 +105,11 @@
                         text: "<spring:message code='close'/>",
                         click: function() {
                             $(this).dialog("destroy");
-                            $("#rolenameTip").hide();
                         }
                     }
                 ],
                 close:function(){
                     $(this).dialog("destroy");
-                    $("#rolenameTip").hide();
                 }
             }).dialog("open");
         });
@@ -402,22 +395,27 @@
                 <div class="control-group" style="margin:0px 0px 20px 10px;">
                     <div class="pull-left">
                         <i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
-                        名称：<input id="roleName" name="rolename" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
-                        <span id="rolenameTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
+                        角色名称：<input id="roleName" name="rolename" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
                     </div>
-                </div>
-                <div class="control-group" style="margin:0px 0px 20px 10px;">
                     <div class="pull-left">
                         <i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
-                        状态：<select id="flag" name="flag" style="width:100px" datatype="*" nullmsg="<spring:message code='please_select'/>">
+                        角色代码：<input id="roleCode" name="roleCode" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
+                        <span id="roleCodeTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
+                    </div>
+                    <div class="pull-left">
+                        <i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
+                        角色等级：<input id="roleGrade" name="roleGrade" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
+                        <span id="roleGradeTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
+                    </div>
+                    <div class="pull-left">
+                        <i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
+                        状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态：<select id="flag" name="flag" style="width:100px" datatype="*" nullmsg="<spring:message code='please_select'/>">
                                 <option value="1">正常</option>
                                 <option value="0">禁用</option>
                               </select>
                     </div>
-                </div>
-                <div class="control-group" style="margin:0px 0px 20px 10px;">
                     <div class="pull-left" style="margin-left: 40px">
-                        备注：<input name="remark" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
+                        备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：<textarea rows="2" style="height: 40px"  name="remark" style="height: 30px !important;" type="text" />
                     </div>
                 </div>
             </form>

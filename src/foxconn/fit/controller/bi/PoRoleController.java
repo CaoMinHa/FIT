@@ -79,7 +79,7 @@ public class PoRoleController extends BaseController {
     @RequestMapping(value="/list")
     public String list(Model model, PageRequest pageRequest,HttpServletRequest request,String name) {
         try {
-            String sql="select  ID , NAME ,CODE,GRADE, FLAG ,remark, create_user, create_time, " +
+            String sql="select  ID , NAME  ,remark, create_user, create_time, " +
                     " UPDATE_USER, UPDTAE_TIME from FIT_PO_AUDIT_ROLE where DELETED='0'";
             if(!StringUtils.isBlank(name)){
                 name="%"+name+"%";
@@ -101,16 +101,17 @@ public class PoRoleController extends BaseController {
     }
     @RequestMapping(value="/add")
     @ResponseBody
-    public String addRole(AjaxResult ajaxResult, HttpServletRequest request,String rolename,String flag,String remark) {
+    @Log(name="添加角色")
+    public String addRole(AjaxResult ajaxResult, HttpServletRequest request,String rolename,String flag,
+                          String remark,String roleCode,String roleGrade) {
         try {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String user=loginUser.getUsername();
-            String id=UUID.randomUUID().toString();
             SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String signTimet=df.format(new Date());
-            String sql="insert into FIT_PO_AUDIT_ROLE (ID,NAME,FLAG,DELETED ,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,REMARK) values ( ";
-            sql=sql+"'"+id+"',"+"'"+rolename+"',"+"'"+flag+"',"+"'0',"+"'"+user+"',"+"'"+signTimet+"',"+"'"+user+"',"+"'"+signTimet+"',"+
-                    "'"+remark+"'"+")";
+            String sql="insert into FIT_PO_AUDIT_ROLE (ID,NAME,FLAG,DELETED ,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,REMARK,CODE,GRADE) values ( ";
+            sql=sql+"'"+UUID.randomUUID().toString()+"',"+"'"+rolename+"',"+"'"+flag+"',"+"'0',"+"'"+user+"',"+"'"+signTimet+"',"+"'"+user+"',"+"'"+signTimet+"',"+
+                    "'"+remark+"','"+roleCode+"','"+roleGrade+"')";
            poRoleService.updateData(sql);
         } catch (Exception e) {
             logger.error("新增角色失败", e);
@@ -148,6 +149,7 @@ public class PoRoleController extends BaseController {
 
     @RequestMapping(value = "update")
     @ResponseBody
+    @Log(name="更改角色")
     public String update(HttpServletRequest request,HttpServletResponse response,AjaxResult result,@Log(name = "更新条件") String updateData){
         try {
             if (StringUtils.isNotEmpty(updateData)) {
@@ -164,9 +166,7 @@ public class PoRoleController extends BaseController {
                     if ("ID".equalsIgnoreCase(columnName)) {
                         where=" where ID='"+columnValue+"'";
                     }else{
-                        if (StringUtils.isNotEmpty(columnValue)) {
-                            updateSql+=columnName+"='"+columnValue+"',";
-                        }
+                        updateSql+=columnName+"='"+columnValue+"',";
                     }
                 }
                 updateSql=updateSql+"UPDATE_USER="+"'"+user+"',"+"UPDTAE_TIME="+"'"+signTimet+"'";
@@ -187,10 +187,6 @@ public class PoRoleController extends BaseController {
     public String updateUser(HttpServletRequest request,HttpServletResponse response,AjaxResult result,@Log(name = "更新条件") String updateData){
         try {
             if (StringUtils.isNotEmpty(updateData)) {
-                UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-                String user=loginUser.getUsername();
-                SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String signTimet=df.format(new Date());
                 String updateSql="update FIT_USER  set  ";
                 String where="";
                 String[] params = updateData.split("&");

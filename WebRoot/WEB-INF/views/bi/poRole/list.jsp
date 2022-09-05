@@ -5,6 +5,7 @@
 <style>
 	input {
 		margin-bottom:0px !important;
+		margin-top: 0px !important;
 	}
 </style>
 <head>
@@ -77,7 +78,7 @@ function refresh(){
 //更新數據
 $("a.update").click(function(){
 	var updateData="";
-	$(this).parent().parent().find("input,select").each(function(i){
+	$(this).parent().parent().find("input,select,textarea").each(function(i){
 		var columnName=$(this).attr("name");
 		var value=$(this).val();
 		updateData+=columnName+"="+value+"&";
@@ -122,11 +123,9 @@ function toUser(index){
 	<table align="center" class="table table-condensed table-hover" >
 		<thead>
 			<tr>
-				<th style="text-align:center;width: 50px" >序号</th>
+				<th style="text-align:center;width: 50px;display: none" >序号</th>
 				<th style="text-align:center" >角色名称</th>
-				<th style="text-align:center" >角色代码</th>
-				<th style="text-align:center;width: 60px;" >角色等级</th>
-				<th style="text-align:center" >状态</th>
+<%--				<th style="text-align:center" >状态</th>--%>
 				<th style="text-align:center" >备注</th>
 				<th style="text-align:center" >创建人</th>
 				<th style="text-align:center" >创建时间</th>
@@ -141,7 +140,7 @@ function toUser(index){
 					<c:forEach var="i" begin="0" end="${fn:length(mapping)-index }" varStatus="status">
 						<c:choose>
 							<c:when test="${status.index eq 0}">
-								<td style="white-space: nowrap;border-right:1px solid #eee;">
+								<td style="white-space: nowrap;border-right:1px solid #eee;display: none">
 									<input name="ID" type="checkbox"  value="${mapping[i]}"/>
 								</td>
 							</c:when>
@@ -151,26 +150,16 @@ function toUser(index){
 								</td>
 							</c:when>
 <%--							<c:when test="${status.index eq 2}">--%>
-<%--								<td style="white-space: nowrap;border-right:1px solid #eee;">--%>
-<%--									<input style="width: 100px" name="code" type="text"  value="${mapping[i]}"/>--%>
+<%--								<td style="border-right:1px solid #eee;">--%>
+<%--									<select id="flag"  name="flag" style="width:100px;height:38px;margin-bottom: 0px !important;">--%>
+<%--										<option value="1" <c:if test="${mapping[i] eq '1'}">selected="selected"</c:if>>正常</option>--%>
+<%--										<option value="0" <c:if test="${mapping[i] eq '0'}">selected="selected"</c:if>>禁用</option>--%>
+<%--									</select>--%>
 <%--								</td>--%>
 <%--							</c:when>--%>
-<%--							<c:when test="${status.index eq 3}">--%>
-<%--								<td style="white-space: nowrap;border-right:1px solid #eee;">--%>
-<%--									<input style="width: 100px" name="grade" type="text"  value="${mapping[i]}"/>--%>
-<%--								</td>--%>
-<%--							</c:when>--%>
-							<c:when test="${status.index eq 4}">
-								<td style="white-space: nowrap;border-right:1px solid #eee;">
-									<select id="flag"  name="flag" style="width:100px" datatype="*" nullmsg="<spring:message code='please_select'/>">
-										<option value="1" <c:if test="${mapping[i] eq '1'}">selected="selected"</c:if>>正常</option>
-										<option value="0" <c:if test="${mapping[i] eq '0'}">selected="selected"</c:if>>禁用</option>
-									</select>
-								</td>
-							</c:when>
-							<c:when test="${status.index eq 5}">
-								<td style="white-space: nowrap;border-right:1px solid #eee;">
-									<input style="width: 100px" name="remark" type="text"  value="${mapping[i] eq 'null'?'':mapping[i]}"/>
+							<c:when test="${status.index eq 2}">
+								<td style="border-right:1px solid #eee;">
+									<textarea  style="height:38px;margin-bottom: 0px !important;" name="remark">${mapping[i] eq 'null'?'':mapping[i]}</textarea>
 								</td>
 							</c:when>
 							<c:otherwise>
