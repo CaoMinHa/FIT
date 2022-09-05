@@ -79,13 +79,13 @@ public class PoRoleController extends BaseController {
     @RequestMapping(value="/list")
     public String list(Model model, PageRequest pageRequest,HttpServletRequest request,String name) {
         try {
-            Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
             String sql="select  ID , NAME ,CODE,GRADE, FLAG ,remark, create_user, create_time, " +
                     " UPDATE_USER, UPDTAE_TIME from FIT_PO_AUDIT_ROLE where DELETED='0'";
             if(!StringUtils.isBlank(name)){
                 name="%"+name+"%";
                 sql=sql+" and name like "+"'"+name+"'";
             }
+            pageRequest.setOrderBy("ID,CODE");
             Page<Object[]> page = poRoleService.findPageBySql(pageRequest, sql);
             int index=1;
             if(pageRequest.getPageNo()>1){
@@ -226,7 +226,6 @@ public class PoRoleController extends BaseController {
     @RequestMapping(value="/userList")
     public String userList(Model model, PageRequest pageRequest,HttpServletRequest request,String id,String name,String hasRole,String roleName) {
         try {
-            Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
             String sql="select distinct u.ID , u.USERNAME ,u.REALNAME, u.CREATOR, u.create_time " +
                     " from FIT_USER u  left join FIT_PO_AUDIT_ROLE_USER ur \n" +
                     " on u.id=ur.user_id  " +
@@ -239,7 +238,7 @@ public class PoRoleController extends BaseController {
                         " on u.id=ur.user_id where ur.role_id = "+ "'"+id+"'"+
                         " and u.USERNAME like "+"'"+"%"+name.trim()+"%'";
             }
-            Page<Object[]> page = poRoleService.findPageBySql(pageRequest, sql);
+            Page<Object[]> page = poRoleService.findPageBySql(pageRequest, sql+"order by USERNAME,REALNAME,CREATOR,ID,create_time");
             int index=1;
             if(pageRequest.getPageNo()>1){
                 index=2;

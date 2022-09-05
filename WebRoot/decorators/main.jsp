@@ -280,7 +280,7 @@
 			}else if("${detailsTsak}" == "Y"){
 				$("a[url='/fit/bi/poTask/index']").click();
 			}else if("${detailsTsak}"=="ok"){
-				$("a[url='/fit/bi/poIntegration/index']").click();
+				$("a[url='/fit/bi/poIntegrationList/index']").click();
 			}else{
 				$(".two_bar li a:first").click();
 			}

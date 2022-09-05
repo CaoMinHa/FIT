@@ -5,7 +5,6 @@ import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.base.EnumDimensionType;
-import foxconn.fit.entity.base.Planning;
 import foxconn.fit.service.base.BudgetService;
 import foxconn.fit.service.base.UserService;
 import foxconn.fit.util.ExceptionUtil;
@@ -21,10 +20,10 @@ import org.springside.modules.orm.PageRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/budget")
@@ -53,7 +52,7 @@ public class BudgetController extends BaseController {
 			@Log(name = "SBU") String sbu,@Log(name = "年") String year){
 		try {
 			String[] years=year.split(",");
-			List<Planning> list =new ArrayList<>();
+			List<Map> list =new ArrayList<>();
 			for (int i=0;i<years.length;i++){
 				String yr=years[i];
 				if (sbu.endsWith(",")) {
@@ -69,8 +68,8 @@ public class BudgetController extends BaseController {
 				if (StringUtils.isNotEmpty(message)) {
 					throw new RuntimeException("计算Budget数据出错 : "+message);
 				}
-				String sql="select * from CUX_FIT_PLANNING_V ";
-				List<Planning> lists = budgetService.listBySql(sql,Planning.class);
+				String sql="select ACCOUNT,JAN,FEB, MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW,DATA_LOAD_CUBE_NAME from CUX_FIT_PLANNING_V order by POINT_OF_VIEW";
+				List<Map> lists = budgetService.listMapBySql(sql);
 				list.addAll(lists);
 			};
 
@@ -79,19 +78,21 @@ public class BudgetController extends BaseController {
 				long time = System.currentTimeMillis();
 				String filePath=realPath+File.separator+"static"+File.separator+"download"+File.separator+time+".csv";
 				CsvWriter writer=new CsvWriter(filePath, ',', Charset.forName("UTF8"));
-				String[] periodFields=new String[]{"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"};
 				writer.writeRecord(new String[]{"Account","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","YT","Point-of-View","Data Load Cube Name"});
-				for (Planning planning : list) {
-					for (int i = 0; i < periodFields.length; i++) {
-						Field field = Planning.class.getDeclaredField(periodFields[i]);
-						field.setAccessible(true);
-						String value = (String) field.get(planning);
-						if ("0".equals(value)) {
-							field.set(planning, "");
-						}
+				for (Map map : list) {
+					if(null==map.get("DATA_LOAD_CUBE_NAME")){
+						writer.writeRecord(new String[]{map.get("ACCOUNT").toString(),
+						judgement(map.get("JAN").toString()),judgement(map.get("FEB").toString()),judgement(map.get("MAR").toString()),judgement(map.get("APR").toString()),
+						judgement(map.get("MAY").toString()),judgement(map.get("JUN").toString()),judgement(map.get("JUL").toString()),judgement(map.get("AUG").toString()),
+						judgement(map.get("SEP").toString()),judgement(map.get("OCT").toString()),judgement(map.get("NOV").toString()),judgement(map.get("DEC").toString()),
+						map.get("YT").toString(),map.get("POINT_OF_VIEW").toString(),""});
+					}else{
+						writer.writeRecord(new String[]{map.get("ACCOUNT").toString(),
+								judgement(map.get("JAN").toString()),judgement(map.get("FEB").toString()),judgement(map.get("MAR").toString()),judgement(map.get("APR").toString()),
+								judgement(map.get("MAY").toString()),judgement(map.get("JUN").toString()),judgement(map.get("JUL").toString()),judgement(map.get("AUG").toString()),
+								judgement(map.get("SEP").toString()),judgement(map.get("OCT").toString()),judgement(map.get("NOV").toString()),judgement(map.get("DEC").toString()),
+								map.get("YT").toString(),map.get("POINT_OF_VIEW").toString(),map.get("DATA_LOAD_CUBE_NAME").toString()});
 					}
-					writer.writeRecord(new String[]{planning.getACCOUNT(),planning.getJAN(),planning.getFEB(),planning.getMAR(),planning.getAPR(),planning.getMAY(),planning.getJUN(),planning.getJUL(),
-							planning.getAUG(),planning.getSEP(),planning.getOCT(),planning.getNOV(),planning.getDEC(),planning.getYT(),planning.getPOINT_OF_VIEW(),planning.getDATA_LOAD_CUBE_NAME()});
 				}
 
 				writer.flush();
@@ -109,6 +110,13 @@ public class BudgetController extends BaseController {
 		}
 		
 		return result.getJson();
+	}
+
+	public String judgement(String val){
+		if(val.equals("0")){
+			return "";
+		}
+		return val;
 	}
 
 }

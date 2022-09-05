@@ -258,16 +258,6 @@
         });
 
         var periodId;
-        $(document).ready(function(){
-            if("${detailsTsak}"=="ok"){
-                setTimeout(function () {
-                    $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
-                    $("#QTableName").change();
-                    $("#QueryBtn").click();
-                },1000)
-            }
-        })
-
         $("#affirmBut").click(function () {
             var valueUser='';
             $(".userGroupVal:checked").each(function () {
@@ -350,6 +340,17 @@
                 }
             });
         });
+
+        $(document).ready(function(){
+            if("${detailsTsak}"=="ok"){
+                // setTimeout(function () {
+                    $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
+                    $("#QTableName").change();
+                    $("#DateYear").val("${DateYear}");
+                    $("#QueryBtn").click();
+                // },1000)
+            }
+        })
     </script>
 </head>
 <body>

@@ -163,7 +163,7 @@ public class PoTaskService extends BaseService<PoTask> {
         }else {
             //由于是外网，没办法测试邮件发送成功环节isSend生产！isSend本地
             //先取发送失败也能流转任务
-            Boolean isSend = EmailUtil.emailsMany(emailList, "採購BI平臺待簽核，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a>");
+            Boolean isSend = EmailUtil.emailsMany(emailList, "採購BI平臺待簽核，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a>+\"<br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
             if(isSend){  //变
                 uploadTaskFlag(taskId,flag,type,"",step,"T");
             }else{
@@ -323,11 +323,11 @@ public class PoTaskService extends BaseService<PoTask> {
             }else if(flag.equalsIgnoreCase("2")){
                roleCode=replaceRole(roleCode,"1");
             }
-            Boolean isSend = EmailUtil.emailsMany(emailList, "採購BI平臺待簽核，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a>");
+            Boolean isSend = EmailUtil.emailsMany(emailList, "採購BI平臺待簽核，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a>+\"<br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
             if(isSend){ //变
                 //審批通過提示
                 if("0".equals(status)){
-                    Boolean isSend1 = EmailUtil.emailsMany(emailListC, "採購BI平臺待簽核，請勿回復",msgC+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a>");
+                    Boolean isSend1 = EmailUtil.emailsMany(emailListC, "採購BI平臺待簽核，請勿回復",msgC+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a>+\"<br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
                     if(!isSend1){ //变
                         ajaxResult.put("flag", "fail");
                         ajaxResult.put("msg", "郵件發送失敗 (Task Type Fail)");
@@ -393,13 +393,13 @@ public class PoTaskService extends BaseService<PoTask> {
                     List<String> userList = roRoleService.listBySql(sql);
                     user = userList.get(0).split("_");
                 }
-                Boolean isSend = EmailUtil.emailsMany(emailListC, "採購BI平臺待簽核，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a>");
+                Boolean isSend = EmailUtil.emailsMany(emailListC, "採購BI平臺待簽核，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a>+\"<br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
                 if(isSend){ //变
                     if("0".equals(status)){
                         uploadTaskFlag(taskId,"3",type,reamrk,"","Z");
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
                             msg="尊敬的採購主管:</br> &nbsp;&nbsp;"+user[1]+"&nbsp;已經完成明年年度SBU CD目標數據，請您知悉！";
-                            Boolean isSends = EmailUtil.emailsMany(emailList, user[1]+"  SBU年度VOC",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a>");
+                            Boolean isSends = EmailUtil.emailsMany(emailList, user[1]+"  SBU年度VOC",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a>+\"<br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
                             if(!isSends){ //变
                                 ajaxResult.put("flag", "fail");
                                 ajaxResult.put("msg", "Commodity主管郵件發送失敗 (Task Type Fail)");
@@ -495,7 +495,7 @@ public class PoTaskService extends BaseService<PoTask> {
                 ajaxResult.put("msg", "請聯係管理員維護對應崗位的郵箱(Task Type Fail)");
                 return ajaxResult;
             }else {
-                Boolean isSend = EmailUtil.emailsMany(emailListC, "採購BI平臺待簽核，請勿回復","亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+id+"&statusType=0&roleCode="+replaceRole("",id)+"\" style=\"color: blue;\">接口平臺</a>");
+                Boolean isSend = EmailUtil.emailsMany(emailListC, "採購BI平臺待簽核，請勿回復","亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+id+"&statusType=0&roleCode="+replaceRole("",id)+"\" style=\"color: blue;\">接口平臺</a>+\"<br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
 //                Boolean isSend = EmailUtil.emails(emailListC, "亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！","採購BI平臺待簽核，請勿回復");
                 if(!isSend){
                     ajaxResult.put("flag", "fail");

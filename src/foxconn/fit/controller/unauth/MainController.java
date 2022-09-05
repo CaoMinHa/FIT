@@ -104,17 +104,21 @@ public class MainController extends BaseController{
 				session.setAttribute("languageS","zh_CN");
 			}
 			WebUtils.setSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, local);
+			//定時郵件任務跟催 采購 跳轉到任務界面
 			if(null!=task){
 				session.setAttribute("task","Y");
 			}else{
 				session.setAttribute("task","N");
 			}
+			//審批郵件鏈接 跳轉到待審核界面
 			if(null!=taskId&&null!=statusType){
 				session.setAttribute("roleCode",roleCode);
 				session.setAttribute("statusType",statusType);
 				session.setAttribute("taskId",taskId);
 				session.setAttribute("detailsTsak","Y");
-			}else if(null!=taskId&&null==statusType){
+			}
+			//終審完成跳轉到采購查詢界面
+			else if(null!=taskId&&null==statusType){
 				session.setAttribute("detailsTsak","ok");
 				session.setAttribute("taskId",taskId);
 			}else{

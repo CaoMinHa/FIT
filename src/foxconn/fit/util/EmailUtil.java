@@ -114,7 +114,7 @@ public class EmailUtil
         return true;
     }
 
-    public static MimeMessage createAttachMailMany(List<String> emails ,Session session,String title,String contentText, List<File> fileList)
+    public static MimeMessage createAttachMailMany(List<String> emails , Session session, String title, String contentText, List<File> fileList)
             throws Exception {
         MimeMessage message = new MimeMessage(session);
         message.setFrom(new InternetAddress("fit-bi@mail.foxconn.com"));
@@ -129,14 +129,14 @@ public class EmailUtil
         MimeBodyPart content = new MimeBodyPart();
         msgMultipart.addBodyPart(content);
 
-// 8，设置正文格式
+        // 8，设置正文格式
         MimeMultipart bodyMultipart = new MimeMultipart("related");
         content.setContent(bodyMultipart);
 
-// 9，设置正文内容
+        // 9，设置正文内容
         MimeBodyPart htmlPart = new MimeBodyPart();
         bodyMultipart.addBodyPart(htmlPart);
-        htmlPart.setContent(contentText+"</br>&nbsp;&nbsp;<a href=\"http://10.98.5.23:8080/fit/login\" style=\"color: blue;\">接口平臺</a>", "text/html;charset=UTF-8");
+        htmlPart.setContent(contentText+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!", "text/html;charset=UTF-8");
         if (null == fileList || 0 == fileList.size()) {
         }else{
             try {
@@ -160,5 +160,56 @@ public class EmailUtil
         }
         message.saveChanges();
         return message;
+    }
+
+    public static MimeMessage sendEmail(String email,String addresses , Session session, String title, String contentText) throws Exception {
+        MimeMessage message = new MimeMessage(session);
+        message.setFrom(new InternetAddress("fit-bi@mail.foxconn.com"));
+        try {
+            message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));
+            message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(addresses));
+            message.setSubject(title,"UTF-8");
+            MimeMultipart msgMultipart = new MimeMultipart("mixed");
+            message.setContent(msgMultipart);
+            MimeBodyPart content = new MimeBodyPart();
+            msgMultipart.addBodyPart(content);
+            // 8，设置正文格式
+            MimeMultipart bodyMultipart = new MimeMultipart("related");
+            content.setContent(bodyMultipart);
+            // 9，设置正文内容
+            MimeBodyPart htmlPart = new MimeBodyPart();
+            bodyMultipart.addBodyPart(htmlPart);
+            htmlPart.setContent(contentText, "text/html;charset=UTF-8");
+            message.saveChanges();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+    /**
+     * 抄送
+     * @param emails
+     * @param title
+     * @param content
+     * @return
+     */
+    public static Boolean emailCC(String email,String emails,String title, String content) {
+        try {
+            Properties props = new Properties();
+            props.put("mail.smtp.host", "10.98.5.95");
+            props.put("mail.smtp.port", "25");    //端口
+            props.setProperty("mail.debug", "true");// 开启debug日志，日志更详细
+            props.put("mail.smtp.starttls.enable", "true");
+            Session session = Session.getDefaultInstance(props);
+            session.setDebug(true);
+            Message message = sendEmail(email,emails,session,title,content);
+            Transport.send(message);
+            System.out.println("Sent message successfully....from runoob.com");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

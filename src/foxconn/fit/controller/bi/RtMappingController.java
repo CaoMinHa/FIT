@@ -476,7 +476,7 @@ public class RtMappingController extends BaseController{
 			if("CUX_RT_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)){
 				sheetName=getLanguage(locale,"Account Mgr主數據表","Account Mgr");
 			}else if("CUX_RT_SALES_ACCOUNT_MAPPING".equalsIgnoreCase(tableName)){
-				sheetName=getLanguage(locale,"接口平台Sales對應Account org表","Sales Corresponding Account org");
+				sheetName=getLanguage(locale,"接口平臺Sales對應Account org表","Sales Corresponding Account org");
 			}
 			sxssfWorkbook.setSheetName(0, sheetName);
 			Sheet sheet = sxssfWorkbook.getSheetAt(0);
