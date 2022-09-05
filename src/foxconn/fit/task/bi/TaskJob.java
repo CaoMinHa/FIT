@@ -34,13 +34,14 @@ public class TaskJob {
     /**
      * 根據SBU VOC收集的數據給相關未完成任務的用戶發送跟催郵件
      * 任務截止日當天及前一天上午8點檢查
-    @Scheduled(cron = "0 0 8 * * MON-SAT")
+     * @Scheduled(cron = "0 0 8 * * MON-SAT")
      */
+    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void job(){
         try{
             System.out.print("任務截止日當天及前一天上午8點檢查。");
             //查找有截止任务的最新一条邮件记录
-            String sql="select * from CUX_PO_EMAIL where end_date is not null order by id desc";
+            String sql="select * from CUX_PO_EMAIL where CREATION_DATE=(select max(CREATION_DATE) from CUX_PO_EMAIL where end_date is not null)";
             List<PoEmailLog> list=poTableService.listBySql(sql,PoEmailLog.class);
             if(null!=list&&list.size()>0){
                 PoEmailLog poEmailLog=list.get(0);
@@ -139,13 +140,14 @@ public class TaskJob {
     /**
      * 根據SBU VOC收集的數據給相關未完成任務的用戶發送跟催郵件
      * 任務截止日當天下午1點檢查
-     @Scheduled(cron = "0 0 13 * * MON-SAT")
+     * @Scheduled(cron = "0 0 13 * * MON-SAT")
      */
+    @Scheduled(cron = "0 0 13 * * MON-SAT")
     public void jobOne(){
         try{
             System.out.print("任務截止日當天下午1點檢查。");
             //查找有截止任务的最新一条邮件记录
-            String sql="select * from CUX_PO_EMAIL where end_date is not null order by id  desc";
+            String sql="select * from CUX_PO_EMAIL where CREATION_DATE=(select max(CREATION_DATE) from CUX_PO_EMAIL where end_date is not null)";
             List<PoEmailLog> list=poTableService.listBySql(sql,PoEmailLog.class);
             if(null!=list&&list.size()>0){
                 PoEmailLog poEmailLog=list.get(0);
@@ -153,6 +155,9 @@ public class TaskJob {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 //当前时间字符串
                 String dateString = formatter.format(date);
+                if("-0".equals(dateString.substring(4,6))){
+                    dateString=dateString.replace("-0","-");
+                }
                 System.out.print("定时任务检验：当前时间"+dateString+",任务截止时间："+poEmailLog.getEndDate());
                 //满足截止时间及截止时间前一天与当前申请相等 触发检验
                 if(dateString.equals(poEmailLog.getEndDate())){
@@ -241,8 +246,8 @@ public class TaskJob {
      SELECT send_email_flag  FROM epmexp.cux_cf_default_bi   /shared/FIT-BI Platform v2/01.分析/CF/D.SBU現金流量表
      SELECT send_email_flag  FROM epmexp.cux_pl_default_bi   /shared/FIT-BI Platform v2/01.分析/PL/D.SBU损益表
      SELECT send_email_flag  FROM epmexp.cux_bs_default_bi   /shared/FIT-BI Platform v2/01.分析/BS/D.SBU資產負債表
+     @Scheduled(cron = "0 0 1 * * MON-SAT")
      */
-//    @Scheduled(cron = "0 0 1 * * MON-SAT")
     public void jobBIEmail(){
         try{
             System.out.print("BI平台三表检验是否有同步数据 如果有给有权限的人发送邮件");
@@ -401,8 +406,8 @@ public class TaskJob {
 
     /**
      * 检查有没有产品信息未在维度表维护
+     * @Scheduled(cron = "0 0 1 * * MON-SAT")
      */
-//    @Scheduled(cron = "0 0 1 * * MON-SAT")
     public void checkProductDimension(){
         try{
             String sql="SELECT distinct PRODUCT_SERIES_code FROM epmods.cux_inv_sbu_item_info_mv where PRODUCT_SERIES_DESC not in (select DIMENSION from FIT_DIMENSION where type='Product')";
@@ -424,9 +429,9 @@ public class TaskJob {
      *  WHERE t.attribute8 IS NULL
      * 这个SQL有记录，就需要发邮件
      * 发送邮件后， 把attribute8 改为N
+     * @Scheduled(cron = "0 0 1 * * MON-SAT")
+     * @Scheduled(cron = "0 5 13 8 7 MON-SAT")
      * **/
-//    @Scheduled(cron = "0 0 1 * * MON-SAT")
-//    @Scheduled(cron = "0 5 13 8 7 MON-SAT")
     public void checkPLUpdate(){
         try{
             String sql="SELECT COUNT(1) FROM epmebs.ecux_expense_pl_all t WHERE t.attribute8 IS NULL ";
@@ -465,9 +470,8 @@ public class TaskJob {
 
     /**
      * 三表BU表发布邮件提醒
+     * @Scheduled(cron = "0 8 21 15 8 MON-SAT")
      */
-//    @Scheduled(cron = "0 8 21 15 8 MON-SAT")
-    @Scheduled(cron = "0 24 21 15 8 MON-SAT")
     public void plSendEamil(){
         try{
             System.out.print("BU三表检验是否有同步数据 如果有给有权限的人发送邮件");
@@ -563,9 +567,8 @@ public class TaskJob {
      * 8-10號未上傳需要同時增加核准人郵箱
      * 實際採購非價格CD匯總表:FIT_ACTUAL_PO_NPRICECD_DTL
      * 採購CD手動匯總表:FIT_PO_BUDGET_CD_DTL
+     * @Scheduled(cron = "30 18 * * * *")
      */
-//    @Scheduled(cron = "0 51 16 * * *")
-//    @Scheduled(cron = "30 18 * * * *")
     public void poSendTaskEamil(){
         poEamil("FIT_ACTUAL_PO_NPRICECD_DTL");
         poEamil("FIT_PO_BUDGET_CD_DTL");
