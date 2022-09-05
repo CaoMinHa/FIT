@@ -129,6 +129,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
             content=content.replace(" ","&nbsp;");
             Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a>");
             if(isSend){
+               content=content.replaceAll("'","''");
                 String sql="insert into CUX_PO_EMAIL(CREATED_BY,CREATED_NAME,EMAIL_TITLE,EMAIL_CONTENT,EMAIL_TEAM,END_DATE) values('"+user
                         +"','"+userName.get(0)+"','"+title+"','"+content+"','"+emailGroup+"','"+endDate+"')";
                 poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();

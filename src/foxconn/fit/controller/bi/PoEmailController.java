@@ -1,5 +1,6 @@
 package foxconn.fit.controller.bi;
 
+import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.service.bi.PoEmailService;
@@ -49,15 +50,14 @@ public class PoEmailController extends BaseController {
 
     @RequestMapping(value="/sendEmail")
     @ResponseBody
-    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,String emailGroup,String title,String content,String type,String endDate) {
+    @Log(name = "SBU VOC 收集")
+    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="郵箱信息")String emailGroup,@Log(name="郵件主題")String title,@Log(name="郵件内容")String content,String type,@Log(name="截止時間")String endDate) {
         try {
             if(type.equalsIgnoreCase("1")){
                 ajaxResult=poEmailService.sendEmail(ajaxResult,emailGroup,title,content,endDate);
             }else {
                 Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
                 ajaxResult.put("msg", getLanguage(locale, "發送成功！", "Send success"));
-//                MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
-//                MultiValueMap<String, MultipartFile> mutipartFiles=multipartHttpServletRequest.getMultiFileMap();
                 List<MultipartFile> list = new ArrayList<>();
                 MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
                 Iterator<String> fileNames = multipartRequest.getFileNames();
