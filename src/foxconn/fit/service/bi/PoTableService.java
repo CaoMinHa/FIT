@@ -88,7 +88,7 @@ public class PoTableService extends BaseService<PoTable> {
         String id = UUID.randomUUID().toString();
         for (PoTable poTable : dataMap.keySet()) {
             List<PoColumns> columns = poTable.getColumns();
-            List<PoKey> keys = poTable.getKeys();
+//            List<PoKey> keys = poTable.getKeys();
             String[] s = poTable.getComments().split("_");
             String name = year + period + "_" + commodity.get(0)+"_" + s[s.length - 1] + "的上传任务";
             String tableName = poTable.getTableName();
@@ -105,8 +105,8 @@ public class PoTableService extends BaseService<PoTable> {
                 if (!"0".equalsIgnoreCase(num)) {
                     return "";
                 } else {
-                    if (keys != null && keys.size() > 0) {
-                    } else {
+//                    if (keys != null && keys.size() > 0) {
+//                    } else {
                         String deleteSql = "";
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())) {
                             for (int i = 0; i < commodity.size(); i++) {
@@ -167,7 +167,7 @@ public class PoTableService extends BaseService<PoTable> {
                                 poTableDao.getHibernateTemplate().clear();
                             }
                         }
-                    }
+//                    }
                     //采购删除之前存在的数据
                     String like ="";
                     if("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)){
@@ -182,7 +182,7 @@ public class PoTableService extends BaseService<PoTable> {
 //                        like= year + period + "_" + commodity.get(0)+"_%";
                         like=year + period + "_" + commodity.get(0)+"_" + s[s.length - 1] + "的上传任务";
                     }
-                    String deleteSql = " delete from FIT_PO_TASK where flag !='-1' and name = '" + like + "' and type=" + "'" + tableName + "'";
+                    deleteSql = " delete from FIT_PO_TASK where flag !='-1' and name = '" + like + "' and type=" + "'" + tableName + "'";
                     poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
                     UserDetailImpl loginUser = SecurityUtils.getLoginUser();
                     String user = loginUser.getUsername();

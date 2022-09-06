@@ -275,7 +275,7 @@
     	});
     }
 		if($("#menuBI").val()=="Y") {
-			if($("#task").val()=="Y"){
+			if("${task}"=="Y"){
 				$("a[url='/fit/bi/poTask/index']").click();
 			}else if("${detailsTsak}" == "Y"){
 				$("a[url='/fit/bi/poTask/index']").click();

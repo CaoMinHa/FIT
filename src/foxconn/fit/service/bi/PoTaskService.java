@@ -286,12 +286,12 @@ public class PoTaskService extends BaseService<PoTask> {
                         " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                         " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                         " WHERE  r.code='CPO' and u.type='BI' and u.email is not null";
-                msg="尊敬的主管:</br>&nbsp;&nbsp;SBU年度CD目標核准任務請審核!";
-                msgC="亲爱的同事:</br>&nbsp;&nbsp;SBU年度CD目標核准任務初審已通過!";
+                msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD核准任務請審核!";
+                msgC="亲爱的同事:</br>&nbsp;&nbsp;採購CD核准任務初審已通過!";
             }
             List<String> tManager = roRoleService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());
-        } else if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
+        }else if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
             if(!"0".equals(status)){
                 //退回
                 sql=sqlC;
@@ -301,10 +301,10 @@ public class PoTaskService extends BaseService<PoTask> {
                 sql = " select distinct u.email from  fit_user u \n" +
                         " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                         " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
-                        " WHERE  r.code='KEYUSER' and u.type='BI' and u.email is not null and instr(','||u.SBU||',', " +
+                        " WHERE  r.code in('KEYUSER','SBUCompetent') and u.type='BI' and u.email is not null and instr(','||u.SBU||',', " +
                         "(select ','||u.SBU||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
-                msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD核准任務請審核!";
-                msgC="亲爱的同事:</br>&nbsp;&nbsp;採購CD核准任務初審已通過!";
+                msg="尊敬的主管:</br>&nbsp;&nbsp;SBU年度CD目標核准任務請審核!";
+                msgC="亲爱的同事:</br>&nbsp;&nbsp;SBU年度CD目標核准任務初審已通過!";
             }
             List<String> tManager = roRoleService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());

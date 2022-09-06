@@ -325,6 +325,15 @@ public class PoTaskController extends BaseController {
                             sqlSum += "sum(" + columnName + "),";
                             break;
                     }
+                }else if("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(poTable.getTableName())){
+                    switch (columnName) {
+                        case "CD_RATIO":
+                            sqlSum += " sum(CD_AMOUNT)/(sum(PO_AMOUNT)+sum(CD_AMOUNT))*100 CD_RATIO ,";
+                            break;
+                        default:
+                            sqlSum += "sum(" + columnName + "),";
+                            break;
+                    }
                 }else{
                     sqlSum += "sum(" + columnName + "),";
                 }

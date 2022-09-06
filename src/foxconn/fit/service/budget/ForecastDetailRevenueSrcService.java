@@ -67,7 +67,7 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**次產業*/
 			sheet = workBook.getSheetAt(3);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Segment.getCode()+"' and PARENT='Segment_Total'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Segment.getCode()+"' and PARENT like 'SE_%'";
 			this.selectDimension(sql,sheet);
 
 			/**Main Business*/

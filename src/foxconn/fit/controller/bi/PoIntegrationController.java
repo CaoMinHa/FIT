@@ -500,7 +500,6 @@ public class PoIntegrationController extends BaseController {
                         dataList2.add(data);
                         Boolean isOne = oneByky(tableName, dataList2, data);
                         if (!isOne) {
-                            System.out.println("wei重复");
                             dataList.add(data);
                         }
                     }

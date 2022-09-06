@@ -24,23 +24,23 @@ public class MenuService{
 		List<MenuMappingList> menuMappingList=new ArrayList<>();
 		String sql = "select * from FIT_MENU_MAPPING where MENU_LEVEL is null order by MENU_SORT";
 		List<MenuMapping> list = userDAO.listBySql(sql,MenuMapping.class);
-
-		String [] str=SecurityUtils.getLoginUser().getMenus().split(",");
-		String menuStr="";
-		for (String s:str) {
-			menuStr+="'"+s+"',";
-		}
-
-		for (int i=0;i<list.size();i++){
-			MenuMapping m=list.get(i);
-			sql="select * from FIT_MENU_MAPPING where MENU_LEVEL='"+m.getMenuCode()+"' and MENU_CODE in("+menuStr.substring(0,menuStr.length()-1)+") order by cast(MENU_SORT as int)";
-			List<MenuMapping> list1 = userDAO.listBySql(sql,MenuMapping.class);
-			MenuMappingList menu=new MenuMappingList();
-			menu.setMenuCode(m.getMenuCode());
-			menu.setMenuName(m.getMenuName());
-			menu.setMenuNameE(m.getMenuNameE());
-			menu.setList(list1);
-			menuMappingList.add(menu);
+		if(null!=SecurityUtils.getLoginUser()){
+			String [] str=SecurityUtils.getLoginUser().getMenus().split(",");
+			String menuStr="";
+			for (String s:str) {
+				menuStr+="'"+s+"',";
+			}
+			for (int i=0;i<list.size();i++){
+				MenuMapping m=list.get(i);
+				sql="select * from FIT_MENU_MAPPING where MENU_LEVEL='"+m.getMenuCode()+"' and MENU_CODE in("+menuStr.substring(0,menuStr.length()-1)+") order by cast(MENU_SORT as int)";
+				List<MenuMapping> list1 = userDAO.listBySql(sql,MenuMapping.class);
+				MenuMappingList menu=new MenuMappingList();
+				menu.setMenuCode(m.getMenuCode());
+				menu.setMenuName(m.getMenuName());
+				menu.setMenuNameE(m.getMenuNameE());
+				menu.setList(list1);
+				menuMappingList.add(menu);
+			}
 		}
 		return menuMappingList;
 	}

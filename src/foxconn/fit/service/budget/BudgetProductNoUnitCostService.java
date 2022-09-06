@@ -679,23 +679,23 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				"                nvl(t.material_cost,0) material_cost,\n" +
 				"                nvl(t.laber_cost,0) laber_cost,\n" +
 				"                nvl(t.overhead_cost,0) + nvl(t.outsite_processing_cost,0) overhead_cost, \n" +
-				"                b.quantity_month1,\n" +
-				"                b.quantity_month2,\n" +
-				"                b.quantity_month3,\n" +
-				"                b.quantity_month4,\n" +
-				"                b.quantity_month5,\n" +
-				"                b.quantity_month6,\n" +
-				"                b.quantity_month7,\n" +
-				"                b.quantity_month8,\n" +
-				"                b.quantity_month9,\n" +
-				"                b.quantity_month10,\n" +
-				"                b.quantity_month11,\n" +
-				"                b.quantity_month12,\n" +
-				"                b.quantity,\n" +
-				"                b.quantity_nextyear,\n" +
-				"                b.quantity_twoyear,\n" +
-				"                b.quantity_threeyear,\n" +
-				"                b.quantity_fouryear\n" +
+				"                nvl(b.quantity_month1,0) quantity_month1,\n" +
+				"                nvl(b.quantity_month2,0) quantity_month2,\n" +
+				"                nvl(b.quantity_month3,0) quantity_month3,\n" +
+				"                nvl(b.quantity_month4,0) quantity_month4,\n" +
+				"                nvl(b.quantity_month5,0) quantity_month5,\n" +
+				"                nvl(b.quantity_month6,0) quantity_month6,\n" +
+				"                nvl(b.quantity_month7,0) quantity_month7,\n" +
+				"                nvl(b.quantity_month8,0) quantity_month8,\n" +
+				"                nvl(b.quantity_month9,0) quantity_month9,\n" +
+				"                nvl(b.quantity_month10,0) quantity_month10,\n" +
+				"                nvl(b.quantity_month11,0) quantity_month11,\n" +
+				"                nvl(b.quantity_month12,0) quantity_month12,\n" +
+				"                nvl(b.quantity,0) quantity,\n" +
+				"                nvl(b.quantity_nextyear,0) quantity_nextyear,\n" +
+				"                nvl(b.quantity_twoyear,0) quantity_twoyear,\n" +
+				"                nvl(b.quantity_threeyear,0) quantity_threeyear,\n" +
+				"                nvl(b.quantity_fouryear,0) quantity_fouryear\n" +
 				"  FROM epmods.if_ebs_ar_revenue_dtl_cst_v2 t,\n" +
 				"       (SELECT a.*\n" +
 				"          FROM epmods.fit_budget_detail_revenue a\n" +

@@ -39,6 +39,9 @@ public class PoEmailService extends BaseService<PoEmailLog> {
      * @return
      */
     public AjaxResult sendEmail(AjaxResult ajaxResult, String emailGroup, String title, String content, List<MultipartFile> list, HttpServletRequest request,String endDate) throws IOException {
+        if(endDate.length()==9){
+            endDate=endDate.substring(0,4)+"-0"+endDate.substring(5,9);
+        }
         String realPath = request.getRealPath("");
         String user = SecurityUtils.getLoginUser().getUsername();
         List<String> userName= poTableService.listBySql("select realname from FIT_USER where username='"+user+"'");
@@ -106,6 +109,9 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         return ajaxResult;
     }
     public AjaxResult sendEmail(AjaxResult ajaxResult, String emailGroup, String title, String content,String endDate){
+        if(endDate.length()==9){
+            endDate=endDate.substring(0,4)+"-0"+endDate.substring(5,9);
+        }
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
         String user = loginUser.getUsername();
         List<String> userName= poTableService.listBySql("select realname from FIT_USER where username='"+user+"'");
