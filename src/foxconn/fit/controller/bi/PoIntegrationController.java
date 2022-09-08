@@ -644,6 +644,11 @@ public class PoIntegrationController extends BaseController {
                             whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
                         }
                         break;
+                    //採購CD目標by月展開表
+                    case "FIT_PO_Target_CPO_CD_DTL":
+                        whereSql = " where 1=1";
+                        whereSql += " and year= " + DateYear;
+                        break;
                     //SBU年度CD目標匯總表
                     case "FIT_PO_SBU_YEAR_CD_SUM":
                         whereSql = " where 1=1";

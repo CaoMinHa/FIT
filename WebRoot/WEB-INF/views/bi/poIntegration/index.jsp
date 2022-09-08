@@ -205,13 +205,13 @@
                 var date = $("#QDate").val();
                 var dateEnd = $("#QDateEnd").val();
                 var DateYear = $("#DateYear").val();
-                if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'){
+                if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'||tableName=='FIT_PO_Target_CPO_CD_DTL'){
                     var r = /^\+?[1-9][0-9]*$/;
                     if (DateYear.length!=4 || !r.test(DateYear)) {
                         layer.msg("請填寫正確的年份(Please fill in the correct year)");
                         return;
                     }
-                }else{
+                }else if(tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'||tableName=='FIT_PO_BUDGET_CD_DTL'){
                     if (date.length == 0) {
                         layer.msg("請選擇開始日期！(Please select a start date)");
                         return;
@@ -316,7 +316,7 @@
                 $("#downCondition").hide();
                 var tableName = $(this).val();
                 if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DOWN' ||
-                    tableName == 'FIT_ACTUAL_PO_NPRICECD_DTL' || tableName == 'FIT_PO_BUDGET_CD_DTL') {
+                    tableName == 'FIT_ACTUAL_PO_NPRICECD_DTL' || tableName == 'FIT_PO_BUDGET_CD_DTL'||tableName =='FIT_PO_Target_CPO_CD_DTL') {
                     $("#downCondition").show();
                     $("#QpoCenter").show();
                     $("#Scenario").text("");
@@ -350,6 +350,17 @@
                             $("input[name='YYYYMM']").hide();
                             $("#QpoCenter").hide();
                             $("#QpoCenter").change();
+                            break;
+                            //採購CD 目標核准表
+                        case "FIT_PO_Target_CPO_CD_DTL":
+                            $("input[name='YYYY']").show();
+                            $("input[name='YYYYMM']").hide();
+                            $("#QpoCenter").hide();
+                            $("#buVal").hide();
+                            $("#sbuVal").hide();
+                            $("#priceControl").hide();
+                            $("#founderVal").hide();
+                            $("#commodity").hide();
                             break;
                     }
                 }
