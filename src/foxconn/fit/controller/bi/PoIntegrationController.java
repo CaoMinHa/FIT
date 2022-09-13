@@ -489,9 +489,9 @@ public class PoIntegrationController extends BaseController {
                                         keyNameList.add(poKey.getComments());
                                     }
                                 }
-                                result.put("flag", "fail");
-                                result.put("msg", getLanguage(locale, "第" + (i + 1) + "個sheet第" + (j + 1) + "行的Key值與第" + rowIndex + "行的Key值重複,Key包含的列有 : ", "The key value of the sheet " + (i + 1) + " row " + (j + 1) + " is repeated with the key value of row " + rowIndex + ". The key contains the following columns : ") + Arrays.toString(keyNameList.toArray()));
-                                return result.getJson();
+//                                result.put("flag", "fail");
+//                                result.put("msg", getLanguage(locale, "第" + (i + 1) + "個sheet第" + (j + 1) + "行的Key值與第" + rowIndex + "行的Key值重複,Key包含的列有 : ", "The key value of the sheet " + (i + 1) + " row " + (j + 1) + " is repeated with the key value of row " + rowIndex + ". The key contains the following columns : ") + Arrays.toString(keyNameList.toArray()));
+//                                return result.getJson();
                             } else {
                                 keyRepeatMap.put(base64, j + 1);
                             }

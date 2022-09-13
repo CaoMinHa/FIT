@@ -15,10 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -36,7 +33,7 @@ public class TaskJob {
      * 任務截止日當天及前一天上午8點檢查
      * @Scheduled(cron = "0 0 8 * * MON-SAT")
      */
-    @Scheduled(cron = "0 0 8 * * MON-SAT")
+//    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void job(){
         try{
             System.out.print("任務截止日當天及前一天上午8點檢查。");
@@ -51,11 +48,12 @@ public class TaskJob {
                 String dateString = formatter.format(date);
                 //时间替换成截止时间
                 Date date1= formatter.parse(poEmailLog.getEndDate());
-                //获取截止时间前一天的字符串
+                //获取截止时间前一天及前两天的字符串
                 String predate = formatter.format(new Date(date1.getTime() - (long) 24 * 60 * 60 * 1000));
-                System.out.print("定时任务检验：当前时间"+dateString+",任务截止时间："+poEmailLog.getEndDate()+",任务截止时间前一天："+predate);
+                String predateTwo = formatter.format(new Date(date1.getTime() - (long) 48 * 60 * 60 * 1000));
+                date1=new Date(date1.getTime() + (long) 24 * 60 * 60 * 1000);
                 //满足截止时间及截止时间前一天与当前申请相等 触发检验
-                if(dateString.equals(predate)||dateString.equals(poEmailLog.getEndDate())|| date.getTime()>date1.getTime()){
+                if(dateString.equals(predate)||dateString.equals(poEmailLog.getEndDate())||dateString.equals(predateTwo)||date.getTime()>date1.getTime()){
                     String username="";
                     int integer=Integer.parseInt(dateString.substring(0,4))+1;
                     //查找未提交的SBU
@@ -66,15 +64,25 @@ public class TaskJob {
                     //查找拥有角色MM的权限用户
                     String sqlUser="select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
                             "r.id=ur.role_id and r.code='MM' and u.type='BI' and u.sbu is not null";
+                    //查找拥有角色SBUCompetent的权限用户
+                    String sqlSBUCompetent="select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
+                            "r.id=ur.role_id and r.code='SBUCompetent' and u.type='BI' and u.sbu is not null";
                     username=this.userEmail(sql,sqlUser);
+                    String SBUCompetentUserName="";
+                    SBUCompetentUserName=this.userEmail(sql,sqlSBUCompetent);
+                    String SBUCompetent="";
                     if(null!=username&&username!=""&&username.length()>0){
                         if(date.getTime()>date1.getTime()){
-                            sqlUser="親愛的同事：</br>&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
+                            sqlUser="親愛的同事：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
                                     +",系統檢測到您目前尚未完成，已經逾期。請儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
                             sql=poEmailLog.getEmailTitle()+" 數據上傳逾期通知！";
+                            SBUCompetent="親愛的同事：</br>&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
+                                    +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
+                                    +",系統檢測尚未完成，已經逾期。請督促企劃相關同事儘快提交。</br>如已經完成，請忽略該提醒";
+                            poEmailService.sendEmailTiming(SBUCompetentUserName.substring(0,SBUCompetentUserName.length()-1),SBUCompetent,sql);
                         }else{
-                            sqlUser="親愛的同事：</br>&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
+                            sqlUser="親愛的同事：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
                                     +",請合理安排時間，儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
                             sql=poEmailLog.getEmailTitle()+" 數據上傳提醒！";
@@ -92,12 +100,12 @@ public class TaskJob {
                     username=userEmail(sql,sqlUser);
                     if(null!=username&&username!=""&&username.length()>0){
                         if(date.getTime()>date1.getTime()){
-                            sqlUser="尊敬的企劃主管：</br>&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
+                            sqlUser="尊敬的企劃主管：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
                                     +",系統檢測到您目前尚未完成，已經逾期。請儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
                             sql=poEmailLog.getEmailTitle()+" 數據上傳逾期通知！";
                         }else{
-                            sqlUser="尊敬的企劃主管：</br>&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
+                            sqlUser="尊敬的企劃主管：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
                                     +",請合理安排時間，儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
                             sql=poEmailLog.getEmailTitle()+" 數據上傳提醒！";
@@ -115,12 +123,12 @@ public class TaskJob {
                     username=userEmail(sql,sqlUser);
                     if(null!=username&&username!=""&&username.length()>0){
                         if(date.getTime()>date1.getTime()){
-                            sqlUser="尊敬的采購管理員：</br>&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
+                            sqlUser="尊敬的采購管理員：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
                                     +",系統檢測到您目前尚未完成，已經逾期。請儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
                             sql=poEmailLog.getEmailTitle()+" 數據上傳逾期通知！";
                         }else{
-                            sqlUser="尊敬的采購管理員：</br>&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
+                            sqlUser="尊敬的采購管理員：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
                                     +",請合理安排時間，儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
                             sql=poEmailLog.getEmailTitle()+" 數據上傳提醒！";
@@ -141,8 +149,8 @@ public class TaskJob {
      * 根據SBU VOC收集的數據給相關未完成任務的用戶發送跟催郵件
      * 任務截止日當天下午1點檢查
      * @Scheduled(cron = "0 0 13 * * MON-SAT")
+     * 废弃
      */
-    @Scheduled(cron = "0 0 13 * * MON-SAT")
     public void jobOne(){
         try{
             System.out.print("任務截止日當天下午1點檢查。");
@@ -155,9 +163,6 @@ public class TaskJob {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 //当前时间字符串
                 String dateString = formatter.format(date);
-                if("-0".equals(dateString.substring(4,6))){
-                    dateString=dateString.replace("-0","-");
-                }
                 System.out.print("定时任务检验：当前时间"+dateString+",任务截止时间："+poEmailLog.getEndDate());
                 //满足截止时间及截止时间前一天与当前申请相等 触发检验
                 if(dateString.equals(poEmailLog.getEndDate())){
@@ -238,6 +243,9 @@ public class TaskJob {
                 }
             }
         }
+        if(username.isEmpty()){
+            username=",";
+        }
         return username;
     }
 
@@ -248,6 +256,7 @@ public class TaskJob {
      SELECT send_email_flag  FROM epmexp.cux_bs_default_bi   /shared/FIT-BI Platform v2/01.分析/BS/D.SBU資產負債表
      @Scheduled(cron = "0 0 1 * * MON-SAT")
      */
+    @Scheduled(cron = "30 6 11 * * MON-SAT")
     public void jobBIEmail(){
         try{
             System.out.print("BI平台三表检验是否有同步数据 如果有给有权限的人发送邮件");
@@ -573,6 +582,7 @@ public class TaskJob {
         poEamil("FIT_ACTUAL_PO_NPRICECD_DTL");
         poEamil("FIT_PO_BUDGET_CD_DTL");
     }
+
     public void poEamil(String type){
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         String[] date =formatter.format(new Date()).split("-");
@@ -596,7 +606,7 @@ public class TaskJob {
         }else{
             content="尊敬的用戶:<br></br>&nbsp;&nbsp;<font style=\"color: red;\">【您已超时！10號將關閉"+content+"上月數據的上傳】</font>請立即采取行動！";
         }
-        content+="<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>Best Regards!";
+        content+="<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!";
         if(Integer.valueOf(date[2])<=8){
             sql="select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur\n" +
                     "where u.id=ur.user_id and r.id=ur.role_id and r.code='SOURCER' and type='BI' and u.COMMODITY_MAJOR is not null\n" +

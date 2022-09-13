@@ -403,9 +403,9 @@ public class PoTaskService extends BaseService<PoTask> {
                 if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
                     String sql = "select distinct EMAIL from fit_user where COMMODITY_MAJOR is not null and type='BI' and  EMAIL is not null";
                     emailList = roRoleService.listBySql(sql);
-                    sql = "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI' and r.code in ('CLASS','MANAGER')" +
+                    sql = "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI' and r.code in ('CLASS','MANAGER')  and EMAIL is not null" +
                             "union all " +
-                            "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI' and u.username='KSK0R959'";
+                            "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI' and u.username='KSK0R959'  and EMAIL is not null";
                     emailList.addAll(roRoleService.listBySql(sql));
                     emailList = emailList.stream().distinct().collect(Collectors.toList());
                     sql = "select NAME from fit_po_task where type='FIT_PO_SBU_YEAR_CD_SUM' and id='" + taskId + "'";
