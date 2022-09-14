@@ -29,9 +29,9 @@
 	</style>
 	<script type="text/javascript">
 		$(function() {
-			$("#budgetForecastDetailRevenueForm").fileupload({
+			$("#predictDetailRevenueForm").fileupload({
 				dataType: "json",
-				url: "${ctx}/budget/budgetForecastDetailRevenue/upload",
+				url: "${ctx}/budget/predictDetailRevenue/upload",
 				add: function (e, data) {
 					$("#FileUpload").unbind();
 					var filename=data.originalFiles[0]['name'];
@@ -66,7 +66,7 @@
 					$("#loading").delay(1000).hide();
 					layer.alert("<spring:message code='upload'/><spring:message code='fail'/>，请检查基礎信息是否为空。");
 				},
-				processfail:function(e,data){
+				processfail:function(){
 					$("#loading").delay(1000).hide();
 					layer.alert("<spring:message code='upload'/><spring:message code='fail'/>");
 					clickPage(1);
@@ -100,7 +100,7 @@
 				var version=$("#QVersion").val();
 				$.ajax({
 					type:"POST",
-					url:"${ctx}/budget/budgetForecastDetailRevenue/download",
+					url:"${ctx}/budget/predictDetailRevenue/download",
 					async:true,
 					dataType:"json",
 					data:{year:year,entitys:entitys,version:version},
@@ -123,7 +123,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/budget/budgetForecastDetailRevenue/dimension",
+					url: "${ctx}/budget/predictDetailRevenue/dimension",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -145,7 +145,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/budget/budgetForecastDetailRevenue/template",
+					url: "${ctx}/budget/predictDetailRevenue/template",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -167,7 +167,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/budget/budgetForecastDetailRevenue/version",
+					url: "${ctx}/budget/predictDetailRevenue/version",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -210,8 +210,7 @@
 				$(this).parent().parent().parent().siblings().find("span").show();
 			}
 		});
-		// $("#QueryBtn").click();
-		$("#Content").load("${ctx}/budget/budgetForecastDetailRevenue/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
+		$("#Content").load("${ctx}/budget/predictDetailRevenue/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
 	</script>
 </head>
 <body>
@@ -219,13 +218,13 @@
 	<div class="span12">
 		<div class="page-header bg-white">
 			<h2>
-				<span><spring:message code='budgetForecastDetailRevenue'/></span>
+				<span><spring:message code='predictDetailRevenue'/></span>
 			</h2>
 		</div>
 		<div class="m-l-md m-t-md m-r-md">
 			<div class="controls">
 				<div>
-					<form id="budgetForecastDetailRevenueForm" style="margin-bottom: 0;margin-top:0;" method="POST" enctype="multipart/form-data" class="form-horizontal">
+					<form id="predictDetailRevenueForm" style="margin-bottom: 0;margin-top:0;" method="POST" enctype="multipart/form-data" class="form-horizontal">
 						<input type="file" style="display:none;" class="input-file" multiple="false"/>
 						<div>
 							<div style="float: left;text-align: right;" title="<spring:message code='not_exceed_30M'/>">

@@ -1,10 +1,10 @@
 package foxconn.fit.service.budget;
 
 import foxconn.fit.dao.base.BaseDaoHibernate;
-import foxconn.fit.dao.budget.BudgetDetailRevenueDao;
+import foxconn.fit.dao.budget.PredictDetailRevenueDao;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.base.EnumDimensionType;
-import foxconn.fit.entity.budget.BudgetDetailRevenue;
+import foxconn.fit.entity.budget.PredictDetailRevenue;
 import foxconn.fit.service.base.BaseService;
 import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.service.bi.InstrumentClassService;
@@ -39,10 +39,10 @@ import java.util.*;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetailRevenue> {
+public class PredictDetailRevenueService extends BaseService<PredictDetailRevenue> {
 
 	@Autowired
-	private BudgetDetailRevenueDao budgetDetailRevenueDao;
+	private PredictDetailRevenueDao predictDetailRevenueDao;
 
 	@Autowired
 	private InstrumentClassService instrumentClassService;
@@ -52,13 +52,13 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 
 
 	@Override
-	public BaseDaoHibernate<BudgetDetailRevenue> getDao() {
-		return budgetDetailRevenueDao;
+	public BaseDaoHibernate<PredictDetailRevenue> getDao() {
+		return predictDetailRevenueDao;
 	}
 
 	/**頁面初始加載*/
 	public Model index(Model model){
-		List<String> yearsList = budgetDetailRevenueDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
+		List<String> yearsList = predictDetailRevenueDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
 		int year=calendar.get(Calendar.YEAR)+1;
 		model.addAttribute("yearVal", "FY"+String.valueOf(year).substring(2));
@@ -71,14 +71,14 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		Calendar calendar=Calendar.getInstance();
 		int year=calendar.get(Calendar.YEAR)+1;
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sqlVersion="select distinct version  from FIT_BUDGET_DETAIL_REVENUE where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"' and version<>'V00' order by version";
-		List<String> versionList=budgetDetailRevenueDao.listBySql(sqlVersion);
+		String sqlVersion="select distinct version  from FIT_PREDICT_DETAIL_REVENUE where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"' and version<>'V00' order by version";
+		List<String> versionList=predictDetailRevenueDao.listBySql(sqlVersion);
 		return  versionList;
 	}
 
 	/**頁面查詢*/
 	public String list(String year,String version,String entity){
-		String sql="select * from FIT_BUDGET_DETAIL_REVENUE_V where 1=1";
+		String sql="select * from FIT_PREDICT_DETAIL_REVENUE_V where 1=1";
 		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
 		}
@@ -167,7 +167,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					result.put("msg", instrumentClassService.getLanguage(locale, "检测到Excel没有行数据", "Row Data Not Empty"));
 					return result.getJson();
 				}
-				List<BudgetDetailRevenue> list = new ArrayList<>();
+				List<PredictDetailRevenue> list = new ArrayList<>();
 				/**SBU法人**/List<String> entityList = new ArrayList<>();
 				/**SBU**/List<String> sbuList = new ArrayList<>();
 				/**次產業**/List<String> industryList = new ArrayList<>();
@@ -204,61 +204,61 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					tradeTypeList.add(ExcelUtil.getCellStringValue(row.getCell(9), i));
 					currencyList.add(ExcelUtil.getCellStringValue(row.getCell(10), i));
 
-					BudgetDetailRevenue budgetDetailRevenue = new BudgetDetailRevenue();
-					budgetDetailRevenue.setEntity(entity);
-					budgetDetailRevenue.setMakeEntity(ExcelUtil.getCellStringValue(row.getCell(1), i));
-					budgetDetailRevenue.setIndustry(ExcelUtil.getCellStringValue(row.getCell(2), i));
-					budgetDetailRevenue.setmainBusiness(ExcelUtil.getCellStringValue(row.getCell(3), i));
-					budgetDetailRevenue.setThree(ExcelUtil.getCellStringValue(row.getCell(4), i));
-					budgetDetailRevenue.setProductSeries(ExcelUtil.getCellStringValue(row.getCell(5), i));
-					budgetDetailRevenue.setProductNo(ExcelUtil.getCellStringValue(row.getCell(6), i));
-					budgetDetailRevenue.setEndCustomer(ExcelUtil.getCellStringValue(row.getCell(7), i));
-					budgetDetailRevenue.setLoanCustomer(ExcelUtil.getCellStringValue(row.getCell(8), i));
-					budgetDetailRevenue.setTradeType(ExcelUtil.getCellStringValue(row.getCell(9), i));
-					budgetDetailRevenue.setCurrency(ExcelUtil.getCellStringValue(row.getCell(10), i));
-					budgetDetailRevenue.setTypeOfAirplane(ExcelUtil.getCellStringValue(row.getCell(11), i));
-					budgetDetailRevenue.setPm(ExcelUtil.getCellStringValue(row.getCell(12), i));
-					budgetDetailRevenue.setRevenueNextyear(ExcelUtil.getCellStringValue(row.getCell(13), i));
-					budgetDetailRevenue.setRevenueTwoyear(ExcelUtil.getCellStringValue(row.getCell(14), i));
-					budgetDetailRevenue.setRevenueThreeyear(ExcelUtil.getCellStringValue(row.getCell(15), i));
-					budgetDetailRevenue.setRevenueFouryear(ExcelUtil.getCellStringValue(row.getCell(16), i));
+					PredictDetailRevenue predictDetailRevenue = new PredictDetailRevenue();
+					predictDetailRevenue.setEntity(entity);
+					predictDetailRevenue.setMakeEntity(ExcelUtil.getCellStringValue(row.getCell(1), i));
+					predictDetailRevenue.setIndustry(ExcelUtil.getCellStringValue(row.getCell(2), i));
+					predictDetailRevenue.setmainBusiness(ExcelUtil.getCellStringValue(row.getCell(3), i));
+					predictDetailRevenue.setThree(ExcelUtil.getCellStringValue(row.getCell(4), i));
+					predictDetailRevenue.setProductSeries(ExcelUtil.getCellStringValue(row.getCell(5), i));
+					predictDetailRevenue.setProductNo(ExcelUtil.getCellStringValue(row.getCell(6), i));
+					predictDetailRevenue.setEndCustomer(ExcelUtil.getCellStringValue(row.getCell(7), i));
+					predictDetailRevenue.setLoanCustomer(ExcelUtil.getCellStringValue(row.getCell(8), i));
+					predictDetailRevenue.setTradeType("對外銷售");
+					predictDetailRevenue.setCurrency("美元");
+					predictDetailRevenue.setTypeOfAirplane(ExcelUtil.getCellStringValue(row.getCell(11), i));
+					predictDetailRevenue.setPm(ExcelUtil.getCellStringValue(row.getCell(12), i));
+					predictDetailRevenue.setRevenueNextyear(ExcelUtil.getCellStringValue(row.getCell(13), i));
+					predictDetailRevenue.setRevenueTwoyear(ExcelUtil.getCellStringValue(row.getCell(14), i));
+					predictDetailRevenue.setRevenueThreeyear(ExcelUtil.getCellStringValue(row.getCell(15), i));
+					predictDetailRevenue.setRevenueFouryear(ExcelUtil.getCellStringValue(row.getCell(16), i));
 
-					budgetDetailRevenue.setQuantityNextyear(ExcelUtil.getCellStringValue(row.getCell(17), i));
-					budgetDetailRevenue.setQuantityTwoyear(ExcelUtil.getCellStringValue(row.getCell(18), i));
-					budgetDetailRevenue.setQuantityThreeyear(ExcelUtil.getCellStringValue(row.getCell(19), i));
-					budgetDetailRevenue.setQuantityFouryear(ExcelUtil.getCellStringValue(row.getCell(20), i));
-					budgetDetailRevenue.setQuantityMonth1(ExcelUtil.getCellStringValue(row.getCell(21), i));
-					budgetDetailRevenue.setQuantityMonth2(ExcelUtil.getCellStringValue(row.getCell(22), i));
-					budgetDetailRevenue.setQuantityMonth3(ExcelUtil.getCellStringValue(row.getCell(23), i));
-					budgetDetailRevenue.setQuantityMonth4(ExcelUtil.getCellStringValue(row.getCell(24), i));
-					budgetDetailRevenue.setQuantityMonth5(ExcelUtil.getCellStringValue(row.getCell(25), i));
-					budgetDetailRevenue.setQuantityMonth6(ExcelUtil.getCellStringValue(row.getCell(26), i));
-					budgetDetailRevenue.setQuantityMonth7(ExcelUtil.getCellStringValue(row.getCell(27), i));
-					budgetDetailRevenue.setQuantityMonth8(ExcelUtil.getCellStringValue(row.getCell(28), i));
-					budgetDetailRevenue.setQuantityMonth9(ExcelUtil.getCellStringValue(row.getCell(29), i));
-					budgetDetailRevenue.setQuantityMonth10(ExcelUtil.getCellStringValue(row.getCell(30), i));
-					budgetDetailRevenue.setQuantityMonth11(ExcelUtil.getCellStringValue(row.getCell(31), i));
-					budgetDetailRevenue.setQuantityMonth12(ExcelUtil.getCellStringValue(row.getCell(32), i));
+					predictDetailRevenue.setQuantityNextyear(ExcelUtil.getCellStringValue(row.getCell(17), i));
+					predictDetailRevenue.setQuantityTwoyear(ExcelUtil.getCellStringValue(row.getCell(18), i));
+					predictDetailRevenue.setQuantityThreeyear(ExcelUtil.getCellStringValue(row.getCell(19), i));
+					predictDetailRevenue.setQuantityFouryear(ExcelUtil.getCellStringValue(row.getCell(20), i));
+					predictDetailRevenue.setQuantityMonth1(ExcelUtil.getCellStringValue(row.getCell(21), i));
+					predictDetailRevenue.setQuantityMonth2(ExcelUtil.getCellStringValue(row.getCell(22), i));
+					predictDetailRevenue.setQuantityMonth3(ExcelUtil.getCellStringValue(row.getCell(23), i));
+					predictDetailRevenue.setQuantityMonth4(ExcelUtil.getCellStringValue(row.getCell(24), i));
+					predictDetailRevenue.setQuantityMonth5(ExcelUtil.getCellStringValue(row.getCell(25), i));
+					predictDetailRevenue.setQuantityMonth6(ExcelUtil.getCellStringValue(row.getCell(26), i));
+					predictDetailRevenue.setQuantityMonth7(ExcelUtil.getCellStringValue(row.getCell(27), i));
+					predictDetailRevenue.setQuantityMonth8(ExcelUtil.getCellStringValue(row.getCell(28), i));
+					predictDetailRevenue.setQuantityMonth9(ExcelUtil.getCellStringValue(row.getCell(29), i));
+					predictDetailRevenue.setQuantityMonth10(ExcelUtil.getCellStringValue(row.getCell(30), i));
+					predictDetailRevenue.setQuantityMonth11(ExcelUtil.getCellStringValue(row.getCell(31), i));
+					predictDetailRevenue.setQuantityMonth12(ExcelUtil.getCellStringValue(row.getCell(32), i));
 
-					budgetDetailRevenue.setPriceMonth1(ExcelUtil.getCellStringValue(row.getCell(33), i));
-					budgetDetailRevenue.setPriceMonth2(ExcelUtil.getCellStringValue(row.getCell(34), i));
-					budgetDetailRevenue.setPriceMonth3(ExcelUtil.getCellStringValue(row.getCell(35), i));
-					budgetDetailRevenue.setPriceMonth4(ExcelUtil.getCellStringValue(row.getCell(36), i));
-					budgetDetailRevenue.setPriceMonth5(ExcelUtil.getCellStringValue(row.getCell(37), i));
-					budgetDetailRevenue.setPriceMonth6(ExcelUtil.getCellStringValue(row.getCell(38), i));
-					budgetDetailRevenue.setPriceMonth7(ExcelUtil.getCellStringValue(row.getCell(39), i));
-					budgetDetailRevenue.setPriceMonth8(ExcelUtil.getCellStringValue(row.getCell(40), i));
-					budgetDetailRevenue.setPriceMonth9(ExcelUtil.getCellStringValue(row.getCell(41), i));
-					budgetDetailRevenue.setPriceMonth10(ExcelUtil.getCellStringValue(row.getCell(42), i));
-					budgetDetailRevenue.setPriceMonth11(ExcelUtil.getCellStringValue(row.getCell(43), i));
-					budgetDetailRevenue.setPriceMonth12(ExcelUtil.getCellStringValue(row.getCell(44), i));
-					budgetDetailRevenue.setYear(v_year);
-					budgetDetailRevenue.setVersion("V00");
-					budgetDetailRevenue.setId(UUID.randomUUID().toString());
+					predictDetailRevenue.setPriceMonth1(ExcelUtil.getCellStringValue(row.getCell(33), i));
+					predictDetailRevenue.setPriceMonth2(ExcelUtil.getCellStringValue(row.getCell(34), i));
+					predictDetailRevenue.setPriceMonth3(ExcelUtil.getCellStringValue(row.getCell(35), i));
+					predictDetailRevenue.setPriceMonth4(ExcelUtil.getCellStringValue(row.getCell(36), i));
+					predictDetailRevenue.setPriceMonth5(ExcelUtil.getCellStringValue(row.getCell(37), i));
+					predictDetailRevenue.setPriceMonth6(ExcelUtil.getCellStringValue(row.getCell(38), i));
+					predictDetailRevenue.setPriceMonth7(ExcelUtil.getCellStringValue(row.getCell(39), i));
+					predictDetailRevenue.setPriceMonth8(ExcelUtil.getCellStringValue(row.getCell(40), i));
+					predictDetailRevenue.setPriceMonth9(ExcelUtil.getCellStringValue(row.getCell(41), i));
+					predictDetailRevenue.setPriceMonth10(ExcelUtil.getCellStringValue(row.getCell(42), i));
+					predictDetailRevenue.setPriceMonth11(ExcelUtil.getCellStringValue(row.getCell(43), i));
+					predictDetailRevenue.setPriceMonth12(ExcelUtil.getCellStringValue(row.getCell(44), i));
+					predictDetailRevenue.setYear(v_year);
+					predictDetailRevenue.setVersion("V00");
+					predictDetailRevenue.setId(UUID.randomUUID().toString());
 					UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-					budgetDetailRevenue.setCreateName(loginUser.getUsername());
-					budgetDetailRevenue.setCreateDate(new Date());
-					list.add(budgetDetailRevenue);
+					predictDetailRevenue.setCreateName(loginUser.getUsername());
+					predictDetailRevenue.setCreateDate(new Date());
+					list.add(predictDetailRevenue);
 				}
 				if (!list.isEmpty()) {
 					/**SBU_法人校驗*/
@@ -369,23 +369,23 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	}
 
 	/**保存數據*/
-	public void saveBatch(List<BudgetDetailRevenue> list,String year,List<String> entityList) throws Exception {
-		String sql="delete from FIT_BUDGET_DETAIL_REVENUE where VERSION='V00' and YEAR='"+year+"' and ENTITY in(";
+	public void saveBatch(List<PredictDetailRevenue> list,String year,List<String> entityList) throws Exception {
+		String sql="delete from FIT_PREDICT_DETAIL_REVENUE where VERSION='V00' and YEAR='"+year+"' and ENTITY in(";
 		for (int i=0;i<entityList.size();i++){
 			sql+="'"+entityList.get(i)+"',";
 			if ((i + 50) % 1000 == 0) {
-				budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql.substring(0,sql.length()-1)+")").executeUpdate();
-				budgetDetailRevenueDao.getHibernateTemplate().flush();
-				budgetDetailRevenueDao.getHibernateTemplate().clear();
+				predictDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql.substring(0,sql.length()-1)+")").executeUpdate();
+				predictDetailRevenueDao.getHibernateTemplate().flush();
+				predictDetailRevenueDao.getHibernateTemplate().clear();
 			}
 		}
 		sql=sql.substring(0,sql.length()-1)+")";
-		budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
+		predictDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		for (int i = 0; i < list.size(); i++) {
-			budgetDetailRevenueDao.save(list.get(i));
+			predictDetailRevenueDao.save(list.get(i));
 			if ((i + 1) % 1000 == 0) {
-				budgetDetailRevenueDao.getHibernateTemplate().flush();
-				budgetDetailRevenueDao.getHibernateTemplate().clear();
+				predictDetailRevenueDao.getHibernateTemplate().flush();
+				predictDetailRevenueDao.getHibernateTemplate().clear();
 			}
 		}
 	}
@@ -397,8 +397,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"營收明細","營收明細")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"營收明細","營收明細")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷貨收入預測表","銷貨收入預測表")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷貨收入預測表","銷貨收入預測表")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
@@ -437,8 +437,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"營收明細","營收明細")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"營收明細_下载","營收明細_下载")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷貨收入預測表","銷貨收入預測表")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷貨收入預測表_下载","銷貨收入預測表_下载")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 
 
@@ -459,7 +459,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			row.getCell(37).setCellValue(y);
 			row.getCell(49).setCellValue(y);
 
-			String sql="select * from FIT_BUDGET_DETAIL_REVENUE_V where YEAR='"+y+"'";
+			String sql="select * from FIT_PREDICT_DETAIL_REVENUE_V where YEAR='"+y+"'";
 			if (null!=version && StringUtils.isNotEmpty(version)) {
 				sql+=" and VERSION='"+version+"'";
 			}
@@ -483,7 +483,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
 			pageRequest.setPageNo(1);
 			pageRequest.setOrderBy("year,Id");
-			List<Object[]> dataList = budgetDetailRevenueDao.findPageBySql(pageRequest, sql).getResult();
+			List<Object[]> dataList = predictDetailRevenueDao.findPageBySql(pageRequest, sql).getResult();
 			if (CollectionUtils.isNotEmpty(dataList)) {
 				int rowIndex = 3;
 				for (Object[] objects : dataList) {
@@ -504,7 +504,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 
 				while (dataList != null && dataList.size() >= ExcelUtil.PAGE_SIZE) {
 					pageRequest.setPageNo(pageRequest.getPageNo() + 1);
-					dataList = budgetDetailRevenueDao.findPageBySql(pageRequest, sql).getResult();
+					dataList = predictDetailRevenueDao.findPageBySql(pageRequest, sql).getResult();
 					if (CollectionUtils.isNotEmpty(dataList)) {
 						for (Object[] objects : dataList) {
 							Row contentRow = sheet.createRow(rowIndex++);
@@ -547,8 +547,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		Calendar calendar=Calendar.getInstance();
 		int year=calendar.get(Calendar.YEAR)+1;
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sqlVersion="select Max(to_number(substr(version,2))) version  from FIT_BUDGET_DETAIL_REVENUE where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"'";
-		List<Map> maps = budgetDetailRevenueDao.listMapBySql(sqlVersion);
+		String sqlVersion="select Max(to_number(substr(version,2))) version  from FIT_PREDICT_DETAIL_REVENUE where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"'";
+		List<Map> maps = predictDetailRevenueDao.listMapBySql(sqlVersion);
 		if (maps == null || maps.get(0).get("VERSION").toString().equals("0")) {
 			sqlVersion="V1";
 		}else{
@@ -556,7 +556,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			a++;
 			sqlVersion="V"+a;
 		}
-		String sql="insert into FIT_BUDGET_DETAIL_REVENUE (select\n" +
+		String sql="insert into FIT_PREDICT_DETAIL_REVENUE (select\n" +
 				"SEQ_BUDGET_DETAIL_REVENUE.NEXTVAL id,\n" +
 				"'"+sqlVersion+"' version,year, \n" +
 				"entity,make_entity,segment,main_industry,industry,main_business,three,product_series,product_no,loan_customer,end_customer,type_of_airplane,trade_type,currency,pm,revenue,\n" +
@@ -565,8 +565,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				"price_month2,price_month3,price_month4,price_month5,price_month6,price_month7,price_month8,price_month9,price_month10,price_month11,price_month12,revenue_month1,revenue_month2,\n" +
 				"revenue_month3, revenue_month4, revenue_month5, revenue_month6,revenue_month7,revenue_month8,revenue_month9, revenue_month10, revenue_month11, revenue_month12,\n" +
 				"create_name,create_date, sysdate version_date,'"+loginUser.getUsername()+"' version_name\n" +
-				"  from FIT_BUDGET_DETAIL_REVENUE where version='V00' and Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"')";
-		budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
+				"  from FIT_PREDICT_DETAIL_REVENUE where version='V00' and Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"')";
+		predictDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		return sqlVersion;
 	}
 
