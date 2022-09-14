@@ -64,31 +64,27 @@ public class TaskJob {
                     //查找拥有角色MM的权限用户
                     String sqlUser="select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
                             "r.id=ur.role_id and r.code='MM' and u.type='BI' and u.sbu is not null";
-                    //查找拥有角色SBUCompetent的权限用户
+                    //查找拥有角色SBUCompetent和企划主管的权限用户
                     String sqlSBUCompetent="select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
-                            "r.id=ur.role_id and r.code='SBUCompetent' and u.type='BI' and u.sbu is not null";
+                            "r.id=ur.role_id and r.code in('SBUCompetent','PD') and u.type='BI' and u.sbu is not null ";
                     username=this.userEmail(sql,sqlUser);
                     String SBUCompetentUserName="";
                     SBUCompetentUserName=this.userEmail(sql,sqlSBUCompetent);
-                    String SBUCompetent="";
+                    String title=poEmailLog.getEmailTitle()+" 年度目標CD上傳逾期通知！";
                     if(null!=username&&username!=""&&username.length()>0){
                         if(date.getTime()>date1.getTime()){
                             sqlUser="親愛的同事：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
                                     +",系統檢測到您目前尚未完成，已經逾期。請儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
-                            sql=poEmailLog.getEmailTitle()+" 數據上傳逾期通知！";
-                            SBUCompetent="親愛的同事：</br>&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
-                                    +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
-                                    +",系統檢測尚未完成，已經逾期。請督促企劃相關同事儘快提交。</br>如已經完成，請忽略該提醒";
-                            poEmailService.sendEmailTiming(SBUCompetentUserName.substring(0,SBUCompetentUserName.length()-1),SBUCompetent,sql);
+                            poEmailService.sendEmailTimingCC(username.substring(0,username.length()-1),SBUCompetentUserName.substring(0,SBUCompetentUserName.length()-1),sqlUser,title);
                         }else{
                             sqlUser="親愛的同事：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
-                                    +",請合理安排時間，儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
-                            sql=poEmailLog.getEmailTitle()+" 數據上傳提醒！";
+                                    +",請合理安排時間，儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒；<br></br>附檔是年度目標CD審批流程，根據需要可查看了解。";
+                            title=poEmailLog.getEmailTitle()+" 年度目標CD數據上傳提醒！";
+                            System.out.print("開始發送未提交的sbu企劃主管 收件人："+username+" 主題："+title+"  内容："+sqlUser);
+                            poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,title);
                         }
-                        System.out.print("開始發送未提交的sbu企劃主管 收件人："+username+" 主題："+sql+"  内容："+sqlUser);
-                        poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,sql);
                     }
                     //查找未审核的SBU
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
@@ -102,16 +98,15 @@ public class TaskJob {
                         if(date.getTime()>date1.getTime()){
                             sqlUser="尊敬的企劃主管：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
-                                    +",系統檢測到您目前尚未完成，已經逾期。請儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
-                            sql=poEmailLog.getEmailTitle()+" 數據上傳逾期通知！";
+                                    +",系統檢測到您目前尚未完成，已經逾期。請儘快完成審批。</br>如已經完成，請忽略該提醒；<br></br>附檔是年度目標CD審批流程，根據需要可查看了解。";
                         }else{
                             sqlUser="尊敬的企劃主管：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
-                                    +",請合理安排時間，儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
-                            sql=poEmailLog.getEmailTitle()+" 數據上傳提醒！";
+                                    +",請合理安排時間，請儘快完成審批。</br>如已經完成，請忽略該提醒；<br></br>附檔是年度目標CD審批流程，根據需要可查看了解。";
+                            title=poEmailLog.getEmailTitle()+" 年度目標CD數據上傳提醒！";
                         }
-                        System.out.print("開始發送未審核的企划主管 收件人："+username+" 主題："+sql+" 數據上傳提醒！"+"  内容："+sqlUser);
-                        poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,sql);
+                        System.out.print("開始發送未審核的企划主管 收件人："+username+" 主題："+title+""+"  内容："+sqlUser);
+                        poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,title);
                     }
                     //查找未审核的SBU
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
@@ -125,17 +120,15 @@ public class TaskJob {
                         if(date.getTime()>date1.getTime()){
                             sqlUser="尊敬的采購管理員：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
-                                    +",系統檢測到您目前尚未完成，已經逾期。請儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
-                            sql=poEmailLog.getEmailTitle()+" 數據上傳逾期通知！";
+                                    +",系統檢測到您目前尚未完成，已經逾期。請儘快完成審批。</br>如已經完成，請忽略該提醒；<br></br>附檔是年度目標CD審批流程，根據需要可查看了解。";
                         }else{
                             sqlUser="尊敬的采購管理員：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
-                                    +",請合理安排時間，儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
-                            sql=poEmailLog.getEmailTitle()+" 數據上傳提醒！";
+                                    +",請合理安排時間，請儘快完成審批。</br>如已經完成，請忽略該提醒；<br></br>附檔是年度目標CD審批流程，根據需要可查看了解。";
+                            title=poEmailLog.getEmailTitle()+" 年度目標CD數據上傳提醒！";
                         }
-
-                        System.out.print("開始發送未審核的采購管理員 收件人："+username+" 主題："+sql+" 數據上傳提醒！"+"  内容："+sqlUser);
-                        poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,sql);
+                        System.out.print("開始發送未審核的采購管理員 收件人："+username+" 主題："+title+" 數據上傳提醒！"+"  内容："+sqlUser);
+                        poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,title);
                     }
                 }
             }
@@ -237,8 +230,9 @@ public class TaskJob {
                     sqlUser = "," + listUser.get(j).getSBU() + ",";
                     //如果此字符串中没有这样的字符，则返回 -1
                     if (sqlUser.indexOf(sql) != -1) {
-                        username+="'"+listUser.get(j).getUsername()+"',";
-                        listUser.remove(j);
+                        if (username.indexOf("'"+listUser.get(j).getUsername()+"'") == -1) {
+                            username+="'"+listUser.get(j).getUsername()+"',";
+                        }
                     }
                 }
             }
@@ -256,7 +250,7 @@ public class TaskJob {
      SELECT send_email_flag  FROM epmexp.cux_bs_default_bi   /shared/FIT-BI Platform v2/01.分析/BS/D.SBU資產負債表
      @Scheduled(cron = "0 0 1 * * MON-SAT")
      */
-    @Scheduled(cron = "30 6 11 * * MON-SAT")
+//    @Scheduled(cron = "30 6 11 * * MON-SAT")
     public void jobBIEmail(){
         try{
             System.out.print("BI平台三表检验是否有同步数据 如果有给有权限的人发送邮件");
