@@ -111,9 +111,16 @@ $(function(){
 		});
 		return flag;
 	}, $.validator.format("<spring:message code='verifyCode_error'/>")); */
-	
-});
 
+});
+window.onload=function (){ reloadPage();}
+//自动刷新一次页面
+function reloadPage() {
+	if(location.href.indexOf('#reloaded')==-1){  //判断是否有刷新标记
+		location.href=location.href+"#reloaded";//没有添加标记
+		location.reload();//刷新
+	}
+}
 /* function changeVerifyCode(){
 	$("#verify").attr("src","${ctx}/getVerifyCode?width=100&height=34&time=" + new Date().getTime());
 } */

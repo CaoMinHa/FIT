@@ -85,7 +85,7 @@ public class PoTaskService extends BaseService<PoTask> {
 
     }
 
-    /*
+    /**
       提交任務 三表 sbu cpo
       查詢對應的任務辦理人 用戶名+郵箱 並發送郵件
       type 任務數據
@@ -93,15 +93,15 @@ public class PoTaskService extends BaseService<PoTask> {
      */
 
     public AjaxResult submit(AjaxResult ajaxResult,String type,String taskId,String roleCode) throws Exception {
-        String sql = "";
+        String sql="";
         String msg="";
         String flag="1";
+        String title="採購BI平臺待簽核，請勿回復";
+        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
         //表示三表是否跳了審核步驟，其中0代表每跳，1代表跳了
         String step="";
         List<String> emailList=new ArrayList<>();
-        if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(type)||
-                "FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(type)||
-                "FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)) {
+        if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(type)|| "FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(type)|| "FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)) {
             if("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)){
                 String update="update FIT_PO_CD_MONTH_DTL set flag='0' where TASK_ID='"+taskId+"'";
                 //修改数据库触发down表数据重新产生
@@ -133,7 +133,6 @@ public class PoTaskService extends BaseService<PoTask> {
                 emailList=classMaps.stream().distinct().collect(Collectors.toList());
                 msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD核准任務請審核!";
             }
-
         } else if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
             sql = " select distinct  u.email from  fit_user u \n" +
                     " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
@@ -142,7 +141,8 @@ public class PoTaskService extends BaseService<PoTask> {
                     "(select ','||SBU||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
             List<String> keyUser = roRoleService.listBySql(sql);
             emailList=keyUser.stream().distinct().collect(Collectors.toList());
-            msg="尊敬的主管:</br>&nbsp;&nbsp;SBU年度CD目標核准任務請審核!";
+            msg="尊敬的主管:</br>&nbsp;&nbsp;"+loginUser.getRealname()+"已在接口平臺提交SBU採購CD目標，請及時完成初審!";
+            title="採購CD目標待簽核，請勿回復";
         } else if ("FIT_PO_Target_CPO_CD_DTL".equals(type)) {
             sql = " select distinct u.email from  fit_user u \n" +
                     " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
@@ -152,18 +152,20 @@ public class PoTaskService extends BaseService<PoTask> {
             emailList=tManager.stream().distinct().collect(Collectors.toList());
             msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD 目標CPO核准表請審核!";
         }else{
-                ajaxResult.put("flag", "fail");
-                ajaxResult.put("msg", "任務類型出錯(Task Type Fail)");
-                return ajaxResult;
+            ajaxResult.put("flag", "fail");
+            ajaxResult.put("msg", "任務類型出錯(Task Type Fail)");
+            return ajaxResult;
         }
         if(emailList.size()==0){
             ajaxResult.put("flag", "fail");
             ajaxResult.put("msg", "請聯係管理員維護對應崗位的郵箱(Task Type Fail)");
             return ajaxResult;
         }else {
-            //由于是外网，没办法测试邮件发送成功环节isSend生产！isSend本地
-            //先取发送失败也能流转任务
-            Boolean isSend = EmailUtil.emailsMany(emailList, "採購BI平臺待簽核，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+            String emailVal="";
+            for (String e:emailList) {
+                emailVal=emailVal+e+",";
+            }
+            Boolean isSend = EmailUtil.emailCC(emailVal.substring(0,emailVal.length()-1),loginUser.getEmail(), title,msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
             if(isSend){  //变
                 uploadTaskFlag(taskId,flag,type,"",step,"T");
             }else{
@@ -196,20 +198,6 @@ public class PoTaskService extends BaseService<PoTask> {
                 return ajaxResult;
             }
         }
-
-//        for(int i=0;i<list.size();i++){
-//            PoCdMonthDown poCdMonthDown=list.get(i);
-//            String sqlCounrt="select COUNT(1) from fit_po_target_cpo_cd_dtl where FLAG='3' and YEAR='"+poCdMonthDown.getYear()+
-//                    "' and COMMODITY_MAJOR='"+poCdMonthDown.getCommodityMajor()+"'";
-//            List<Map> maps = poTableService.listMapBySql(sqlCounrt);
-//            if (maps == null || "0".equals(maps.get(0).get("COUNT(1)").toString())) {
-//                ajaxResult.put("flag", "fail");
-//                ajaxResult.put("msg","經系統檢驗\""+poCdMonthDown.getYear()+"年+"
-//                        +poCdMonthDown.getCommodityMajor()+"\"的數據在\"採購CD 目標核准表\"中沒有找到對應已審批的數據！");
-//                return ajaxResult;
-//            }
-//        }
-
         try {
             poTableService.validateMonth(taskId);
         }catch (RuntimeException e){
@@ -235,15 +223,13 @@ public class PoTaskService extends BaseService<PoTask> {
         String msg="";
         String flag="2";
         String step="";
-        String sqlSbu="";
+        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+        String title="採購BI平臺待簽核，請勿回復";
         List<String> emailList=new ArrayList<>();
         String sqlC="select distinct email from fit_user where username=(select CREATE_USER from FIT_PO_TASK WHERE id='"+taskId+"') and type='BI' and email is not null";
         List<String> emailListC=roRoleService.listBySql(sqlC);
-        emailListC=emailListC.stream().distinct().collect(Collectors.toList());
-        String msgC="任務初審已通過！";
-        if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(type)||
-                "FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(type)||
-                "FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)) {
+        String emailCC=loginUser.getEmail()+","+emailListC.get(0);
+        if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(type)|| "FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(type)|| "FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)) {
                 if("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)){
                     type="FIT_PO_CD_MONTH_DOWN";
                 }
@@ -259,13 +245,11 @@ public class PoTaskService extends BaseService<PoTask> {
                             " WHERE  r.code='MANAGER' and u.type='BI' and u.email is not null and instr(','||u.COMMODITY_MAJOR||',', " +
                             "(select ','||COMMODITY_MAJOR||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
                     msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD核准任務請審核!";
-                    msgC="亲爱的同事:</br>&nbsp;&nbsp;採購CD核准任務初審已通過!";
                 }
                 List<String> managers = roRoleService.listBySql(sql);
                 emailList=managers.stream().distinct().collect(Collectors.toList());
 
         } else if ("FIT_PO_Target_CPO_CD_DTL".equals(type)) {
-            UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String user = loginUser.getUsername();
             List<String> userName= poTableService.listBySql("select realname from FIT_USER where username='"+user+"' and type='BI'");
             if(null==userName.get(0)){
@@ -288,7 +272,6 @@ public class PoTaskService extends BaseService<PoTask> {
                         " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                         " WHERE  r.code='CPO' and u.type='BI' and u.email is not null";
                 msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD核准任務請審核!";
-                msgC="亲爱的同事:</br>&nbsp;&nbsp;採購CD核准任務初審已通過!";
             }
             List<String> tManager = roRoleService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());
@@ -304,16 +287,21 @@ public class PoTaskService extends BaseService<PoTask> {
                         " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                         " WHERE  r.code in('KEYUSER') and u.type='BI' and u.email is not null and instr(','||u.SBU||',', " +
                         "(select ','||SBU||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
-                sqlSbu = " select distinct u.email from  fit_user u \n" +
+                String sqlSbu = " select distinct u.email from  fit_user u \n" +
                         " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                         " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                         " WHERE  r.code in('SBUCompetent') and u.type='BI' and u.email is not null and instr(','||u.SBU||',', " +
                         "(select ','||SBU||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
-                msg="尊敬的主管:</br>&nbsp;&nbsp;SBU年度CD目標核准任務請審核!";
-                msgC="亲爱的同事:</br>&nbsp;&nbsp;SBU年度CD目標核准任務初審已通過!";
+                List<String> tManager = roRoleService.listBySql(sqlSbu);
+                emailCC=emailCC+",";
+                for (String e:tManager) {
+                    emailCC=emailCC+e+",";
+                }
+                msg="尊敬的主管:</br>&nbsp;&nbsp;"+loginUser.getRealname()+"已在接口平臺完成SBU採購CD目標初級審批，請及時完成終審!";
             }
             List<String> tManager = roRoleService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());
+            title="採購CD目標待簽核，請勿回復";
         }else{
             ajaxResult.put("flag", "fail");
             ajaxResult.put("msg", "任務類型出錯(Task Type Fail)");
@@ -329,30 +317,12 @@ public class PoTaskService extends BaseService<PoTask> {
             }else if(flag.equalsIgnoreCase("2")){
                roleCode=replaceRole(roleCode,"1");
             }
-            Boolean isSend = EmailUtil.emailsMany(emailList, "採購BI平臺待簽核，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+            String emailVal="";
+            for (String e:emailList) {
+                emailVal=emailVal+e+",";
+            }
+            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
             if(isSend){
-                //審批通過提示
-                if("0".equals(status)){
-                    Boolean isSend1 = EmailUtil.emailsMany(emailListC, "採購BI平臺待簽核，請勿回復",msgC+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
-                    if(!isSend1){
-                        ajaxResult.put("flag", "fail");
-                        ajaxResult.put("msg", "郵件發送失敗 (Task Type Fail)");
-                        return ajaxResult;
-                    }
-                    List<String> tManager = roRoleService.listBySql(sqlSbu);
-                    emailListC=tManager.stream().distinct().collect(Collectors.toList());
-                    if(emailListC.size()==0){
-                        ajaxResult.put("flag", "fail");
-                        ajaxResult.put("msg", "請聯係管理員維護SBU主管組郵箱(Task Type Fail)");
-                        return ajaxResult;
-                    }
-                    isSend1 = EmailUtil.emailsMany(emailListC, "採購BI平臺待簽核，請勿回復",msgC+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
-                    if(!isSend1){
-                        ajaxResult.put("flag", "fail");
-                        ajaxResult.put("msg", "郵件發送失敗 (Task Type Fail)");
-                        return ajaxResult;
-                    }
-                }
                 uploadTaskFlag(taskId,flag,type,reamrk,step,"C");
             }else{
                 ajaxResult.put("flag", "fail");
@@ -362,7 +332,7 @@ public class PoTaskService extends BaseService<PoTask> {
         }
         return ajaxResult;
     }
-    /*
+    /**
      終審 三表 cpo
      查詢對應的任務辦理人 用戶名+郵箱 並發送郵件
      type 任務數據
@@ -404,7 +374,7 @@ public class PoTaskService extends BaseService<PoTask> {
                     String sql = "select distinct EMAIL from fit_user where COMMODITY_MAJOR is not null and type='BI' and  EMAIL is not null";
                     emailList = roRoleService.listBySql(sql);
                     sql = "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI' and r.code in ('CLASS','MANAGER')  and EMAIL is not null" +
-                            "union all " +
+                            " union all " +
                             "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI' and u.username='KSK0R959'  and EMAIL is not null";
                     emailList.addAll(roRoleService.listBySql(sql));
                     emailList = emailList.stream().distinct().collect(Collectors.toList());
@@ -417,7 +387,8 @@ public class PoTaskService extends BaseService<PoTask> {
                     if("0".equals(status)){
                         uploadTaskFlag(taskId,"3",type,reamrk,"","Z");
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
-                            msg="尊敬的採購主管:</br> &nbsp;&nbsp;"+user[1]+"&nbsp;已經完成明年年度SBU CD目標數據，請您知悉！";
+                            Calendar calendar=Calendar.getInstance();
+                            msg="尊敬的採購主管:</br> &nbsp;&nbsp;"+user[1]+"&nbsp;已經完成"+(calendar.get(Calendar.YEAR)+1)+"年度SBU CD目標數據，請您知悉！";
                             Boolean isSends = EmailUtil.emailsMany(emailList, user[1]+"  SBU年度VOC",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
                             if(!isSends){ //变
                                 ajaxResult.put("flag", "fail");
@@ -437,7 +408,7 @@ public class PoTaskService extends BaseService<PoTask> {
         return ajaxResult;
     }
 
-    /*
+    /**
       提交任务,完善任务的SBU
     */
     public void uploadTaskFlag(String id, String flag, String tableName,String remark,String step,String checkStu) {

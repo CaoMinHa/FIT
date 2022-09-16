@@ -88,7 +88,7 @@
     </script>
 </head>
 <body>
-<div style="width: 200%">
+<div style="width: 300%">
     <table class="table table-condensed table-hover">
         <thead>
         <tr>
