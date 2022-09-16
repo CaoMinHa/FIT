@@ -58,7 +58,7 @@ public class TaskJob {
                     int integer=Integer.parseInt(dateString.substring(0,4))+1;
                     //查找未提交的SBU
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
-                            "  tie.NEW_SBU_NAME IN ('PSS','ASD','FIAD','ACD','FAS','CRD','EMS','TMTS','IoT','ABS','Tengyang','FAB','TSC','IDS','APS','CW','AEC','CIDA','ACE','OLU','Other','FAD') " +
+                            "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') " +
                             " and tie.NEW_SBU_NAME not in" +
                             "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag in(1,2,3) and a.year='"+integer+"')";
                     //查找拥有角色MM的权限用户
@@ -88,7 +88,7 @@ public class TaskJob {
                     }
                     //查找未审核的SBU
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
-                            "  tie.NEW_SBU_NAME IN ('PSS','ASD','FIAD','ACD','FAS','CRD','EMS','TMTS','IoT','ABS','Tengyang','FAB','TSC','IDS','APS','CW','AEC','CIDA','ACE','OLU','Other','FAD') " +
+                            "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') " +
                             " and tie.NEW_SBU_NAME  in" +
                             "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=1 and a.year='"+integer+"')";
                     sqlUser = "select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
@@ -110,7 +110,7 @@ public class TaskJob {
                     }
                     //查找未审核的SBU
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
-                            "  tie.NEW_SBU_NAME IN ('PSS','ASD','FIAD','ACD','FAS','CRD','EMS','TMTS','IoT','ABS','Tengyang','FAB','TSC','IDS','APS','CW','AEC','CIDA','ACE','OLU','Other','FAD') " +
+                            "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') " +
                             " and tie.NEW_SBU_NAME in" +
                             "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=2 and a.year='"+integer+"')";
                     sqlUser = "select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +

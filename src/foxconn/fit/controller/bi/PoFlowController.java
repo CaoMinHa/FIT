@@ -89,9 +89,9 @@ public class PoFlowController extends BaseController {
                 index=1;
             }
 
-            String countSbu=" select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie  where tie.NEW_SBU_NAME IN ('PSS','ASD','FIAD','ACD','FAS','CRD','EMS','TMTS','IoT','ABS','Tengyang','FAB','TSC','IDS','APS','CW','AEC','CIDA','ACE','OLU','Other','FAD') ";
+            String countSbu=" select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie  where tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') ";
             String countNotUpload="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
-                    "  tie.NEW_SBU_NAME  IN ('PSS','ASD','FIAD','ACD','FAS','CRD','EMS','TMTS','IoT','ABS','Tengyang','FAB','TSC','IDS','APS','CW','AEC','CIDA','ACE','OLU','Other','FAD')" +
+                    "  tie.NEW_SBU_NAME  IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD')" +
                     " and tie.NEW_SBU_NAME not in" +
                     "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where  a.flag=3 and a.year='"+date+"')";
             List <String> countSbulist= poTableService.listBySql(countSbu);

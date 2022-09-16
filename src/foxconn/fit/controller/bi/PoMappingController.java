@@ -54,7 +54,7 @@ public class PoMappingController extends BaseController{
 	public String index(HttpServletRequest request, Model model) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String language=getLanguage(locale,"CN","EN");
-		List<String> supplierList = masterDataService.listBySql("select t.lov_code||','||t.tab_name||'|'||t.lov_desc from CUX_MD_LOV_VALUES t where t.lov_type='PO_CATEGORY' and t.enabled_flag='Y' and t.language='"+language+"' ORDER BY to_number(COL_SEQ)");
+		List<String> supplierList = masterDataService.listBySql("select t.lov_code||','||t.tab_name||'|'||t.lov_desc from CUX_MD_LOV_VALUES t where t.lov_type='PO_CATEGORY' and t.enabled_flag='Y' and t.tab_name <>'CUX_PO_SINGLESOURCE_PN_MAPPING' and t.language='"+language+"' ORDER BY to_number(COL_SEQ)");
 		model.addAttribute("supplierList", supplierList);
 		return "/bi/poMix/index";
 	}
@@ -220,7 +220,7 @@ public class PoMappingController extends BaseController{
 			if (StringUtils.isNotEmpty(queryCondition)) {
 				sql+=" where 1=1 ";
 				if("CUX_SBU_MAPPING".equalsIgnoreCase(tableName)){
-					sql="select distinct ID_SBU ID,'BM_SBU|R|'||OLD_SBU_NAME,'SBU|R|'||NEW_SBU_NAME from bidev.v_if_sbu_mapping where NEW_SBU_NAME in('PSS','ASD','FIAD','ACD','CRD','EMS','TMTS','IoT','ABS','Tengyang','FAB','TSC','IDS','APS','CW','AEC','CIDA','ACE','APS','OLU','Other','FAD')";
+					sql="select distinct ID_SBU ID,'BM_SBU|R|'||OLD_SBU_NAME,'SBU|R|'||NEW_SBU_NAME from bidev.v_if_sbu_mapping where NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD')";
 //				sql="select   distinct  '' as ID,'BM_SBU|R|'||BM_SBU,'SBU|R|'||SBU from EPMEBS.CUX_SBU_BU_MAPPING  ";
 				}
 				String[] params = queryCondition.split("&");
@@ -448,7 +448,7 @@ public class PoMappingController extends BaseController{
 				if(!"bidev.v_if_sbu_mapping".equalsIgnoreCase(tableName)){
 					sql+=" order by ID";
 				}else{
-					sql+= " and NEW_SBU_NAME in('PSS','ASD','FIAD','ACD','CRD','EMS','TMTS','IoT','ABS','Tengyang','FAB','TSC','IDS','APS','CW','AEC','CIDA','ACE','APS','OLU','Other','FAD')";
+					sql+= " and NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD')";
 				}
 			}
 			String optionSql="SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+
