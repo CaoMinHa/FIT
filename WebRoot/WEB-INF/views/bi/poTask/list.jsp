@@ -293,34 +293,69 @@ function submitAudit(index) {
 
 }
 function cancelAudit(index) {
-	var taskType = document.getElementsByName("tasType")[index].value;
+	var name = document.getElementsByName("tasName")[index].value;
 	var id = $('input[type=checkbox]')[index].value;
-	var obj={
-		id:id,
-		taskType:taskType
-	}
-	$.ajax({
-		type:"POST",
-		url:"${ctx}/bi/poTask/cancelAudit",
-		async:false,
-		dataType:"json",
-		data:obj,
-		success: function(data){
-			// refresh();
-			debugger;
-			layer.alert(data.msg);
-			$("#Query").click();
-		},
-		error: function(XMLHttpRequest, textStatus, errorThrown) {
-			layer.alert("<spring:message code='connect_fail'/>");
+	var taskType = document.getElementsByName("tasType")[index].value;
+	$("#taskName21").val(name);
+	$("#modal-audit1").dialog({
+		modal: true,
+		title: "取消審核",
+		height: 320,
+		width: 300,
+		position: "center",
+		draggable: true,
+		resizable: true,
+		autoOpen: false,
+		autofocus: false,
+		closeText: "<spring:message code='close'/>",
+		buttons: [
+			{
+				text: "<spring:message code='submit'/>",
+				click: function () {
+					var $dialog = $(this);
+					$("#loading").show();
+					var d = {};
+					var t = $("#taskForm1").serializeArray();
+					$.each(t, function() {
+						d[this.name] = this.value;
+					});
+					var obj={
+						id:id,
+						remark:d.remark,
+						taskType:taskType
+					}
+					$.ajax({
+						type:"POST",
+						url:"${ctx}/bi/poTask/cancelAudit",
+						async:false,
+						dataType:"json",
+						data:obj,
+						success: function(data){
+							$dialog.dialog("destroy");
+							layer.alert(data.msg);
+							$("#Query").click();
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown) {
+							layer.alert("<spring:message code='connect_fail'/>");
+						}
+					});
+				}
+			},
+			{
+				text: "<spring:message code='close'/>",
+				click: function () {
+					$(this).dialog("destroy");
+					$("#rolenameTip").hide();
+				}
+			}
+		],
+		close: function () {
+			$(this).dialog("destroy");
+			$("#rolenameTip").hide();
 		}
-	});
-
-
-
-}
+	}).dialog("open");
+	}
 function cancelTask(index) {
-
 	var id = $('input[type=checkbox]')[index].value;
 	$.ajax({
 		type:"POST",

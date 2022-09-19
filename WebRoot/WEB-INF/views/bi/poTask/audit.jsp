@@ -270,36 +270,74 @@
 			}
 		}).dialog("open");
 	}
-
-
 	function cancelAudit(e) {
 		var taskType = $("#taskType").val();
 		var id = $("#tId").val();
-		var obj={
-			id:id,
-			taskType:taskType
-		}
-		$.ajax({
-			type:"POST",
-			url:"${ctx}/bi/poTask/cancelAudit",
-			async:false,
-			dataType:"json",
-			data:obj,
-			success: function(data){
-				// refresh();
-				if(data.flag=="success") {
-					debugger;
-					$(e).hide();
-					$(".file").hide();
-					$("#btnKeyUser").hide();
+		var name = $("#taskName").val();
+		$("#taskName21").val(name);
+		$("#modal-audit1").dialog({
+			modal: true,
+			title: "取消審核",
+			height: 320,
+			width: 300,
+			position: "center",
+			draggable: true,
+			resizable: true,
+			autoOpen: false,
+			autofocus: false,
+			closeText: "<spring:message code='close'/>",
+			buttons: [
+				{
+					text: "<spring:message code='submit'/>",
+					click: function () {
+						var $dialog = $(this);
+						$("#loading").show();
+						var d = {};
+						var t = $("#taskForm1").serializeArray();
+						$.each(t, function() {
+							d[this.name] = this.value;
+						});
+						var obj={
+							id:id,
+							remark:d.remark,
+							taskType:taskType
+						}
+						$.ajax({
+							type:"POST",
+							url:"${ctx}/bi/poTask/cancelAudit",
+							async:false,
+							dataType:"json",
+							data:obj,
+							success: function(data){
+								$dialog.dialog("destroy");
+								layer.alert(data.msg);
+								if(data.flag=="success"){
+									$(".table tr input").attr("disabled","true");
+									$(e).hide();
+									$(".file").hide();
+									$("#btnKeyUser").hide();
+								}
+								$("#loading").hide();
+							},
+							error: function(XMLHttpRequest, textStatus, errorThrown) {
+								layer.alert("<spring:message code='connect_fail'/>");
+							}
+						});
+					}
+				},
+				{
+					text: "<spring:message code='close'/>",
+					click: function () {
+						$(this).dialog("destroy");
+						$("#rolenameTip").hide();
+					}
 				}
-				$("#loading").hide();
-				layer.alert(data.msg);
-			},
-			error: function(XMLHttpRequest, textStatus, errorThrown) {
-				layer.alert("<spring:message code='connect_fail'/>");
+			],
+			close: function () {
+				$(this).dialog("destroy");
+				$("#rolenameTip").hide();
 			}
-		});
+		}).dialog("open");
 	}
 
 	$(function () {
@@ -469,11 +507,11 @@
 <%--					</c:if>--%>
 
 					<button name="btnKeyUser" class="btn search-btn btn-warning" style="margin-left: -5px;
-					<c:if test="${user != 'K' }">display: none;</c:if>"
+					<c:if test="${user != 'K' || statusType == '0' }">display: none;</c:if>"
 							 type="button"
 							 onclick="cancelAudit(this)">取消審批</button>
 					<button name="btnKeyUser"  class="btn search-btn btn-warning" style="margin-left: -5px;
-					<c:if test="${user != 'TS' }">display: none;</c:if>"
+					<c:if test="${user != 'TS' || statusType == '0' }">display: none;</c:if>"
 							 type="button"
 							 onclick="cancelAudit(this)">取消審批</button>
 

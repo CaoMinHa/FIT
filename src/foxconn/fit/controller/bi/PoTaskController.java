@@ -448,9 +448,9 @@ public class PoTaskController extends BaseController {
      */
     @RequestMapping(value="/cancelAudit")
     @ResponseBody
-    public String cancelAudit(AjaxResult ajaxResult, HttpServletRequest request,String id,String taskType) {
+    public String cancelAudit(AjaxResult ajaxResult, HttpServletRequest request,String id,String taskType,String remark) {
         try {
-            ajaxResult=poTaskService.cancelAudit(ajaxResult,taskType,id);
+            ajaxResult=poTaskService.cancelAudit(ajaxResult,taskType,id,remark);
         } catch (Exception e) {
             logger.error("取消審批任务失败", e);
             ajaxResult.put("flag", "fail");

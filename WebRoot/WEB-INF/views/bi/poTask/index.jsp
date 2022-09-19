@@ -175,6 +175,23 @@
                 </div>
             </form>
         </div>
+
+        <div id="modal-audit1" style="display:none;">
+            <form id="taskForm1" class="form-horizontal">
+                <input id="id1" style="display: none;"/>
+                <div class="control-group" style="margin:0px 0px 20px 10px;">
+                    <div class="pull-left">
+                        <i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
+                        名称：<input id="taskName21" style="height: 30px !important;" type="text" datatype="s3-30" readonly/>
+                    </div>
+                </div>
+                <div class="control-group" style="margin:0px 0px 20px 10px;">
+                    <div class="pull-left">
+                        審批意見：<input name="remark" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 </body>

@@ -271,7 +271,7 @@
                         </td>
                     </c:when>
                     <c:when test="${taskLog.FLAG eq '3'}">
-                        <td  style="border-right:1px solid #eee;"><spring:message code='finalJudgment'/></td>
+                        <td  style="border-right:1px solid #eee;"><spring:message code='finish'/></td>
                     </c:when>
                     <c:when test="${taskLog.FLAG eq '-1'}">
                         <td  style="border-right:1px solid #eee;">

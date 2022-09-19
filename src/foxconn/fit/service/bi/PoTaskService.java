@@ -453,7 +453,7 @@ public class PoTaskService extends BaseService<PoTask> {
        2 cpo 待商議
      */
 
-    public  AjaxResult cancelAudit(AjaxResult ajaxResult,String type,String id){
+    public  AjaxResult cancelAudit(AjaxResult ajaxResult,String type,String id,String remark){
         if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(type)||
                 "FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(type)||
                 "FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)
@@ -473,7 +473,13 @@ public class PoTaskService extends BaseService<PoTask> {
 
             String sql=" update "+type+" set flag='0' where task_id='"+id+"'";
             String taskSql="update fit_po_task set flag='0' ,UPDTAE_TIME =" + "'" + signTimet + "'," + " UPDATE_USER="
-                    + "'" + user +"', UPDATE_USER_REAL ='"+userName.get(0)+"' where id='"+id+"'";
+                    + "'" + user +"', UPDATE_USER_REAL ='"+userName.get(0)+"'";
+
+            if (!StringUtils.isBlank(remark)) {
+                taskSql += ",remark=" + "'" + remark + "'";
+            }
+
+            taskSql+="where id='"+id+"'";
 
             String sqlC="select distinct email from fit_user where username=(select CREATE_USER from FIT_PO_TASK WHERE id='"+id+"') and type='BI' and email is not null";
 
@@ -486,7 +492,6 @@ public class PoTaskService extends BaseService<PoTask> {
                 return ajaxResult;
             }else {
                 Boolean isSend = EmailUtil.emailsMany(emailListC, "採購BI平臺待簽核，請勿回復","亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+id+"&statusType=0&roleCode="+replaceRole("",id)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
-//                Boolean isSend = EmailUtil.emails(emailListC, "亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！","採購BI平臺待簽核，請勿回復");
                 if(!isSend){
                     ajaxResult.put("flag", "fail");
                     ajaxResult.put("msg", "郵件發送失敗 (Task Type Fail)");
@@ -499,7 +504,7 @@ public class PoTaskService extends BaseService<PoTask> {
             taskSql="select NAME from FIT_PO_TASK where id='"+id+"'";
             List<String> name= poTaskDao.listBySql(taskSql);
             if(null!=name&&name.size()>0){
-                taskSql="insert into epmods.FIT_PO_TASK_LOG(task_name,create_user,create_time,remark,flag) values('"+name.get(0)+"','"+userName.get(0)+"','"+signTimet+"','系統管理員取消審批。','0')";
+                taskSql="insert into epmods.FIT_PO_TASK_LOG(task_name,create_user,create_time,remark,flag) values('"+name.get(0)+"','"+userName.get(0)+"','"+signTimet+"','系統管理員取消審批 "+remark+"','-1')";
                 poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(taskSql).executeUpdate();
             }
             return ajaxResult;
