@@ -73,7 +73,10 @@ $(function() {
 function clickPage(page){
 	$("#loading").show();
 	$("#PageNo").val(page);
-	var entity=$("#QEntity").val();
+	var entity="";
+	$("input[name=entitys]:checked").each(function(i,dom){
+		entity+=$(dom).val()+",";
+	});
 	var year=$("#QYear").val();
 	var version=$("#QVersion").val();
 	$("#Content").load("${ctx}/budget/budgetProductNoUnitCost/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),

@@ -91,10 +91,22 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				tarList.add(sbu);
 			}
 		}
-		if (StringUtils.isNotEmpty(entity) && tarList.contains(entity)) {
-			sql+=" and ENTITY like '"+entity+"%'";
+
+		if(StringUtils.isNotEmpty(entity)){
+			int i=0;
+			sql+=" and (";
+			for (String sbu : entity.split(",")) {
+				if(tarList.contains(sbu)) {
+					if(i!=0){
+						sql+=" or ENTITY like '"+sbu+"%'";
+						continue;
+					}
+					sql += " ENTITY like '" + sbu + "%'";
+				}
+			}
+			sql+=")";
 		}else{
-			if (!tarList.isEmpty()) {
+			if (!tarList.isEmpty()){
 				sql+=" and (";
 				for (int i = 0; i < tarList.size(); i++) {
 					String sbu=tarList.get(i);
