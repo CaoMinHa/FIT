@@ -31,7 +31,7 @@
 		$(function() {
 			$("#predictDetailRevenueForm").fileupload({
 				dataType: "json",
-				url: "${ctx}/budget/predictDetailRevenue/upload",
+				url: "${ctx}/bi/predictDetailRevenue/upload",
 				add: function (e, data) {
 					$("#FileUpload").unbind();
 					var filename=data.originalFiles[0]['name'];
@@ -100,7 +100,7 @@
 				var version=$("#QVersion").val();
 				$.ajax({
 					type:"POST",
-					url:"${ctx}/budget/predictDetailRevenue/download",
+					url:"${ctx}/bi/predictDetailRevenue/download",
 					async:true,
 					dataType:"json",
 					data:{year:year,entitys:entitys,version:version},
@@ -123,7 +123,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/budget/predictDetailRevenue/dimension",
+					url: "${ctx}/bi/predictDetailRevenue/dimension",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -145,7 +145,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/budget/predictDetailRevenue/template",
+					url: "${ctx}/bi/predictDetailRevenue/template",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -167,7 +167,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/budget/predictDetailRevenue/version",
+					url: "${ctx}/bi/predictDetailRevenue/version",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -210,7 +210,7 @@
 				$(this).parent().parent().parent().siblings().find("span").show();
 			}
 		});
-		$("#Content").load("${ctx}/budget/predictDetailRevenue/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
+		$("#Content").load("${ctx}/bi/predictDetailRevenue/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
 	</script>
 </head>
 <body>

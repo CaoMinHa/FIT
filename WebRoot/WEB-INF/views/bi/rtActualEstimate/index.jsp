@@ -59,7 +59,7 @@
 
             $("#QueryBtn").click(function () {
                 if(!$("#DateEnd").val()&&!$("#Date").val()){
-                    layer.msg("請選擇時間區間！(Please select a time period！)");
+                    layer.alert("請選擇時間區間！(Please select a time period！)");
                     return;
                 }
                 var queryCondition=$("#QueryCondition").serialize();

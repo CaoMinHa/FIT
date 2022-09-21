@@ -48,7 +48,7 @@
                     $("#UploadTip").hide();
                     $("#FileUpload").click(function () {
                         if(!$("#tableType").val()){
-                            layer.msg("請選擇數據類型！(Please select the data type.)")
+                            layer.alert("請選擇數據類型！(Please select the data type.)")
                             return;
                         }
                         $("#loading").show();
@@ -76,7 +76,7 @@
 
             $("#Download").click(function () {
                 if(!$("#tableType").val()){
-                    layer.msg("請選擇數據類型！(Please select the data type.)")
+                    layer.alert("請選擇數據類型！(Please select the data type.)")
                     return;
                 }
                 $("#UploadTip").hide();
@@ -107,7 +107,7 @@
 
             $("#DownloadTemplate").click(function () {
                 if(!$("#tableType").val()){
-                    layer.msg("請選擇數據類型！(Please select the data type.)")
+                    layer.alert("請選擇數據類型！(Please select the data type.)")
                     return;
                 }
                 $("#loading").show();
@@ -134,7 +134,7 @@
 
             $("#QueryBtn").click(function () {
                 if(!$("#tableType").val()){
-                    layer.msg("請選擇數據類型！(Please select the data type.)")
+                    layer.alert("請選擇數據類型！(Please select the data type.)")
                     return;
                 }
                 var queryCondition=$("#QueryCondition").serialize();
@@ -184,7 +184,7 @@
 
             $("#FileUpload").click(function(){
                 if(!$("#tableType").val()){
-                    layer.msg("請選擇數據類型！(Please select the data type.)")
+                    layer.alert("請選擇數據類型！(Please select the data type.)")
                     return;
                 }
                 $("#UploadTip").show();

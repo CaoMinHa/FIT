@@ -370,7 +370,7 @@ public class PoTaskController extends BaseController {
     }
 
 
-    /*
+    /**
      *   submitTask  任务提交
      *   sbu flag=0提交到任務管理員 flag=2
      *   采購數據 flag=0提交到課級flag=1->科級flag=2

@@ -46,7 +46,7 @@
                     }
                 });
                 if (data === "") {
-                    layer.msg("請勾選要查询的字段！（Select the fields to be queried）");
+                    layer.alert("請勾選要查询的字段！（Select the fields to be queried）");
                     return;
                 } else {
                     data = data.substring(0, data.length - 1);
@@ -81,7 +81,7 @@
                     }
                 });
                 if (data === "") {
-                    layer.msg("請勾選要查询的字段！（Select the fields to be queried）");
+                    layer.alert("請勾選要查询的字段！（Select the fields to be queried）");
                     return;
                 } else {
                     data = data.substring(0, data.length - 1);

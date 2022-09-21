@@ -94,11 +94,18 @@ public class PoFlowController extends BaseController {
                     "  tie.NEW_SBU_NAME  IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD')" +
                     " and tie.NEW_SBU_NAME not in" +
                     "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where  a.flag=3 and a.year='"+date+"')";
+            String countUpload="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
+                    "  tie.NEW_SBU_NAME  IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD')" +
+                    " and tie.NEW_SBU_NAME in" +
+                    "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where  a.flag=3 and a.year='"+date+"')";
             List <String> countSbulist= poTableService.listBySql(countSbu);
             List <String> countNotUploadlist= poTableService.listBySql(countNotUpload);
+            List <String> countUploadList= poTableService.listBySql(countUpload);
+
 
             model.addAttribute("countSUM",countSbulist.size());
             model.addAttribute("countNotUploadList",countNotUploadlist);
+            model.addAttribute("countUploadList",countUploadList);
             model.addAttribute("countNotUploadNumber",countNotUploadlist.size());
 
             model.addAttribute("index", index);

@@ -125,7 +125,7 @@ $(function () {
 <input style="display: none" id="total" value="${total}">
 <input type="hidden" id="countNotUploadNumber" value="${countNotUploadNumber}" />
 <button id="modalBtn"  data-toggle="modal" data-target="#myModal" class="btn search-btn btn-warning m-l-md"
-		style="margin-left:20px;float:left;">SBU年度CD目標匯總 未上传明细</button>
+		style="margin-left:20px;float:left;">SBU年度CD目標匯總上傳明細</button>
 <div style="width:95%;">
 	<table align="center" class="table table-condensed table-hover" id="tableCpo">
 		<thead style="background-color: #cfecff;">
@@ -171,12 +171,6 @@ $(function () {
 		</tbody>
 	</table>
 </div>
-<%--<div id="Fenye"></div>--%>
-<%--<input type="hidden" id="PageNo" value="${fn:escapeXml(page.pageNo)}" />--%>
-<%--<input type="hidden" id="PageSize" value="${fn:escapeXml(page.pageSize)}" />--%>
-<%--<input type="hidden" id="OrderBy" value="${fn:escapeXml(page.orderBy)}" />--%>
-<%--<input type="hidden" id="OrderDir" value="${fn:escapeXml(page.orderDir)}" />--%>
-
 <div class="modal fade" id="myModal" style="display: none" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -185,15 +179,28 @@ $(function () {
 					&times;
 				</button>
 				<h4 class="modal-title" id="myModalLabel">
-					SBU年度CD目標匯總 未处理清单
+					SBU年度CD目標匯總上傳明顯
 				</h4>
 			</div>
-			<div class="modal-body">
-				<table  border="0" cellpadding="0" cellspacing="1">
+			<div class="modal-body" >
+				<table border="0" cellpadding="0" cellspacing="1">
+					<tr>
+						<td colspan="5"><h4>未完成SBU：</h4></td>
+					</tr>
 					<c:forEach items="${countNotUploadList }" var="column" varStatus="status">
 					<c:if test="${status.index%5 eq 0}">
 					    <tr>
 					</c:if>
+						<td height="25px" width="200px">${column}</td>
+						</c:forEach>
+					<tr style="height: 20px;"><td colspan="5" style="border-bottom: 1px solid;"></td></tr>
+					<tr>
+						<td colspan="5"><h4>已完成SBU：</h4></td>
+					</tr>
+					<c:forEach items="${countUploadList }" var="column" varStatus="status">
+					<c:if test="${status.index%5 eq 0}">
+					<tr>
+						</c:if>
 						<td height="25px" width="200px">${column}</td>
 						</c:forEach>
 				</table>

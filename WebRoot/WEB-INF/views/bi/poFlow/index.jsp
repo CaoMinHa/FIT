@@ -5,10 +5,6 @@
 <%
     String entity=SecurityUtils.getEntity();
     request.setAttribute("entity", entity);
-
-//    ArrayList<String> poCenters = new ArrayList<String>(Arrays.asList(SecurityUtils.getPoCenter()));
-//    request.setAttribute("poCenters",poCenters);
-
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -96,7 +92,7 @@
                     }
                     console.log(total);
                     if(total==undefined||total=="0"){
-                        layer.msg("请先查询cpo表格数据")
+                        layer.alert("请先查询cpo表格数据")
                     }else{
                         $.ajax({
                             type:"POST",
@@ -114,7 +110,7 @@
                         });
                     }
                 }else{
-                    layer.msg("\"SBU年度CD目標匯總表\"必須全部審核通過才能創建該任務！")
+                    layer.alert("\"SBU年度CD目標匯總表\"必須全部審核通過才能創建該任務！")
                     return;
                 }
             })
@@ -144,7 +140,6 @@
                 <ul style="float:left;margin-left:20px;">
                     <li>
                         <select id="QTableName" class="input-large" style="width:200px;margin-bottom:0;">
-<%--                            <option  value=""><spring:message code='tableSelect'/></option>--%>
                                 <option value="FIT_PO_Target_CPO_CD_DTL">採購CD 目標核准表</option>
                         </select>
                     </li>

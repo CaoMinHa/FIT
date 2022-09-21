@@ -105,7 +105,7 @@
                     }
                 });
                 if (data === "") {
-                    layer.msg("請勾選要刪除的數據！");
+                    layer.alert("請勾選要刪除的數據！");
                 } else {
                     data = data.substring(0, data.length - 1);
                     $.ajax({

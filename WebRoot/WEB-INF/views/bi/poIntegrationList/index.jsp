@@ -153,20 +153,20 @@
                 if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'){
                     var r = /^\+?[1-9][0-9]*$/;
                     if (DateYear.length!=4 || !r.test(DateYear)) {
-                      layer.msg("請填寫正確的年份(Please fill in the correct year)");
+                      layer.alert("請填寫正確的年份(Please fill in the correct year)");
                         return;
                     }
                 }else{
                     if (date.length == 0) {
-                        layer.msg("請選擇開始日期！(Please select a start date)");
+                        layer.alert("請選擇開始日期！(Please select a start date)");
                         return;
                     }
                     if (dateEnd.length == 0) {
-                        layer.msg("請選擇結束日期！(Please select an end date)");
+                        layer.alert("請選擇結束日期！(Please select an end date)");
                         return;
                     }
                     if(date.substr(0,3)!=dateEnd.substr(0,3)){
-                        layer.msg("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
+                        layer.alert("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
                         return;
                     }
                 }
@@ -202,7 +202,7 @@
                     }
                 });
                 if(data===""){
-                    layer.msg("請勾選要刪除的數據！(Select the data to delete)");
+                    layer.alert("請勾選要刪除的數據！(Select the data to delete)");
                 }else{
                     data = data.substring(0, data.length - 1);
                     console.log(data)
@@ -290,20 +290,20 @@
             if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'){
                 var r = /^\+?[1-9][0-9]*$/;
                 if (DateYear.length!=4 || !r.test(DateYear)) {
-                    layer.msg("請填寫正確的年份(Please fill in the correct year)");
+                    layer.alert("請填寫正確的年份(Please fill in the correct year)");
                     return;
                 }
             }else{
                 if (date.length == 0) {
-                    layer.msg("請選擇開始日期！(Please select a start date)");
+                    layer.alert("請選擇開始日期！(Please select a start date)");
                     return;
                 }
                 if (dateEnd.length == 0) {
-                    layer.msg("請選擇結束日期！(Please select an end date)");
+                    layer.alert("請選擇結束日期！(Please select an end date)");
                     return;
                 }
                 if(date.substr(0,3)!=dateEnd.substr(0,3)){
-                    layer.msg("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
+                    layer.alert("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
                     return;
                 }
             }

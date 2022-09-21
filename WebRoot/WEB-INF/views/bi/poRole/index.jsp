@@ -76,7 +76,7 @@
                             var $dialog=$(this);
                             var roleName=$("#roleName").val();
                             if(roleName.length==0){
-                               layer.msg("角色名稱不能爲空！(The role name cannot be empty)")
+                               layer.alert("角色名稱不能爲空！(The role name cannot be empty)")
                                return;
                             }
                                 var data=$("#userForm").serialize();

@@ -21,7 +21,7 @@
         });
     function stateBut(type) {
         if($(".userID:checked").length==0){
-            layer.msg("請勾選需要分配的用戶！")
+            layer.alert("請勾選需要分配的用戶！")
             return;
         }
         var userId="";
