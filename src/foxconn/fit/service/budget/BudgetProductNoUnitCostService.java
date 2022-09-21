@@ -54,6 +54,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 
 	/**頁面初始加載*/
 	public Model index(Model model){
+		List<String> sbuList = budgetProductNoUnitCostDao.listBySql("select distinct parent from fit_dimension where type='"+EnumDimensionType.Entity+"' order by parent");
+		model.addAttribute("sbuList", sbuList);
 		List<String> yearsList = budgetProductNoUnitCostDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
 		int year=calendar.get(Calendar.YEAR)+1;

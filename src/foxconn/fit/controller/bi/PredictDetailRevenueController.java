@@ -1,4 +1,4 @@
-package foxconn.fit.controller.budget;
+package foxconn.fit.controller.bi;
 
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
@@ -28,7 +28,7 @@ import java.util.Map;
  *
  */
 @Controller
-@RequestMapping("/budget/predictDetailRevenue")
+@RequestMapping("/bi/predictDetailRevenue")
 public class PredictDetailRevenueController extends BaseController {
 
 	@Autowired
@@ -40,7 +40,7 @@ public class PredictDetailRevenueController extends BaseController {
 	@RequestMapping(value = "index")
 	public String index(Model model,HttpServletRequest request) {
 		model=forecastRevenueService.index(model);
-		return "/budget/predictDetailRevenue/index";
+		return "/bi/predictDetailRevenue/index";
 	}
 
 	@RequestMapping(value="/list")
@@ -53,7 +53,7 @@ public class PredictDetailRevenueController extends BaseController {
 		} catch (Exception e) {
 			logger.error("查询預測營收明細列表失败:", e);
 		}
-		return "/budget/predictDetailRevenue/list";
+		return "/bi/predictDetailRevenue/list";
 	}
 
 	@RequestMapping(value="/delete")

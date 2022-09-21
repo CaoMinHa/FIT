@@ -26,23 +26,23 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/admin/budget")
+@RequestMapping("/budget/budget")
 public class BudgetController extends BaseController {
 
 	@Autowired
 	private BudgetService budgetService;
 	
-	@Autowired
-	private UserService userService;
-	
-	@RequestMapping(value = "index")
-	public String index(Model model) {
-		List<String> yearsList = userService.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
-		List<String> sbuList = userService.listBySql("select distinct parent from fit_dimension where type='"+EnumDimensionType.Entity+"' order by parent");
-		model.addAttribute("yearsList", yearsList);
-		model.addAttribute("sbuList", sbuList);
-		return "/admin/budget/index";
-	}
+//	@Autowired
+//	private UserService userService;
+//
+//	@RequestMapping(value = "index")
+//	public String index(Model model) {
+//		List<String> yearsList = userService.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
+//		List<String> sbuList = userService.listBySql("select distinct parent from fit_dimension where type='"+EnumDimensionType.Entity+"' order by parent");
+//		model.addAttribute("yearsList", yearsList);
+//		model.addAttribute("sbuList", sbuList);
+//		return "/admin/budget/index";
+//	}
 
 
 	@RequestMapping(value = "download")
@@ -108,7 +108,7 @@ public class BudgetController extends BaseController {
 			result.put("flag", "fail");
 			result.put("msg", ExceptionUtil.getRootCauseMessage(e));
 		}
-		
+
 		return result.getJson();
 	}
 

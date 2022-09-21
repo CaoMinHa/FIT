@@ -209,6 +209,43 @@ $(function() {
 	<%--$("#Content").load("${ctx}/budget/budgetProductNoUnitCost/list");--%>
 
 	$("#Content").load("${ctx}/budget/budgetProductNoUnitCost/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
+
+	$("#DownloadPlanning").click(function(){
+		if($("input[name=entitys]:checked").length==0){
+			layer.alert("請選擇SBU");
+			return;
+		}
+		var sbu="";
+		$("input[name=entitys]:checked").each(function(i,dom){
+			sbu+=$(dom).val()+",";
+		});
+		var year=$("#QYear").val();
+		if(year.length==0){
+			layer.alert("請選擇年份");
+			return;
+		}
+		$("#loading").show();
+		$.ajax({
+			type:"POST",
+			url:"${ctx}/budget/budget/download",
+			async:true,
+			dataType:"json",
+			data:{sbu:sbu,year:year},
+			success: function(data){
+				$("#loading").hide();
+				if(data.flag=="success"){
+					<%--window.location.href="${ctx}/static/download/"+data.fileName;--%>
+					layer.alert(data.msg);
+				}else{
+					layer.alert(data.msg);
+				}
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				$("#loading").hide();
+				layer.alert("<spring:message code='connect_fail'/>");
+			}
+		});
+	});
 });
 </script>
 </head>
@@ -284,6 +321,7 @@ $(function() {
 	        	<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin:0 0 0 10px;width: 80px" type="submit"><spring:message code='query'/></button>
 				<button id="Download" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='download'/></button>
 				<button id="Version" class="btn search-btn" style="margin:0 0 0 10px;width: 80px;" type="button"><spring:message code='version'/></button>
+				<button id="DownloadPlanning" style="margin:0 0 0 10px;" class="btn search-btn" type="button"><spring:message code='submit'/></button>
 			</div>
 		</div>		
 		<div class="p-l-md p-r-md p-b-md" id="Content"></div>

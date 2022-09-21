@@ -71,6 +71,7 @@ $(function() {
 
 //用于触发当前点击事件
 function clickPage(page){
+	$("#loading").show();
 	$("#PageNo").val(page);
 	var entity=$("#QEntity").val();
 	var year=$("#QYear").val();
