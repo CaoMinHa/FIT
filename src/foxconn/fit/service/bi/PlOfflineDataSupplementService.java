@@ -145,9 +145,9 @@ public class PlOfflineDataSupplementService {
             if (row.getRowNum() < 4) {
                 Assert.notNull(row, getByLocale(locale, "Please use the downloaded template to import data_請使用所下載的模板導入數據！"));
                 int columnNum = row.getPhysicalNumberOfCells();
-                if (columnNum < 16) {
+                if (columnNum < 17) {
                     result.put("flag", "fail");
-                    result.put("msg", getByLocale(locale, "The number of columns cannot be less than 16_列數不能小於16"));
+                    result.put("msg", getByLocale(locale, "The number of columns cannot be less than 17_列數不能小於17,請檢查上傳模板是否正確！"));
                     return result.getJson();
                 }
                 continue;
@@ -205,8 +205,8 @@ public class PlOfflineDataSupplementService {
                     cs.setString(2, period);
                     cs.execute();
                     cs.close();
-//                    c.close();
                 }
+                c.close();
                 return result.getJson();
             }else{
                 result.put("flag", "fail");

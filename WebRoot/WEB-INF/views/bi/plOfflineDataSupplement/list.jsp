@@ -87,7 +87,7 @@
     </script>
 </head>
 <body>
-<div <c:if test="${tableType eq 'cux_pl_fit_inter_manual'}">style="width:150%;"</c:if>>
+<div <c:if test="${tableType eq 'cux_pl_fit_inter_manual'}">style="width:170%;"</c:if>>
     <table class="table table-condensed table-hover">
         <thead>
         <tr>
