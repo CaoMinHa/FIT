@@ -507,19 +507,9 @@
 <%--					</c:if>--%>
 
 					<button name="btnKeyUser" class="btn search-btn btn-warning" style="margin-left: -5px;
-					<c:if test="${user != 'K' || statusType == '0' }">display: none;</c:if>"
+					<c:if test="${user != 'K' || statusType == '0' || statusType == '-1'}">display: none;</c:if>"
 							 type="button"
 							 onclick="cancelAudit(this)">取消審批</button>
-					<button name="btnKeyUser"  class="btn search-btn btn-warning" style="margin-left: -5px;
-					<c:if test="${user != 'TS' || statusType == '0' }">display: none;</c:if>"
-							 type="button"
-							 onclick="cancelAudit(this)">取消審批</button>
-
-
-<%--					<button  class="btn search-btn btn-warning" style="margin-left: -5px;--%>
-<%--						<c:if test="${user != 'TS' }">display: none;</c:if>"--%>
-<%--							type="button"--%>
-<%--							onclick="cancelAudit(this)">取消審批</button>--%>
 				</td>
 			</tr>
         </table>

@@ -76,9 +76,6 @@
 
         });
 
-
-
-
         $('#backBtn').click(function () {
             $("#audit").hide();
             $("#task").show();

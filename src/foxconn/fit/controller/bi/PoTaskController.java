@@ -215,9 +215,6 @@ public class PoTaskController extends BaseController {
                         model.addAttribute("user", "Z");
                     }else if("KEYUSER".equalsIgnoreCase(role)){
                         model.addAttribute("user", "K");
-                        if("KEYUSER".equalsIgnoreCase(role)&&"FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)){
-                            model.addAttribute("user", "TS");
-                        }
                     }
                 }
                 if("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)){

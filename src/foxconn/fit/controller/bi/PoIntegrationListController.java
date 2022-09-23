@@ -358,8 +358,8 @@ public class PoIntegrationListController extends BaseController {
                 whereSql += " and bu LIKE " + "'%" + buVal + "%'";
             }
             orderBy += " ID,SBU";
-            sql += whereSql+" and flag!='-1' " +orderBy;
-            sqlSum += whereSql+" and flag!='-1' ";
+            sql += whereSql+" and flag='3' " +orderBy;
+            sqlSum += whereSql+" and flag='3' ";
             System.out.println(sql + "合計：" + sqlSum);
 
             Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);

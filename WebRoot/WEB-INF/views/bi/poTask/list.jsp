@@ -470,17 +470,15 @@ function cancelTask(index) {
 						    <a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})">终審</a>
 						    </c:when>
 						    <c:when test="${role eq 'KEYUSER'}">
-							<c:choose>
-						          <c:when test="${mapping[3] eq '2' && mapping[1] eq 'FIT_PO_SBU_YEAR_CD_SUM'}">
-						          	<a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})">终審</a>
-									<a href="javascript:void(0);" class="auditBtn" onclick="cancelAudit(${sort.index})">取消審批</a>
-						          </c:when>
-								  	<c:when test="${mapping[3] eq '3' && mapping[1] eq 'FIT_PO_SBU_YEAR_CD_SUM'}">
-								  </c:when>
-						<c:when test="${mapping[3] != '0' && mapping[3] != '-1'}">
-						<a href="javascript:void(0);" class="auditBtn" onclick="cancelAudit(${sort.index})">取消審批</a>
-						</c:when>
-						    </c:choose>
+								<c:choose>
+									<c:when test="${mapping[3] eq '2' && mapping[1] eq 'FIT_PO_SBU_YEAR_CD_SUM'}">
+										<a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})">终審</a>
+										<a href="javascript:void(0);" class="auditBtn" onclick="cancelAudit(${sort.index})">取消審批</a>
+									</c:when>
+									<c:when test="${mapping[3] != '0' && mapping[3] != '-1'}">
+										<a href="javascript:void(0);" class="auditBtn" onclick="cancelAudit(${sort.index})">取消審批</a>
+									</c:when>
+								</c:choose>
 						    </c:when>
 							</c:choose>
 				     </tr>
