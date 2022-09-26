@@ -47,9 +47,6 @@ public class PmrCommonService {
         String sql = "select ";
         for (PoColumns poColumns : columns) {
            list.add(getByLocale(locale, poColumns.getComments()));
-//            if(poColumns.getDataType().equalsIgnoreCase("NUMBER")){
-//                sql+="to_char("+poColumns.getColumnName()+",'FM999,999,999,999,999,999.099999999999'),";
-//            }else
             if(poColumns.getDataType().equalsIgnoreCase("DATE")){
                 sql+="to_char("+poColumns.getColumnName()+",'yyyy/mm/dd hh24:mi:ss'),";
             }else{
@@ -128,7 +125,7 @@ public class PmrCommonService {
             Cell cell2 = row2.createCell(i);
             cell2.setCellValue(columns.get(i).getExamples());
             cell2.setCellStyle(titleStyle);
-            sheet.setColumnWidth(i, comments.getBytes("GBK").length * 256 + 400);
+            sheet.setColumnWidth(i, comments.getBytes("GBK").length * 256 + 800);
         }
         File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download/"+getByLocale(locale,poTable.getComments())+".xlsx");
         return outFile;
