@@ -490,7 +490,7 @@
 							 onclick="submitAuditXQ(this)"><c:if test="${languageS eq 'zh_CN'}">終審</c:if>
 						<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></button>
 					<button  id="btnKeyUser" class="btn search-btn btn-warning"
-					<c:if test="${user != 'TS' || statusType != '2'}">style="display: none;"</c:if>
+					<c:if test="${keyUser != 'TS' || statusType != '2'}">style="display: none;"</c:if>
 							 type="button"
 							 onclick="submitAuditXQ(this)"><c:if test="${languageS eq 'zh_CN'}">終審</c:if>
 						<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></button>
@@ -506,7 +506,7 @@
 <%--								 onclick="cancelAudit(this)">取消審批</button>--%>
 <%--					</c:if>--%>
 
-					<button name="btnKeyUser" class="btn search-btn btn-warning" style="margin-left: -5px;
+					<button name="btnKeyUser" class="btn search-btn btn-warning" style="
 					<c:if test="${user != 'K' || statusType == '0' || statusType == '-1'}">display: none;</c:if>"
 							 type="button"
 							 onclick="cancelAudit(this)">取消審批</button>

@@ -479,20 +479,16 @@ function fileClick(e,val) {
 							 onclick="submitAuditXQ(this)"><c:if test="${languageS eq 'zh_CN'}">終審</c:if>
 						<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></button>
 					<button  class="btn search-btn btn-warning"
-							 <c:if test="${user != 'TS' || statusType != '2'}">style="display: none;"</c:if>
+							 <c:if test="${keyUser != 'TS' || statusType != '2'}">style="display: none;"</c:if>
 							 type="button"
 							 onclick="submitAuditXQ(this)"><c:if test="${languageS eq 'zh_CN'}">終審</c:if>
 						<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></button>
 				</td>
 				<td style="margin-top: 10px">
-					<button  class="btn search-btn btn-warning" style="margin-left: -5px;
-					<c:if test="${user != 'K' || statusType == '0' }">display: none;</c:if>"
-							 type="button"
-							 onclick="cancelAudit()">取消審批</button>
-					<button  class="btn search-btn btn-warning" style="margin-left: -5px;
-					<c:if test="${user != 'TS' || statusType == '0' }">display: none;</c:if>"
-							 type="button"
-							 onclick="cancelAudit()">取消審批</button>
+					<button name="btnKeyUser" class="btn search-btn btn-warning" style="
+					<c:if test="${user != 'K' || statusType == '0' || statusType == '-1'}">display: none;</c:if>"
+							type="button"
+							onclick="cancelAudit(this)">取消審批</button>
 				</td>
 			</tr>
 		</table>
