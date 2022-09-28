@@ -33,7 +33,7 @@ public class TaskJob {
      * 任務截止日當天及前一天上午8點檢查
      * @Scheduled(cron = "0 0 8 * * MON-SAT")
      */
-//    @Scheduled(cron = "0 0 8 * * MON-SAT")
+    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void job(){
         try{
             System.out.print("任務截止日當天及前一天上午8點檢查。");
@@ -60,7 +60,7 @@ public class TaskJob {
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
                             "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') " +
                             " and tie.NEW_SBU_NAME not in" +
-                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag in(1,2,3) and a.year='"+integer+"')";
+                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag in(1,2,3) and a.year='2022')";//"+integer+"
                     //查找拥有角色MM的权限用户
                     String sqlUser="select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
                             "r.id=ur.role_id and r.code='MM' and u.type='BI' and u.sbu is not null";
@@ -76,6 +76,7 @@ public class TaskJob {
                             sqlUser="親愛的同事：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
                                     +",系統檢測到您目前尚未完成，已經逾期。請儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
+//                            poEmailService.sendEmailTimingCC("'POTest','Amber'","'Emma','Nono'",sqlUser,title);
                             poEmailService.sendEmailTimingCC(username.substring(0,username.length()-1),SBUCompetentUserName.substring(0,SBUCompetentUserName.length()-1),sqlUser,title);
                         }else{
                             sqlUser="親愛的同事：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
@@ -84,13 +85,14 @@ public class TaskJob {
                             title=poEmailLog.getEmailTitle()+" 年度目標CD數據上傳提醒！";
                             System.out.print("開始發送未提交的sbu企劃主管 收件人："+username+" 主題："+title+"  内容："+sqlUser);
                             poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,title);
+//                            poEmailService.sendEmailTiming("'POTest','Emma'",sqlUser,title);
                         }
                     }
                     //查找未审核的SBU
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
                             "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') " +
                             " and tie.NEW_SBU_NAME  in" +
-                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=1 and a.year='"+integer+"')";
+                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=1 and a.year='2022')";//"+integer+"
                     sqlUser = "select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
                             "r.id=ur.role_id and r.code='PD' and u.type='BI' and u.sbu is not null";
                     username=userEmail(sql,sqlUser);
@@ -107,12 +109,13 @@ public class TaskJob {
                         }
                         System.out.print("開始發送未審核的企划主管 收件人："+username+" 主題："+title+""+"  内容："+sqlUser);
                         poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,title);
+//                        poEmailService.sendEmailTiming("'Emma'",sqlUser,title);
                     }
                     //查找未审核的SBU
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
                             "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') " +
                             " and tie.NEW_SBU_NAME in" +
-                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=2 and a.year='"+integer+"')";
+                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=2 and a.year='2022')";//"+integer+"
                     sqlUser = "select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
                             "r.id=ur.role_id and r.code='KEYUSER' and u.type='BI' and u.sbu is not null";
                     username=userEmail(sql,sqlUser);
@@ -128,7 +131,8 @@ public class TaskJob {
                             title=poEmailLog.getEmailTitle()+" 年度目標CD數據上傳提醒！";
                         }
                         System.out.print("開始發送未審核的采購管理員 收件人："+username+" 主題："+title+" 數據上傳提醒！"+"  内容："+sqlUser);
-                        poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,title);
+//                        poEmailService.sendEmailTiming("'Emma'",sqlUser,title);
+//                        poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,title);
                     }
                 }
             }
@@ -570,6 +574,20 @@ public class TaskJob {
                 }
             }
             System.out.print(error);
+        }
+    }
+
+//    @Scheduled(cron = "0 13 16 20 9 MON-SAT")
+    public void bocklogEamil(){
+        String title="FIT_Revenue_and_Backlog_Summary";
+        SimpleDateFormat df = new SimpleDateFormat("yyyy年MM月dd日");
+        String signTimet = df.format(new Date());
+        String content="Dear主管：<br></br>&nbsp;&nbsp;&nbsp;"+signTimet+"FIT_Revenue_and_Backlog_Summary已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi-test.one-fit.com/analytics\" style=\"color: blue;\">FIT_Revenue_and_Backlog_Summary</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn<br></br><br>Best Regards!";
+        String sql="select EMAIL from BIDEV.Bi_user_list u where u.EMAIL is not null and BI_USER in('Maggie','Emma','HAH0016109','F0606248')";
+        List<String> emailListC=poTableService.listBySql(sql);
+        if(null!=emailListC&&emailListC.size()>0) {
+            EmailUtil.emailsMany(emailListC,title,content);
+            poTableService.updateSql("update BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/RT/D.FIT Revenue and Backlog Sum' where BI_USER in('Maggie','Emma')");
         }
     }
 }
