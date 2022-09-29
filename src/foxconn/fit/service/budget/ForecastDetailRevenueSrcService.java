@@ -82,7 +82,7 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**產品系列*/
 			sheet = workBook.getSheetAt(6);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and PARENT not in('Product_Total')";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and PARENT in('Product_Total')";
 			this.selectDimension(sql,sheet);
 
 			/**Product series for FOIT*/
@@ -102,12 +102,12 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**最終客戶*/
 			sheet = workBook.getSheetAt(10);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Combine.getCode()+"'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Combine.getCode()+"' and PARENT in('C_End Customer') ";
 			this.selectDimension(sql,sheet);
 
 			/**賬款客戶*/
 			sheet = workBook.getSheetAt(11);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"' and PARENT in('Customer_Total') ";
 			this.selectDimension(sql,sheet);
 
 			/**交易類型*/

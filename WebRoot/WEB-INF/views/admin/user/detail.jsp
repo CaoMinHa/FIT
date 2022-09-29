@@ -129,6 +129,8 @@ function userEditFormSubmit(){
 			success: function(data){
 				if(data.flag=="success"){
 					$("#modal-user-edit").dialog("destroy");
+					$("button[title='關閉']").click();
+					layer.alert(data.msg);
 					refresh();
 				}else{
 					layer.alert(data.msg);
@@ -162,6 +164,7 @@ function userEditFormSubmit(){
 			</div>
 		</div>
 	</div>
+	<c:if test="${user.type.code eq 'HFM'}">
 	<div class="control-group">
 		<label class="control-label">
 			Tiptop法人編碼
@@ -239,6 +242,7 @@ function userEditFormSubmit(){
 			</div>
 		</div>
 	</div>
+	</c:if>
 	<c:if test="${user.type.code eq 'BI'}">
 		<div class="control-group">
 			<label class="control-label"><i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>" datatype="menu" nullmsg="<spring:message code='please_select'/>"></i><spring:message code='menu'/></label>
@@ -279,31 +283,33 @@ function userEditFormSubmit(){
 			</div>
 		</div>
 	</c:if>
-	<c:if test="${user.type.code eq 'Budget'}">
+<%--	<c:if test="${user.type.code eq 'Budget'}">--%>
+<%--		<div class="control-group">--%>
+<%--			<label class="control-label"><i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>" datatype="menu" nullmsg="<spring:message code='please_select'/>"></i><spring:message code='menu'/></label>--%>
+<%--			<div class="controls">--%>
+<%--				<div id="MenuEditTip" style="width:150px;float:none;" class="Validform_checktip">--%>
+<%--					<span class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>--%>
+<%--				</div>--%>
+<%--				<div class="pull-left">--%>
+<%--					<c:forEach items="<%=EnumBudgetMenu.values() %>" var="menu">--%>
+<%--						<c:set var="checked" value=""/>--%>
+<%--						<c:forEach items="${menus }" var="umenu">--%>
+<%--							<c:if test="${menu.code eq umenu }"><c:set var="checked" value="checked"/></c:if>--%>
+<%--						</c:forEach>--%>
+<%--						<input id="M_${menu.code }" type="checkbox" name="menus" ${checked } style="width:20px;" value="${menu.code }"/>--%>
+<%--						<label for="M_${menu.code }" class="MLabel"><spring:message code='${menu.code }'/></label>--%>
+<%--						<br>--%>
+<%--					</c:forEach>--%>
+<%--				</div>--%>
+<%--			</div>--%>
+<%--		</div>--%>
+<%--	</c:if>--%>
+	<c:if test="${user.type.code eq 'BI'}">
 		<div class="control-group">
-			<label class="control-label"><i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>" datatype="menu" nullmsg="<spring:message code='please_select'/>"></i><spring:message code='menu'/></label>
-			<div class="controls">
-				<div id="MenuEditTip" style="width:150px;float:none;" class="Validform_checktip">
-					<span class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-				</div>
-				<div class="pull-left">
-					<c:forEach items="<%=EnumBudgetMenu.values() %>" var="menu">
-						<c:set var="checked" value=""/>
-						<c:forEach items="${menus }" var="umenu">
-							<c:if test="${menu.code eq umenu }"><c:set var="checked" value="checked"/></c:if>
-						</c:forEach>
-						<input id="M_${menu.code }" type="checkbox" name="menus" ${checked } style="width:20px;" value="${menu.code }"/>
-						<label for="M_${menu.code }" class="MLabel"><spring:message code='${menu.code }'/></label>
-						<br>
-					</c:forEach>
-				</div>
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label"><i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>" datatype="sbu" nullmsg="<spring:message code='please'/><spring:message code='add'/>SBU"></i>SBU</label>
+			<label class="control-label"><i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>" datatype="sbu" nullmsg="<spring:message code='please'/><spring:message code='add'/>SBU"></i>預算SBU權限</label>
 			<div class="controls">
 				<div id="SBUEditTip" style="width:150px;display:none;float:none;" class="Validform_checktip">
-					<span class="Validform_checktip Validform_wrong"><spring:message code='please'/><spring:message code='add'/>SBU</span>
+					<span class="Validform_checktip Validform_wrong"><spring:message code='please'/><spring:message code='add'/>預算SBU權限</span>
 				</div>
 				<div>
 		           	<select id="SBU_Input">

@@ -183,8 +183,8 @@ function refresh(){
 					</td>
 					<td style="border-right:1px solid #eee;">
 						<c:choose>
-							<c:when test="${user.type eq 'Budget'}">
-								<span style="font-weight:bold;">SBU--></span>
+							<c:when test="${user.type eq 'BI'}">
+								<span style="font-weight:bold;">預算SBU--></span>
 								<c:forEach items="${fn:split(user.corporationCode,',') }" var="code" varStatus="status">
 									<span style="font-size:16px;">${code}</span><c:if test="${not status.last}">、</c:if>
 								</c:forEach>

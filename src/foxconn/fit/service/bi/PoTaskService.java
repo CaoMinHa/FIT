@@ -373,27 +373,41 @@ public class PoTaskService extends BaseService<PoTask> {
                 ajaxResult.put("msg", "請聯係管理員維護對應崗位的郵箱(Task Type Fail)");
                 return ajaxResult;
             }else {
-                List<String> emailList=new ArrayList<>();
-                String taskName = "select NAME from fit_po_task where id='" + taskId + "'";
-                List<String> taskList = roRoleService.listBySql(taskName);
-                String[] task= taskList.get(0).split("_");
+                String taskName = "select NAME,CREATE_USER_REAL from fit_po_task where id='" + taskId + "'";
+                List<Map> taskList = roRoleService.listMapBySql(taskName);
+                String[] task= taskList.get(0).get("NAME").toString().split("_");
                 String title=task[1]+"_"+task[0]+"採購BI平臺待簽核，請勿回復";
+                Boolean isSend=false;
                 if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
-                    String sql = "select distinct EMAIL from fit_user where COMMODITY_MAJOR is not null and type='BI' and  EMAIL is not null";
-                    emailList = roRoleService.listBySql(sql);
-                    sql = "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI' and r.code in ('CLASS','MANAGER')  and EMAIL is not null" +
-                            " union all " +
-                            "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI' and u.username='KSK0R959'  and EMAIL is not null";
-                    emailList.addAll(roRoleService.listBySql(sql));
-                    emailList = emailList.stream().distinct().collect(Collectors.toList());
                     title=task[0]+"_"+task[1]+"採購CD目標待簽核，請勿回復";
+                    String sqlSbu = " select distinct u.email from  fit_user u \n" +
+                            " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+                            " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+                            " WHERE  r.code in('SBUCompetent') and u.type='BI' and u.email is not null and instr(','||u.SBU||',', " +
+                            "(select ','||SBU||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
+                    List<String> tManager = roRoleService.listBySql(sqlSbu);
+                    String emailCC="";
+                    for (String e:tManager) {
+                        emailCC=emailCC+e+",";
+                    }
+                    String email="";
+                    for (String e:emailListC) {
+                        email=email+e+",";
+                    }
+                    isSend = EmailUtil.emailCC(email,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+                }else {
+                    isSend=EmailUtil.emailsMany(emailListC,title,msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
                 }
-                Boolean isSend = EmailUtil.emailsMany(emailListC,title,msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
                 if(isSend){
                     if("0".equals(status)){
                         uploadTaskFlag(taskId,"3",type,reamrk,"","Z");
-                        if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
-                            msg="尊敬的主管:</br> &nbsp;&nbsp;"+task[1]+"&nbsp;已經完成"+task[0]+"年度SBU CD目標數據，請您知悉！";
+                        if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(type)) {
+                            String sql = "select distinct EMAIL from fit_user where COMMODITY_MAJOR is not null and type='BI' and  EMAIL is not null";
+                            List<String> emailList = roRoleService.listBySql(sql);
+                            sql = "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI'and EMAIL is not null and (r.code in ('CLASS','MANAGER') or u.username='KSK0R959')";
+                            emailList.addAll(roRoleService.listBySql(sql));
+                            emailList = emailList.stream().distinct().collect(Collectors.toList());
+                            msg="尊敬的主管:</br> &nbsp;&nbsp;"+taskList.get(0).get("CREATE_USER_REAL").toString()+"已經完成"+task[0]+"_"+task[1]+"年度SBU CD目標數據，請您知悉！";
                             Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"_"+task[1]+"SBU年度VOC",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
                             if(!isSends){
                                 ajaxResult.put("flag", "fail");

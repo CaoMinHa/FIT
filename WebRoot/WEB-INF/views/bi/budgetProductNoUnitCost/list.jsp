@@ -51,7 +51,7 @@ $(function() {
 			var id=$this.parent().attr("mappingId");
 			$.ajax({
 				type:"POST",
-				url:"${ctx}/budget/budgetProductNoUnitCost/delete",
+				url:"${ctx}/bi/budgetProductNoUnitCost/delete",
 				async:true,
 				dataType:"json",
 				data:{id:id},
@@ -79,9 +79,9 @@ function clickPage(page){
 	});
 	var year=$("#QYear").val();
 	var version=$("#QVersion").val();
-	$("#Content").load("${ctx}/budget/budgetProductNoUnitCost/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
+	$("#Content").load("${ctx}/bi/budgetProductNoUnitCost/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
 		orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
-		entity:entity,year:year,version:version},function(){$("#loading").fadeOut(1000);});
+		entitys:entity.substring(0,entity.length-1),year:year,version:version},function(){$("#loading").fadeOut(1000);});
 }
 
 </script>

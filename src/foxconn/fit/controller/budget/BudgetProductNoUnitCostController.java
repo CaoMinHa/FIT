@@ -27,7 +27,7 @@ import java.util.Map;
  *
  */
 @Controller
-@RequestMapping("/budget/budgetProductNoUnitCost")
+@RequestMapping("/bi/budgetProductNoUnitCost")
 public class BudgetProductNoUnitCostController extends BaseController {
 
 	@Autowired
@@ -37,21 +37,21 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	@RequestMapping(value = "index")
 	public String index(Model model,HttpServletRequest request) {
 		model=budgetProductNoUnitCostService.index(model);
-		return "/budget/budgetProductNoUnitCost/index";
+		return "/bi/budgetProductNoUnitCost/index";
 	}
 
 	/**頁面查詢*/
 	@RequestMapping(value="/list")
-	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,String entity,String year,String version) {
+	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,String entitys,String year,String version) {
 		try {
-			String sql=budgetProductNoUnitCostService.list(year,version,entity);
+			String sql=budgetProductNoUnitCostService.list(year,version,entitys);
 			Page<Object[]> page = budgetProductNoUnitCostService.findPageBySql(pageRequest, sql, BudgetProductNoUnitCost.class);
 			model.addAttribute("year", year.substring(2));
 			model.addAttribute("page", page);
 		} catch (Exception e) {
 			logger.error("查询預算(預測)營收明細列表失败:", e);
 		}
-		return "/budget/budgetProductNoUnitCost/list";
+		return "/bi/budgetProductNoUnitCost/list";
 	}
 
 	/**單條數據刪除*/

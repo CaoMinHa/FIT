@@ -22,7 +22,7 @@ public class MenuService{
 
 	public List<MenuMappingList> selectMenu() {
 		List<MenuMappingList> menuMappingList=new ArrayList<>();
-		String sql = "select * from FIT_MENU_MAPPING where MENU_LEVEL is null order by MENU_SORT";
+		String sql = "select * from FIT_MENU_MAPPING where MENU_LEVEL is null order by cast(MENU_SORT as int)";
 		List<MenuMapping> list = userDAO.listBySql(sql,MenuMapping.class);
 		if(null!=SecurityUtils.getLoginUser()){
 			String [] str=SecurityUtils.getLoginUser().getMenus().split(",");
@@ -45,7 +45,7 @@ public class MenuService{
 		return menuMappingList;
 	}
 	public List<MenuMapping> selectMenuAll() {
-		String sql = "select * from FIT_MENU_MAPPING where MENU_LEVEL is not null order by MENU_LEVEL desc,MENU_SORT";
+		String sql = "select distinct * from FIT_MENU_MAPPING where MENU_LEVEL is not null order by MENU_LEVEL desc,cast(MENU_SORT as int)";
 		List<MenuMapping> list = userDAO.listBySql(sql,MenuMapping.class);
 		return list;
 	}

@@ -36,7 +36,7 @@
 $(function() {
 	$("#budgetProductNoUnitCostForm").fileupload({
 		dataType: "json",
-	    url: "${ctx}/budget/budgetProductNoUnitCost/upload",
+	    url: "${ctx}/bi/budgetProductNoUnitCost/upload",
         add: function (e, data) {
             $("#FileUpload").unbind();
             var filename=data.originalFiles[0]['name'];
@@ -105,7 +105,7 @@ $(function() {
 		var version=$("#QVersion").val();
 		$.ajax({
 			type:"POST",
-			url:"${ctx}/budget/budgetProductNoUnitCost/download",
+			url:"${ctx}/bi/budgetProductNoUnitCost/download",
 			async:true,
 			dataType:"json",
 			data:{year:year,entitys:entitys,version:version},
@@ -128,7 +128,7 @@ $(function() {
 		$("#loading").show();
 		$.ajax({
 			type: "POST",
-			url: "${ctx}/budget/budgetProductNoUnitCost/template",
+			url: "${ctx}/bi/budgetProductNoUnitCost/template",
 			async: true,
 			dataType: "json",
 			success: function (data) {
@@ -150,7 +150,7 @@ $(function() {
 		$("#loading").show();
 		$.ajax({
 			type: "POST",
-			url: "${ctx}/budget/budgetProductNoUnitCost/simplifyTemplate",
+			url: "${ctx}/bi/budgetProductNoUnitCost/simplifyTemplate",
 			async: true,
 			dataType: "json",
 			success: function (data) {
@@ -172,7 +172,7 @@ $(function() {
 		$("#loading").show();
 		$.ajax({
 			type: "POST",
-			url: "${ctx}/budget/budgetProductNoUnitCost/version",
+			url: "${ctx}/bi/budgetProductNoUnitCost/version",
 			async: true,
 			dataType: "json",
 			success: function (data) {
@@ -206,9 +206,9 @@ $(function() {
 		$(this).parent().siblings(".AllCheck").find("input").prop("checked",length==total);
 	});
 	// $("#QueryBtn").click();
-	<%--$("#Content").load("${ctx}/budget/budgetProductNoUnitCost/list");--%>
+	<%--$("#Content").load("${ctx}/bi/budgetProductNoUnitCost/list");--%>
 
-	$("#Content").load("${ctx}/budget/budgetProductNoUnitCost/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
+	$("#Content").load("${ctx}/bi/budgetProductNoUnitCost/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
 
 	$("#DownloadPlanning").click(function(){
 		if($("input[name=entitys]:checked").length==0){
@@ -227,7 +227,7 @@ $(function() {
 		$("#loading").show();
 		$.ajax({
 			type:"POST",
-			url:"${ctx}/budget/budget/download",
+			url:"${ctx}/bi/budget/download",
 			async:true,
 			dataType:"json",
 			data:{sbu:sbu,year:year},

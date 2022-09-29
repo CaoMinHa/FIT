@@ -102,6 +102,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						continue;
 					}
 					sql += " ENTITY like '" + sbu + "%'";
+					i++;
 				}
 			}
 			sql+=")";
@@ -117,6 +118,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					}
 				}
 				sql+=")";
+			}else{
+				sql+=" and ENTITY ='0' ";
 			}
 		}
 
@@ -162,10 +165,10 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				Sheet sheet = wb.getSheetAt(0);
 				int COLUMN_NUM =0;
 				String v_year ="";
-				if(sheet.getSheetName().equals("產品料號單位成本")){
+				if(sheet.getSheetName().equals("銷售成本預算表")){
 					COLUMN_NUM =220;
 					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(4), 0);
-				}else if(sheet.getSheetName().equals("簡易版產品料號單位成本")){
+				}else if(sheet.getSheetName().equals("簡易版銷售成本預算表")){
 					COLUMN_NUM =70;
 					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(2), 0);
 				}else {
@@ -371,23 +374,22 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				if (!list.isEmpty()) {
 				     if(COLUMN_NUM==70){
 						 /**SBU_法人校驗*/
-						 check=this.check(entityList,EnumDimensionType.Entity.getCode());
+						 String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
+						 check=this.check(entityList,sql);
 						 if (!check.equals("") && check.length() > 0){
 							 result.put("flag", "fail");
 							 result.put("msg", "以下【SBU_法人】在【維度表】没有找到---> " + check);
 							 return result.getJson();
 						 }
 						 /**交易類型**/
-						 check=this.check(tradeTypeList,EnumDimensionType.View.getCode());
+						 sql="select distinct trim(alias) from fit_dimension where type='"+EnumDimensionType.View.getCode()+ "' and PARENT in('Int000') ";
+						 check=this.check(tradeTypeList,sql);
 						 if (!check.equals("") && check.length() > 0){
 							 result.put("flag", "fail");
 							 result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
 							 return result.getJson();
 						 }
 				     }
-//				     else if(COLUMN_NUM==220){
-//
-//					 }
 					this.saveBatch(list,v_year,instrumentClassService.removeDuplicate(entityList));
 				} else {
 					result.put("flag", "fail");
@@ -410,9 +412,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	}
 
 	/**check*/
-	public String check(List<String> list,String type){
+	public String check(List<String> list,String sql){
 		list = instrumentClassService.removeDuplicate(list);
-		List<String> checkList = this.listBySql("select distinct trim(alias) from fit_dimension where type='" + type + "'");
+		List<String> checkList = this.listBySql(sql);
 		String check = instrumentClassService.getDiffrent(list, checkList);
 		return check;
 	}
@@ -447,8 +449,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"產品料號單位成本","產品料號單位成本")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"產品料號單位成本","產品料號單位成本")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表","銷售成本預算表")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表","銷售成本預算表")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
@@ -737,8 +739,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"產品料號單位成本預算_簡易模版","產品料號單位成本預算_簡易模版")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"產品料號單位成本預算_簡易模版","產品料號單位成本預算_簡易模版")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表_簡易模版","銷售成本預算表_簡易模版")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表_簡易模版","銷售成本預算表_簡易模版")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
@@ -773,8 +775,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"產品料號單位成本下載","產品料號單位成本下載")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"產品料號單位成本下載","產品料號單位成本下載")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表下載","銷售成本預算表下載")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表下載","銷售成本預算表下載")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 
 			Sheet sheet = workBook.getSheetAt(0);
@@ -806,7 +808,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					sbuVal+=" ENTITY like '"+sbu+"_%' or";
 				}
 			}
-			if(sbuVal.isEmpty()){
+			if(!sbuVal.isEmpty()){
 				sql+=" and ("+sbuVal.substring(0,sbuVal.length()-2)+")";
 			}
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
@@ -893,92 +895,100 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		String sql="insert into FIT_BUDGET_PRODUCT_UNIT_COST (select\n" +
 				"SEQ_BUDGET_DETAIL_REVENUE.NEXTVAL id,\n" +
 				"'"+sqlVersion+"' version,year, \n" +
-				"entity, \n" +
-				"product, \n" +
-				"sales_quantity1, \n" +
-				"material_cost1, \n" +
-				"labor_cost1, \n" +
-				"manufacture_cost1, \n" +
-				"selling_cost1, \n" +
-				"sales_quantity2, \n" +
-				"material_cost2, \n" +
-				"labor_cost2, \n" +
-				"manufacture_cost2, \n" +
-				"selling_cost2, \n" +
-				"sales_quantity3, \n" +
-				"material_cost3, \n" +
-				"labor_cost3, \n" +
-				"manufacture_cost3, \n" +
-				"selling_cost3, \n" +
-				"sales_quantity4, \n" +
-				"material_cost4, \n" +
-				"labor_cost4, \n" +
-				"manufacture_cost4, \n" +
-				"selling_cost4, \n" +
-				"sales_quantity5, \n" +
-				"material_cost5, \n" +
-				"labor_cost5, \n" +
-				"manufacture_cost5, \n" +
-				"selling_cost5, \n" +
-				"sales_quantity6, \n" +
-				"material_cost6, \n" +
-				"labor_cost6, \n" +
-				"manufacture_cost6, \n" +
-				"selling_cost6, \n" +
-				"sales_quantity7, \n" +
-				"material_cost7, \n" +
-				"labor_cost7, \n" +
-				"manufacture_cost7, \n" +
-				"selling_cost7, \n" +
-				"sales_quantity8, \n" +
-				"material_cost8, \n" +
-				"labor_cost8, \n" +
-				"manufacture_cost8, \n" +
-				"selling_cost8, \n" +
-				"sales_quantity9, \n" +
-				"material_cost9, \n" +
-				"labor_cost9, \n" +
-				"manufacture_cost9, \n" +
-				"selling_cost9, \n" +
-				"sales_quantity10, \n" +
-				"material_cost10, \n" +
-				"labor_cost10, \n" +
-				"manufacture_cost10, \n" +
-				"selling_cost10, \n" +
-				"sales_quantity11, \n" +
-				"material_cost11, \n" +
-				"labor_cost11, \n" +
-				"manufacture_cost11, \n" +
-				"selling_cost11, \n" +
-				"sales_quantity12, \n" +
-				"material_cost12, \n" +
-				"labor_cost12, \n" +
-				"manufacture_cost12, \n" +
-				"selling_cost12, \n" +
-				"sales_quantity_nextyear, \n" +
-				"material_cost_nextyear, \n" +
-				"labor_cost_nextyear, \n" +
-				"manufacture_cost_nextyear, \n" +
-				"selling_cost_nextyear, \n" +
-				"sales_quantity_twoyear, \n" +
-				"material_cost_twoyear, \n" +
-				"labor_cost_twoyear, \n" +
-				"manufacture_cost_twoyear, \n" +
-				"selling_cost_twoyear, \n" +
-				"sales_quantity_threeyear, \n" +
-				"material_cost_threeyear, \n" +
-				"labor_cost_threeyear, \n" +
-				"manufacture_cost_threeyear, \n" +
-				"selling_cost_threeyear, \n" +
-				"sales_quantity_fouryear, \n" +
-				"material_cost_fouryear, \n" +
-				"labor_cost_fouryear, \n" +
-				"manufacture_cost_fouryear, \n" +
-				"selling_cost_fouryear, \n" +
-				"create_name, \n" +
-				"create_date, \n" +
+				" entity, \n" +
+				" product, \n" +
+				" sales_quantity1, \n" +
+				" material_cost1, \n" +
+				" labor_cost1, \n" +
+				" manufacture_cost1, \n" +
+				" selling_cost1, \n" +
+				" sales_quantity2, \n" +
+				" material_cost2, \n" +
+				" labor_cost2, \n" +
+				" manufacture_cost2, \n" +
+				" selling_cost2, \n" +
+				" sales_quantity3, \n" +
+				" material_cost3, \n" +
+				" labor_cost3, \n" +
+				" manufacture_cost3, \n" +
+				" selling_cost3, \n" +
+				" sales_quantity4, \n" +
+				" material_cost4, \n" +
+				" labor_cost4, \n" +
+				" manufacture_cost4, \n" +
+				" selling_cost4, \n" +
+				" sales_quantity5, \n" +
+				" material_cost5, \n" +
+				" labor_cost5, \n" +
+				" manufacture_cost5, \n" +
+				" selling_cost5, \n" +
+				" sales_quantity6, \n" +
+				" material_cost6, \n" +
+				" labor_cost6, \n" +
+				" manufacture_cost6, \n" +
+				" selling_cost6, \n" +
+				" sales_quantity7, \n" +
+				" material_cost7, \n" +
+				" labor_cost7, \n" +
+				" manufacture_cost7, \n" +
+				" selling_cost7, \n" +
+				" sales_quantity8, \n" +
+				" material_cost8, \n" +
+				" labor_cost8, \n" +
+				" manufacture_cost8, \n" +
+				" selling_cost8, \n" +
+				" sales_quantity9, \n" +
+				" material_cost9, \n" +
+				" labor_cost9, \n" +
+				" manufacture_cost9, \n" +
+				" selling_cost9, \n" +
+				" sales_quantity10, \n" +
+				" material_cost10, \n" +
+				" labor_cost10, \n" +
+				" manufacture_cost10, \n" +
+				" selling_cost10, \n" +
+				" sales_quantity11, \n" +
+				" material_cost11, \n" +
+				" labor_cost11, \n" +
+				" manufacture_cost11, \n" +
+				" selling_cost11, \n" +
+				" sales_quantity12, \n" +
+				" material_cost12, \n" +
+				" labor_cost12, \n" +
+				" manufacture_cost12, \n" +
+				" selling_cost12, \n" +
+				" sales_quantity, \n" +
+				" material_cost, \n" +
+				" labor_cost, \n" +
+				" manufacture_cost, \n" +
+				" selling_cost, \n" +
+				" sales_quantity_nextyear, \n" +
+				" material_cost_nextyear, \n" +
+				" labor_cost_nextyear, \n" +
+				" manufacture_cost_nextyear, \n" +
+				" selling_cost_nextyear, \n" +
+				" sales_quantity_twoyear, \n" +
+				" material_cost_twoyear, \n" +
+				" labor_cost_twoyear, \n" +
+				" manufacture_cost_twoyear, \n" +
+				" selling_cost_twoyear, \n" +
+				" sales_quantity_threeyear, \n" +
+				" material_cost_threeyear, \n" +
+				" labor_cost_threeyear, \n" +
+				" manufacture_cost_threeyear, \n" +
+				" selling_cost_threeyear, \n" +
+				" sales_quantity_fouryear, \n" +
+				" material_cost_fouryear, \n" +
+				" labor_cost_fouryear, \n" +
+				" manufacture_cost_fouryear, \n" +
+				" selling_cost_fouryear, \n" +
+				" create_name, \n" +
+				" create_date, \n" +
 				"sysdate version_date,'"+loginUser.getUsername()+"' version_name,\n" +
-				" product_no,trade_type,make_entity from FIT_BUDGET_PRODUCT_UNIT_COST where version='V00' and Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"')";
+				" product_no, \n" +
+				" trade_type, \n" +
+				" make_entity\n" +
+				" from FIT_BUDGET_PRODUCT_UNIT_COST where version='V00' and Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"')";
 		budgetProductNoUnitCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		return sqlVersion;
 	}

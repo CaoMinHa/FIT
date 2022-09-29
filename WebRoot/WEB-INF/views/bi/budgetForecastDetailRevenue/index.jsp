@@ -31,7 +31,7 @@
 		$(function() {
 			$("#budgetForecastDetailRevenueForm").fileupload({
 				dataType: "json",
-				url: "${ctx}/budget/budgetForecastDetailRevenue/upload",
+				url: "${ctx}/bi/budgetForecastDetailRevenue/upload",
 				add: function (e, data) {
 					$("#FileUpload").unbind();
 					var filename=data.originalFiles[0]['name'];
@@ -100,7 +100,7 @@
 				var version=$("#QVersion").val();
 				$.ajax({
 					type:"POST",
-					url:"${ctx}/budget/budgetForecastDetailRevenue/download",
+					url:"${ctx}/bi/budgetForecastDetailRevenue/download",
 					async:true,
 					dataType:"json",
 					data:{year:year,entitys:entitys,version:version},
@@ -123,7 +123,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/budget/budgetForecastDetailRevenue/dimension",
+					url: "${ctx}/bi/budgetForecastDetailRevenue/dimension",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -145,7 +145,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/budget/budgetForecastDetailRevenue/template",
+					url: "${ctx}/bi/budgetForecastDetailRevenue/template",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -167,7 +167,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/budget/budgetForecastDetailRevenue/version",
+					url: "${ctx}/bi/budgetForecastDetailRevenue/version",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -211,7 +211,7 @@
 			}
 		});
 		// $("#QueryBtn").click();
-		$("#Content").load("${ctx}/budget/budgetForecastDetailRevenue/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
+		$("#Content").load("${ctx}/bi/budgetForecastDetailRevenue/list",{entity:"",year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
 	</script>
 </head>
 <body>

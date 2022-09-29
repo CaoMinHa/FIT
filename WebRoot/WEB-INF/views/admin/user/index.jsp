@@ -169,10 +169,10 @@ $(function() {
 			$("#ReferenceUser>option:eq(0)").show();
 		}else if("<%=EnumUserType.BI.getCode()%>"==type){
 			$("#Attribute_Div").hide();
-			$("#SBU_DIV").hide();
+			$("#SBU_DIV").show();
 			$("#EBS_CODE").hide();
 			$("#Entity_CODE").hide();
-			$("#CORP_CODE").show();
+			$("#CORP_CODE").hide();
 			$("#ReferenceUser").show();
 			$("#CopyUser").show();
 			$("#BiMenu").show();
@@ -405,10 +405,10 @@ $(function() {
 				</div>
 			</div>
 			<div id="SBU_DIV" class="control-group" style="display: none;">
-				<label class="control-label"><i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>" datatype="sbu" nullmsg="<spring:message code='please'/><spring:message code='add'/>SBU"></i>SBU</label>
+				<label class="control-label"><i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>" datatype="sbu" nullmsg="<spring:message code='please'/><spring:message code='add'/>SBU"></i>預算SBU權限</label>
 				<div class="controls">
 					<div id="SBUTip" style="width:150px;display:none;float:none;" class="Validform_checktip">
-						<span class="Validform_checktip Validform_wrong"><spring:message code='please'/><spring:message code='add'/>SBU</span>
+						<span class="Validform_checktip Validform_wrong"><spring:message code='please'/><spring:message code='add'/>預算SBU權限</span>
 					</div>
 					<div>
 						<select id="SBU">

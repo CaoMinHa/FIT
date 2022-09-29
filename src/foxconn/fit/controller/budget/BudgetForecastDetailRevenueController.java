@@ -3,14 +3,10 @@ package foxconn.fit.controller.budget;
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.base.EnumDimensionType;
 import foxconn.fit.entity.budget.BudgetDetailRevenue;
-import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.service.budget.BudgetForecastDetailRevenueService;
 import foxconn.fit.service.budget.ForecastDetailRevenueSrcService;
 import foxconn.fit.util.ExceptionUtil;
-import foxconn.fit.util.SecurityUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,13 +21,14 @@ import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  *
  */
 @Controller
-@RequestMapping("/budget/budgetForecastDetailRevenue")
+@RequestMapping("/bi/budgetForecastDetailRevenue")
 public class BudgetForecastDetailRevenueController extends BaseController {
 
 	@Autowired
@@ -43,20 +40,20 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "index")
 	public String index(Model model,HttpServletRequest request) {
 		model=budgetForecastDetailRevenueService.index(model);
-		return "/budget/budgetForecastDetailRevenue/index";
+		return "/bi/budgetForecastDetailRevenue/index";
 	}
 
 	@RequestMapping(value="/list")
-	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,String entity,String year,String version) {
+	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,String entitys,String year,String version) {
 		try {
-			String sql=budgetForecastDetailRevenueService.list(year,version,entity);
+			String sql=budgetForecastDetailRevenueService.list(year,version,entitys);
 			Page<Object[]> page = budgetForecastDetailRevenueService.findPageBySql(pageRequest, sql, BudgetDetailRevenue.class);
 			model.addAttribute("page", page);
 			model.addAttribute("year", year.substring(2));
 		} catch (Exception e) {
 			logger.error("查询預算(預測)營收明細列表失败:", e);
 		}
-		return "/budget/budgetForecastDetailRevenue/list";
+		return "/bi/budgetForecastDetailRevenue/list";
 	}
 
 	@RequestMapping(value="/delete")

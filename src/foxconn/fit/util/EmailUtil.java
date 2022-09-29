@@ -192,7 +192,7 @@ public class EmailUtil
             throws Exception {
         MimeMessage message = new MimeMessage(session);
         message.setFrom(new InternetAddress("fit-bi@mail.foxconn.com"));
-        message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
         message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(emails));
         message.setSubject(title,"UTF-8");
         MimeMultipart msgMultipart = new MimeMultipart("mixed");

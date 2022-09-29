@@ -14,7 +14,7 @@ import java.util.List;
  * 文件下载
  */
 @Controller
-@RequestMapping("/budget/fileDownload")
+@RequestMapping("/bi/fileDownload")
 public class FileDownloadController extends BaseController {
 
     @RequestMapping(value = "index")
@@ -34,6 +34,6 @@ public class FileDownloadController extends BaseController {
         } catch (Exception e) {
             logger.error("獲取服務器文件夾失敗！（Failed to get server folder）", e);
         }
-        return "/budget/fileDownload/index";
+        return "/bi/fileDownload/index";
     }
 }

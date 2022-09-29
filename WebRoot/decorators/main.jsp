@@ -282,6 +282,7 @@
 			}else if("${detailsTsak}"=="ok"){
 				$("a[url='/fit/bi/poIntegrationList/index']").click();
 			}else{
+				$(".two_bar li a:first").parent("li").parent("ul").show();
 				$(".two_bar li a:first").click();
 			}
 		}else{
@@ -371,13 +372,13 @@ function updateTask(id,status,time){
 								</div>
 							</a>
 						</li>
-						<li class="nav-body">
-							<a href="javascript:void(0);" url="${ctx}/admin/dimension/index">
-								<div class="div-middle">
-									<span><spring:message code='dimension'/></span>
-								</div>
-							</a>
-						</li>
+<%--						<li class="nav-body">--%>
+<%--							<a href="javascript:void(0);" url="${ctx}/admin/dimension/index">--%>
+<%--								<div class="div-middle">--%>
+<%--									<span><spring:message code='dimension'/></span>--%>
+<%--								</div>--%>
+<%--							</a>--%>
+<%--						</li>--%>
 						<li class="nav-body">
 							<a href="javascript:void(0);" url="${ctx}/admin/table/index">
 								<div class="div-middle">
@@ -392,13 +393,13 @@ function updateTask(id,status,time){
 								</div>
 							</a>
 						</li>
-						<li class="nav-body">
-							<a href="javascript:void(0);" url="${ctx}/admin/planning/index">
-								<div class="div-middle"> 
-									<span>預算數據管理</span>
-								</div>
-							</a>
-						</li>
+<%--						<li class="nav-body">--%>
+<%--							<a href="javascript:void(0);" url="${ctx}/admin/planning/index">--%>
+<%--								<div class="div-middle"> --%>
+<%--									<span>預算數據管理</span>--%>
+<%--								</div>--%>
+<%--							</a>--%>
+<%--						</li>--%>
 						<li class="nav-body">
 							<a href="javascript:void(0);" url="${ctx}/admin/masterData/index">
 								<div class="div-middle"> 
@@ -584,27 +585,27 @@ function updateTask(id,status,time){
 						</c:forEach>
 					</security:authorize>
 
-					<security:authorize access="hasRole('ROLE_Budget')">
-						<c:forEach items="<%=SecurityUtils.getMenus() %>" var="menu">
-							<li class="nav-body">
-								<a href="javascript:void(0);" url='${ctx}/budget/${menu }/index'>
-									<div class="div-middle">
-										<span><spring:message code='${menu }'/></span>
-									</div>
-								</a>
-							</li>
-						</c:forEach>
-							<li>
-								<a href="javascript:void(0);" url='${ctx}/budget/fileDownload/index'>
-									<div class="div-middle">
-											<span>
-												<c:if test="${languageS eq 'zh_CN'}">文件下載</c:if>
-												<c:if test="${languageS eq 'en_US'}">File Download</c:if>
-											</span>
-									</div>
-								</a>
-							</li>
-					</security:authorize> 
+<%--					<security:authorize access="hasRole('ROLE_Budget')">--%>
+<%--						<c:forEach items="<%=SecurityUtils.getMenus() %>" var="menu">--%>
+<%--							<li class="nav-body">--%>
+<%--								<a href="javascript:void(0);" url='${ctx}/budget/${menu }/index'>--%>
+<%--									<div class="div-middle">--%>
+<%--										<span><spring:message code='${menu }'/></span>--%>
+<%--									</div>--%>
+<%--								</a>--%>
+<%--							</li>--%>
+<%--						</c:forEach>--%>
+<%--							<li>--%>
+<%--								<a href="javascript:void(0);" url='${ctx}/budget/fileDownload/index'>--%>
+<%--									<div class="div-middle">--%>
+<%--											<span>--%>
+<%--												<c:if test="${languageS eq 'zh_CN'}">文件下載</c:if>--%>
+<%--												<c:if test="${languageS eq 'en_US'}">File Download</c:if>--%>
+<%--											</span>--%>
+<%--									</div>--%>
+<%--								</a>--%>
+<%--							</li>--%>
+<%--					</security:authorize> --%>
 				</ul>
 			</nav>
 		</div>

@@ -102,6 +102,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 						continue;
 					}
 					sql += " ENTITY like '" + sbu + "%'";
+					i++;
 				}
 			}
 			sql+=")";
@@ -117,6 +118,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					}
 				}
 				sql+=")";
+			}else{
+				sql+=" and ENTITY ='0' ";
 			}
 		}
 
@@ -274,14 +277,16 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				if (!list.isEmpty()) {
 					/**SBU_法人校驗*/
 					entityMakeList.addAll(entityList);
-					check=this.check(entityMakeList,EnumDimensionType.Entity.getCode());
+					String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
+					check=this.check(entityMakeList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
 						result.put("msg", "以下【SBU_銷售法人】或[SBU_製造法人]在【維度表】没有找到---> " + check);
 						return result.getJson();
 					}
 					/**次產業校驗*/
-					check=this.check(industryList,EnumDimensionType.Segment.getCode());
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'";
+					check=this.check(industryList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
 						result.put("msg", "以下【次產業】在【維度表】没有找到---> "+check);
@@ -289,49 +294,56 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					}
 					/**主營業務*/
 					/**5GAIOT\EV\AUDIO\Type C\Existing*/
-					check=this.check(mainBusinessList,EnumDimensionType.Bak2.getCode());
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Bak2.getCode() +"'";
+					check=this.check(mainBusinessList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
 						result.put("msg", "以下【Main Business】在【維度表】没有找到---> "+check);
 						return result.getJson();
 					}
 					/**3+3**/
-					check=this.check(threeList,EnumDimensionType.Project.getCode());
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Project.getCode() +"'";
+					check=this.check(threeList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
 						result.put("msg", "以下【3+3】在【維度表】没有找到---> "+check);
 						return result.getJson();
 					}
 					/**產品系列**/
-					check=this.check(productSeriesList,EnumDimensionType.Product.getCode());
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' and PARENT in('Product_Total')";
+					check=this.check(productSeriesList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
 						result.put("msg", "以下【產品系列】在【維度表】没有找到---> "+check);
 						return result.getJson();
 					}
 					/**賬款客戶**/
-					check=this.check(loanCustomerList,EnumDimensionType.Customer.getCode());
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"' and PARENT in('Customer_Total') ";
+					check=this.check(loanCustomerList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
 						result.put("msg", "以下【賬款客戶】在【維度表】没有找到---> "+check);
 						return result.getJson();
 					}
 					/**最終客戶**/
-					check=this.check(endCustomerList,EnumDimensionType.Combine.getCode());
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Combine.getCode() +"' and PARENT in('C_End Customer') ";
+					check=this.check(endCustomerList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
 						result.put("msg", "以下【最終客戶】在【維度表】没有找到---> "+check);
 						return result.getJson();
 					}
 					/**交易類型**/
-					check=this.check(tradeTypeList,EnumDimensionType.View.getCode());
+					sql="select distinct trim(alias) from fit_dimension where type='"+EnumDimensionType.View.getCode()+ "' and PARENT in('Int000') ";
+					check=this.check(tradeTypeList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
 						result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
 						return result.getJson();
 					}
 					/**報告幣種**/
-					check=this.check(currencyList,EnumDimensionType.Currency.getCode());
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Currency.getCode() +"'";
+					check=this.check(currencyList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
 						result.put("msg", "以下【報告幣種】在【維度表】没有找到---> "+check);
@@ -372,9 +384,9 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	}
 
 	/**check*/
-	public String check(List<String> list,String type){
+	public String check(List<String> list,String sql){
 		list = instrumentClassService.removeDuplicate(list);
-		List<String> checkList = this.listBySql("select distinct trim(alias) from fit_dimension where type='" + type + "'");
+		List<String> checkList = this.listBySql(sql);
 		String check = instrumentClassService.getDiffrent(list, checkList);
 		return check;
 	}
@@ -408,8 +420,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"營收明細","營收明細")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"營收明細","營收明細")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表","銷售收入預算表")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表","銷售收入預算表")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
@@ -448,8 +460,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"營收明細","營收明細")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"營收明細_下载","營收明細_下载")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表","銷售收入預算表")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表_下载","銷售收入預算表_下载")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 
 
@@ -488,7 +500,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					sbuVal+=" ENTITY like '"+sbu+"_%' or";
 				}
 			}
-			if(sbuVal.isEmpty()){
+			if(!sbuVal.isEmpty()){
 				sql+=" and ("+sbuVal.substring(0,sbuVal.length()-2)+")";
 			}
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
@@ -575,7 +587,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				"quantity_month3,quantity_month4,quantity_month5,quantity_month6,quantity_month7,quantity_month8,quantity_month9,quantity_month10,quantity_month11,quantity_month12,price_month1,\n" +
 				"price_month2,price_month3,price_month4,price_month5,price_month6,price_month7,price_month8,price_month9,price_month10,price_month11,price_month12,revenue_month1,revenue_month2,\n" +
 				"revenue_month3, revenue_month4, revenue_month5, revenue_month6,revenue_month7,revenue_month8,revenue_month9, revenue_month10, revenue_month11, revenue_month12,\n" +
-				"create_name,create_date, sysdate version_date,'"+loginUser.getUsername()+"' version_name\n" +
+				"create_name,create_date, sysdate version_date,'"+loginUser.getUsername()+"' version_name,ou,makeou,currency_transition\n" +
 				"  from FIT_BUDGET_DETAIL_REVENUE where version='V00' and Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"')";
 		budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		return sqlVersion;

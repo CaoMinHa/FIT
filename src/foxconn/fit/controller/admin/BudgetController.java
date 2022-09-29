@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/budget/budget")
+@RequestMapping("/bi/budget")
 public class BudgetController extends BaseController {
 
 	@Autowired

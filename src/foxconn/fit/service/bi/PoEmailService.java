@@ -167,13 +167,15 @@ public class PoEmailService extends BaseService<PoEmailLog> {
 
     //定时任务发送邮件提醒
     public void sendEmailTiming(String username,String content,String title){
-        String sqlC="select distinct EMAIL from EPMODS.fit_user where USERNAME in ("+username+") and type='BI' and EMAIL is not null";
-        List<File> list=new ArrayList<>();
-        File file = new File("D:"+File.separator+"JAVA"+File.separator+"apache-tomcat-8.0.50"+File.separator+"webapps"+File.separator+"fit"+File.separator+"static"+File.separator+"template"+File.separator+"po"+File.separator+"FIT_VOC_年度目標CD審批流程_v1.0.pdf");
-        list.add(file);
-        List<String> emailListC=poTableService.listBySql(sqlC);
-        emailListC=emailListC.stream().distinct().collect(Collectors.toList());
-        EmailUtil.emailsMany(emailListC,title,content,list);
+        if(username.length()>1){
+            String sqlC="select distinct EMAIL from EPMODS.fit_user where USERNAME in ("+username+") and type='BI' and EMAIL is not null";
+            List<File> list=new ArrayList<>();
+            File file = new File("D:"+File.separator+"JAVA"+File.separator+"apache-tomcat-8.0.50"+File.separator+"webapps"+File.separator+"fit"+File.separator+"static"+File.separator+"template"+File.separator+"po"+File.separator+"FIT_VOC_年度目標CD審批流程_v1.0.pdf");
+            list.add(file);
+            List<String> emailListC=poTableService.listBySql(sqlC);
+            emailListC=emailListC.stream().distinct().collect(Collectors.toList());
+            EmailUtil.emailsMany(emailListC,title,content,list);
+        }
     }
     //定时任务发送邮件提醒CC
     public void sendEmailTimingCC(String username,String ccUserName,String content,String title){
@@ -187,11 +189,11 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         List<String> emailListCC=poTableService.listBySql(sql);
         String emailVal="";
         for (String e:emailList) {
-            emailVal=emailVal+e+",";
+            emailVal+=e+",";
         }
         String emailValCC="";
         for (String e:emailListCC) {
-            emailValCC=emailValCC+e+",";
+            emailValCC+=e+",";
         }
         EmailUtil.emailsManyCC(emailVal.substring(0,emailVal.length()-1),emailValCC.substring(0,emailValCC.length()-1),title,content,list);
     }

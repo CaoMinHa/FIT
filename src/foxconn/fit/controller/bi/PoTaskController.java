@@ -96,13 +96,15 @@ public class PoTaskController extends BaseController {
             if(!StringUtils.isBlank(name)){
                 name="%"+name+"%";
                 sql=sql+" and name like "+"'"+name+"'";
-            }else if(!StringUtils.isBlank(type)){
+            }
+            if(!StringUtils.isBlank(type)){
                 if(type.equalsIgnoreCase("FIT_PO_CD_MONTH_DOWN")){
                     sql=sql+" and type ='FIT_PO_CD_MONTH_DTL' ";
                 }else{
                     sql=sql+" and type ="+"'"+type+"'";
                 }
-            }else if(!StringUtils.isBlank(date)){
+            }
+            if(!StringUtils.isBlank(date)){
                 date=date+"%";
                 sql=sql+" and name like"+"'"+date+"'";
             }

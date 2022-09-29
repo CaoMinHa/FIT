@@ -124,6 +124,8 @@ public class UserController extends BaseController{
 					String[] menus = user.getMenus().split(",");
 					model.addAttribute("menus", menus);
 				}
+				List sbuList = userService.listBySql("select distinct parent from fit_dimension where type='"+EnumDimensionType.Entity+"' order by parent");
+				model.addAttribute("sbuList", sbuList);
 			}else if (user.getType()==EnumUserType.Budget) {
 				String menu = user.getMenus();
 				if (StringUtils.isNotEmpty(menu)) {
@@ -231,16 +233,18 @@ public class UserController extends BaseController{
 				}
 				menu=menu.substring(0, menu.length()-1);
 				user.setMenus(menu);
-				
-				String corporation="";
-				if (corporationCode !=null && readonly!=null) {
-					Assert.isTrue(corporationCode.length==readonly.length, "法人参数错误(Entity Parameter Error)");
-					for (int i = 0; i < corporationCode.length; i++) {
-						corporation+=(readonly[i]?"T_":"F_") + corporationCode[i].trim()+",";
-					}
-					corporation=corporation.substring(0, corporation.length()-1);
+
+				Assert.isTrue(sbu!=null, "请添加SBU[Please Add SBU]");
+				Map<String,String> sbuMap=new HashMap<String,String>();
+				for (String SBU : sbu) {
+					sbuMap.put(SBU, SBU);
 				}
-				user.setCorporationCode(corporation);
+				String targetSBU="";
+				for (String SBU : sbuMap.values()) {
+					targetSBU+=SBU.trim()+",";
+				}
+				targetSBU=targetSBU.substring(0, targetSBU.length()-1);
+				user.setCorporationCode(targetSBU);
 			}else if(EnumUserType.Budget==userType){
 				Assert.isTrue(menus!=null, "请选择菜单[Please Select Menu]");
 				String menu="";
@@ -326,16 +330,20 @@ public class UserController extends BaseController{
 				}
 				menu=menu.substring(0, menu.length()-1);
 				target.setMenus(menu);
-				
-				String corporation="";
-				if (corporationCode !=null && readonly!=null) {
-					Assert.isTrue(corporationCode.length==readonly.length, "法人参数错误(Entity Parameter Error)");
-					for (int i = 0; i < corporationCode.length; i++) {
-						corporation+=(readonly[i]?"T_":"F_") + corporationCode[i].trim()+",";
-					}
-					corporation=corporation.substring(0, corporation.length()-1);
+
+				Assert.isTrue(sbu!=null, "请添加SBU[Please Add SBU]");
+				Map<String,String> sbuMap=new HashMap<String,String>();
+				for (String SBU : sbu) {
+					sbuMap.put(SBU, SBU);
 				}
-				target.setCorporationCode(corporation);
+				String targetSBU="";
+				for (String SBU : sbuMap.values()) {
+					targetSBU+=SBU.trim()+",";
+				}
+				if(!targetSBU.isEmpty()){
+					targetSBU=targetSBU.substring(0, targetSBU.length()-1);
+				}
+				target.setCorporationCode(targetSBU);
 			}else if(EnumUserType.Budget==userType){
 				Assert.isTrue(menus!=null, "请选择菜单[Please Select Menu]");
 				

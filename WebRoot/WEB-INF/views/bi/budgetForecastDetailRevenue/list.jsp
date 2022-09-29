@@ -50,7 +50,7 @@ $(function() {
 			var id=$this.parent().attr("mappingId");
 			$.ajax({
 				type:"POST",
-				url:"${ctx}/budget/budgetForecastDetailRevenue/delete",
+				url:"${ctx}/bi/budgetForecastDetailRevenue/delete",
 				async:true,
 				dataType:"json",
 				data:{id:id},
@@ -72,15 +72,13 @@ $(function() {
 function clickPage(page){
 	$("#loading").show();
 	$("#PageNo").val(page);
-	var year=$("#QYear").val();
-	var version=$("#QVersion").val();
 	var entity="";
 	$("input[name=entitys]:checked").each(function(i,dom){
 		entity+=$(dom).val()+",";
 	});
-	$("#Content").load("${ctx}/budget/budgetForecastDetailRevenue/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
+	$("#Content").load("${ctx}/bi/budgetForecastDetailRevenue/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
 														orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
-														entity:entity,year:year,version:version},function(){$("#loading").fadeOut(1000);});
+														entitys:entity.substring(0,entity.length-1),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
 }
 
 function refresh(){
