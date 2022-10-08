@@ -234,17 +234,19 @@ public class UserController extends BaseController{
 				menu=menu.substring(0, menu.length()-1);
 				user.setMenus(menu);
 
-				Assert.isTrue(sbu!=null, "请添加SBU[Please Add SBU]");
-				Map<String,String> sbuMap=new HashMap<String,String>();
-				for (String SBU : sbu) {
-					sbuMap.put(SBU, SBU);
+//				Assert.isTrue(sbu!=null, "请添加SBU[Please Add SBU]");
+				if(sbu!=null){
+					Map<String,String> sbuMap=new HashMap<String,String>();
+					for (String SBU : sbu) {
+						sbuMap.put(SBU, SBU);
+					}
+					String targetSBU="";
+					for (String SBU : sbuMap.values()) {
+						targetSBU+=SBU.trim()+",";
+					}
+					targetSBU=targetSBU.substring(0, targetSBU.length()-1);
+					user.setCorporationCode(targetSBU);
 				}
-				String targetSBU="";
-				for (String SBU : sbuMap.values()) {
-					targetSBU+=SBU.trim()+",";
-				}
-				targetSBU=targetSBU.substring(0, targetSBU.length()-1);
-				user.setCorporationCode(targetSBU);
 			}else if(EnumUserType.Budget==userType){
 				Assert.isTrue(menus!=null, "请选择菜单[Please Select Menu]");
 				String menu="";

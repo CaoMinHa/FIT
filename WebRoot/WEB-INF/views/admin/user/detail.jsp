@@ -306,7 +306,7 @@ function userEditFormSubmit(){
 <%--	</c:if>--%>
 	<c:if test="${user.type.code eq 'BI'}">
 		<div class="control-group">
-			<label class="control-label"><i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>" datatype="sbu" nullmsg="<spring:message code='please'/><spring:message code='add'/>SBU"></i>預算SBU權限</label>
+			<label class="control-label"><i title="<spring:message code='required'/>" datatype="sbu" nullmsg="<spring:message code='please'/><spring:message code='add'/>SBU"></i>預算SBU權限</label>
 			<div class="controls">
 				<div id="SBUEditTip" style="width:150px;display:none;float:none;" class="Validform_checktip">
 					<span class="Validform_checktip Validform_wrong"><spring:message code='please'/><spring:message code='add'/>預算SBU權限</span>
@@ -323,8 +323,10 @@ function userEditFormSubmit(){
 				<div id="SBUEditTargetList" class="m-t-md">
 					<c:forEach items="${fn:split(user.corporationCode,',') }" var="u_sbu">
 						<div class="m-b-sm">
+							<c:if test="${u_sbu !=''}">
 							<input type="text" name="sbu" class="sbu" value="${u_sbu }" sbu="${u_sbu }" readonly="readonly"/>
 							<button style="margin-left:45px;" class="btn btn-small btn-danger" type="button"><spring:message code='delete'/></button>
+							</c:if>
 						</div>
 					</c:forEach>
 				</div>

@@ -30,31 +30,7 @@ $(function() {
 		$("#EntityList").children(":gt(0)").remove();
 		$("#Menu_DIV").hide();
 		$("#userForm select[name=type]").trigger("change");
-		
-		userFormValid=$("#userForm").Validform({
-			tiptype:2,
-			ignoreHidden:true,
-			datatype:{
-				"menu":function(gets,obj,curform,datatype){
-					if($("#userForm input[name=menus]:checked").length>0){
-						$("#MenuTip").hide();
-						return true;
-					}
-					$("#MenuTip").show();
-					
-					return false;
-				},
-				"sbu":function(gets,obj,curform,datatype){
-					if($("#userForm input[name=sbu]").length>0){
-						$("#SBUTip").hide();
-						return true;
-					}
-					$("#SBUTip").show();
-					
-					return false;
-				}
-			}
-		});
+
 		
 		$("#modal-user-add").dialog({
 			modal:true,
@@ -72,7 +48,15 @@ $(function() {
 		            text: "<spring:message code='submit'/>",
 		            click: function() {
 		            	var $dialog=$(this);
-		            	if(userFormValid.check()){
+
+						if($("#userForm input[name=menus]:checked").length>0){
+							$("#MenuTip").hide();
+							userFormValid=true;
+						}else{
+							$("#MenuTip").show();
+							userFormValid= false;
+						}
+		            	if(userFormValid){
 		            		var data=$("#userForm").serialize();
 		            		$("#userForm input[name=updatable]").each(function(i){
 		            			data+="&readonly="+$(this).prop('checked');
@@ -203,13 +187,13 @@ $(function() {
 		}
 	});
 	
-	$("#userForm input[name=sbu]").change(function(){
-		if($("#userForm input[name=sbu]:checked").length>0){
-			$("#SBUTip").hide();
-		}else{
-			$("#SBUTip").show();
-		}
-	});
+	// $("#userForm input[name=sbu]").change(function(){
+	// 	if($("#userForm input[name=sbu]:checked").length>0){
+	// 		$("#SBUTip").hide();
+	// 	}else{
+	// 		$("#SBUTip").show();
+	// 	}
+	// });
 	
 	$("#CopyUser").click(function(){
 		var userId=$("#ReferenceUser").val();;
@@ -405,10 +389,10 @@ $(function() {
 				</div>
 			</div>
 			<div id="SBU_DIV" class="control-group" style="display: none;">
-				<label class="control-label"><i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>" datatype="sbu" nullmsg="<spring:message code='please'/><spring:message code='add'/>SBU"></i>預算SBU權限</label>
+				<label class="control-label"><i title="<spring:message code='required'/>" datatype="sbu" nullmsg="<spring:message code='please'/><spring:message code='add'/>SBU"></i>預算SBU權限</label>
 				<div class="controls">
-					<div id="SBUTip" style="width:150px;display:none;float:none;" class="Validform_checktip">
-						<span class="Validform_checktip Validform_wrong"><spring:message code='please'/><spring:message code='add'/>預算SBU權限</span>
+					<div id="SBUTip" style="width:150px;display:none;float:none;">
+						<span ><spring:message code='please'/><spring:message code='add'/>預算SBU權限</span>
 					</div>
 					<div>
 						<select id="SBU">
