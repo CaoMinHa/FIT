@@ -1011,4 +1011,21 @@ public class ForecastDetailRevenueController extends BaseController {
 			}
 		return result.getJson();
 	}
+
+	/**
+	 * 下載維度表
+	 */
+	@RequestMapping(value = "dimensionOld")
+	@ResponseBody
+	public synchronized String dimensionOld(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		Map<String,String> map=forecastDetailRevenueSrcService.dimensionOld(request);
+		if(map.get("result")=="Y"){
+			result.put("fileName", map.get("str"));
+		}else{
+			result.put("flag", "fail");
+			result.put("msg", getLanguage(locale, "下載模板文件失敗", "Fail to download template file") + " : " + map.get("str"));
+		}
+		return result.getJson();
+	}
 }

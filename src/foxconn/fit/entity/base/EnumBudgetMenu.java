@@ -5,11 +5,11 @@ package foxconn.fit.entity.base;
  * @author 陈亮
  */
 public enum EnumBudgetMenu {
-//	productNoUnitCost("產品料號單位成本"),
+	productNoUnitCost("產品料號單位成本"),
+	forecastDetailRevenue("營收明細");
 //	predictDetailRevenue("銷貨收入預測表"),
-//	forecastDetailRevenue("營收明細"),
-	budgetForecastDetailRevenue("銷售收入預算表"),
-	budgetProductNoUnitCost("銷售成本預算表");
+//	budgetForecastDetailRevenue("銷售收入預算表"),
+//	budgetProductNoUnitCost("銷售成本預算表");
 
 	private EnumBudgetMenu(String name){
 		this.name = name;

@@ -229,7 +229,7 @@ $(function() {
 	$("#loading").show();
 		$.ajax({
 			type: "POST",
-			url: "${ctx}/budget/forecastDetailRevenue/dimension",
+			url: "${ctx}/budget/forecastDetailRevenue/dimensionOld",
 			async: true,
 			dataType: "json",
 			success: function (data) {
