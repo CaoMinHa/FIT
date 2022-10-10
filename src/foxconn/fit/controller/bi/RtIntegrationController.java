@@ -13,6 +13,7 @@ import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.util.DateUtil;
 import foxconn.fit.util.ExcelUtil;
 import foxconn.fit.util.ExceptionUtil;
+import foxconn.fit.util.SecurityUtils;
 import net.sf.json.JSONArray;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -111,7 +112,15 @@ public class RtIntegrationController extends BaseController {
                     }
                 }
             }
-            sql+=" order by CREATE_TIME desc";
+            String[] sbu = SecurityUtils.getSBU();
+            if(null!=sbu){
+                String sbuSql=" and sbu in (";
+                for (String s:sbu) {
+                    sbuSql+="'"+s+"',";
+                }
+                sql+=sbuSql.substring(0,sbuSql.length()-1)+")";
+            }
+            sql+=" order by ID,CREATE_TIME desc";
             Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
             int index = 1;
             if (pageRequest.getPageNo() > 1) {
@@ -201,30 +210,18 @@ public class RtIntegrationController extends BaseController {
                         if (row == null) {
                             continue;
                         }
-
                         boolean isBlankRow = true;
                         for (int k = 0; k < COLUMN_NUM; k++) {
                             if (StringUtils.isNotEmpty(ExcelUtil.getCellStringValue(row.getCell(k), i, j))) {
                                 isBlankRow = false;
+                                break;
                             }
                         }
-
                         if (isBlankRow) {
                             continue;
                         }
                         int n = 0;
                         List<String> data = new ArrayList<String>();
-                        String recordsYear = ExcelUtil.getCellStringValue(row.getCell(0), i, j);
-                        String recordsMonth = ExcelUtil.getCellStringValue(row.getCell(1), i, j);
-                        if (recordsMonth.length() < 2) {
-                            recordsMonth = "0" + recordsMonth;
-                        }
-                        String RYM = recordsYear + recordsMonth;
-//                        if ("CUX_RT_SALES_TARGET".equalsIgnoreCase(tableName)) {
-//                            data.add(date);
-//                            Assert.isTrue(data.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + date, "The year is error:" + RYM + "should be：" + date));
-//                            n += 1;
-//                        }
                         while (n < COLUMN_NUM) {
                             PoColumns column = columns.get(n);
                             if (column.getNullable() == false) {
@@ -365,7 +362,7 @@ public class RtIntegrationController extends BaseController {
         sbu=instrumentClassService.removeDuplicate(sbu);
         String sbuVal=JSONObject.toJSONString(JSONArray.fromObject(sbu)).replace('\"','\'');
         String salesOrgVal=JSONObject.toJSONString(JSONArray.fromObject(salesOrg)).replace('\"','\'');
-        String sbuSql="select NEW_SBU_NAME from bidev.v_if_sbu_mapping where NEW_SBU_NAME in ("+sbuVal.substring(1,sbuVal.length()-1)+")";
+        String sbuSql="select distinct NEW_SBU_NAME from bidev.v_if_sbu_mapping where NEW_SBU_NAME in ("+sbuVal.substring(1,sbuVal.length()-1)+")";
         String salesOrgSql="select SALES_ORG from CUX_RT_ACCOUNT_MAPPING where SALES_ORG in ("+salesOrgVal.substring(1,salesOrgVal.length()-1)+")";
         List<String> sbuCount=instrumentClassService.removeDuplicate(poTableService.listBySql(sbuSql));
         List<String> salesOrgCount=instrumentClassService.removeDuplicate(poTableService.listBySql(salesOrgSql));
@@ -377,6 +374,12 @@ public class RtIntegrationController extends BaseController {
         if(sbuCount.size()!=sbu.size()){
             msg.add("("+instrumentClassService.getDiffrent(sbu,sbuCount)+")SBU錯誤，請檢查!");
             msg.add("Sbu error，please check!");
+            return msg;
+        }
+        sbuCount=Arrays.asList(SecurityUtils.getSBU());
+        if(instrumentClassService.getDiffrent(sbu,sbuCount).length()>1){
+            msg.add("("+instrumentClassService.getDiffrent(sbu,sbuCount)+")沒有SBU權限，請聯係管理員維護!");
+            msg.add("("+instrumentClassService.getDiffrent(sbu,sbuCount)+")No SBU permission, please contact the administrator for maintenance!");
             return msg;
         }
         msg.add("成功");
@@ -392,9 +395,6 @@ public class RtIntegrationController extends BaseController {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
             Assert.hasText(tableNames, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
-
-
-
             XSSFWorkbook workBook = new XSSFWorkbook();
             XSSFCellStyle titleStyle = workBook.createCellStyle();
             titleStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -413,7 +413,6 @@ public class RtIntegrationController extends BaseController {
             String[] tables = tableNames.split(",");
             SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook(workBook);
             for (String tableName : tables) {
-
                 if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
                     tableName = "FIT_PO_CD_MONTH_DOWN";
                 }
@@ -452,15 +451,6 @@ public class RtIntegrationController extends BaseController {
                     cell.setCellStyle(titleStyle);
                     sheet.setColumnWidth(i, comments.getBytes("GBK").length * 256 + 400);
                 }
-                String orderBy = "";
-                List<PoKey> keys = poTable.getKeys();
-                if (keys != null && keys.size() > 0) {
-                    orderBy = " order by ";
-                    for (PoKey key : keys) {
-                        orderBy += key.getColumnName() + ",";
-                    }
-                    orderBy = orderBy.substring(0, orderBy.length() - 1);
-                }
                 String whereSql = "";
                 if (StringUtils.isNotEmpty(queryCondition)) {
                     whereSql+=" where 1=1 ";
@@ -472,11 +462,18 @@ public class RtIntegrationController extends BaseController {
                             whereSql+=" and "+columnName+" like '%"+columnValue+"%'";
                         }
                     }
-                    whereSql+= " order by ID";
                 }
 
+                String[] sbu = SecurityUtils.getSBU();
+                if(null!=sbu){
+                    String sbuSql=" and sbu in (";
+                    for (String s:sbu) {
+                        sbuSql+="'"+s+"',";
+                    }
+                    whereSql+=sbuSql.substring(0,sbuSql.length()-1)+")";
+                }
 
-                sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql + orderBy;
+                sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql + " order by ID";
                 System.out.println(sql);
                 pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
                 pageRequest.setPageNo(1);
@@ -559,7 +556,6 @@ public class RtIntegrationController extends BaseController {
             result.put("flag", "fail");
             result.put("msg", ExceptionUtil.getRootCauseMessage(e));
         }
-
         return result.getJson();
     }
 

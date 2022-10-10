@@ -333,7 +333,7 @@ public class UserController extends BaseController{
 				menu=menu.substring(0, menu.length()-1);
 				target.setMenus(menu);
 
-				Assert.isTrue(sbu!=null, "请添加SBU[Please Add SBU]");
+//				Assert.isTrue(sbu!=null, "请添加SBU[Please Add SBU]");
 				Map<String,String> sbuMap=new HashMap<String,String>();
 				for (String SBU : sbu) {
 					sbuMap.put(SBU, SBU);

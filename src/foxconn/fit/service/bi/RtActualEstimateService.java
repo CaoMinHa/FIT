@@ -4,6 +4,7 @@ import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.util.ExcelUtil;
+import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -90,7 +91,15 @@ public class RtActualEstimateService {
                 }
             }
         }
-        sql += " order by YEAR_MONTH desc,P_N,CUST_CODE desc";
+        String[] sbu = SecurityUtils.getSBU();
+        if(null!=sbu){
+            String sbuSql=" and sbu in (";
+            for (String s:sbu) {
+                sbuSql+="'"+s+"',";
+            }
+            sql+=sbuSql.substring(0,sbuSql.length()-1)+")";
+        }
+        sql += " order by YEAR_MONTH desc,P_N,CUST_CODE,NO desc";
         model.addAttribute("columns", columnsList);
         return sql;
     }
@@ -202,9 +211,17 @@ public class RtActualEstimateService {
                     }
                 }
             }
-            whereSql += " order by YEAR_MONTH desc";
         }
-        sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql;
+        String[] sbu = SecurityUtils.getSBU();
+        if(null!=sbu){
+            String sbuSql=" and sbu in (";
+            for (String s:sbu) {
+                sbuSql+="'"+s+"',";
+            }
+            whereSql+=sbuSql.substring(0,sbuSql.length()-1)+")";
+        }
+
+        sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql+"  order by YEAR_MONTH desc,NO";
         System.out.println(sql);
         pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
         pageRequest.setPageNo(1);

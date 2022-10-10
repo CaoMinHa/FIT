@@ -6,6 +6,7 @@ import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.util.ExcelUtil;
 import foxconn.fit.util.ExceptionUtil;
+import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -14,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
@@ -39,6 +41,15 @@ public class RtHistoricalDataService{
 
     @Autowired
     private PoTableDao poTableDao;
+    @Autowired
+    private InstrumentClassService instrumentClassService;
+
+    @Value("${jdbc-0.proxool.driver-url}")
+    String url;
+    @Value("${jdbc-0.user}")
+    String user;
+    @Value("${jdbc-0.password}")
+    String password;
 
     public String selectDataSql(String queryCondition, PoTable poTable, Locale locale, Model model) {
         List<PoColumns> columns = poTable.getColumns();
@@ -73,7 +84,17 @@ public class RtHistoricalDataService{
                 }
             }
         }
-        sql += " order by YEAR_MONTH desc,P_N,CUST_CODE desc";
+
+        String[] sbu = SecurityUtils.getSBU();
+        if(null!=sbu){
+            String sbuSql=" and sbu in (";
+            for (String s:sbu) {
+                sbuSql+="'"+s+"',";
+            }
+            sql+=sbuSql.substring(0,sbuSql.length()-1)+")";
+        }
+
+        sql += " order by YEAR_MONTH desc,P_N,CUST_CODE,No desc";
         model.addAttribute("columns", columnsList);
         return sql;
     }
@@ -137,6 +158,7 @@ public class RtHistoricalDataService{
         String yearMonth="";
         BigDecimal revenueUSD = new BigDecimal("0");
         BigDecimal revenueNTD = new BigDecimal("0");
+        List<String> listSbu=new ArrayList<>();
         System.out.print("开始装填数据-------》");
         List<String> data;
         String value="";
@@ -162,6 +184,9 @@ public class RtHistoricalDataService{
                 }else{
                     value = row.getCell(n).getStringCellValue();
                     data.add(value);
+                    if(n==32){
+                        listSbu.add(value);
+                    }
                 }
                 n++;
             }
@@ -188,7 +213,7 @@ public class RtHistoricalDataService{
         map.put(String.valueOf(number),dataList);
         if (!map.isEmpty()) {
             //校验需求类型是否存在
-            String  msg=dataCheck(revenueUSD,revenueNTD,yearMonth);
+            String  msg=dataCheck(revenueUSD,revenueNTD,yearMonth,listSbu);
             if(!"S".equals(msg)){
                 result.put("flag", "fail");
                 result.put("msg", getByLocale(locale, msg));
@@ -223,14 +248,6 @@ public class RtHistoricalDataService{
         Connection con=null;
         PreparedStatement pst = null;
         /** 測試環境*/
-        String url = "jdbc:oracle:thin:@10.98.5.21:1521:EPMDEV";
-        String user = "EPMODS";
-        String password = "Foxconn88";
-//        /**正式環境 */
-//        String url = "jdbc:oracle:thin:@10.98.5.28:1521:EPMDEV";
-//        String user = "EPMODS";
-//        String password = "foxoracle-db";
-
         List<PoColumns> columns = poTable.getColumns();
         String columnStr = "";
         String valStr = "";
@@ -334,8 +351,8 @@ public class RtHistoricalDataService{
         java.sql.Date d=new java.sql.Date(date.getTime());
         return d;
     }
-    private String dataCheck(BigDecimal revenueUSD,BigDecimal revenueNTD,String yearMonth){
-        System.out.println("校验条件"+yearMonth+"revenueNTD："+revenueNTD+"revenueUSD："+revenueUSD);
+    private String dataCheck(BigDecimal revenueUSD,BigDecimal revenueNTD,String yearMonth,List<String> listSbu){
+        System.out.println("校验条件"+yearMonth+"revenueNTD："+revenueNTD+"revenueUSD："+revenueUSD+"  sbu:"+listSbu);
         String msg="S";
         if(yearMonth.indexOf("202001")==-1&&yearMonth.indexOf("202002")==-1&&yearMonth.indexOf("202003")==-1
                 &&yearMonth.indexOf("202004")==-1&&yearMonth.indexOf("202005")==-1&&yearMonth.indexOf("202006")==-1) {
@@ -357,6 +374,11 @@ public class RtHistoricalDataService{
                     }
                 }
             }
+        }
+        List<String> sbuCount=Arrays.asList(SecurityUtils.getSBU());
+        if(instrumentClassService.getDiffrent(listSbu,sbuCount).length()>1){
+            msg="("+instrumentClassService.getDiffrent(listSbu,sbuCount)+")No SBU permission, please contact the administrator for maintenance!_("+instrumentClassService.getDiffrent(listSbu,sbuCount)+")沒有SBU權限，請聯係管理員維護!";
+            return msg;
         }
         if(msg.equals("S")){
             System.out.print("yearMonth："+yearMonth);
@@ -428,11 +450,17 @@ public class RtHistoricalDataService{
                     }
                 }
             }
-            whereSql+= " order by NO";
         }
 
-
-        sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql;
+        String[] sbu = SecurityUtils.getSBU();
+        if(null!=sbu){
+            String sbuSql=" and sbu in (";
+            for (String s:sbu) {
+                sbuSql+="'"+s+"',";
+            }
+            whereSql+=sbuSql.substring(0,sbuSql.length()-1)+")";
+        }
+        sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql+" order by NO";
         System.out.println(sql);
         pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
         pageRequest.setPageNo(1);
@@ -498,6 +526,4 @@ public class RtHistoricalDataService{
         }
         return ajaxResult;
     }
-
-
 }

@@ -17,8 +17,9 @@ public class UserDetailImpl extends User implements UserDetails{
 	private String poCenter;//採購中心
 	private String email;
 	private String realname;
+	private String sbu;
 
-	public UserDetailImpl(String username, String password,String corporationCode,String entity,String ebs,String menus,String poCenter,String email,String realname,
+	public UserDetailImpl(String username, String password,String corporationCode,String entity,String ebs,String menus,String poCenter,String email,String realname,String sbu,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(username, password, authorities);
 		this.corporationCode=corporationCode;
@@ -28,6 +29,7 @@ public class UserDetailImpl extends User implements UserDetails{
 		this.poCenter = poCenter;
 		this.email = email;
 		this.realname = realname;
+		this.sbu = sbu;
 	}
 
 	public String getCorporationCode() {
@@ -55,6 +57,9 @@ public class UserDetailImpl extends User implements UserDetails{
 	}
 	public String getRealname(){
 		return realname;
+	}
+	public String getSbu(){
+		return sbu;
 	}
 
 }

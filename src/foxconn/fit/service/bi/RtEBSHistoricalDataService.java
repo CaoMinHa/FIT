@@ -4,6 +4,7 @@ import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.util.ExcelUtil;
+import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -59,7 +60,17 @@ public class RtEBSHistoricalDataService {
                 }
             }
         }
-        sql += " order by YEAR||MONTH desc,P_N,CUST_CODE desc";
+
+        String[] sbu = SecurityUtils.getSBU();
+        if(null!=sbu){
+            String sbuSql=" and sbu in (";
+            for (String s:sbu) {
+                sbuSql+="'"+s+"',";
+            }
+            sql+=sbuSql.substring(0,sbuSql.length()-1)+")";
+        }
+
+        sql += " order by YEAR||MONTH desc,P_N,CUST_CODE,NO desc";
         model.addAttribute("columns", columnsList);
         return sql;
     }
@@ -133,9 +144,6 @@ public class RtEBSHistoricalDataService {
             if (poColumn.getLocked()) {
                 lockSerialList.add(poColumn.getSerial());
             }
-//            if (poColumn.getDataType().equalsIgnoreCase("number")) {
-//                sql += "regexp_replace(to_char(" + columnName + ",'FM99999999999999.999999999'),'\\.$',''),";
-//            } else
             if (poColumn.getDataType().equalsIgnoreCase("date")) {
                 sql += "to_char(" + columnName + ",'dd/mm/yyyy'),";
             } else {
@@ -167,9 +175,16 @@ public class RtEBSHistoricalDataService {
                     }
                 }
             }
-            whereSql+=" order by no";
         }
-        sql = sql.substring(0, sql.length() - 1) + " from " + poTable.getTableName() + whereSql;
+        String[] sbu = SecurityUtils.getSBU();
+        if(null!=sbu){
+            String sbuSql=" and sbu in (";
+            for (String s:sbu) {
+                sbuSql+="'"+s+"',";
+            }
+            whereSql+=sbuSql.substring(0,sbuSql.length()-1)+")";
+        }
+        sql = sql.substring(0, sql.length() - 1) + " from " + poTable.getTableName() + whereSql+" order by no";
         System.out.println(sql);
         pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
         pageRequest.setPageNo(1);

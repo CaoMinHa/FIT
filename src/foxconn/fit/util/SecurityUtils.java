@@ -59,6 +59,17 @@ public class SecurityUtils {
 		return null;
 	}
 
+	public static String[] getSBU() {
+		UserDetailImpl user = getLoginUser();
+		if (user != null) {
+			String sbu = user.getSbu();
+			if (StringUtils.isNotEmpty(sbu)) {
+				return sbu.split(",");
+			}
+		}
+		return null;
+	}
+
 	public static String[] getPoCenter(){
 		UserDetailImpl user = getLoginUser();
 		if (user != null) {
