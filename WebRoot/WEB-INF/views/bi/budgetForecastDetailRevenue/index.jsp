@@ -1,8 +1,7 @@
-<%@page import="foxconn.fit.entity.base.EnumBudgetVersion"%>
-<%@page import="foxconn.fit.entity.base.EnumDimensionType"%>
 <%@page import="foxconn.fit.util.SecurityUtils"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ include file="/static/common/taglibs.jsp"%>
+<%@page import="foxconn.fit.entity.base.EnumScenarios"%>
 <%
 	String corporationCode=SecurityUtils.getCorporationCode();
 	request.setAttribute("corporationCode", corporationCode);
@@ -53,6 +52,10 @@
 					$("#UploadTip").hide();
 
 					$("#FileUpload").click(function(){
+						if(!$("#scenarios").val()){
+							$("#scenariosTip").show();
+							return;
+						}
 						$("#loading").show();
 						data.submit();
 					});
@@ -83,27 +86,30 @@
 
 			$("#Download").click(function(){
 				$("#UploadTip").hide();
-				var year=$("#QYear").val();
-				if(year.length==0){
-					layer.msg("请选择年份");
+				if(!$("#QScenarios").val()){
+					layer.alert("請選擇場景！(Please select a scene)");
 					return;
 				}
-				if($("input[name=entitys]:checked").length==0){
-					layer.msg("请选择SBU");
+				if(!$("#QYear").val()){
+					layer.alert("请选择年份");
 					return;
+				}
+				var entitys="";
+				if(!$("input[name=entitys]:checked")){
+					layer.alert("请选择SBU");
+					return;
+				}else{
+					$("input[name=entitys]:checked").each(function(i,dom){
+						entitys+=$(dom).val()+",";
+					});
 				}
 				$("#loading").show();
-				var entitys="";
-				$("input[name=entitys]:checked").each(function(i,dom){
-					entitys+=$(dom).val()+",";
-				});
-				var version=$("#QVersion").val();
 				$.ajax({
 					type:"POST",
 					url:"${ctx}/bi/budgetForecastDetailRevenue/download",
 					async:true,
 					dataType:"json",
-					data:{year:year,entitys:entitys,version:version},
+					data:{year:$("#QYear").val(),entitys:entitys,version:$("#QVersion").val(),scenarios:$("#QScenarios").val()},
 					success: function(data){
 						if (data.flag == "success") {
 							window.location.href = "${ctx}/static/download/" + data.fileName;
@@ -141,35 +147,18 @@
 				});
 			});
 
-			$("#DownloadTemplate").click(function(){
-				$("#loading").show();
-				$.ajax({
-					type: "POST",
-					url: "${ctx}/bi/budgetForecastDetailRevenue/template",
-					async: true,
-					dataType: "json",
-					success: function (data) {
-						$("#loading").hide();
-						if (data.flag == "success") {
-							window.location.href = "${ctx}/static/download/" + data.fileName;
-						} else {
-							layer.alert(data.msg);
-						}
-					},
-					error: function () {
-						$("#loading").hide();
-						layer.alert("下載失敗！(Download Failed)");
-					}
-				});
-			});
-
 			$("#Version").click(function(){
+                if(!$("#QScenarios").val()){
+                    layer.alert("請選擇場景！(Please select a scene)");
+                    return;
+                }
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
 					url: "${ctx}/bi/budgetForecastDetailRevenue/version",
 					async: true,
 					dataType: "json",
+                    data:{scenarios:$("#QScenarios").val()},
 					success: function (data) {
 						$("#loading").hide();
 						if (data.flag == "success") {
@@ -188,30 +177,72 @@
 			$("#QueryBtn").click(function(){
 				clickPage(1);
 			});
+
+			$(".AllCheck input").change(function(){
+				var checked=$(this).is(":checked");
+				$(this).parent().siblings().find("input").prop("checked",checked);
+				if(!checked){
+					$(this).parent().parent().parent().siblings().find("span").show();
+				}else{
+					$(this).parent().parent().parent().siblings().find("span").hide();
+				}
+			});
+
+			$(".Check input").change(function(){
+				var length=$(this).parent().siblings(".Check").find("input:checked").length+$(this).is(":checked");
+				var total=$(this).parent().siblings(".Check").length+1;
+				$(this).parent().siblings(".AllCheck").find("input").prop("checked",length==total);
+				if(length>0){
+					$(this).parent().parent().parent().siblings().find("span").hide();
+				}else{
+					$(this).parent().parent().parent().siblings().find("span").show();
+				}
+			});
+			$("#scenarios").change(function () {
+				if($(this).val()){
+					$("#QScenarios").val($(this).val());
+				}
+			})
+			$("#QScenarios").change(function () {
+				if($(this).val()){
+					var date=new Date;
+					var year=date.getFullYear();
+					if($(this).val()=="forecast"){
+						$("#QYear").val("FY"+year.toString().substring(2));
+					}else{
+						year=year+1;
+						$("#QYear").val("FY"+year.toString().substring(2));
+					}
+					clickPage(1);
+				}
+			})
 		});
 
-		$(".AllCheck input").change(function(){
-			var checked=$(this).is(":checked");
-			$(this).parent().siblings().find("input").prop("checked",checked);
-			if(!checked){
-				$(this).parent().parent().parent().siblings().find("span").show();
-			}else{
-				$(this).parent().parent().parent().siblings().find("span").hide();
-			}
-		});
+		function DownloadTemplate(type){
+			$("#loading").show();
+			$.ajax({
+				type: "POST",
+				url: "${ctx}/bi/budgetForecastDetailRevenue/template",
+				async: true,
+				dataType: "json",
+				data: {type:type},
+				success: function (data) {
+					$("#loading").hide();
+					if (data.flag == "success") {
+						window.location.href = "${ctx}/static/download/" + data.fileName;
+					} else {
+						layer.alert(data.msg);
+					}
+				},
+				error: function () {
+					$("#loading").hide();
+					layer.alert("下載失敗！(Download Failed)");
+				}
+			});
+		};
 
-		$(".Check input").change(function(){
-			var length=$(this).parent().siblings(".Check").find("input:checked").length+$(this).is(":checked");
-			var total=$(this).parent().siblings(".Check").length+1;
-			$(this).parent().siblings(".AllCheck").find("input").prop("checked",length==total);
-			if(length>0){
-				$(this).parent().parent().parent().siblings().find("span").hide();
-			}else{
-				$(this).parent().parent().parent().siblings().find("span").show();
-			}
-		});
-		// $("#QueryBtn").click();
-		$("#Content").load("${ctx}/bi/budgetForecastDetailRevenue/list",{entity:"",year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
+		$("#Content").load("${ctx}/bi/budgetForecastDetailRevenue/list",{scenarios:"",entity:"",year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
+
 	</script>
 </head>
 <body>
@@ -237,10 +268,23 @@
 								</div>
 							</div>
 							<div style="float:left;margin-left:10px;display:inline-block;">
+								<div>
+									<select id="scenarios" name="scenarios" class="input-large" style="width:100px;">
+										<option value=""><spring:message code='scenarios'/></option>
+										<option value="budget"><%=EnumScenarios.Budget %></option>
+										<option value="forecast"><%=EnumScenarios.Forecast%></option>
+									</select>
+								</div>
+								<div id="scenariosTip" style="display:none;float:left;">
+									<span class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
+								</div>
+							</div>
+							<div style="float:left;margin-left:10px;display:inline-block;">
 								<button id="FileUpload" style="float:left;width: 80px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 							</div>
 							<div style="text-align: right">
-								<button id="DownloadTemplate" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='budgetTemplate'/></button>
+								<button onclick="DownloadTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='budgetTemplate'/></button>
+								<button onclick="DownloadTemplate('forecast')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='forecastTemplate'/></button>
 								<button id="DimensionTable" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='dimension'/></button>
 							</div>
 						</div>
@@ -250,6 +294,11 @@
 		</div>
 		<div class="m-l-md m-t-md m-r-md" style="clear:both;">
 			<div class="controls">
+				<select id="QScenarios" name="scenarios" class="input-large" style="width:100px;">
+					<option value=""><spring:message code='scenarios'/></option>
+					<option value="budget"><%=EnumScenarios.Budget %></option>
+					<option value="forecast"><%=EnumScenarios.Forecast%></option>
+				</select>
 				<select id="QYear" class="input-large" style="width:100px;">
 					<c:forEach items="${yearsList }" var="years">
 						<option value="${years }" <c:if test="${years eq yearVal}">selected</c:if>>${years}</option>

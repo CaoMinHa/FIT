@@ -150,7 +150,13 @@ public class PredictDetailRevenueController extends BaseController {
 	@RequestMapping(value = "version")
 	@ResponseBody
 	public synchronized String version(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String version=forecastRevenueService.version();
+		if(version.indexOf("_")!=-1){
+			result.put("flag", "fail");
+			result.put("msg", getByLocale(locale,version));
+			return result.getJson();
+		}
 		result.put("version", version);
 		return result.getJson();
 	}

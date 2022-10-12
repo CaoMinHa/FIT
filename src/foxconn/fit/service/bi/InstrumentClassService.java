@@ -1,10 +1,10 @@
 package foxconn.fit.service.bi;
 
+import foxconn.fit.util.SecurityUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @Service
 public class InstrumentClassService{
@@ -38,5 +38,60 @@ public class InstrumentClassService{
         }else{
             return zh;
         }
+    }
+
+    public List<String> getBudgetSBU(){
+        //獲取當前用戶的SBU權限
+        List<String> tarList = new ArrayList<String>();
+        String corporationCode = SecurityUtils.getCorporationCode();
+        if (StringUtils.isNotEmpty(corporationCode)) {
+            for (String string : corporationCode.split(",")) {
+                tarList.add(string);
+            }
+        }
+        return tarList;
+    }
+
+    public String getBudgetSBUStr(){
+        //獲取當前用戶的SBU權限
+        String tarList = "";
+        String corporationCode = SecurityUtils.getCorporationCode();
+        if (StringUtils.isNotEmpty(corporationCode)) {
+            for (String string : corporationCode.split(",")) {
+                tarList+="'"+string+"',";
+            }
+        }
+        if(!tarList.isEmpty()){
+            return tarList.substring(0,tarList.length()-1);
+        }
+        return "'1,1'";
+    }
+
+    //預算預測SBU權限sql拼接
+    public String querySbuSql(String entity,List<Map> sbuMap){
+        String sql="";
+        if(StringUtils.isNotEmpty(entity)){
+            entity=","+entity+",";
+            int i=0;
+            sql+=" and ( ENTITY like '0' ";
+            for (Map map:sbuMap) {
+                if(entity.indexOf(map.get("PARENT").toString())!=-1){
+                    sql+=" or ENTITY like '"+map.get("ALIAS").toString()+"%'";
+                }
+            }
+            sql+=")";
+        }else{
+            if (!sbuMap.isEmpty()){
+                sql+=" and (ENTITY like '0' ";
+                for (int i = 0; i < sbuMap.size(); i++) {
+                    String sbu=sbuMap.get(i).get("ALIAS").toString();
+                        sql+=" or ENTITY like '"+sbu+"%'";
+                }
+                sql+=")";
+            }else{
+                sql+=" and ENTITY ='0' ";
+            }
+        }
+        return  sql;
     }
 }

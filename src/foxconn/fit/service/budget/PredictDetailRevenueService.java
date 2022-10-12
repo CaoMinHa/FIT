@@ -117,13 +117,7 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 	public String upload(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest) {
 		try {
 //			獲取當前用戶的SBU權限
-			List<String> tarList = new ArrayList<String>();
-			String corporationCode = SecurityUtils.getCorporationCode();
-			if (StringUtils.isNotEmpty(corporationCode)) {
-				for (String string : corporationCode.split(",")) {
-					tarList.add(string);
-				}
-			}
+			List<String> tarList = instrumentClassService.getBudgetSBU();
 			Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
 			if (mutipartFiles != null && mutipartFiles.size() > 0) {
 				MultipartFile file = (MultipartFile) mutipartFiles.values().toArray()[0];
@@ -187,8 +181,10 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 					if(row == null||entity.length()<1||"".equals(entity)){
 						continue;
 					}
-					sbuList.add(entity.split("_")[0]);
-					check = instrumentClassService.getDiffrent(sbuList, tarList);
+					String sql="select distinct PARENT from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and ALIAS='"+entity+"'";
+					List<String> listSbu=predictDetailRevenueDao.listBySql(sql);
+					sbuList.addAll(listSbu);
+					check = instrumentClassService.getDiffrent(listSbu, tarList);
 					if (row == null|| !"".equalsIgnoreCase(check.trim()) || check.length() > 0) {
 						continue;
 					}
@@ -397,8 +393,8 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷貨收入預測表","銷貨收入預測表")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷貨收入預測表","銷貨收入預測表")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預測表","銷售收入預測表")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預測表_backlog","銷售收入預測表_backlog")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
@@ -437,8 +433,8 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷貨收入預測表","銷貨收入預測表")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷貨收入預測表_下载","銷貨收入預測表_下载")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預測表","銷售收入預測表")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預測表_下载backlog","銷售收入預測表_下载backlog")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 
 
@@ -472,9 +468,13 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 				}
 			}
 			String sbuVal="";
-			for (String sbu : entitys.split(",")) {
-				if (tarList.contains(sbu)) {
-					sbuVal+=" ENTITY like '"+sbu+"_%' or";
+			String sbuStr = instrumentClassService.getBudgetSBUStr();
+			String sbusql="select distinct substr(ALIAS,0,instr(ALIAS,'_')-1) ALIAS, ','||PARENT||',' PARENT from fit_dimension where substr(ALIAS,0,instr(ALIAS,'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+sbuStr+")";
+			List<Map> sbuMap=predictDetailRevenueDao.listMapBySql(sbusql);
+			String entityStr=","+entitys+",";
+			for (Map map:sbuMap){
+				if(entityStr.indexOf(map.get("PARENT").toString())!=-1){
+					sbuVal+=" ENTITY like '"+map.get("ALIAS").toString()+"_%' or";
 				}
 			}
 			if(sbuVal.isEmpty()){
@@ -549,7 +549,9 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String sqlVersion="select Max(to_number(substr(version,2))) version  from FIT_PREDICT_DETAIL_REVENUE where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"'";
 		List<Map> maps = predictDetailRevenueDao.listMapBySql(sqlVersion);
-		if (maps == null || maps.get(0).get("VERSION").toString().equals("0")) {
+		if(null ==maps.get(0).get("VERSION")){
+			sqlVersion="No finalizable data detected_沒有檢查到可定版的數據！";
+		}else if (maps == null || maps.get(0).get("VERSION").toString().equals("0")) {
 			sqlVersion="V1";
 		}else{
 			int a=Integer.parseInt(maps.get(0).get("VERSION").toString());

@@ -4,6 +4,7 @@ import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.budget.BudgetDetailRevenue;
+import foxconn.fit.entity.budget.ForecastSalesRevenueV;
 import foxconn.fit.service.budget.BudgetForecastDetailRevenueService;
 import foxconn.fit.service.budget.ForecastDetailRevenueSrcService;
 import foxconn.fit.util.ExceptionUtil;
@@ -25,7 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- *
+ * @author maggao
  */
 @Controller
 @RequestMapping("/bi/budgetForecastDetailRevenue")
@@ -33,7 +34,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 
 	@Autowired
 	private BudgetForecastDetailRevenueService budgetForecastDetailRevenueService;
-	
+
 	@Autowired
 	private ForecastDetailRevenueSrcService forecastDetailRevenueSrcService;
 
@@ -44,12 +45,21 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	}
 
 	@RequestMapping(value="/list")
-	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,String entitys,String year,String version) {
+	@Log(name = "銷售收入-->查詢")
+	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,@Log(name="版本") String scenarios,@Log(name ="SBU") String entitys,
+					   @Log(name="年份") String year,@Log(name="版本") String version) {
 		try {
-			String sql=budgetForecastDetailRevenueService.list(year,version,entitys);
-			Page<Object[]> page = budgetForecastDetailRevenueService.findPageBySql(pageRequest, sql, BudgetDetailRevenue.class);
-			model.addAttribute("page", page);
+			if(scenarios.equals("budget")){
+				String sql=budgetForecastDetailRevenueService.budgetList(year,version,entitys);
+				Page<Object[]> page = budgetForecastDetailRevenueService.findPageBySql(pageRequest, sql, BudgetDetailRevenue.class);
+				model.addAttribute("page", page);
+			}else{
+				String sql=budgetForecastDetailRevenueService.forecastList(year,version,entitys);
+				Page<Object[]> page = budgetForecastDetailRevenueService.findPageBySql(pageRequest, sql, ForecastSalesRevenueV.class);
+				model.addAttribute("page", page);
+			}
 			model.addAttribute("year", year.substring(2));
+			model.addAttribute("scenarios", scenarios);
 		} catch (Exception e) {
 			logger.error("查询預算(預測)營收明細列表失败:", e);
 		}
@@ -58,42 +68,57 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 
 	@RequestMapping(value="/delete")
 	@ResponseBody
-	public String delete(HttpServletRequest request,AjaxResult ajaxResult,Model model,String id){
+	@Log(name = "銷售收入-->刪除")
+	public String delete(HttpServletRequest request,AjaxResult ajaxResult,Model model,String id,String scenarios){
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		ajaxResult.put("msg", getLanguage(locale, "删除成功", "Delete Success"));
 		try {
 			Assert.hasText(id, getLanguage(locale, "ID不能为空", "Id can not be null"));
-			budgetForecastDetailRevenueService.delete(id);
+			if(scenarios.equals("budget")){
+				budgetForecastDetailRevenueService.delete(id);
+			}else{
+				budgetForecastDetailRevenueService.deleteForecast(id);
+			}
 		} catch (Exception e) {
 			logger.error("删除失败:", e);
 			ajaxResult.put("flag", "fail");
 			ajaxResult.put("msg", getLanguage(locale, "删除失败", "Delete Fail")+ " : " + ExceptionUtil.getRootCauseMessage(e));
 		}
-		
+
 		return ajaxResult.getJson();
 	}
-	
+
 	@RequestMapping(value = "upload")
 	@ResponseBody
-	@Log(name = "預算營收明細-->上传")
-	public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result) {
+	@Log(name = "銷售收入-->上传")
+	public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result,@Log(name="場景") String scenarios) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		result.put("msg", getLanguage(locale, "上传成功", "Upload Success"));
 		MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
-		return budgetForecastDetailRevenueService.upload(result,locale,multipartHttpServletRequest);
+		if(scenarios.equals("budget")){
+			return budgetForecastDetailRevenueService.uploadBudget(result,locale,multipartHttpServletRequest);
+		}else{
+			return budgetForecastDetailRevenueService.uploadForecast(result,locale,multipartHttpServletRequest);
+		}
 	}
 
-	
+
 	@RequestMapping(value = "download")
 	@ResponseBody
-	@Log(name = "營收明細-->下载")
+	@Log(name = "銷售收入-->下载")
 	public synchronized String download(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
-			@Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version){
+			@Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version,@Log(name="場景")String scenarios){
 		try {
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+			Assert.hasText(scenarios, getLanguage(locale, "場景不能为空", "The scene cannot be empty"));
 			Assert.hasText(year, getLanguage(locale, "年不能为空", "Year can not be null"));
 			Assert.hasText(entitys, getLanguage(locale, "SBU不能为空", "SBU can not be null"));
-			Map<String,String> map=budgetForecastDetailRevenueService.download(entitys,year,version,request,pageRequest);
+			Map<String,String> map=null;
+			if("forecast".equals(scenarios)){
+				map=budgetForecastDetailRevenueService.downloadForecast(entitys,year,version,request,pageRequest);
+			}else{
+				map=budgetForecastDetailRevenueService.downloadBudget(entitys,year,version,request,pageRequest);
+			}
 			if(map.get("result").equals("Y")){
 				result.put("fileName", map.get("file"));
 			}else{
@@ -114,6 +139,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	 */
 	@RequestMapping(value = "dimension")
 	@ResponseBody
+	@Log(name = "銷售收入下載維度表")
 	public synchronized String dimension(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		 Map<String,String> map=forecastDetailRevenueSrcService.dimension(request);
@@ -132,10 +158,11 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	 */
 	@RequestMapping(value = "template")
 	@ResponseBody
-	public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+	@Log(name = "銷售收入下載模板")
+	public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result,String type) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		Map<String,String> map=budgetForecastDetailRevenueService.template(request);
-		if(map.get("result")=="Y"){
+		Map<String,String> map=budgetForecastDetailRevenueService.template(request,type);
+		if(map.get("result").equals("Y")){
 			result.put("fileName", map.get("file"));
 		}else{
 			result.put("flag", "fail");
@@ -149,8 +176,25 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	 */
 	@RequestMapping(value = "version")
 	@ResponseBody
-	public synchronized String version(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
-		String version=budgetForecastDetailRevenueService.version();
+	@Log(name = "銷售收入-->存儲版本")
+	public synchronized String version(HttpServletRequest request, HttpServletResponse response, AjaxResult result,String scenarios) {
+		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		String version="";
+		if("forecast".equals(scenarios)){
+			version=budgetForecastDetailRevenueService.versionForecast();
+			if(version.indexOf("_")!=-1){
+				result.put("flag", "fail");
+				result.put("msg", getByLocale(locale,version));
+				return result.getJson();
+			}
+		}else{
+			version=budgetForecastDetailRevenueService.versionBudget();
+			if(version.indexOf("_")!=-1){
+				result.put("flag", "fail");
+				result.put("msg", getByLocale(locale,version));
+				return result.getJson();
+			}
+		}
 		result.put("version", version);
 		return result.getJson();
 	}
