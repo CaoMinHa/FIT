@@ -63,7 +63,6 @@
                     });
                 },error: function () {
                     $("#loading").hide();
-                    layer.alert("郵件通知失敗,請聯係系統管理員。");
                 }
             });
         };
