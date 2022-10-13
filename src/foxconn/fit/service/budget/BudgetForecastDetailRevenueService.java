@@ -270,7 +270,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 						return result.getJson();
 					}
 					/**次產業校驗*/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'";
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'  or DIMENSION='S00' ";
 					check=this.check(industryList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
@@ -514,7 +514,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 						return result.getJson();
 					}
 					/**次產業校驗*/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'";
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'  or DIMENSION='S00'";
 					check=this.check(industryList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
