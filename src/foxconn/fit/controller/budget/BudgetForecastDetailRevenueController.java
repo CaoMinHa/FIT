@@ -68,8 +68,8 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 
 	@RequestMapping(value="/delete")
 	@ResponseBody
-	@Log(name = "銷售收入-->刪除")
-	public String delete(HttpServletRequest request,AjaxResult ajaxResult,Model model,String id,String scenarios){
+	@Log(name = "銷售收入-->單條數據刪除")
+	public String delete(HttpServletRequest request,AjaxResult ajaxResult,Model model,@Log(name="ID") String id,@Log(name = "場景")String scenarios){
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		ajaxResult.put("msg", getLanguage(locale, "删除成功", "Delete Success"));
 		try {
@@ -130,7 +130,6 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 			result.put("flag", "fail");
 			result.put("msg", ExceptionUtil.getRootCauseMessage(e));
 		}
-
 		return result.getJson();
 	}
 
@@ -177,7 +176,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "version")
 	@ResponseBody
 	@Log(name = "銷售收入-->存儲版本")
-	public synchronized String version(HttpServletRequest request, HttpServletResponse response, AjaxResult result,String scenarios) {
+	public synchronized String version(HttpServletRequest request, HttpServletResponse response, AjaxResult result,@Log(name = "場景") String scenarios) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String version="";
 		if("forecast".equals(scenarios)){

@@ -1,5 +1,4 @@
-<%@page import="foxconn.fit.entity.base.EnumBudgetVersion"%>
-<%@page import="foxconn.fit.entity.base.EnumDimensionType"%>
+<%@page import="foxconn.fit.entity.base.EnumScenarios"%>
 <%@page import="foxconn.fit.util.SecurityUtils"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ include file="/static/common/taglibs.jsp"%>
@@ -58,6 +57,10 @@ $(function() {
             $("#UploadTip").hide();
             
             $("#FileUpload").click(function(){
+				if(!$("#scenarios").val()){
+					$("#scenariosTip").show();
+					return;
+				}
             	$("#loading").show();
             	data.submit();
     		});
@@ -88,27 +91,30 @@ $(function() {
 
 	$("#Download").click(function(){
 		$("#UploadTip").hide();
-		var year=$("#QYear").val();
-		if(year.length==0){
-			layer.msg("请选择年份");
+		if(!$("#QScenarios").val()){
+			layer.alert("請選擇場景！(Please select a scene)");
 			return;
 		}
+		if(!$("#QYear").val()){
+			layer.alert("请选择年份");
+			return;
+		}
+		var entitys="";
 		if($("input[name=entitys]:checked").length==0){
 			layer.msg("请选择SBU");
 			return;
+		}else{
+			$("input[name=entitys]:checked").each(function(i,dom){
+				entitys+=$(dom).val()+",";
+			});
 		}
 		$("#loading").show();
-		var entitys="";
-		$("input[name=entitys]:checked").each(function(i,dom){
-			entitys+=$(dom).val()+",";
-		});
-		var version=$("#QVersion").val();
 		$.ajax({
 			type:"POST",
 			url:"${ctx}/bi/budgetProductNoUnitCost/download",
 			async:true,
 			dataType:"json",
-			data:{year:year,entitys:entitys,version:version},
+			data:{year:$("#QYear").val(),entitys:entitys,version:$("#QVersion").val(),scenarios:$("#QScenarios").val()},
 			success: function(data){
 				if (data.flag == "success") {
 					window.location.href = "${ctx}/static/download/" + data.fileName;
@@ -123,58 +129,18 @@ $(function() {
 			}
 		});
 	});
-
-	$("#DownloadTemplate").click(function(){
-		$("#loading").show();
-		$.ajax({
-			type: "POST",
-			url: "${ctx}/bi/budgetProductNoUnitCost/template",
-			async: true,
-			dataType: "json",
-			success: function (data) {
-				$("#loading").hide();
-				if (data.flag == "success") {
-					window.location.href = "${ctx}/static/download/" + data.fileName;
-				} else {
-					layer.alert(data.msg);
-				}
-			},
-			error: function () {
-				$("#loading").hide();
-				layer.alert("下載失敗！(Download Failed)");
-			}
-		});
-	});
-
-	$("#simplifyTemplate").click(function(){
-		$("#loading").show();
-		$.ajax({
-			type: "POST",
-			url: "${ctx}/bi/budgetProductNoUnitCost/simplifyTemplate",
-			async: true,
-			dataType: "json",
-			success: function (data) {
-				$("#loading").hide();
-				if (data.flag == "success") {
-					window.location.href = "${ctx}/static/download/" + data.fileName;
-				} else {
-					layer.alert(data.msg);
-				}
-			},
-			error: function () {
-				$("#loading").hide();
-				layer.alert("下載失敗！(Download Failed)");
-			}
-		});
-	});
-
 	$("#Version").click(function(){
+		if(!$("#QScenarios").val()){
+			layer.alert("請選擇場景！(Please select a scene)");
+			return;
+		}
 		$("#loading").show();
 		$.ajax({
 			type: "POST",
 			url: "${ctx}/bi/budgetProductNoUnitCost/version",
 			async: true,
 			dataType: "json",
+			data:{scenarios:$("#QScenarios").val()},
 			success: function (data) {
 				$("#loading").hide();
 				if (data.flag == "success") {
@@ -205,8 +171,33 @@ $(function() {
 		var total=$(this).parent().siblings(".Check").length+1;
 		$(this).parent().siblings(".AllCheck").find("input").prop("checked",length==total);
 	});
-	// $("#QueryBtn").click();
-	<%--$("#Content").load("${ctx}/bi/budgetProductNoUnitCost/list");--%>
+
+	$("#scenarios").change(function () {
+		if($(this).val()){
+			var date=new Date;
+			var year=date.getFullYear();
+			$("#QScenarios").val($(this).val());
+			if($(this).val()=="forecast"){
+				$("#QYear").val("FY"+year.toString().substring(2));
+			}else{
+				year=year+1;
+				$("#QYear").val("FY"+year.toString().substring(2));
+			}
+		}
+	})
+	$("#QScenarios").change(function () {
+		if($(this).val()){
+			var date=new Date;
+			var year=date.getFullYear();
+			if($(this).val()=="forecast"){
+				$("#QYear").val("FY"+year.toString().substring(2));
+			}else{
+				year=year+1;
+				$("#QYear").val("FY"+year.toString().substring(2));
+			}
+			clickPage(1);
+		}
+	})
 
 	$("#Content").load("${ctx}/bi/budgetProductNoUnitCost/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
 
@@ -247,6 +238,53 @@ $(function() {
 		});
 	});
 });
+
+function downloadTemplate(type){
+	$("#loading").show();
+	$.ajax({
+		type: "POST",
+		url: "${ctx}/bi/budgetProductNoUnitCost/template",
+		async: true,
+		dataType: "json",
+		data: {type:type},
+		success: function (data) {
+			$("#loading").hide();
+			if (data.flag == "success") {
+				window.location.href = "${ctx}/static/download/" + data.fileName;
+			} else {
+				layer.alert(data.msg);
+			}
+		},
+		error: function () {
+			$("#loading").hide();
+			layer.alert("下載失敗！(Download Failed)");
+		}
+	});
+};
+
+
+function simplifyTemplate(type){
+	$("#loading").show();
+	$.ajax({
+		type: "POST",
+		url: "${ctx}/bi/budgetProductNoUnitCost/simplifyTemplate",
+		async: true,
+		dataType: "json",
+		data: {type:type},
+		success: function (data) {
+			$("#loading").hide();
+			if (data.flag == "success") {
+				window.location.href = "${ctx}/static/download/" + data.fileName;
+			} else {
+				layer.alert(data.msg);
+			}
+		},
+		error: function () {
+			$("#loading").hide();
+			layer.alert("下載失敗！(Download Failed)");
+		}
+	});
+};
 </script>
 </head>
 <body>
@@ -271,14 +309,30 @@ $(function() {
 									<span class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
 								</div>
 					    	</div>
+							<div style="float:left;margin-left:10px;display:inline-block;">
+								<div>
+									<select id="scenarios" name="scenarios" class="input-large" style="width:100px;">
+										<option value=""><spring:message code='scenarios'/></option>
+										<option value="budget"><%=EnumScenarios.Budget %></option>
+										<option value="forecast"><%=EnumScenarios.Forecast%></option>
+									</select>
+								</div>
+								<div id="scenariosTip" style="display:none;float:left;">
+									<span class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
+								</div>
+							</div>
 							<div style="float:left;margin-left:10px;">
 								<button id="FileUpload" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 							</div>
 							<div style="text-align: right">
-								<button id="DownloadTemplate" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
-									預算模板</button>
-								<button id="simplifyTemplate" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
-									簡化版成本預算模板
+								<button onclick="downloadTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
+									<spring:message code='budgetTemplate'/></button>
+								<button onclick="downloadTemplate('forecast')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='forecastTemplate'/></button>
+								<button onclick="simplifyTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
+									<spring:message code='simplified'/><spring:message code='budgetTemplate'/>
+								</button>
+								<button onclick="simplifyTemplate('forecast')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
+									<spring:message code='simplified'/><spring:message code='forecastTemplate'/>
 								</button>
 							</div>
 					    </div>
@@ -288,6 +342,11 @@ $(function() {
         </div>
         <div class="m-l-md m-t-md m-r-md" style="clear:both;">
 	        <div class="controls">
+				<select id="QScenarios" name="scenarios" class="input-large" style="width:100px;">
+					<option value=""><spring:message code='scenarios'/></option>
+					<option value="budget"><%=EnumScenarios.Budget %></option>
+					<option value="forecast"><%=EnumScenarios.Forecast%></option>
+				</select>
 	        	<select id="QYear" class="input-large" style="width:100px;">
 					<c:forEach items="${yearsList }" var="years">
 						<option value="${years }" <c:if test="${years eq yearVal}">selected</c:if>>${years}</option>

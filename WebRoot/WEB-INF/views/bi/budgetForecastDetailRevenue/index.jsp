@@ -201,6 +201,14 @@
 			$("#scenarios").change(function () {
 				if($(this).val()){
 					$("#QScenarios").val($(this).val());
+					var date=new Date;
+					var year=date.getFullYear();
+					if($(this).val()=="forecast"){
+						$("#QYear").val("FY"+year.toString().substring(2));
+					}else{
+						year=year+1;
+						$("#QYear").val("FY"+year.toString().substring(2));
+					}
 				}
 			})
 			$("#QScenarios").change(function () {
