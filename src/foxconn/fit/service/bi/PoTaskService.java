@@ -409,7 +409,7 @@ public class PoTaskService extends BaseService<PoTask> {
 //                            sql = "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI'and EMAIL is not null and (r.code in ('CLASS','MANAGER') or u.username='KSK0R959')";
 //                            emailList.addAll(roRoleService.listBySql(sql));
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
-                            msg="尊敬的主管:</br> &nbsp;&nbsp;"+taskList.get(0).get("CREATE_USER_REAL").toString()+"已經完成"+task[0]+"_"+task[1]+"年度SBU CD目標數據，請您知悉！";
+                            msg="尊敬的主管:</br> &nbsp;&nbsp;"+taskList.get(0).get("CREATE_USER_REAL").toString()+"已經完成"+task[0]+"_"+task[1]+"年度SBU CD目標數據，請盡快登陸系統進行確認，如有問題請及時與相關SBU溝通,謝謝。";
                             Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"_"+task[1]+" SBU年度VOC",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
                             if(!isSends){
                                 ajaxResult.put("flag", "fail");

@@ -33,7 +33,7 @@ public class TaskJob {
      * 任務截止日當天及前一天上午8點檢查
      * @Scheduled(cron = "0 0 8 * * MON-SAT")
      */
-    @Scheduled(cron = "0 0 8 * * MON-SAT")
+//    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void job(){
         try{
             System.out.print("任務截止日當天及前一天上午8點檢查。");
@@ -75,7 +75,7 @@ public class TaskJob {
                         if(date.getTime()>date1.getTime()){
                             sqlUser="親愛的同事：</br>&nbsp;&nbsp;&nbsp;&nbsp;由"+poEmailLog.getCreateName()+"在"+formatter.format(poEmailLog.getCreateDate())
                                     +"發送的\""+poEmailLog.getEmailTitle()+"\"通知，截止完成時間為："+poEmailLog.getEndDate()
-                                    +",系統檢測到您目前尚未完成，已經逾期。請儘快完成數據上傳並告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
+                                    +",系統檢測到您目前尚未完成，已經逾期。請儘快與各Commodity溝通並上傳溝通後數據，同時告知您的主管完成審核。</br>如已經完成，請忽略該提醒";
 //                            poEmailService.sendEmailTimingCC("'POTest','Amber'","'Emma','Nono'",sqlUser,title);
                             poEmailService.sendEmailTimingCC(username.substring(0,username.length()-1),SBUCompetentUserName.substring(0,SBUCompetentUserName.length()-1),sqlUser,title);
                         }else{
