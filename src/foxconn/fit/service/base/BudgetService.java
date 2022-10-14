@@ -23,10 +23,15 @@ public class BudgetService extends BaseService<Planning>{
 		return planningDao;
 	}
 	
-	public String generatePlanning(String sbu, String year) throws Exception{
+	public String generatePlanning(String sbu, String year,String scenarios) throws Exception{
 		sbu.length();
-		Connection c = SessionFactoryUtils.getDataSource(planningDao.getSessionFactory()).getConnection();  
-		CallableStatement cs = c.prepareCall("{call cux_budget_cost_pkg.generate_planning(?,?,?,?)}");
+		Connection c = SessionFactoryUtils.getDataSource(planningDao.getSessionFactory()).getConnection();
+		CallableStatement cs;
+		if("budget".equals(scenarios)){
+			cs = c.prepareCall("{call cux_budget_cost_pkg.generate_planning(?,?,?,?)}");
+		}else{
+			cs = c.prepareCall("{call cux_forecast_cost_pkg.generate_planning(?,?,?,?)}");
+		}
 		cs.setString(1, sbu);
 		cs.setString(2, year);
 		cs.registerOutParameter(3, java.sql.Types.VARCHAR);

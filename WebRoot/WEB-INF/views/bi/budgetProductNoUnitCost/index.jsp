@@ -95,19 +95,14 @@ $(function() {
 			layer.alert("請選擇場景！(Please select a scene)");
 			return;
 		}
-		if(!$("#QYear").val()){
-			layer.alert("请选择年份");
+		if($("input[name=entitys]:checked").length==0){
+			layer.alert("請選擇SBU");
 			return;
 		}
 		var entitys="";
-		if($("input[name=entitys]:checked").length==0){
-			layer.msg("请选择SBU");
-			return;
-		}else{
-			$("input[name=entitys]:checked").each(function(i,dom){
+		$("input[name=entitys]:checked").each(function(i,dom){
 				entitys+=$(dom).val()+",";
-			});
-		}
+		});
 		$("#loading").show();
 		$.ajax({
 			type:"POST",
@@ -202,6 +197,10 @@ $(function() {
 	$("#Content").load("${ctx}/bi/budgetProductNoUnitCost/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
 
 	$("#DownloadPlanning").click(function(){
+		if(!$("#QScenarios").val()){
+			layer.alert("請選擇場景！(Please select a scene)");
+			return;
+		}
 		if($("input[name=entitys]:checked").length==0){
 			layer.alert("請選擇SBU");
 			return;
@@ -210,18 +209,13 @@ $(function() {
 		$("input[name=entitys]:checked").each(function(i,dom){
 			sbu+=$(dom).val()+",";
 		});
-		var year=$("#QYear").val();
-		if(year.length==0){
-			layer.alert("請選擇年份");
-			return;
-		}
 		$("#loading").show();
 		$.ajax({
 			type:"POST",
 			url:"${ctx}/bi/budget/download",
 			async:true,
 			dataType:"json",
-			data:{sbu:sbu,year:year},
+			data:{sbu:sbu,year:$("#QYear").val(),scenarios:$("#QScenarios").val()},
 			success: function(data){
 				$("#loading").hide();
 				if(data.flag=="success"){
@@ -238,6 +232,7 @@ $(function() {
 		});
 	});
 });
+
 
 function downloadTemplate(type){
 	$("#loading").show();

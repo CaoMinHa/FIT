@@ -47,9 +47,9 @@ public class BudgetController extends BaseController {
 
 	@RequestMapping(value = "download")
 	@ResponseBody
-	@Log(name = "下载Budget")
+	@Log(name = "提交銷售預算/預測")
 	public synchronized String download(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
-			@Log(name = "SBU") String sbu,@Log(name = "年") String year){
+			@Log(name = "SBU") String sbu,@Log(name = "年") String year,@Log(name="場景")String scenarios){
 		try {
 			String[] years=year.split(",");
 			List<Map> list =new ArrayList<>();
@@ -63,13 +63,18 @@ public class BudgetController extends BaseController {
 					entity+=s+"|";
 				}
 				entity=entity.substring(0,entity.length()-1);
-
-				String message = budgetService.generatePlanning(entity,yr);
+				List<Map> lists;
+				String message = budgetService.generatePlanning(entity,yr,scenarios);
 				if (StringUtils.isNotEmpty(message)) {
 					throw new RuntimeException("计算Budget数据出错 : "+message);
 				}
-				String sql="select ACCOUNT,JAN,FEB, MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW,DATA_LOAD_CUBE_NAME from CUX_FIT_PLANNING_V order by POINT_OF_VIEW";
-				List<Map> lists = budgetService.listMapBySql(sql);
+				if(scenarios.equals("budget")){
+					String sql="select ACCOUNT,JAN,FEB, MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW,DATA_LOAD_CUBE_NAME from CUX_FIT_PLANNING_V order by POINT_OF_VIEW";
+					lists = budgetService.listMapBySql(sql);
+				}else{
+					String sql="select ACCOUNT,JAN,FEB, MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW,DATA_LOAD_CUBE_NAME from cux_forecast_planning_v order by POINT_OF_VIEW";
+					lists = budgetService.listMapBySql(sql);
+				}
 				list.addAll(lists);
 			};
 
