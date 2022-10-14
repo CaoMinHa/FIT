@@ -51,8 +51,8 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+"FIT_PBCS Dimension table.xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+"FIT_PBCS Dimension table.xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+"FIT_Hyperion Dimension table.xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+"FIT_Hyperion Dimension table.xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 
 			/**組織维度表*/
@@ -203,8 +203,8 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+"FIT PBCS Dimension table.xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+"FIT PBCS Dimension table.xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+"FIT Hyperion Dimension table.xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+"FIT Hyperion Dimension table.xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(5);
 			Sheet sheetFoet = workBook.getSheetAt(6);

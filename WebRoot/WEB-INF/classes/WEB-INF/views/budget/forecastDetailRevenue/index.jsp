@@ -223,7 +223,7 @@ $(function() {
 		}
 	});
 	$("#DimensionTable").click(function(){
-		window.location.href="${ctx}/static/template/budget/FIT_PBCS Dimension table 0917.xlsx";
+		window.location.href="${ctx}/static/template/budget/FIT_Hyperion Dimension table 0917.xlsx";
 	});
 	
 	$("#Year").change(function(){
