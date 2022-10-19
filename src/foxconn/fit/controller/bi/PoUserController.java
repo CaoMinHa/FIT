@@ -94,7 +94,7 @@ public class PoUserController extends BaseController {
         return "/bi/poUser/list";
     }
 
-    /*
+    /**
      * 用户维护物料大类
      * */
 
@@ -107,7 +107,12 @@ public class PoUserController extends BaseController {
             List<Map> map= poRoleService.listMapBySql(userSql);
             List<String> commodityList = poTableService.listBySql("select distinct tie.COMMODITY_NAME from CUX_FUNCTION_COMMODITY_MAPPING tie order by tie.COMMODITY_NAME");
 //            List<String> sbuList = poTableService.listBySql("select   distinct  SBU from EPMEBS.CUX_SBU_BU_MAPPING order by SBU ");
-            List<String> sbuList = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie order by tie.NEW_SBU_NAME ");
+//            List<String> sbuList = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie order by tie.NEW_SBU_NAME ");
+            List<String> sbuList = poTableService.listBySql("select distinct SBU from(\n" +
+                    "select distinct NEW_SBU_NAME sbu from BIDEV.v_if_sbu_mapping \n" +
+                    "union all\n" +
+                    "select distinct SBU from epmexp.cux_pbcs_fit_mapping\n" +
+                    ")");
             ajaxResult.put("cList",commodityList);
             ajaxResult.put("map",map);
             ajaxResult.put("sList",sbuList);

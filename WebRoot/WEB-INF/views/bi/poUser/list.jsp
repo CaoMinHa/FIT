@@ -19,6 +19,15 @@
 		-moz-box-sizing: border-box;
 		box-sizing: border-box;
 	}
+	.table-condensed td{
+		padding:2px 3px !important;
+	}
+	.table-condensed th{
+		padding:4px 5px !important;
+	}
+	.modal-backdrop {
+		position: initial!important;
+	}
 </style>
 <head>
 
@@ -181,14 +190,12 @@ function addDept(index) {
 							layer.alert("<spring:message code='connect_fail'/>");
 						}
 					});
-
-
 				}
 			},
 			{
 				text: "<spring:message code='close'/>",
 				click: function () {
-					that.dialog("destroy");
+					$(this).dialog("destroy");
 				}
 			}
 		],
@@ -207,7 +214,6 @@ function addDept(index) {
 	<table align="center" class="table table-condensed table-hover" >
 		<thead>
 			<tr>
-				<th style="text-align:center;width: 50px;display: none;">序号</th>
 				<th style="text-align:center" >用戶賬號</th>
 				<th style="text-align:center" >用戶姓名</th>
 				<th style="text-align:center" >類型</th>
@@ -230,6 +236,11 @@ function addDept(index) {
 						<c:when test="${status.index eq 0}">
 							<td style="white-space: nowrap;border-right:1px solid #eee;display: none;">
 								<input  name="ID" type="checkbox"  value="${mapping[i]}"/>
+							</td>
+						</c:when>
+						<c:when test="${status.index eq 4 ||status.index eq 5}">
+							<td style="white-space: nowrap;border-right:1px solid #eee;">
+								<textarea style="width: 95%;" rows="1">${mapping[i]}</textarea>
 							</td>
 						</c:when>
 						<c:otherwise>
@@ -271,7 +282,6 @@ function addDept(index) {
 					<input id="email" style="height: 30px !important;" type="email" datatype="s3-30"/>
 				</div>
 			</div>
-
 		</form>
 	</div>
 
