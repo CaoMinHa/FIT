@@ -266,7 +266,10 @@
                     $("#TableNameTip").show();
                     return;
                 }
-                $("#loading").show();
+                if($("#tableName").val()=="FIT_PO_SBU_YEAR_CD_SUM"){
+                    window.location.href="${ctx}/static/template/bi/SBU年度CD目標匯總表.xlsx";
+                }else{
+                    $("#loading").show();
                 $.ajax({
                     type: "POST",
                     url: "${ctx}/bi/poIntegration/template",
@@ -286,6 +289,7 @@
                         layer.alert("<spring:message code='connect_fail'/>");
                     }
                 });
+                }
             });
 
             $("#ui-datepicker-div").remove();

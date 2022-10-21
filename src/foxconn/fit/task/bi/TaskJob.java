@@ -33,7 +33,7 @@ public class TaskJob {
      * 任務截止日當天及前一天上午8點檢查
      * @Scheduled(cron = "0 0 8 * * MON-SAT")
      */
-//    @Scheduled(cron = "0 0 8 * * MON-SAT")
+    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void job(){
         try{
             System.out.print("任務截止日當天及前一天上午8點檢查。");
@@ -58,9 +58,9 @@ public class TaskJob {
                     int integer=Integer.parseInt(dateString.substring(0,4))+1;
                     //查找未提交的SBU
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
-                            "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') " +
+                            "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS') " +
                             " and tie.NEW_SBU_NAME not in" +
-                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag in(1,2,3) and a.year='2022')";//"+integer+"
+                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag in(1,2,3) and a.year='"+integer+"')";
                     //查找拥有角色MM的权限用户
                     String sqlUser="select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
                             "r.id=ur.role_id and r.code='MM' and u.type='BI' and u.sbu is not null";
@@ -90,9 +90,9 @@ public class TaskJob {
                     }
                     //查找未审核的SBU
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
-                            "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') " +
+                            "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS') " +
                             " and tie.NEW_SBU_NAME  in" +
-                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=1 and a.year='2022')";//"+integer+"
+                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=1 and a.year='"+integer+"')";
                     sqlUser = "select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
                             "r.id=ur.role_id and r.code='PD' and u.type='BI' and u.sbu is not null";
                     username=userEmail(sql,sqlUser);
@@ -111,11 +111,11 @@ public class TaskJob {
                         poEmailService.sendEmailTiming(username.substring(0,username.length()-1),sqlUser,title);
 //                        poEmailService.sendEmailTiming("'Emma'",sqlUser,title);
                     }
-                    //查找未审核的SBU
+                    /**查找未审核的SBU*/
                     sql="select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where" +
-                            "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') " +
+                            "  tie.NEW_SBU_NAME IN ('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS') " +
                             " and tie.NEW_SBU_NAME in" +
-                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=2 and a.year='2022')";//"+integer+"
+                            "(select distinct a.sbu from FIT_PO_SBU_YEAR_CD_SUM a where flag=2 and a.year='"+integer+"')";
                     sqlUser = "select  u.*  from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and " +
                             "r.id=ur.role_id and r.code='KEYUSER' and u.type='BI' and u.sbu is not null";
                     username=userEmail(sql,sqlUser);

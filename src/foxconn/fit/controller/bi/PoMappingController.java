@@ -220,7 +220,7 @@ public class PoMappingController extends BaseController{
 			if (StringUtils.isNotEmpty(queryCondition)) {
 				sql+=" where 1=1 ";
 				if("CUX_SBU_MAPPING".equalsIgnoreCase(tableName)){
-					sql="select distinct ID_SBU ID,'BM_SBU|R|'||OLD_SBU_NAME,'SBU|R|'||NEW_SBU_NAME,'SBU|R|'||STATE,'SBU|R|'||UPDATE_NAME,'SBU|R|'||UPDATE_DATE from bidev.v_if_sbu_mapping where NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD')";
+					sql="select distinct ID_SBU ID,'BM_SBU|R|'||OLD_SBU_NAME,'SBU|R|'||NEW_SBU_NAME,'SBU|R|'||STATE,'SBU|R|'||UPDATE_NAME,'SBU|R|'||UPDATE_DATE from bidev.v_if_sbu_mapping where NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS')";
 //				sql="select   distinct  '' as ID,'BM_SBU|R|'||BM_SBU,'SBU|R|'||SBU from EPMEBS.CUX_SBU_BU_MAPPING  ";
 				}
 				String[] params = queryCondition.split("&");
@@ -448,7 +448,7 @@ public class PoMappingController extends BaseController{
 				if(!"bidev.v_if_sbu_mapping".equalsIgnoreCase(tableName)){
 					sql+=" order by ID";
 				}else{
-					sql+= " and NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD')";
+					sql+= " and NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS')";
 				}
 			}
 			String optionSql="SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+

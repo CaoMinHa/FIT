@@ -198,7 +198,7 @@ public class PoIntegrationController extends BaseController {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-        List<String> subs = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie  where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') order by tie.NEW_SBU_NAME");
+        List<String> subs = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie  where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS') order by tie.NEW_SBU_NAME");
         List<String> commoditys = poCenterService.findCommoditys();
         List<String> monthList = new ArrayList<>();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
@@ -308,7 +308,6 @@ public class PoIntegrationController extends BaseController {
                         }
                         int n = 0;
                         List<String> data = new ArrayList<String>();
-                        data.add(year);
                         String year_month = year + period;
                         String recordsYear = ExcelUtil.getCellStringValue(row.getCell(0), i, j);
                         String recordsMonth = ExcelUtil.getCellStringValue(row.getCell(1), i, j);
@@ -316,18 +315,19 @@ public class PoIntegrationController extends BaseController {
                             recordsMonth = "0" + recordsMonth;
                         }
                         String RYM = recordsYear + recordsMonth;
-                        int num = 3;
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                            Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
+                            Assert.isTrue(String.valueOf(Integer.parseInt(year)+1).equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
                             // poCenterValue=ExcelUtil.getCellStringValue(row.getCell(1),i,j);
-                            num = num - 1;
+                            data.add(recordsYear);
                             n += 1;
                         } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
                             System.out.println("FIT_PO_CD_MONTH_DTL表校驗年");
+                            data.add(year);
                             n = 1;
                             Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
                         } else {
                             Assert.isTrue(year_month.equals(RYM), getLanguage(locale, "錯誤的月份： " + RYM + "應為：" + year_month, "The year，period is error:" + RYM + "should be：" + year_month));
+                            data.add(year);
                             data.add(period);
                             n += 2;
                         }
@@ -482,21 +482,16 @@ public class PoIntegrationController extends BaseController {
                         if (StringUtils.isNotEmpty(key)) {
                             String base64 = Base64.getEncoder().encodeToString(key.getBytes());
                             if (keyRepeatMap.containsKey(base64)) {
-                                Integer rowIndex = keyRepeatMap.get(base64);
                                 List<String> keyNameList = new ArrayList<String>();
                                 for (PoKey poKey : keys) {
                                     if (poKey.getSerial() >= 5) {
                                         keyNameList.add(poKey.getComments());
                                     }
                                 }
-//                                result.put("flag", "fail");
-//                                result.put("msg", getLanguage(locale, "第" + (i + 1) + "個sheet第" + (j + 1) + "行的Key值與第" + rowIndex + "行的Key值重複,Key包含的列有 : ", "The key value of the sheet " + (i + 1) + " row " + (j + 1) + " is repeated with the key value of row " + rowIndex + ". The key contains the following columns : ") + Arrays.toString(keyNameList.toArray()));
-//                                return result.getJson();
                             } else {
                                 keyRepeatMap.put(base64, j + 1);
                             }
                         }
-
                         dataList2.add(data);
                         Boolean isOne = oneByky(tableName, dataList2, data);
                         if (!isOne) {
@@ -881,7 +876,7 @@ public class PoIntegrationController extends BaseController {
                 //SBU 值集修改成新表
 //                List<String> sbuList = poTableService.listBySql("select   distinct  SBU from EPMEBS.CUX_SBU_BU_MAPPING order by SBU ");
 
-                List<String> sbuList = poTableService.listBySql(" select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') order by tie.NEW_SBU_NAME ");
+                List<String> sbuList = poTableService.listBySql(" select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS') order by tie.NEW_SBU_NAME ");
 
                 Sheet sheet = workBook.createSheet("Commodity大類和SBU");
                 Row titleRow = sheet.createRow(0);

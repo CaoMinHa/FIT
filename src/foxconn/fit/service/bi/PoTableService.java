@@ -88,11 +88,11 @@ public class PoTableService extends BaseService<PoTable> {
         String id = UUID.randomUUID().toString();
         for (PoTable poTable : dataMap.keySet()) {
             List<PoColumns> columns = poTable.getColumns();
-//            List<PoKey> keys = poTable.getKeys();
             String[] s = poTable.getComments().split("_");
             String name = year + period + "_" + commodity.get(0)+"_" + s[s.length - 1] + "的上传任务";
             String tableName = poTable.getTableName();
             if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
+                year=String.valueOf(Integer.parseInt(year)+1);
                 name = year + "_" + sbu.get(0)+"_" + s[s.length - 1] + "的上传任务";
             }
             if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {

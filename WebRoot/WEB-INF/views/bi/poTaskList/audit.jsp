@@ -71,7 +71,7 @@
                         }
                         if (/^\-?[0-9]+(.[0-9]+)?$/.test(txt)){
                             $(this).css("text-align", "right");
-                            if ($("#taskType").val() == "FIT_PO_SBU_YEAR_CD_SUM" && e == 6) {
+                            if ($("#taskType").val() == "FIT_PO_SBU_YEAR_CD_SUM" && e == 14) {
                                 $(this).text(RetainedDecimalPlaces(Number(txt),6));
                             } else {
                                 $(this).text(RetainedDecimalPlaces(Number(txt),2));
