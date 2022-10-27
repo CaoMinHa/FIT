@@ -51,6 +51,9 @@ public class PoTaskService extends BaseService<PoTask> {
     }
 
 
+    /**
+     * CPO目标任务提交
+     */
     public AjaxResult addCpoTask(AjaxResult ajaxResult,String year) {
         String flagSql="select  COUNT(*)  " + "from FIT_PO_Target_CPO_CD_DTL where year='"+year+"' and flag is not null ";
         List<Map> countMaps = poTableService.listMapBySql(flagSql);
@@ -64,14 +67,13 @@ public class PoTaskService extends BaseService<PoTask> {
             }
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String signTimet = df.format(new Date());
-            String updateSql = " update FIT_PO_Target_CPO_CD_DTL set flag='0', TASK_ID=" + "'" + taskId + "'," +
-                    " FLOW_USER=" + "'" + user + "'," + " FLOW_TIME=" + "'" + signTimet + "'" +", USERNAME='"+userName.get(0)+"'"+
-                    " WHERE YEAR=" + year;
+            String updateSql = "update epmods.FIT_PO_TARGET_CPO_CD_DTL set flag='0',TASK_ID='" + taskId + "'," +
+                    " FLOW_USER='" + user + "', FLOW_TIME='" + signTimet + "',USERNAME='"+userName.get(0)+"' WHERE YEAR='"+ year+"' ";
             String like = year + "%";
             poFlowDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
             String deleteSql = " delete from FIT_PO_TASK where name like " + "'" + like + "'" + " and type='FIT_PO_Target_CPO_CD_DTL'";
             poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-            String name = year + "年SBU年度CD目標核准";
+            String name = year + "_採購CD目標CPO核准";
             String sql = " insert into FIT_PO_TASK (ID,TYPE,NAME,FLAG,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,CREATE_USER_REAL,UPDATE_USER_REAL) " +
                     " values ( ";
             sql = sql + "'" + taskId + "'," + "'FIT_PO_Target_CPO_CD_DTL'," + "'" + name + "'," + "'0'," + "'" + user + "'," + "'" + signTimet + "'," + "'" + user + "'," + "'" + signTimet + "'" +
@@ -79,10 +81,9 @@ public class PoTaskService extends BaseService<PoTask> {
             poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
         }else{
             ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", "任務已提交，不要重複提交 ");
+            ajaxResult.put("msg", "任務已創建，不要重複提交 ");
         }
         return ajaxResult;
-
     }
 
     /**
@@ -154,7 +155,8 @@ public class PoTaskService extends BaseService<PoTask> {
                     " WHERE  r.code='T_MANAGER' and u.type='BI' and u.email is not null";
             List<String> tManager = roRoleService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());
-            msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD 目標CPO核准表請審核!";
+            msg="尊敬的主管:</br>&nbsp;&nbsp;SBU年度CD目標核准表請審核!";
+            title=taskList.get(0)+"採購BI平臺待簽核，請勿回復";
         }else{
             ajaxResult.put("flag", "fail");
             ajaxResult.put("msg", "任務類型出錯(Task Type Fail)");
@@ -237,9 +239,6 @@ public class PoTaskService extends BaseService<PoTask> {
         List<String> emailListC=roRoleService.listBySql(sqlC);
         String emailCC=loginUser.getEmail()+","+emailListC.get(0);
         if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(type)|| "FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(type)|| "FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)) {
-                if("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)){
-                    type="FIT_PO_CD_MONTH_DOWN";
-                }
                 if(!"0".equals(status)){
                     //退回
                     sql=sqlC;
@@ -255,7 +254,6 @@ public class PoTaskService extends BaseService<PoTask> {
                 }
                 List<String> managers = roRoleService.listBySql(sql);
                 emailList=managers.stream().distinct().collect(Collectors.toList());
-
         } else if ("FIT_PO_Target_CPO_CD_DTL".equals(type)) {
             String user = loginUser.getUsername();
             List<String> userName= poTableService.listBySql("select realname from FIT_USER where username='"+user+"' and type='BI'");
@@ -271,17 +269,18 @@ public class PoTaskService extends BaseService<PoTask> {
             if(!"0".equals(status)){
                 //退回
                 sql=sqlC;
-                msg="亲爱的同事:</br>&nbsp;&nbsp;SBU年度CD目標核准任務已退回請處理!";
+                msg="亲爱的同事:</br>&nbsp;&nbsp;採購CD 目標CPO核准任務已退回請處理!";
                 flag="-1";
             }else{
                 sql = " select distinct u.email from  fit_user u \n" +
                         " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                         " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                         " WHERE  r.code='CPO' and u.type='BI' and u.email is not null";
-                msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD核准任務請審核!";
+                msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD 目標CPO核准任務請審核!";
             }
             List<String> tManager = roRoleService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());
+            title=taskList.get(0)+"採購BI平臺待簽核，請勿回復";
         }else if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
             if(!"0".equals(status)){
                 //退回
@@ -339,6 +338,76 @@ public class PoTaskService extends BaseService<PoTask> {
         }
         return ajaxResult;
     }
+
+    /**
+     * CPO目标任务初級審批
+     */
+    public AjaxResult CPOAudit(AjaxResult ajaxResult,String type,String taskId,String status,String reamrk,String roleCode) {
+        String taskName = "select NAME from fit_po_task where id='" + taskId + "'";
+        List<String> taskList = roRoleService.listBySql(taskName);
+        String title=taskList.get(0)+"採購BI平臺待簽核，請勿回復";
+
+        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+        List<String> emailList=new ArrayList<>();
+        String sqlC="select distinct email from fit_user where username=(select CREATE_USER from FIT_PO_TASK WHERE id='"+taskId+"') and type='BI' and email is not null";
+        List<String> emailListC=roRoleService.listBySql(sqlC);
+        String emailCC=loginUser.getEmail()+","+emailListC.get(0);
+
+            String user = loginUser.getUsername();
+            List<String> userName= poTableService.listBySql("select realname from FIT_USER where username='"+user+"' and type='BI'");
+            if(null==userName.get(0)){
+                userName.set(0,user);
+            }
+
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String signTimet = df.format(new Date());
+            String updateSql = " update FIT_PO_Target_CPO_CD_DTL set" +
+                    " FLOW_USER=" + "'" + user + "'," + " FLOW_TIME=" + "'" + signTimet + "'" +", USERNAME='"+userName.get(0)+"'"+
+                    " WHERE task_id= '" + taskId+"'";
+            poFlowDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
+            String sql="";
+            String flag="";
+            String msg="";
+            if(!"0".equals(status)){
+                //退回
+                msg="亲爱的同事:</br>&nbsp;&nbsp;採購CD 目標CPO核准任務已退回請處理!";
+                flag="-1";
+            }else{
+                flag="10";
+                sql = " select distinct u.email from  fit_user u \n" +
+                        " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+                        " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+                        " WHERE  r.code='PLACECLASS' and u.type='BI' and u.email is not null";
+                msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD 目標CPO核准任務請審核!";
+                List<String> tManager = roRoleService.listBySql(sql);
+                emailList=tManager.stream().distinct().collect(Collectors.toList());
+            }
+        if(emailList.size()==0&&emailListC.size()==0){
+            ajaxResult.put("flag", "fail");
+            ajaxResult.put("msg", "請聯係管理員維護對應崗位的郵箱(Task Type Fail)");
+            return ajaxResult;
+        }else {
+            if(flag.equalsIgnoreCase("-1")){
+                roleCode=replaceRole("",taskId);
+            }else if(flag.equalsIgnoreCase("10")){
+                roleCode=replaceRole(roleCode,"1");
+            }
+            String emailVal="";
+            for (String e:emailList) {
+                emailVal=emailVal+e+",";
+            }
+            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+            if(isSend){
+                uploadTaskFlag(taskId,flag,type,reamrk,"","E");
+            }else{
+                ajaxResult.put("flag", "fail");
+                ajaxResult.put("msg", "郵件發送失敗 (Task Type Fail)");
+                return ajaxResult;
+            }
+        }
+        return ajaxResult;
+    }
+
     /**
      終審 三表 cpo
      查詢對應的任務辦理人 用戶名+郵箱 並發送郵件
@@ -364,7 +433,7 @@ public class PoTaskService extends BaseService<PoTask> {
         } else if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
             msg+="SBU年度CD目標匯總";
         }else if ("FIT_PO_Target_CPO_CD_DTL".equals(type)) {
-            msg+="採購CD目標核准表";
+            msg+="SBU年度CD目標核准表";
         }
         if("0".equals(status)){
             msg+="任務終審已通過！";
@@ -404,7 +473,7 @@ public class PoTaskService extends BaseService<PoTask> {
                         uploadTaskFlag(taskId,"3",type,reamrk,"","Z");
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(type)) {
                             String sql = "select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id \n" +
-                                    "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','MANAGER','PLACECLASS')  and COMMODITY_MAJOR is not null";
+                                    "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','MANAGER','PLACECLASS1','KEYUSER')  and COMMODITY_MAJOR is not null";
                             List<String> emailList = roRoleService.listBySql(sql);
 //                            sql = "select distinct u.EMAIL from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and u.type='BI'and EMAIL is not null and (r.code in ('CLASS','MANAGER') or u.username='KSK0R959')";
 //                            emailList.addAll(roRoleService.listBySql(sql));
@@ -447,6 +516,8 @@ public class PoTaskService extends BaseService<PoTask> {
                 taskSql+="AUDIT_ONE='"+user+"',";
             }else if("Z".equalsIgnoreCase(checkStu)){
                 taskSql+="AUDIT_TWO='"+user+"',";
+            }else if("E".equalsIgnoreCase(checkStu)){
+                taskSql+="AUDIT_CPO='"+user+"',";
             }
             if (!StringUtils.isBlank(remark)) {
                 taskSql += "remark=" + "'" + remark + "',";
@@ -538,13 +609,12 @@ public class PoTaskService extends BaseService<PoTask> {
     }
 
 
-        /*
+    /**
        取消任務
        cpo任務數據清空
        綁定數據的flag+taskId清空
 
      */
-
     public  AjaxResult cancelTask(AjaxResult ajaxResult,String id){
         try{
             List<String> list=poTaskDao.listBySql("select type from fit_po_task where id='"+id+"'");
@@ -565,11 +635,14 @@ public class PoTaskService extends BaseService<PoTask> {
                 }
 
                 String deleteSql= "delete from fit_po_task where id='"+id+"'";
-                String deleteSqlSJY= "delete from "+list.get(0)+" where TASK_ID='"+id+"'";
-                String updateSql=" update FIT_PO_Target_CPO_CD_DTL set flag=null, task_id=null where task_id='"+id+"'";
                 poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-                poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSqlSJY).executeUpdate();
-                poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
+                if(!list.get(0).equalsIgnoreCase("FIT_PO_Target_CPO_CD_DTL")){
+                    String deleteSqlSJY= "delete from "+list.get(0)+" where TASK_ID='"+id+"'";
+                    poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSqlSJY).executeUpdate();
+                }else{
+                    String updateSql=" update FIT_PO_Target_CPO_CD_DTL set flag=null, task_id=null where task_id='"+id+"'";
+                    poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
+                }
             }else {
                 ajaxResult.put("flag", "fail");
                 ajaxResult.put("msg", "取消任務失敗(Mission Cancel Failed)");
@@ -606,6 +679,9 @@ public class PoTaskService extends BaseService<PoTask> {
                     roleCode = "T_MANAGER";
                     break;
                 case "T_MANAGER":
+                    roleCode = "PLACECLASS";
+                    break;
+                case "PLACECLASS":
                     roleCode = "CPO";
                     break;
                 case "SOURCER":

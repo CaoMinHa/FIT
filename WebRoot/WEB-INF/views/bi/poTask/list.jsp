@@ -137,14 +137,14 @@ function submitTask (index) {
 		});
 	}
 }
-function submitOneAudit(index) {
+function submitOneAudit(index,type,url) {
 	var name = document.getElementsByName("tasName")[index].value;
 	var id = $('input[type=checkbox]')[index].value;
     var taskType = document.getElementsByName("tasType")[index].value;
 	$("#taskName2").val(name);
 	$("#modal-audit").dialog({
 		modal: true,
-		title: "一级審核",
+		title: type,
 		height: 400,
 		width: 350,
 		position: "center",
@@ -174,14 +174,13 @@ function submitOneAudit(index) {
 					}
 					$.ajax({
 						type:"POST",
-						url:"${ctx}/bi/poTask/submitOneAudit",
+						url:"${ctx}/bi/poTask/"+url,
 						async:false,
 						dataType:"json",
 						data:obj,
 						success: function(data){
 								$dialog.dialog("destroy");
                                 layer.alert(data.msg);
-								// refresh();
 							$("#Query").click();
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -211,7 +210,7 @@ function submitAudit(index) {
 	$("#taskName2").val(name);
 	$("#modal-audit").dialog({
 		modal: true,
-		title: "二级審核",
+		title: "終審",
 		height: 400,
 		width: 350,
 		position: "center",
@@ -373,6 +372,7 @@ function cancelTask(index) {
 		}
 	});
 }
+
 </script>
 </head>
 <body>
@@ -428,6 +428,11 @@ function cancelTask(index) {
 											<c:if test="${languageS eq 'zh_CN'}">初審中</c:if>
 											<c:if test="${languageS eq 'en_US'}">praeiudicium</c:if></td>
 									</c:when>
+									<c:when test="${mapping[i] eq '10'}">
+										<td style="border-right:1px solid #eee;">
+											<c:if test="${languageS eq 'zh_CN'}">中審</c:if>
+											<c:if test="${languageS eq 'en_US'}">Interim audit</c:if></td>
+									</c:when>
 									<c:when test="${mapping[i] eq '2'}">
 										<td  style="border-right:1px solid #eee;">
 											<spring:message code='finalJudgment'/>
@@ -461,18 +466,26 @@ function cancelTask(index) {
 								<a href="javascript:void(0);" class="auditBtn auditBtn${mapping[3]}" onclick="cancelTask(${sort.index})">取消任務</a>
 								</c:if>
 							</c:when>
-						    <c:when test="${mapping[3] eq '1' && role eq 'CLASS' || mapping[3] eq '1' && role eq 'T_MANAGER' || mapping[3] eq '1' && role eq 'PD'}">
-						    <a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index})">
+						    <c:when test="${mapping[3] eq '1' && role eq 'CLASS' || mapping[3] eq '1' && role eq 'PD'}">
+						    <a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index},'初審','submitOneAudit')">
 								<spring:message code='praeiudicium'/>
 							</a>
 						    </c:when>
+						<c:when test="${mapping[3] eq '1' && role eq 'T_MANAGER'}">
+						<a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index},'初審','CPOAudit')">
+							<spring:message code='praeiudicium'/>
+						</a>
+						</c:when>
+						<c:when test="${mapping[3] eq '10' && role eq 'PLACECLASS'}">
+						<a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index},'中審','submitOneAudit')">中審</a>
+						</c:when>
 						    <c:when test="${mapping[3] eq '2' && role eq 'MANAGER' || mapping[3] eq '2' && role eq 'CPO'}">
-						    <a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})">终審</a>
+						    <a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})"><spring:message code='finalJudgment'/></a>
 						    </c:when>
 						    <c:when test="${role eq 'KEYUSER'}">
 								<c:choose>
 									<c:when test="${mapping[3] eq '2' && mapping[1] eq 'FIT_PO_SBU_YEAR_CD_SUM'}">
-										<a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})">终審</a>
+										<a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})"><spring:message code='finalJudgment'/></a>
 										<a href="javascript:void(0);" class="auditBtn" onclick="cancelAudit(${sort.index})">取消審批</a>
 									</c:when>
 									<c:when test="${mapping[3] != '0' && mapping[3] != '-1'}">

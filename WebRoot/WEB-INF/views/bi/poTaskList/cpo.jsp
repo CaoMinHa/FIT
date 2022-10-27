@@ -64,6 +64,7 @@ $(function() {
 	});
 	$("#roleCode").hide();
 	$("#QDate").hide();
+	$("#QDateEnd").hide();
 	$("#type").hide();
 	$("#name").hide();
 	$("#Query").hide();
@@ -83,7 +84,6 @@ function clickPage(page){
 	$("#loading").show();
 	$("#PageNo").val(page);
 	var date=$("#QDate").val();
-	var entity=$("#QEntity").val();
 	var tableName=$("#QTableName").val();
 	$("#Content").load("${ctx}/bi/poTaskList/audit",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
 		orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
@@ -96,7 +96,7 @@ function refresh(){
 
 
 $(function () {
-	$("table tbody").find("tr").each(function(){
+	$("taskDetails tbody").find("tr").each(function(){
 		var val=$(this).children('td:eq(2)').text();
 		if (val==''){
 			$(this).children('td:eq(2)').remove();
@@ -181,11 +181,6 @@ function fileClick(e,val) {
 		</tbody>
 	</table>
 </div>
-<%--<div id="Fenye"></div>--%>
-<%--<input type="hidden" id="PageNo" value="${fn:escapeXml(page.pageNo)}" />--%>
-<%--<input type="hidden" id="PageSize" value="${fn:escapeXml(page.pageSize)}" />--%>
-<%--<input type="hidden" id="OrderBy" value="${fn:escapeXml(page.orderBy)}" />--%>
-<%--<input type="hidden" id="OrderDir" value="${fn:escapeXml(page.orderDir)}" />--%>
 <c:if test="${fn:length(taskLogList) gt 0}">
 	<h3>
 		<spring:message code='approvalLog'/>
@@ -214,6 +209,12 @@ function fileClick(e,val) {
 							<spring:message code='praeiudicium'/>
 						</td>
 					</c:when>
+					<c:when test="${taskLog.FLAG eq '10'}">
+						<td  style="border-right:1px solid #eee;">
+							<c:if test="${languageS eq 'zh_CN'}">中審</c:if>
+							<c:if test="${languageS eq 'en_US'}">Interim audit</c:if>
+						</td>
+					</c:when>
 					<c:when test="${taskLog.FLAG eq '3'}">
 						<td  style="border-right:1px solid #eee;"><spring:message code='finish'/></td>
 					</c:when>
@@ -223,6 +224,15 @@ function fileClick(e,val) {
 							<c:if test="${languageS eq 'en_US'}">Turn Down</c:if>
 						</td>
 					</c:when>
+					<c:when test="${taskLog.FLAG eq '-2'}">
+						<td  style="border-right:1px solid #eee;">
+							<c:if test="${languageS eq 'zh_CN'}">用戶取消</c:if>
+							<c:if test="${languageS eq 'en_US'}">User cancelled</c:if>
+						</td>
+					</c:when>
+					<c:otherwise>
+						<td  style="border-right:1px solid #eee;"></td>
+					</c:otherwise>
 				</c:choose>
 				<td>${taskLog.REMARK}</td>
 			</tr>

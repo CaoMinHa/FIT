@@ -84,7 +84,7 @@
                 $("#Content").load("${ctx}/bi/poFlow/list",{date:date,tableName:tableName},function(){$("#loading").fadeOut(1000); $("#modalBtn").show();});
             });
             $("#toTaskBtn").click(function () {
-                if($("#countNotUploadNumber").val()==="0"){
+                // if($("#countNotUploadNumber").val()==="0"){
                     var year=$("#QDate").val();
                     var total=$("#total").val();
                     var obj={
@@ -109,10 +109,10 @@
                             }
                         });
                     }
-                }else{
-                    layer.alert("\"SBU年度CD目標匯總表\"必須全部審核通過才能創建該任務！")
-                    return;
-                }
+                // }else{
+                //     layer.alert("\"SBU年度CD目標匯總表\"必須全部審核通過才能創建該任務！")
+                //     return;
+                // }
             })
         });
         var periodId;

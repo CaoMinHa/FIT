@@ -4,7 +4,6 @@ import foxconn.fit.dao.base.BaseDaoHibernate;
 import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.dao.bi.PoTaskDao;
 import foxconn.fit.entity.bi.PoColumns;
-import foxconn.fit.entity.bi.PoKey;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.BaseService;
 import foxconn.fit.service.base.UserDetailImpl;
@@ -23,10 +22,6 @@ import java.util.*;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class PoTableService extends BaseService<PoTable> {
-
-    public static final String UPLOAD_VALIDATE = "UPLOAD_VAL";
-    public static final String DATA_VALIDATE = "DATA_VAL";
-
 
     @Autowired
     private PoTableDao poTableDao;
@@ -89,14 +84,13 @@ public class PoTableService extends BaseService<PoTable> {
         for (PoTable poTable : dataMap.keySet()) {
             List<PoColumns> columns = poTable.getColumns();
             String[] s = poTable.getComments().split("_");
-            String name = year + period + "_" + commodity.get(0)+"_" + s[s.length - 1] + "的上传任务";
+            String name = year + period + "_" + commodity.get(0)+"_" + s[s.length - 1] ;
             String tableName = poTable.getTableName();
             if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                year=String.valueOf(Integer.parseInt(year)+1);
-                name = year + "_" + sbu.get(0)+"_" + s[s.length - 1] + "的上传任务";
+                name = year + "_" + sbu.get(0)+"_" + s[s.length - 1] ;
             }
             if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-                name = year + "_" + commodity.get(0)+"_" + s[s.length - 1] + "的上传任务";
+                name = year + "_" + commodity.get(0)+"_" + s[s.length - 1];
             }
             String count = " select count(id) from fit_po_task where name='" + name + "' and flag not in('0','-1')";
             List<Map> maps = poTaskService.listMapBySql(count);
@@ -105,8 +99,6 @@ public class PoTableService extends BaseService<PoTable> {
                 if (!"0".equalsIgnoreCase(num)) {
                     return "";
                 } else {
-//                    if (keys != null && keys.size() > 0) {
-//                    } else {
                         String deleteSql = "";
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())) {
                             for (int i = 0; i < commodity.size(); i++) {
@@ -145,7 +137,6 @@ public class PoTableService extends BaseService<PoTable> {
                                 columnStr += column.getColumnName() + ",";
                             }
                             columnStr = columnStr + "flag,TASK_ID ";
-                            //columnStr=columnStr.substring(0,columnStr.length()-1);
                             String valueStr = "'" + generateType + "',";
                             for (int i = 1; i < data.size(); i++) {
                                 if (columns.get(i).getDataType().equalsIgnoreCase("number")) {
@@ -167,20 +158,14 @@ public class PoTableService extends BaseService<PoTable> {
                                 poTableDao.getHibernateTemplate().clear();
                             }
                         }
-//                    }
                     //采购删除之前存在的数据
                     String like ="";
                     if("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)){
-//                        like=year + "_" + sbu.get(0)+"%";
-                        like = year + "_" + sbu.get(0)+"_" + s[s.length - 1] + "的上传任务";
+                        like = year + "_" + sbu.get(0)+"_" + s[s.length - 1] ;
                     }else if("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)){
-//                        like= year + "_" + commodity.get(0)+"_%";
-                        like = year + "_" + commodity.get(0)+"_" + s[s.length - 1] + "的上传任务";
+                        like = year + "_" + commodity.get(0)+"_" + s[s.length - 1];
                     }else{
-//                        if("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableName)||"FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableName)){
-//                        like= year + period + "_" + commodity.get(0)+"%";
-//                        like= year + period + "_" + commodity.get(0)+"_%";
-                        like=year + period + "_" + commodity.get(0)+"_" + s[s.length - 1] + "的上传任务";
+                        like=year + period + "_" + commodity.get(0)+"_" + s[s.length - 1];
                     }
                     deleteSql = " delete from FIT_PO_TASK where flag !='-1' and name = '" + like + "' and type=" + "'" + tableName + "'";
                     poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
@@ -218,7 +203,7 @@ public class PoTableService extends BaseService<PoTable> {
         return id;
     }
 
-    /*
+    /**
        校驗月份展開cd校驗
      */
     public void validateMonth(String taskId) throws Exception {
@@ -302,15 +287,7 @@ public class PoTableService extends BaseService<PoTable> {
         int cnt = 1;
         for (PoTable poTable : dataMap.keySet()) {
             List<PoColumns> columns = poTable.getColumns();
-//            String deleteSql = "";
             String tableName=poTable.getTableName();
-//            deleteSql = "delete from " + poTable.getTableName() +
-//                    " where 1=1 ";
-//            if("CUX_RT_SALES_TARGET".equalsIgnoreCase(tableName)){
-//                deleteSql+=" and year='"+year+"'";
-//                System.out.println(deleteSql);
-//                poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-//            }
             List<List<String>> dataList = dataMap.get(poTable);
             for (List<String> data : dataList) {
                 String generateType = data.get(0);
@@ -429,6 +406,17 @@ public class PoTableService extends BaseService<PoTable> {
             return true;
         }
         return false;
+    }
+
+
+    public Boolean checkCPO(String year){
+        Boolean b=false;
+        String sql="select * from FIT_PO_TASK where TYPE='FIT_PO_Target_CPO_CD_DTL' and FLAG='3' and NAME like '"+year+"_%'";
+        List list=poTableDao.listBySql(sql);
+        if(null!=list&&list.size()>0){
+            b=true;
+        }
+        return b;
     }
 }
 

@@ -92,7 +92,7 @@
                             <option value="">請選擇任務類型</option>
                             <option value="FIT_PO_BUDGET_CD_DTL">採購CD手動匯總</option>
                             <option value="FIT_PO_SBU_YEAR_CD_SUM">SBU年度CD目標匯總</option>
-                            <option value="FIT_PO_Target_CPO_CD_DTL">採購CD 目標CPO核准表</option>
+                            <option value="FIT_PO_Target_CPO_CD_DTL">SBU年度CD目標核准表</option>
                             <option value="FIT_ACTUAL_PO_NPRICECD_DTL">實際採購非價格CD匯總</option>
                             <option value="FIT_PO_CD_MONTH_DOWN">採購CDby月份展開</option>
                         </select>
@@ -114,6 +114,10 @@
                             <option value="2">
                                 <c:if test="${languageS eq 'zh_CN'}">終審</c:if>
                                 <c:if test="${languageS eq 'en_US'}">Final Judgment</c:if>
+                                </option>
+                            <option value="10">
+                                <c:if test="${languageS eq 'zh_CN'}">中審</c:if>
+                                <c:if test="${languageS eq 'en_US'}">Interim audit</c:if>
                                 </option>
                             <option value="3">
                                 <c:if test="${languageS eq 'zh_CN'}">完成</c:if>

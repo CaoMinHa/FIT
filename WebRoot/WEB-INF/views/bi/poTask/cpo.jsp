@@ -35,8 +35,6 @@ $(function() {
 			}
 		});
 	})
-	<%--style="<c:if test="${statusType != '0' || user == 'Y'}">display: none;</c:if>">--%>
-console.error("********************"+$("#taskDetails tr:eq(3) td span[style='width: 1px;'] a").length);
 	if($("#taskDetails tr:eq(3) td span[style='width: 1px;'] a").length!=1){
 		$("#taskDetails tr input").attr("disabled","true");
 	}
@@ -76,7 +74,7 @@ $("a[name='update']").click(function(){
 });
 
 $(function () {
-	$("table tbody").find("tr").each(function(){
+	$("taskDetails tbody").find("tr").each(function(){
 		var val=$(this).children('td:eq(2)').text();
 		if (val==''){
 			$(this).children('td:eq(2)').remove();
@@ -117,14 +115,14 @@ function submitTaskXQYM(e) {
 		}
 	});
 }
-function submitOneAuditXQ(e) {
+function submitOneAuditXQ(e,type,url) {
 	var name = $("#taskName").val();
 	var id = $("#tId").val();
 	var taskType = $("#taskType").val();
 	$("#taskName2").val(name);
 	$("#modal-audit").dialog({
 		modal: true,
-		title: "一级審核",
+		title: type,
 		height: 400,
 		width: 350,
 		position: "center",
@@ -154,7 +152,7 @@ function submitOneAuditXQ(e) {
 					}
 					$.ajax({
 						type:"POST",
-						url:"${ctx}/bi/poTask/submitOneAudit",
+						url:"${ctx}/bi/poTask/"+url,
 						async:false,
 						dataType:"json",
 						data:obj,
@@ -466,23 +464,36 @@ function fileClick(e,val) {
 					<input style="display: none" id="statusType" value="${statusType}">
 				</td>
 				<td>
-					<button class="btn search-btn btn-warning"
-							<c:if test="${user != 'N' || statusType != '0'}">style="display: none;"</c:if>
-							onclick="submitTaskXQYM(this)"><spring:message code="submit"/><spring:message code="submit"/></button>
+					<c:if test="${user == 'N' && statusType == '0'}">
+						<button class="btn search-btn btn-warning"
+								onclick="submitTaskXQYM(this)"><spring:message code="submit"/></button>
+					</c:if>
+
+					<c:if test="${user == 'C' && statusType == '1'}">
+						<button  class="btn search-btn btn-warning"
+								 type="button"
+								 onclick="submitOneAuditXQ(this,'初審','CPOAudit')">
+							<spring:message code='praeiudicium'/></button>
+					</c:if>
+
+					<c:if test="${user == 'P' && statusType == '10'}">
+						<button  class="btn search-btn btn-warning"
+								 type="button"
+								 onclick="submitOneAuditXQ(this,'中審','submitOneAudit')">中審</button>
+					</c:if>
+					<c:if test="${user == 'Z' && statusType == '2'}">
+						<button  class="btn search-btn btn-warning"
+								 type="button"
+								 onclick="submitAuditXQ(this)"><c:if test="${languageS eq 'zh_CN'}">終審</c:if>
+							<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></button>
+					</c:if>
+
+					<c:if test="${keyUser == 'TS' && statusType == '2'}">
 					<button  class="btn search-btn btn-warning"
-							 <c:if test="${user != 'C' || statusType != '1'}">style="display: none;"</c:if>
-							 type="button"
-							 onclick="submitOneAuditXQ(this)"><spring:message code='praeiudicium'/></button>
-					<button  class="btn search-btn btn-warning"
-							 <c:if test="${user != 'Z' || statusType != '2'}">style="display: none;"</c:if>
 							 type="button"
 							 onclick="submitAuditXQ(this)"><c:if test="${languageS eq 'zh_CN'}">終審</c:if>
 						<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></button>
-					<button  class="btn search-btn btn-warning"
-							 <c:if test="${keyUser != 'TS' || statusType != '2'}">style="display: none;"</c:if>
-							 type="button"
-							 onclick="submitAuditXQ(this)"><c:if test="${languageS eq 'zh_CN'}">終審</c:if>
-						<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></button>
+					</c:if>
 				</td>
 				<td style="margin-top: 10px">
 					<button name="btnKeyUser" class="btn search-btn btn-warning" style="
@@ -549,18 +560,23 @@ function fileClick(e,val) {
 					</c:forEach>
 					<td style="white-space: nowrap; border-right:1px solid #eee;">
 						<c:if test="${mapping[2] != null}">
-							<span style="width: 1px;<c:if test="${user != 'N' || statusType != '0'}">display: none;</c:if>">
+							<c:if test="${statusType == '0'&&user == 'N'}">
+							<span style="width: 1px;">
 								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>
 							</span>
-							<span style="width: 1px;<c:if test="${user != 'C' || statusType != '1'}">display: none;</c:if>">
-								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>
-							</span>
-							<span style="width: 1px;<c:if test="${user != 'Z' || statusType != '2'}">display: none;</c:if>">
-								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>
-							</span>
-							<span style="width: 1px;<c:if test="${user != 'TS' || statusType != '2'}">display: none;</c:if>">
-								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>
-							</span>
+							</c:if>
+<%--							<span style="width: 1px;<c:if test="${user != 'N' || statusType != '0'}">display: none;</c:if>">--%>
+<%--								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>--%>
+<%--							</span>--%>
+<%--							<span style="width: 1px;<c:if test="${user != 'C' || statusType != '1'}">display: none;</c:if>">--%>
+<%--								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>--%>
+<%--							</span>--%>
+<%--							<span style="width: 1px;<c:if test="${user != 'Z' || statusType != '2'}">display: none;</c:if>">--%>
+<%--								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>--%>
+<%--							</span>--%>
+<%--							<span style="width: 1px;<c:if test="${user != 'TS' || statusType != '2'}">display: none;</c:if>">--%>
+<%--								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>--%>
+<%--							</span>--%>
 						</c:if>
 					</td>
 				</tr>
@@ -568,12 +584,6 @@ function fileClick(e,val) {
 		</tbody>
 	</table>
 </div>
-<%--<div id="Fenye"></div>--%>
-<%--<input type="hidden" id="PageNo" value="${fn:escapeXml(page.pageNo)}" />--%>
-<%--<input type="hidden" id="PageSize" value="${fn:escapeXml(page.pageSize)}" />--%>
-<%--<input type="hidden" id="OrderBy" value="${fn:escapeXml(page.orderBy)}" />--%>
-<%--<input type="hidden" id="OrderDir" value="${fn:escapeXml(page.orderDir)}" />--%>
-
 <c:if test="${fn:length(taskLogList) gt 0}">
 	<h3>
 		<c:if test="${languageS eq 'zh_CN'}">審批日志</c:if>
@@ -603,6 +613,12 @@ function fileClick(e,val) {
 							<spring:message code='praeiudicium'/>
 						</td>
 					</c:when>
+					<c:when test="${taskLog.FLAG eq '10'}">
+						<td  style="border-right:1px solid #eee;">
+							<c:if test="${languageS eq 'zh_CN'}">中審</c:if>
+							<c:if test="${languageS eq 'en_US'}">Interim audit</c:if>
+						</td>
+					</c:when>
 					<c:when test="${taskLog.FLAG eq '3'}">
 						<td  style="border-right:1px solid #eee;"><spring:message code='finalJudgment'/></td>
 					</c:when>
@@ -612,6 +628,15 @@ function fileClick(e,val) {
 							<c:if test="${languageS eq 'en_US'}">Turn Down</c:if>
 						</td>
 					</c:when>
+					<c:when test="${taskLog.FLAG eq '-2'}">
+						<td  style="border-right:1px solid #eee;">
+							<c:if test="${languageS eq 'zh_CN'}">用戶取消</c:if>
+							<c:if test="${languageS eq 'en_US'}">User cancelled</c:if>
+						</td>
+					</c:when>
+					<c:otherwise>
+						<td  style="border-right:1px solid #eee;"></td>
+					</c:otherwise>
 				</c:choose>
 				<td>${taskLog.REMARK}</td>
 			</tr>

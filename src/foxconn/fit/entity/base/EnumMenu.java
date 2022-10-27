@@ -14,7 +14,7 @@ public enum EnumMenu {
 	poUser("採購用户维护"),
 	poEmail("通知窗口"),
 	poEmailLog("通知日志"),
-	poFlow("採購CD 目標CPO核准表"),
+	poFlow("SBU年度CD目標核准表"),
 	rtMix("營收映射表"),
 	rtIntegration("營收目標"),
 	rgpIntegration("營收毛利"),

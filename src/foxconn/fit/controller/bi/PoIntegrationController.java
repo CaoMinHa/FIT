@@ -32,7 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.util.WebUtils;
-import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -198,7 +197,7 @@ public class PoIntegrationController extends BaseController {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-        List<String> subs = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie  where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS') order by tie.NEW_SBU_NAME");
+        List<String> subs = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie  where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') order by tie.NEW_SBU_NAME");
         List<String> commoditys = poCenterService.findCommoditys();
         List<String> monthList = new ArrayList<>();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
@@ -213,15 +212,16 @@ public class PoIntegrationController extends BaseController {
             return result.getJson();
         }
         try {
-            if(!poTableService.updateState(loginUser.getUsername())){
-                if("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableNamesOut1[0])||"FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableNamesOut1[0])){
-                    if(Integer.parseInt(date[0])>10){
-                        result.put("flag", "fail");
-                        result.put("msg", getLanguage(locale, "上傳時間為每月1-10號，現已逾期，請聯係管理員。", "The upload time is from the 1st to the 10th of each month, it is overdue, please contact the administrator"));
-                        return result.getJson();
-                    }
-                }
-            }
+            /**測試需要先注釋*/
+//            if(!poTableService.updateState(loginUser.getUsername())){
+//                if("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableNamesOut1[0])||"FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableNamesOut1[0])){
+//                    if(Integer.parseInt(date[0])>10){
+//                        result.put("flag", "fail");
+//                        result.put("msg", getLanguage(locale, "上傳時間為每月1-10號，現已逾期，請聯係管理員。", "The upload time is from the 1st to the 10th of each month, it is overdue, please contact the administrator"));
+//                        return result.getJson();
+//                    }
+//                }
+//            }
             Assert.isTrue(tableNamesOut1 != null && tableNamesOut1.length > 0, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
             String year = date[2];
             String period = Integer.toString(Integer.valueOf(date[1])-1);
@@ -316,17 +316,27 @@ public class PoIntegrationController extends BaseController {
                         }
                         String RYM = recordsYear + recordsMonth;
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                            Assert.isTrue(String.valueOf(Integer.parseInt(year)+1).equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
-                            // poCenterValue=ExcelUtil.getCellStringValue(row.getCell(1),i,j);
+                            //測試後續放開
+//                            Assert.isTrue(String.valueOf(Integer.parseInt(year)+1).equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
+                            year=recordsYear;
                             data.add(recordsYear);
                             n += 1;
                         } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-                            System.out.println("FIT_PO_CD_MONTH_DTL表校驗年");
+                            //測試後續放開
+//                            Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
+                            if(!poTableService.checkCPO(recordsYear)){
+                                result.put("flag", "fail");
+                                result.put("msg", getLanguage(locale, "採購CD 目標CPO核准還未完成審批，暫無法上個數據。", "The target CPO has not been approved yet, and the last data cannot be uploaded for the time being"));
+                                return result.getJson();
+                            }
+                            year=recordsYear;
                             data.add(year);
                             n = 1;
-                            Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
                         } else {
-                            Assert.isTrue(year_month.equals(RYM), getLanguage(locale, "錯誤的月份： " + RYM + "應為：" + year_month, "The year，period is error:" + RYM + "should be：" + year_month));
+                            //測試後續放開
+//                            Assert.isTrue(year_month.equals(RYM), getLanguage(locale, "錯誤的月份： " + RYM + "應為：" + year_month, "The year，period is error:" + RYM + "should be：" + year_month));
+                            year=recordsYear;
+                            period=recordsMonth;
                             data.add(year);
                             data.add(period);
                             n += 2;
@@ -430,7 +440,6 @@ public class PoIntegrationController extends BaseController {
                                             monthList.add(value);
                                         }
                                         if ("PRICE_CONTROL".equalsIgnoreCase(column.getColumnName())) {
-
                                             if (!"非客指".equals(value) && !"客指".equals(value)) {
                                                 result.put("flag", "fail");
                                                 result.put("msg", getLanguage(locale, "第" + (i + 1) + "個sheet第" + (j + 1) + "行第" + (n + 1) + "列單元格是否客指输入錯誤【" + value + "】", "The PRICE_CONTROL of the cell in sheet " + (i + 1) + " row " + (j + 1) + " column " + (n + 1) + " is error)"));
@@ -856,10 +865,10 @@ public class PoIntegrationController extends BaseController {
                 if ("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableName)) {
                     sheet.setDefaultColumnStyle(2, lockStyle);
                     sheet.setDefaultColumnStyle(4, lockStyle);
-                    sheet.setDefaultColumnStyle(20, lockStyle);
-                    sheet.setDefaultColumnStyle(26, lockStyle);
+                    sheet.setDefaultColumnStyle(21, lockStyle);
                     sheet.setDefaultColumnStyle(27, lockStyle);
                     sheet.setDefaultColumnStyle(28, lockStyle);
+                    sheet.setDefaultColumnStyle(29, lockStyle);
 //                    sheet.setDefaultColumnStyle(28, lockStyle);
                 } else if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
                     sheet.setDefaultColumnStyle(1, lockStyle);
@@ -876,7 +885,7 @@ public class PoIntegrationController extends BaseController {
                 //SBU 值集修改成新表
 //                List<String> sbuList = poTableService.listBySql("select   distinct  SBU from EPMEBS.CUX_SBU_BU_MAPPING order by SBU ");
 
-                List<String> sbuList = poTableService.listBySql(" select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS') order by tie.NEW_SBU_NAME ");
+                List<String> sbuList = poTableService.listBySql(" select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') order by tie.NEW_SBU_NAME ");
 
                 Sheet sheet = workBook.createSheet("Commodity大類和SBU");
                 Row titleRow = sheet.createRow(0);
@@ -960,7 +969,7 @@ public class PoIntegrationController extends BaseController {
         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
             limit = 5;
         } else if ("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableName)) {
-            limit = 6;
+            limit = 7;
         } else if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableName)) {
             limit = 7;
         } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {

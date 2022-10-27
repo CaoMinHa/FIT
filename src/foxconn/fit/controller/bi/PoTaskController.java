@@ -77,7 +77,9 @@ public class PoTaskController extends BaseController {
         return "/bi/poTask/index";
     }
     @RequestMapping(value="/list")
-    public String list(Model model, PageRequest pageRequest,HttpServletRequest request,String name,String type,String date,String roleCode) {
+    @Log(name = "採購任務-->查看列表")
+    public String list(Model model, PageRequest pageRequest,HttpServletRequest request,@Log(name = "任務名稱") String name,
+                       @Log(name = "任務類型") String type,@Log(name = "任務時間") String date,@Log(name = "用戶角色") String roleCode) {
         try {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String userName=loginUser.getUsername();
@@ -123,28 +125,26 @@ public class PoTaskController extends BaseController {
             if("KEYUSER".equalsIgnoreCase(roleCode)){
 
             }else if("SOURCER".equalsIgnoreCase(roleCode)){
-                sql+=" and CREATE_USER="+"'"+userName+
-                        "' and Type in " +
-                        " ('FIT_PO_BUDGET_CD_DTL','FIT_ACTUAL_PO_NPRICECD_DTL','FIT_PO_CD_MONTH_DTL') ";
+                sql+=" and CREATE_USER="+"'"+userName+"' and Type in ('FIT_PO_BUDGET_CD_DTL','FIT_ACTUAL_PO_NPRICECD_DTL','FIT_PO_CD_MONTH_DTL') ";
                 roleCode="BASE";
             }else if("MM".equalsIgnoreCase(roleCode)){
-                sql+=" and CREATE_USER="+"'"+userName+
-                        "'  and type='FIT_PO_SBU_YEAR_CD_SUM' and instr(',"+sbu+",',','||SBU||',')>0";
+                sql+=" and CREATE_USER="+"'"+userName+"'  and type='FIT_PO_SBU_YEAR_CD_SUM' and instr(',"+sbu+",',','||SBU||',')>0";
                 roleCode="BASE";
             }else if("TDC".equalsIgnoreCase(roleCode)){
-                sql+=" and CREATE_USER="+"'"+userName+
-                        "' and type='FIT_PO_Target_CPO_CD_DTL' ";
-                roleCode="TDC";
+                // and CREATE_USER="+"'"+userName+ "'
+                sql+="and type='FIT_PO_Target_CPO_CD_DTL' ";
             }else if("PD".equalsIgnoreCase(roleCode)){
-                sql+= "  and type='FIT_PO_SBU_YEAR_CD_SUM' and instr(',"+sbu+",',','||SBU||',')>0 and flag='1' or AUDIT_ONE='"+userName+"' ";
+                sql+= "  and type='FIT_PO_SBU_YEAR_CD_SUM' and instr(',"+sbu+",',','||SBU||',')>0 and (flag='1' or AUDIT_ONE='"+userName+"' )";
             }else if("CLASS".equalsIgnoreCase(roleCode)){
-                sql+= " and instr(',"+commodityMajor+",',','||COMMODITY_MAJOR||',')>0 and flag='1' or AUDIT_ONE='"+userName+"' ";
+                sql+= " and instr(',"+commodityMajor+",',','||COMMODITY_MAJOR||',')>0 and (flag='1' or AUDIT_ONE='"+userName+"') ";
             }else if("MANAGER".equalsIgnoreCase(roleCode)){
-                sql+= " and instr(',"+commodityMajor+",',','||COMMODITY_MAJOR||',')>0 and flag='2' or AUDIT_TWO='"+userName+"' ";
+                sql+= " and instr(',"+commodityMajor+",',','||COMMODITY_MAJOR||',')>0 and (flag='2' or AUDIT_TWO='"+userName+"') ";
             }else if("T_MANAGER".equalsIgnoreCase(roleCode)){
-                sql+= " and type='FIT_PO_Target_CPO_CD_DTL' and flag='1' or AUDIT_ONE='"+userName+"' ";
+                sql+= " and type='FIT_PO_Target_CPO_CD_DTL' and (flag='1' or AUDIT_CPO='"+userName+"') ";
+            }else if("PLACECLASS".equalsIgnoreCase(roleCode)){
+                sql+=" and type='FIT_PO_Target_CPO_CD_DTL' and (flag='10' or AUDIT_ONE  ='"+userName+"') ";
             }else if("CPO".equalsIgnoreCase(roleCode)){
-                sql+=" and type='FIT_PO_Target_CPO_CD_DTL' and flag='2' or AUDIT_TWO='"+userName+"' ";
+                sql+=" and type='FIT_PO_Target_CPO_CD_DTL' and (flag='2' or AUDIT_TWO='"+userName+"') ";
             }else{
                 sql+=" and 1=0";
             }
@@ -170,7 +170,8 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/addCpo")
     @ResponseBody
     @Transactional
-    public String addRole(AjaxResult ajaxResult, HttpServletRequest request,String year) {
+    @Log(name = "採購任務-->新增SBU年度CD目標核准表任務")
+    public String addRole(AjaxResult ajaxResult, HttpServletRequest request,@Log(name = "年份") String year) {
         try {
             ajaxResult=poTaskService.addCpoTask(ajaxResult,year);
         } catch (Exception e) {
@@ -182,7 +183,8 @@ public class PoTaskController extends BaseController {
     }
 
     @RequestMapping(value="/audit")
-    public String userList(Model model, PageRequest pageRequest,HttpServletRequest request,String id,
+    @Log(name = "採購任務-->查看任務詳細信息")
+    public String userList(Model model, PageRequest pageRequest,HttpServletRequest request,@Log(name="任務ID") String id,
                            String statusType,String role) {
         try {
             HttpSession session = request.getSession(false);
@@ -220,6 +222,8 @@ public class PoTaskController extends BaseController {
                         if("KEYUSER".equalsIgnoreCase(role)&&"FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)){
                             model.addAttribute("keyUser", "TS");
                         }
+                    }else if("PLACECLASS".equalsIgnoreCase(role)){
+                        model.addAttribute("user", "P");
                     }
                 }
                 if("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)){
@@ -254,7 +258,9 @@ public class PoTaskController extends BaseController {
         return "/bi/poTask/audit";
     }
 
-//查找任务
+    /**
+     * 頁面list數據加載
+     */
     public Model selectPoTask(Model model,String tableName, Locale locale,PageRequest pageRequest,String id) throws Exception {
         PoTable poTable = poTableService.get(tableName);
         List<PoColumns> columns = poTable.getColumns();
@@ -381,7 +387,8 @@ public class PoTaskController extends BaseController {
      * */
     @RequestMapping(value="/submitTask")
     @ResponseBody
-    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,String id,String taskType,String roleCode) {
+    @Log(name = "採購任務-->提交")
+    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID")String id,String taskType,String roleCode) {
         try {
             ajaxResult=poTaskService.submit(ajaxResult,taskType,id,roleCode);
         } catch (Exception e) {
@@ -393,19 +400,13 @@ public class PoTaskController extends BaseController {
     }
 
     /**
-     * 初审
-     * @param ajaxResult
-     * @param request
-     * @param id
-     * @param taskType
-     * @param remark
-     * @param status
-     * @param roleCode
-     * @return
+     * 初審
      */
     @RequestMapping(value="/submitOneAudit")
     @ResponseBody
-    public String submitOneAudit(AjaxResult ajaxResult, HttpServletRequest request,String id,String taskType,String remark,String status,String roleCode) {
+    @Log(name = "採購任務-->初審")
+    public String submitOneAudit(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID") String id,String taskType,
+                                 @Log(name="審批意見")String remark,String status,String roleCode) {
         try {
             ajaxResult=poTaskService.submitOne(ajaxResult,taskType,id,status,remark,roleCode);
         } catch (Exception e) {
@@ -416,20 +417,33 @@ public class PoTaskController extends BaseController {
         return ajaxResult.getJson();
     }
 
+    /**
+     * 中审
+     * @return
+     */
+    @RequestMapping(value="/CPOAudit")
+    @ResponseBody
+    @Log(name = "採購任務-->CPO目標核准初審")
+    public String CPOAudit(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID") String id,String taskType,
+                                 @Log(name="審批意見")String remark,String status,String roleCode) {
+        try {
+            ajaxResult=poTaskService.CPOAudit(ajaxResult,taskType,id,status,remark,roleCode);
+        } catch (Exception e) {
+            logger.error("初审任务失败", e);
+            ajaxResult.put("flag", "fail");
+            ajaxResult.put("msg", "初审任务失败(submit One Audit Fail) : " + ExceptionUtil.getRootCauseMessage(e));
+        }
+        return ajaxResult.getJson();
+    }
 
     /**
      * 终审
-     * @param ajaxResult
-     * @param request
-     * @param id
-     * @param taskType
-     * @param remark
-     * @param status
-     * @return
      */
+    @Log(name = "採購任務-->終審")
     @RequestMapping(value="/submitAudit")
     @ResponseBody
-    public String submitEndAudit(AjaxResult ajaxResult, HttpServletRequest request,String id,String taskType,String remark,String status) {
+    public String submitEndAudit(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID")String id,String taskType,
+                                 @Log(name="審批意見")String remark,String status) {
         try {
             ajaxResult=poTaskService.submitEnd(ajaxResult,taskType,id,status,remark);
         } catch (Exception e) {
@@ -442,14 +456,10 @@ public class PoTaskController extends BaseController {
 
     /**
      *  管理員取消審批任務，所有任務退回未提交 flag=0
-     * @param ajaxResult
-     * @param request
-     * @param id
-     * @param taskType
-     * @return
      */
     @RequestMapping(value="/cancelAudit")
     @ResponseBody
+    @Log(name = "採購任務-->管理員取消審批任務")
     public String cancelAudit(AjaxResult ajaxResult, HttpServletRequest request,String id,String taskType,String remark) {
         try {
             ajaxResult=poTaskService.cancelAudit(ajaxResult,taskType,id,remark);
@@ -461,11 +471,12 @@ public class PoTaskController extends BaseController {
         return ajaxResult.getJson();
     }
 
-    /*
-          TDC取消審任務，任務數據刪除，且所綁定的業務數據flag=null task_id清空
-         */
+    /**
+     TDC取消審任務，任務數據刪除，且所綁定的業務數據flag=null task_id清空
+    */
     @RequestMapping(value="/cancelTask")
     @ResponseBody
+    @Log(name = "採購任務-->提交人取消審批任務")
     public String cancelTask(AjaxResult ajaxResult, HttpServletRequest request,String id) {
         try {
             ajaxResult=poTaskService.cancelTask(ajaxResult,id);
@@ -479,17 +490,12 @@ public class PoTaskController extends BaseController {
 
     /**
      * 刪除任務附檔
-     * @param request
-     * @param response
-     * @param result
-     * @param fileId
-     * @return
      */
     @RequestMapping(value = "deleteUrl")
     @ResponseBody
-    @Log(name = "任務附檔-->刪除")
+    @Log(name = "採購任務-->刪除任務附檔")
     public String deleteUrl(HttpServletRequest request, HttpServletResponse response,
-                            AjaxResult result,String fileId){
+                            AjaxResult result,@Log(name = "附檔ID") String fileId){
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "刪除成功", "Delete success"));
         try {
@@ -518,9 +524,9 @@ public class PoTaskController extends BaseController {
 
     @RequestMapping(value = "upload")
     @ResponseBody
-    @Log(name = "任务附档-->上传")
+    @Log(name = "採購任務-->上传任务附档")
     public String upload(HttpServletRequest request, HttpServletResponse response,
-                         AjaxResult result,String taskId) {
+                         AjaxResult result,@Log(name="任務ID") String taskId) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
         File localFile = null;
