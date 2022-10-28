@@ -62,26 +62,19 @@
             $("#QueryBtn").click(function(){
                 $("#QDateTip").hide();
                 var flag=true;
-                var tableName=$("#QTableName").val();
                 var date=$("#QDate").val();
                 if(date.length==0){
                     $("#QDateTip").show();
                     flag=false;
                 }
-                console.log(tableName)
-                if($("#QTableName").val().length==0){
-                    $("#QTableNameTip").show();
-                    flag=false;
-                }
                 if(!flag){
                     return;
                 }
-                $("#QTableNameTip").hide();
                 $("#PageNo").val(1);
                 var date=$("#QDate").val();
 
                 $("#loading").show();
-                $("#Content").load("${ctx}/bi/poFlow/list",{date:date,tableName:tableName},function(){$("#loading").fadeOut(1000); $("#modalBtn").show();});
+                $("#Content").load("${ctx}/bi/poFlow/list",{date:date,tableName:"FIT_PO_Target_CPO_CD_DTL"},function(){$("#loading").fadeOut(1000); $("#modalBtn").show();});
             });
             $("#toTaskBtn").click(function () {
                 // if($("#countNotUploadNumber").val()==="0"){
@@ -135,16 +128,6 @@
                     </li>
                     <li style="height:30px;">
                         <span id="QDateTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                    </li>
-                </ul>
-                <ul style="float:left;margin-left:20px;">
-                    <li>
-                        <select id="QTableName" class="input-large" style="width:200px;margin-bottom:0;">
-                                <option value="FIT_PO_Target_CPO_CD_DTL">採購CD 目標核准表</option>
-                        </select>
-                    </li>
-                    <li style="height:30px;">
-                        <span id="QTableNameTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
                     </li>
                 </ul>
                 <button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" type="submit"><spring:message code='query'/></button>

@@ -91,50 +91,13 @@ function toUser(index){
 }
 
 function submitTask (index) {
-	var id = $('input[type=checkbox]')[index].value;
 	var taskType = document.getElementsByName("tasType")[index].value;
-	var obj={
-		id:id,
-		taskType:taskType,
-		roleCode:$("#roleCode").val()
-	}
-	$("#loading").show();
 	if(taskType=="FIT_PO_SBU_YEAR_CD_SUM"){
-		layer.confirm("同個SBU下的commodity請同時間上傳，且一旦審核通過，數據不予更改！",{btn: ['确定', '取消'], title: "提示"},function(index){
-			$.ajax({
-				type:"POST",
-				url:"${ctx}/bi/poTask/submitTask",
-				async:false,
-				dataType:"json",
-				data:obj,
-				success: function(data){
-					$("#loading").hide();
-					layer.alert(data.msg);
-					// refresh();
-					$("#Query").click();
-				},
-				error: function(XMLHttpRequest, textStatus, errorThrown) {
-					layer.alert("<spring:message code='connect_fail'/>");
-				}
-			});
+		layer.confirm("同個SBU下的commodity請同時間上傳，且一旦審核通過，數據不予更改！",{btn: ['确定', '取消'], title: "提示"},function(){
+			submitOneAudit(index,'提交','submitTask');
 		});
-	}else{
-	$.ajax({
-			type:"POST",
-			url:"${ctx}/bi/poTask/submitTask",
-			async:false,
-			dataType:"json",
-			data:obj,
-			success: function(data){
-				    $("#loading").hide();
-					layer.alert(data.msg);
-                    // refresh();
-				$("#Query").click();
-			},
-			error: function(XMLHttpRequest, textStatus, errorThrown) {
-				layer.alert("<spring:message code='connect_fail'/>");
-			}
-		});
+	}else {
+		submitOneAudit(index, '提交', 'submitTask');
 	}
 }
 function submitOneAudit(index,type,url) {
@@ -142,11 +105,18 @@ function submitOneAudit(index,type,url) {
 	var id = $('input[type=checkbox]')[index].value;
     var taskType = document.getElementsByName("tasType")[index].value;
 	$("#taskName2").val(name);
-	$("#modal-audit").dialog({
+	var model="#modal-audit";
+	var taskForm="#taskForm";
+	if(url=="submitTask"){
+		model="#modal-audit1";
+		$("#taskName21").val(name);
+		taskForm="#taskForm1";
+	}
+	$(model).dialog({
 		modal: true,
 		title: type,
-		height: 400,
-		width: 350,
+		height: 500,
+		width: 400,
 		position: "center",
 		draggable: true,
 		resizable: true,
@@ -160,7 +130,7 @@ function submitOneAudit(index,type,url) {
 					var $dialog = $(this);
 					var d = {};
 					$("#loading").show();
-					var t = $("#taskForm").serializeArray();
+					var t = $(taskForm).serializeArray();
 					$.each(t, function() {
 						d[this.name] = this.value;
 					});
@@ -211,8 +181,8 @@ function submitAudit(index) {
 	$("#modal-audit").dialog({
 		modal: true,
 		title: "終審",
-		height: 400,
-		width: 350,
+		height: 500,
+		width: 400,
 		position: "center",
 		draggable: true,
 		resizable: true,
@@ -299,8 +269,8 @@ function cancelAudit(index) {
 	$("#modal-audit1").dialog({
 		modal: true,
 		title: "取消審核",
-		height: 320,
-		width: 300,
+		height: 500,
+		width: 400,
 		position: "center",
 		draggable: true,
 		resizable: true,
@@ -430,8 +400,8 @@ function cancelTask(index) {
 									</c:when>
 									<c:when test="${mapping[i] eq '10'}">
 										<td style="border-right:1px solid #eee;">
-											<c:if test="${languageS eq 'zh_CN'}">中審</c:if>
-											<c:if test="${languageS eq 'en_US'}">Interim audit</c:if></td>
+											<c:if test="${languageS eq 'zh_CN'}">審核中</c:if>
+											<c:if test="${languageS eq 'en_US'}">Audit</c:if></td>
 									</c:when>
 									<c:when test="${mapping[i] eq '2'}">
 										<td  style="border-right:1px solid #eee;">
@@ -477,15 +447,15 @@ function cancelTask(index) {
 						</a>
 						</c:when>
 						<c:when test="${mapping[3] eq '10' && role eq 'PLACECLASS'}">
-						<a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index},'中審','submitOneAudit')">中審</a>
+						<a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index},'審核','submitOneAudit')">審核</a>
 						</c:when>
 						    <c:when test="${mapping[3] eq '2' && role eq 'MANAGER' || mapping[3] eq '2' && role eq 'CPO'}">
-						    <a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})"><spring:message code='finalJudgment'/></a>
+						    <a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})">終審</a>
 						    </c:when>
 						    <c:when test="${role eq 'KEYUSER'}">
 								<c:choose>
 									<c:when test="${mapping[3] eq '2' && mapping[1] eq 'FIT_PO_SBU_YEAR_CD_SUM'}">
-										<a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})"><spring:message code='finalJudgment'/></a>
+										<a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})">終審</a>
 										<a href="javascript:void(0);" class="auditBtn" onclick="cancelAudit(${sort.index})">取消審批</a>
 									</c:when>
 									<c:when test="${mapping[3] != '0' && mapping[3] != '-1'}">

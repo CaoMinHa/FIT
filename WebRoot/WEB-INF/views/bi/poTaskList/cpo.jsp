@@ -211,8 +211,8 @@ function fileClick(e,val) {
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '10'}">
 						<td  style="border-right:1px solid #eee;">
-							<c:if test="${languageS eq 'zh_CN'}">中審</c:if>
-							<c:if test="${languageS eq 'en_US'}">Interim audit</c:if>
+							<c:if test="${languageS eq 'zh_CN'}">審核</c:if>
+							<c:if test="${languageS eq 'en_US'}">Audit</c:if>
 						</td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '3'}">

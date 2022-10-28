@@ -116,8 +116,8 @@
                                 <c:if test="${languageS eq 'en_US'}">Final Judgment</c:if>
                                 </option>
                             <option value="10">
-                                <c:if test="${languageS eq 'zh_CN'}">中審</c:if>
-                                <c:if test="${languageS eq 'en_US'}">Interim audit</c:if>
+                                <c:if test="${languageS eq 'zh_CN'}">審核</c:if>
+                                <c:if test="${languageS eq 'en_US'}">Audit</c:if>
                                 </option>
                             <option value="3">
                                 <c:if test="${languageS eq 'zh_CN'}">完成</c:if>

@@ -70,11 +70,9 @@ function clickPage(page){
 	$("#loading").show();
 	$("#PageNo").val(page);
 	var date=$("#QDate").val();
-	var entity=$("#QEntity").val();
-	var tableName=$("#QTableName").val();
 	$("#Content").load("${ctx}/bi/poFlow/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
 														orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
-														date:date,tableName:tableName},function(){$("#loading").fadeOut(1000);});
+														date:date,tableName:"FIT_PO_Target_CPO_CD_DTL"},function(){$("#loading").fadeOut(1000);});
 }
 
 function refresh(){

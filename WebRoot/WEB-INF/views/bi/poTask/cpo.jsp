@@ -87,33 +87,76 @@ $(function () {
 
 function submitTaskXQYM(e) {
 	event.preventDefault();
-	$("#loading").show();
+	var name = $("#taskName").val();
 	var id = $("#tId").val();
 	var taskType = $("#taskType").val();
-	var obj={
-		id:id,
-		taskType:taskType,
-		roleCode:$("#roleCode").val()
-	}
-	$.ajax({
-		type:"POST",
-		url:"${ctx}/bi/poTask/submitTask",
-		async:false,
-		dataType:"json",
-		data:obj,
-		success: function(data){
-			layer.alert(data.msg);
-			if(data.flag=="success"){
-				$(e).hide();
-				$(".file").hide();
-				$(".table tr input").attr("disabled","true");
+	$("#taskName21").val(name);
+	$("#modal-audit1").dialog({
+		modal: true,
+		title: "提交",
+		height: 500,
+		width: 400,
+		position: "center",
+		draggable: true,
+		resizable: true,
+		autoOpen: false,
+		autofocus: false,
+		closeText: "<spring:message code='close'/>",
+		buttons: [
+			{
+				text: "<spring:message code='submit'/>",
+				click: function () {
+					var $dialog = $(this);
+					var d = {};
+					$("#loading").show();
+					var t = $("#taskForm1").serializeArray();
+					$.each(t, function() {
+						d[this.name] = this.value;
+					});
+					var flag=d.flag;
+					var obj={
+						id:id,
+						status:flag,
+						remark:d.remark,
+						taskType:taskType,
+						roleCode:$("#roleCode").val()
+					}
+					$.ajax({
+						type:"POST",
+						url:"${ctx}/bi/poTask/submitTask",
+						async:false,
+						dataType:"json",
+						data:obj,
+						success: function(data){
+							$dialog.dialog("destroy");
+							layer.alert(data.msg);
+							if(data.flag=="success"){
+								$(".table tr input").attr("disabled","true");
+								$(e).hide();
+								$(".file").hide();
+							}
+							$("#loading").hide();
+							// refresh();
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown) {
+							layer.alert("<spring:message code='connect_fail'/>");
+						}
+					});
+				}
+			},
+			{
+				text: "<spring:message code='close'/>",
+				click: function () {
+					$(this).dialog("destroy");
+					$("#rolenameTip").hide();
+				}
 			}
-			$("#loading").hide();
-		},
-		error: function() {
-			layer.alert("<spring:message code='connect_fail'/>");
+		],
+		close: function () {
+			$(this).dialog("destroy");
+			$("#rolenameTip").hide();
 		}
-	});
+	}).dialog("open");
 }
 function submitOneAuditXQ(e,type,url) {
 	var name = $("#taskName").val();
@@ -123,8 +166,8 @@ function submitOneAuditXQ(e,type,url) {
 	$("#modal-audit").dialog({
 		modal: true,
 		title: type,
-		height: 400,
-		width: 350,
+		height: 500,
+		width: 400,
 		position: "center",
 		draggable: true,
 		resizable: true,
@@ -194,9 +237,9 @@ function submitAuditXQ(e) {
 	$("#taskName2").val(name);
 	$("#modal-audit").dialog({
 		modal: true,
-		title: "二级審核",
-		height: 400,
-		width: 350,
+		title: "終審",
+		height: 500,
+		width: 400,
 		position: "center",
 		draggable: true,
 		resizable: true,
@@ -267,8 +310,8 @@ function cancelAudit(e) {
 	$("#modal-audit1").dialog({
 		modal: true,
 		title: "取消審核",
-		height: 320,
-		width: 300,
+		height: 500,
+		width: 400,
 		position: "center",
 		draggable: true,
 		resizable: true,
@@ -479,7 +522,7 @@ function fileClick(e,val) {
 					<c:if test="${user == 'P' && statusType == '10'}">
 						<button  class="btn search-btn btn-warning"
 								 type="button"
-								 onclick="submitOneAuditXQ(this,'中審','submitOneAudit')">中審</button>
+								 onclick="submitOneAuditXQ(this,'審核','submitOneAudit')">審核</button>
 					</c:if>
 					<c:if test="${user == 'Z' && statusType == '2'}">
 						<button  class="btn search-btn btn-warning"
@@ -615,8 +658,8 @@ function fileClick(e,val) {
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '10'}">
 						<td  style="border-right:1px solid #eee;">
-							<c:if test="${languageS eq 'zh_CN'}">中審</c:if>
-							<c:if test="${languageS eq 'en_US'}">Interim audit</c:if>
+							<c:if test="${languageS eq 'zh_CN'}">審核</c:if>
+							<c:if test="${languageS eq 'en_US'}">Audit</c:if>
 						</td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '3'}">

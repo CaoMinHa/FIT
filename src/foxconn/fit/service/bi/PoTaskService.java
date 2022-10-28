@@ -73,7 +73,7 @@ public class PoTaskService extends BaseService<PoTask> {
             poFlowDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
             String deleteSql = " delete from FIT_PO_TASK where name like " + "'" + like + "'" + " and type='FIT_PO_Target_CPO_CD_DTL'";
             poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-            String name = year + "_採購CD目標CPO核准";
+            String name = year + "_SBU年度CD目標核准表";
             String sql = " insert into FIT_PO_TASK (ID,TYPE,NAME,FLAG,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,CREATE_USER_REAL,UPDATE_USER_REAL) " +
                     " values ( ";
             sql = sql + "'" + taskId + "'," + "'FIT_PO_Target_CPO_CD_DTL'," + "'" + name + "'," + "'0'," + "'" + user + "'," + "'" + signTimet + "'," + "'" + user + "'," + "'" + signTimet + "'" +
@@ -93,7 +93,7 @@ public class PoTaskService extends BaseService<PoTask> {
       cm 物料大類
      */
 
-    public AjaxResult submit(AjaxResult ajaxResult,String type,String taskId,String roleCode) throws Exception {
+    public AjaxResult submit(AjaxResult ajaxResult,String type,String taskId,String roleCode,String remark) throws Exception {
         String taskName = "select NAME from fit_po_task where id='" + taskId + "'";
         List<String> taskList = roRoleService.listBySql(taskName);
         String[] task= taskList.get(0).split("_");
@@ -173,7 +173,7 @@ public class PoTaskService extends BaseService<PoTask> {
             }
             Boolean isSend = EmailUtil.emailCC(emailVal.substring(0,emailVal.length()-1),loginUser.getEmail(), title,msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
             if(isSend){
-                uploadTaskFlag(taskId,flag,type,"",step,"T");
+                uploadTaskFlag(taskId,flag,type,remark,step,"T");
             }else{
                 ajaxResult.put("flag", "fail");
                 ajaxResult.put("msg", "郵件發送失敗 (Task Type Fail)");

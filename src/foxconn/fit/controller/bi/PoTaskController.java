@@ -388,9 +388,10 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/submitTask")
     @ResponseBody
     @Log(name = "採購任務-->提交")
-    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID")String id,String taskType,String roleCode) {
+    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID")String id,String taskType,
+                             @Log(name="審批意見")String remark,String roleCode) {
         try {
-            ajaxResult=poTaskService.submit(ajaxResult,taskType,id,roleCode);
+            ajaxResult=poTaskService.submit(ajaxResult,taskType,id,roleCode,remark);
         } catch (Exception e) {
             logger.error("提交任务失败", e);
             ajaxResult.put("flag", "fail");

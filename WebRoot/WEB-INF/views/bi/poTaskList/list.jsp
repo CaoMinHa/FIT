@@ -146,8 +146,8 @@ function toUser(index){
 									</c:when>
 									<c:when test="${mapping[i] eq '10'}">
 										<td style="border-right:1px solid #eee;">
-											<c:if test="${languageS eq 'zh_CN'}">中審</c:if>
-											<c:if test="${languageS eq 'en_US'}">Interim audit</c:if></td>
+											<c:if test="${languageS eq 'zh_CN'}">審核</c:if>
+											<c:if test="${languageS eq 'en_US'}">Audit</c:if></td>
 									</c:when>
 									<c:when test="${mapping[i] eq '3'}">
 										<td  style="border-right:1px solid #eee;">

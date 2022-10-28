@@ -167,7 +167,8 @@
                 </div>
                 <div class="control-group" style="margin:0px 0px 20px 10px;">
                     <div class="pull-left" style="margin-left: 40px">
-                        審批意見：<input name="remark" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
+                        審批意見：
+                        <textarea rows="4" cols="4" style="height: 60%" name="remark"></textarea>
                     </div>
                 </div>
             </form>
@@ -175,7 +176,7 @@
 
         <div id="modal-audit1" style="display:none;">
             <form id="taskForm1" class="form-horizontal">
-                <input id="id1" style="display: none;"/>
+                <input name="flag" style="display: none;"/>
                 <div class="control-group" style="margin:0px 0px 20px 10px;">
                     <div class="pull-left">
                         <i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
@@ -184,7 +185,8 @@
                 </div>
                 <div class="control-group" style="margin:0px 0px 20px 10px;">
                     <div class="pull-left">
-                        審批意見：<input name="remark" style="height: 30px !important;" type="text" datatype="s3-30" nullmsg="<spring:message code='please_input'/>" errormsg="<spring:message code='s3_30'/>"/>
+                      審批意見：
+                        <textarea rows="4" cols="4" style="height: 65%" name="remark"></textarea>
                     </div>
                 </div>
             </form>
