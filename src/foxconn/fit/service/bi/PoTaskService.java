@@ -477,7 +477,7 @@ public class PoTaskService extends BaseService<PoTask> {
                             List<String> emailList = roRoleService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
                             msg="尊敬的主管:</br> &nbsp;&nbsp;"+taskList.get(0).get("CREATE_USER_REAL").toString()+"已經完成"+task[0]+"_"+task[1]+"年度SBU CD目標數據，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
-                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"_"+task[1]+" SBU年度VOC",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"_"+task[1]+" SBU年度VOC",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId=list\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
                             if(!isSends){
                                 ajaxResult.put("flag", "fail");
                                 ajaxResult.put("msg", "審核通過郵件通知發送失敗 (Failed to send the audit notification by email)");

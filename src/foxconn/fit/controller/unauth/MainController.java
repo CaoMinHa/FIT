@@ -116,6 +116,8 @@ public class MainController extends BaseController{
 				session.setAttribute("statusType",statusType);
 				session.setAttribute("taskId",taskId);
 				session.setAttribute("detailsTsak","Y");
+			}else if("list".equals(taskId)){
+				session.setAttribute("detailsTsak","list");
 			}
 			//終審完成跳轉到采購查詢界面
 			else if(null!=taskId&&null==statusType){

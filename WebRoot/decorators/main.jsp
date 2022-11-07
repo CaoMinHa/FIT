@@ -279,7 +279,7 @@
 				$("a[url='/fit/bi/poTask/index']").click();
 			}else if("${detailsTsak}" == "Y"){
 				$("a[url='/fit/bi/poTask/index']").click();
-			}else if("${detailsTsak}"=="ok"){
+			}else if("${detailsTsak}"=="ok"||"${detailsTsak}"=="list"){
 				$("a[url='/fit/bi/poIntegrationList/index']").click();
 			}else{
 				$(".two_bar li a:first").parent("li").parent("ul").show();
