@@ -112,6 +112,7 @@ $(function () {
 			$(this).css("background-color", "#cfecff");
 		}
 	});
+	$("#tableCpo tbody tr:last").css("background-color", "#7fc4f1");
 })
 
 </script>

@@ -688,7 +688,7 @@ public class PoIntegrationController extends BaseController {
                 if (StringUtils.isNotEmpty(buVal)) {
                     whereSql += " and bu LIKE " + "'%" + buVal + "%'";
                 }
-                sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql;
+                sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql+" and flag='3'";
                 //獲取配置排序順序
                 List<PoKey> keys = poTable.getKeys();
                 String orderBy ="";

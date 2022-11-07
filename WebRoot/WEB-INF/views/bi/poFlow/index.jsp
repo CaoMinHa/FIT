@@ -36,43 +36,14 @@
     </style>
     <script type="text/javascript">
         $(function() {
-            $("#ui-datepicker-div").remove();
-            $("#Date,#QDate,#DateEnd").datepicker({
-                changeMonth: true,
-                changeYear: true,
-                dateFormat: 'yy-MM',
-                showButtonPanel:true,
-                closeText:"<spring:message code='confirm'/>"
-            });
-
-            $("#Date,#QDate,#DateEnd").click(function(){
-                periodId=$(this).attr("id");
-                $(this).val("");
-            });
-
-            $("#ui-datepicker-div").on("click", ".ui-datepicker-close", function() {
-                var year = $("#ui-datepicker-div .ui-datepicker-year option:selected").val();//得到选中的年份值
-                $("#"+periodId).val(year);//给input赋值，其中要对月值加1才是实际的月份
-                if($("#"+periodId+"Tip").length>0){
-                    $("#"+periodId+"Tip").hide();
-                }
-            });
-
-
             $("#QueryBtn").click(function(){
                 $("#QDateTip").hide();
-                var flag=true;
                 var date=$("#QDate").val();
-                if(date.length==0){
-                    $("#QDateTip").show();
-                    flag=false;
-                }
-                if(!flag){
-                    return;
+                if(date.length!=4){
+                   layer.alert("請輸入正確年份！(please enter a proper year)");
+                   return;
                 }
                 $("#PageNo").val(1);
-                var date=$("#QDate").val();
-
                 $("#loading").show();
                 $("#Content").load("${ctx}/bi/poFlow/list",{date:date,tableName:"FIT_PO_Target_CPO_CD_DTL"},function(){$("#loading").fadeOut(1000); $("#modalBtn").show();});
             });
@@ -123,12 +94,7 @@
         <div class="m-l-md m-t-md m-r-md" style="clear:both;">
             <div class="controls">
                 <ul style="float:left;">
-                    <li>
-                        <input id="QDate" style="float:left;width:140px;text-align:center;margin-bottom:0;" placeholder="<spring:message code='please_select'/><spring:message code='year'/>" type="text" value="" readonly>
-                    </li>
-                    <li style="height:30px;">
-                        <span id="QDateTip" style="display:none;" class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
-                    </li>
+                        <input id="QDate" style="float:left;width:140px;text-align:center;margin-bottom:0;" placeholder="請輸入年份" type="text">
                 </ul>
                 <button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" type="submit"><spring:message code='query'/></button>
                 <button id="toTaskBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" type="submit">新建任务</button>

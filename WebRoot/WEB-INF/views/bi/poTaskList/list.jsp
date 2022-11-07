@@ -57,13 +57,13 @@ function clickPage(page){
 	$("#PageNo").val(page);
 	var date=$("#QDate").val();
 	var type=$("#type").val();
-	var tableName=$("#QTableName").val();
+	var name=$("#name").val();
 	var QDate=$("#QDate").val();
 	var QDateEnd=$("#QDateEnd").val();
 	$("#Content").load("${ctx}/bi/poTaskList/list",{
 		pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
 		orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
-		date:date,tableName:tableName,type:type,QDate:QDate,QDateEnd:QDateEnd
+		date:date,name:name,type:type,QDate:QDate,QDateEnd:QDateEnd
 	},function(){$("#loading").fadeOut(1000);});
 }
 

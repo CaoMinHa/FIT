@@ -69,14 +69,10 @@ function clickPage(page){
 	var roleCode=$("#roleCode").val();
 	var date=$("#QDate").val();
 	var type=$("#type").val();
-	var tableName=$("#QTableName").val();
+	var name=$("#name").val();
 	$("#Content").load("${ctx}/bi/poTask/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
 														orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
-														date:date,tableName:tableName,roleCode:roleCode,type:type},function(){$("#loading").fadeOut(1000);});
-}
-
-function refresh(){
-	clickPage("1");
+														date:date,name:name,roleCode:roleCode,type:type},function(){$("#loading").fadeOut(1000);});
 }
 
 //跳轉到審核頁面
@@ -235,7 +231,6 @@ function submitAudit(index) {
 						success: function(data){
 								$dialog.dialog("destroy");
 							    layer.alert(data.msg);
-								// refresh();
 							$("#Query").click();
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -333,7 +328,6 @@ function cancelTask(index) {
 		dataType:"json",
 		data:{id:id},
 		success: function(data){
-			// refresh();
 			$("#Query").click();
 			layer.alert(data.msg);
 		},
