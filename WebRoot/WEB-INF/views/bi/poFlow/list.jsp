@@ -106,11 +106,9 @@ $("a.update").click(function(){
 $(function () {
 	$("#tableCpo tbody").find("tr").each(function () {
 		var val = $(this).children('td:eq(2)').text();
-		var vall = $(this).children('td:eq(1)').text();
 		if (val == '') {
 			$(this).children('td:eq(2)').remove();
 			$(this).children('td:eq(1)').attr("colspan", "2");
-			// $(this).children('td:eq(1)').text(vall+"合計：");
 			$(this).css("background-color", "#cfecff");
 		}
 	});

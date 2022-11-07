@@ -136,24 +136,22 @@ function toUser(index){
 									</c:when>
 									<c:when test="${mapping[i] eq '1'}">
 										<td style="border-right:1px solid #eee;">
-											<spring:message code='praeiudicium'/></td>
-										</td>
+											<c:if test="${languageS eq 'zh_CN'}">初審中</c:if>
+											<c:if test="${languageS eq 'en_US'}">praeiudicium</c:if></td>
+									</c:when>
+									<c:when test="${mapping[i] eq '10'}">
+										<td style="border-right:1px solid #eee;">
+											<c:if test="${languageS eq 'zh_CN'}">審核中</c:if>
+											<c:if test="${languageS eq 'en_US'}">Audit</c:if></td>
 									</c:when>
 									<c:when test="${mapping[i] eq '2'}">
 										<td  style="border-right:1px solid #eee;">
 											<spring:message code='finalJudgment'/>
 										</td>
 									</c:when>
-									<c:when test="${mapping[i] eq '10'}">
-										<td style="border-right:1px solid #eee;">
-											<c:if test="${languageS eq 'zh_CN'}">審核</c:if>
-											<c:if test="${languageS eq 'en_US'}">Audit</c:if></td>
-									</c:when>
 									<c:when test="${mapping[i] eq '3'}">
-										<td  style="border-right:1px solid #eee;">
-											<c:if test="${languageS eq 'zh_CN'}">完成</c:if>
-											<c:if test="${languageS eq 'en_US'}">Finish</c:if>
-										</td>
+										<td  style="border-right:1px solid #eee;"><c:if test="${languageS eq 'zh_CN'}">完成</c:if>
+											<c:if test="${languageS eq 'en_US'}">Finish</c:if></td>
 									</c:when>
 									<c:when test="${mapping[i] eq '-1'}">
 										<td  style="border-right:1px solid #eee;">

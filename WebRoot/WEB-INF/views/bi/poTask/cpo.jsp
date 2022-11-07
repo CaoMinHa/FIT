@@ -6,9 +6,7 @@
 	input {
 		margin-bottom:0px !important;
 	}
-	/*.table thead th{vertical-align: middle;!important;}*/
 	.table-condensed td{padding:5px 5px;!important;}
-
 	.table th, .table td {
 		border-top: 1px solid #c4c4c4;
 		border-right: 1px solid #c4c4c4;
@@ -39,10 +37,6 @@ $(function() {
 		$("#taskDetails tr input").attr("disabled","true");
 	}
 });
-
-
-
-
 $("a[name='update']").click(function(){
 	var updateData="";
 	$(this).parent().parent().parent().find("input").each(function(i){
@@ -72,9 +66,8 @@ $("a[name='update']").click(function(){
 	var role=$("#role").val();
 	$("#Content").load("${ctx}/bi/poTask/audit",{id:tId,statusType:statusType,role:role});
 });
-
 $(function () {
-	$("taskDetails tbody").find("tr").each(function(){
+	$("#taskDetails tbody").find("tr").each(function(){
 		var val=$(this).children('td:eq(2)').text();
 		if (val==''){
 			$(this).children('td:eq(2)').remove();
@@ -82,9 +75,8 @@ $(function () {
 			$(this).css("background-color", "#cfecff" );
 		}
 	});
+	$("#taskDetails tbody tr:last").css("background-color", "#7fc4f1");
 })
-
-
 function submitTaskXQYM(e) {
 	event.preventDefault();
 	var name = $("#taskName").val();
@@ -301,7 +293,6 @@ function submitAuditXQ(e) {
 		}
 	}).dialog("open");
 }
-
 function cancelAudit(e) {
 	var taskType = $("#taskType").val();
 	var id = $("#tId").val();
@@ -371,7 +362,6 @@ function cancelAudit(e) {
 		}
 	}).dialog("open");
 }
-
 $(function () {
 	$("#taskFileForm").fileupload({
 		dataType: "json",
@@ -476,7 +466,6 @@ function fileClick(e,val) {
 		});
 	}
 }
-
 </script>
 </head>
 <body>
@@ -603,23 +592,11 @@ function fileClick(e,val) {
 					</c:forEach>
 					<td style="white-space: nowrap; border-right:1px solid #eee;">
 						<c:if test="${mapping[2] != null}">
-							<c:if test="${statusType == '0'&&user == 'N'}">
+							<c:if test="${(statusType == '0'&&user == 'N')||(statusType == '10' &&user == 'P')||(statusType == '2' &&user == 'Z')}">
 							<span style="width: 1px;">
 								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>
 							</span>
 							</c:if>
-<%--							<span style="width: 1px;<c:if test="${user != 'N' || statusType != '0'}">display: none;</c:if>">--%>
-<%--								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>--%>
-<%--							</span>--%>
-<%--							<span style="width: 1px;<c:if test="${user != 'C' || statusType != '1'}">display: none;</c:if>">--%>
-<%--								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>--%>
-<%--							</span>--%>
-<%--							<span style="width: 1px;<c:if test="${user != 'Z' || statusType != '2'}">display: none;</c:if>">--%>
-<%--								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>--%>
-<%--							</span>--%>
-<%--							<span style="width: 1px;<c:if test="${user != 'TS' || statusType != '2'}">display: none;</c:if>">--%>
-<%--								<a href="javascript:void(0);" name="update"><spring:message code='update'/></a>--%>
-<%--							</span>--%>
 						</c:if>
 					</td>
 				</tr>
@@ -663,7 +640,7 @@ function fileClick(e,val) {
 						</td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '3'}">
-						<td  style="border-right:1px solid #eee;"><spring:message code='finalJudgment'/></td>
+						<td  style="border-right:1px solid #eee;"><spring:message code='finish'/></td>
 					</c:when>
 					<c:when test="${taskLog.FLAG eq '-1'}">
 						<td  style="border-right:1px solid #eee;">

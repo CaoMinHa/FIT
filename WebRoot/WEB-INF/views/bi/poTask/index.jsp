@@ -137,7 +137,7 @@
                 </ul>
                 <ul style="float:left;margin-left:20px;">
                     <li>
-                        <input id="name" style="float:left;width:140px;text-align:center;margin-bottom:0;" placeholder="請輸入查詢名稱" type="text">
+                        <input id="name" style="float:left;width:140px;text-align:center;margin-bottom:0;" placeholder="請輸入任務名稱" type="text">
                     </li>
                 </ul>
                 <button id="Query" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" type="submit"><spring:message code='query'/></button>

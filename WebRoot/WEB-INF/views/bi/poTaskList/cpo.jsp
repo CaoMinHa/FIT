@@ -3,13 +3,11 @@
 <%@ include file="/static/common/taglibs.jsp"%>
 <html>
 <style>
-	input {
+	 input {
 		margin-bottom:0px !important;
 		height:0px !important;
 	}
-	/*.table thead th{vertical-align: middle;!important;}*/
 	.table-condensed td{padding:5px 5px;!important;}
-
 	.table th, .table td {
 		border-top: 1px solid #c4c4c4;
 		border-right: 1px solid #c4c4c4;
@@ -96,7 +94,7 @@ function refresh(){
 
 
 $(function () {
-	$("taskDetails tbody").find("tr").each(function(){
+	$("#taskDetails tbody").find("tr").each(function(){
 		var val=$(this).children('td:eq(2)').text();
 		if (val==''){
 			$(this).children('td:eq(2)').remove();
@@ -104,6 +102,7 @@ $(function () {
 			$(this).css("background-color", "#cfecff" );
 		}
 	});
+	$("#taskDetails tbody tr:last").css("background-color", "#7fc4f1");
 })
 function fileClick(e,val) {
 	var index = layer.confirm('下載文件', {
@@ -113,7 +112,6 @@ function fileClick(e,val) {
 		//下載
 		var tempwindow=window.open('_blank');
 		tempwindow.location= "${ctx}/static/download/"+val;
-		<%--window.location.href = "${ctx}/static/download/"+val;--%>
 		layer.close(index);
 	}, function(){
 		//关闭提示框
