@@ -973,7 +973,7 @@ public class PoIntegrationController extends BaseController {
         } else if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableName)) {
             limit = 7;
         } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-            limit = 4;
+            limit = 5;
         }
         int num = 0;
         for (int i = dataList.size() - 1; i >= 0; i--) {
