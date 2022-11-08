@@ -78,6 +78,7 @@ public class PmrFitPLActualBudgetController extends BaseController {
 
     @RequestMapping(value = "upload")
     @ResponseBody
+    @Log(name = "FIT P&L- Actual vs Budget-->上傳")
     public String upload(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
@@ -105,9 +106,9 @@ public class PmrFitPLActualBudgetController extends BaseController {
 
     @RequestMapping(value = "download")
     @ResponseBody
-    @Log(name = "-->下载")
+    @Log(name = "FIT P&L- Actual vs Budget-->下载")
     public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
-            @Log(name = "查询条件") String queryCondition) {
+            @Log(name = "下載條件") String queryCondition) {
         try {
             PoTable poTable = poTableService.get(tableName);
             String fileName=pmrCommonService.downloadFile(queryCondition,poTable,request,pageRequest);

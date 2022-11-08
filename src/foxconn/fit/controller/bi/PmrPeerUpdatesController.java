@@ -75,6 +75,7 @@ public class PmrPeerUpdatesController extends BaseController {
 
     @RequestMapping(value = "/add")
     @ResponseBody
+    @Log(name = "Peer Updates-->添加")
     public String list(HttpServletRequest request,HttpServletResponse response, AjaxResult result,String dateAdd,String peerUpdates) {
         try {
             result=pmrPeerUpdatesService.add(result,dateAdd,peerUpdates);
@@ -86,9 +87,9 @@ public class PmrPeerUpdatesController extends BaseController {
 
     @RequestMapping(value = "download")
     @ResponseBody
-    @Log(name = "-->下载")
+    @Log(name = "Peer Updates-->下载")
     public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
-            @Log(name = "查询条件") String queryCondition) {
+            @Log(name = "下載條件") String queryCondition) {
         try {
             PoTable poTable = poTableService.get(tableName);
             String fileName=pmrCommonService.downloadFile(queryCondition,poTable,request,pageRequest);
@@ -105,6 +106,7 @@ public class PmrPeerUpdatesController extends BaseController {
 
     @RequestMapping(value = "/delete")
     @ResponseBody
+    @Log(name = "Peer Updates-->刪除")
     public String deleteAll(AjaxResult ajaxResult, String no) {
         ajaxResult= pmrPeerUpdatesService.deleteData(ajaxResult,no);
         return ajaxResult.getJson();

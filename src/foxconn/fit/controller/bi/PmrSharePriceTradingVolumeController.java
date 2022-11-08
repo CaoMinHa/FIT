@@ -77,6 +77,7 @@ public class PmrSharePriceTradingVolumeController extends BaseController {
 
     @RequestMapping(value = "upload")
     @ResponseBody
+    @Log(name = "Share Price&Trading Volume-->上傳")
     public String upload(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
@@ -104,7 +105,7 @@ public class PmrSharePriceTradingVolumeController extends BaseController {
 
     @RequestMapping(value = "download")
     @ResponseBody
-    @Log(name = "-->下载")
+    @Log(name = "Share Price&Trading Volume-->下载")
     public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
             @Log(name = "查询条件") String queryCondition) {
         try {

@@ -43,6 +43,10 @@ public class PmrCapexActualBudgetController extends BaseController {
     private PmrCommonService pmrCommonService;
 
     private static String tableName="PMR_CAPEX_Actual_Budget";
+
+    /**
+     * 獲取查詢字段
+     */
     @RequestMapping(value = "index")
     public String index(Model model, HttpServletRequest request) {
         try {
@@ -55,6 +59,14 @@ public class PmrCapexActualBudgetController extends BaseController {
         return "/bi/pmrCapexActualBudget/index";
     }
 
+    /**
+     * 高級查詢 CAPEX Actual vs Budget
+     * @param model
+     * @param pageRequest
+     * @param request
+     * @param queryCondition 查詢條件
+     * @return
+     */
     @RequestMapping(value = "/list")
     public String list(Model model, PageRequest pageRequest, HttpServletRequest request,String queryCondition) {
         try {
@@ -77,6 +89,7 @@ public class PmrCapexActualBudgetController extends BaseController {
 
     @RequestMapping(value = "upload")
     @ResponseBody
+    @Log(name="CAPEX Actual vs Budget-->上傳")
     public String upload(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
@@ -104,9 +117,9 @@ public class PmrCapexActualBudgetController extends BaseController {
 
     @RequestMapping(value = "download")
     @ResponseBody
-    @Log(name = "-->下载")
+    @Log(name="CAPEX Actual vs Budget-->下載")
     public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
-            @Log(name = "查询条件") String queryCondition) {
+            @Log(name = "下載條件") String queryCondition) {
         try {
             PoTable poTable = poTableService.get(tableName);
             String fileName=pmrCommonService.downloadFile(queryCondition,poTable,request,pageRequest);
