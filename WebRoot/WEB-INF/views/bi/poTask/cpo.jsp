@@ -563,11 +563,11 @@ function fileClick(e,val) {
 			<tr>
 				<th style="text-align:center">採購金額(NTD)</th>
 				<th style="text-align:center">CD金额(NTD)</th>
-				<th style="text-align:center" >CD比率(%)</th>
+				<th style="text-align:center" >SBU CD比率(%)</th>
 				<th style="text-align:center" >CPO Approve(%)</th>
 				<th style="text-align:center" >採購金額(NTD)</th>
 				<th style="text-align:center">CD金额(NTD)</th>
-				<th style="text-align:center" >CD比率(%)</th>
+				<th style="text-align:center" >SBU CD比率(%)</th>
 				<th style="text-align:center" >CPO Approve(%)</th>
 			</tr>
 		</thead>

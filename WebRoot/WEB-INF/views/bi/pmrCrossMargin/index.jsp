@@ -170,7 +170,7 @@
     <div class="span12">
         <div class="page-header bg-white">
             <h2>
-                <span>PMR_GROSS_MARGIN_33_FIT</span>
+                <span>Gross Margin 3+3 FIT</span>
             </h2>
         </div>
         <div class="m-l-md m-t-md m-r-md">

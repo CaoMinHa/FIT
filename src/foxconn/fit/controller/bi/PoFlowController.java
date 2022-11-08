@@ -136,11 +136,11 @@ public class PoFlowController extends BaseController {
                         where=" where ID='"+columnValue+"'";
                     }else if("NO_CPO".equalsIgnoreCase(columnName)){
                         if (StringUtils.isNotEmpty(columnValue)) {
-                            updateSql+="NO_CD='"+columnValue+"',"+columnName+"='"+columnValue+"',";
+                            updateSql+=columnName+"='"+columnValue+"',";
                         }
                     }else if("CPO".equalsIgnoreCase(columnName)){
                         if (StringUtils.isNotEmpty(columnValue)) {
-                            updateSql+="CD='"+columnValue+"',"+columnName+"='"+columnValue+"',";
+                            updateSql+=columnName+"='"+columnValue+"',";
                         }
                     }
                 }
