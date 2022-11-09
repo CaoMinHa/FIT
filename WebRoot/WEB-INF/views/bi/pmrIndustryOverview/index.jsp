@@ -170,7 +170,7 @@
     <div class="span12">
         <div class="page-header bg-white">
             <h2>
-                <span>Industry Overview</span>
+                <span>Share Price Performance</span>
             </h2>
         </div>
         <div class="m-l-md m-t-md m-r-md">
