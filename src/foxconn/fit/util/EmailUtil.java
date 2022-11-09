@@ -162,7 +162,7 @@ public class EmailUtil
         // 9，设置正文内容
         MimeBodyPart htmlPart = new MimeBodyPart();
         bodyMultipart.addBodyPart(htmlPart);
-        htmlPart.setContent(contentText+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!", "text/html;charset=UTF-8");
+        htmlPart.setContent(contentText+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!", "text/html;charset=UTF-8");
         if (null == fileList || 0 == fileList.size()) {
         }else{
             try {
@@ -208,7 +208,7 @@ public class EmailUtil
         // 9，设置正文内容
         MimeBodyPart htmlPart = new MimeBodyPart();
         bodyMultipart.addBodyPart(htmlPart);
-        htmlPart.setContent(contentText+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!", "text/html;charset=UTF-8");
+        htmlPart.setContent(contentText+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!", "text/html;charset=UTF-8");
         if (null == fileList || 0 == fileList.size()) {
         }else{
             try {

@@ -277,18 +277,18 @@ public class TaskJob {
                     if(null==rtUserEmailAuthorities||rtUserEmailAuthorities.size()==0){
                         if(type.indexOf("PL_BU")!=-1){
                             title=date+"BU資產負債表";
-                            content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                         }else{
                             title=date+"FIT"+typeVal;
-                            content+=date+"FIT"+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+"FIT"+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                         }
                     }else{
                         if(type.indexOf("PL_BU")!=-1){
                             title=date+"BU資產負債表";
-                            content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                         }else{
                             title=date+rtUserEmailAuthorities.toString()+typeVal;
-                            content+=date+rtUserEmailAuthorities.toString()+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+rtUserEmailAuthorities.toString()+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                         }
                     }
                     System.out.print("发送邮件："+map.get("EMAIL").toString()+"****主题："+title+"****内容："+content);
@@ -379,7 +379,7 @@ public class TaskJob {
                     }else{
                         yearMonth=yearMonth.substring(0,4)+"年"+yearMonth.substring(5,7)+"月份";
                     }
-                    String content =yearMonth+"损益Rawdata数据已發佈，請點擊以下鏈接登錄BI平臺進行檢查，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">损益Rawdata</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，系統登錄、數據核對如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：ambcai@deloitte.com.cn。<br></br><br>Best Regards!";
+                    String content =yearMonth+"损益Rawdata数据已發佈，請點擊以下鏈接登錄BI平臺進行檢查，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">损益Rawdata</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，系統登錄、數據核對如有問題，請聯系顧問 ,  郵箱：ambcai@deloitte.com.cn。<br></br><br>Best Regards!";
                     for (Map map : emailListC) {
                         String c ="Dear " + map.get("BI_USERNAME").toString() + "主管：<br></br>&nbsp;&nbsp;&nbsp;"+content;
                         Boolean b= EmailUtil.emailsMany(map.get("EMAIL").toString(), yearMonth+"損益Rawdata數據", c);
@@ -469,13 +469,13 @@ public class TaskJob {
                     content="Dear "+map.get("BI_USERNAME").toString()+"主管：<br></br>&nbsp;&nbsp;&nbsp;";
                     if("BS".equals(type)){
                         title=date+"BU資產負債表";
-                        content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU資產負債表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                        content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU資產負債表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                     }else if("CF".equals(type)){
                         title=date+"BU现金流量表";
-                        content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU现金流量表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                        content+=date+"BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU现金流量表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                     }else if("ALL".equals(type)){
                         title=date+"BU資產負債表 & BU现金流量表";
-                        content+=date+"BU資產負債表 & BU现金流量表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU資產負債表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 ,  郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                        content+=date+"BU資產負債表 & BU现金流量表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU資產負債表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
                     }
                     System.out.print("发送邮件："+map.get("EMAIL").toString()+"****主题："+title+"****内容："+content);
                     isSend= EmailUtil.emailsMany(map.get("EMAIL").toString(),title,content);
@@ -526,7 +526,7 @@ public class TaskJob {
         }else{
             content="尊敬的用戶:<br></br>&nbsp;&nbsp;<font style=\"color: red;\">【您已超时！10號將關閉"+content+"上月數據的上傳】</font>請立即采取行動！";
         }
-        content+="<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn。<br></br>Best Regards!";
+        content+="<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!";
         if(Integer.valueOf(date[2])<=8){
             sql="select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur\n" +
                     "where u.id=ur.user_id and r.id=ur.role_id and r.code='SOURCER' and type='BI' and u.COMMODITY_MAJOR is not null\n" +
@@ -582,7 +582,7 @@ public class TaskJob {
         String title="FIT_Revenue_and_Backlog_Summary";
         SimpleDateFormat df = new SimpleDateFormat("yyyy年MM月dd日");
         String signTimet = df.format(new Date());
-        String content="Dear主管：<br></br>&nbsp;&nbsp;&nbsp;"+signTimet+"FIT_Revenue_and_Backlog_Summary已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT_Revenue_and_Backlog_Summary</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：emji@deloitte.com.cn<br></br><br>Best Regards!";
+        String content="Dear主管：<br></br>&nbsp;&nbsp;&nbsp;"+signTimet+"FIT_Revenue_and_Backlog_Summary已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT_Revenue_and_Backlog_Summary</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn<br></br><br>Best Regards!";
         String sql="select distinct EMAIL from BIDEV.Bi_user_list  where  instr(';'||BI_GROUP||';',';RT_Backlog;')> 0";
         List<String> emailListC=poTableService.listBySql(sql);
         if(null!=emailListC&&emailListC.size()>0) {
