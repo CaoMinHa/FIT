@@ -519,10 +519,7 @@ public class PoIntegrationController extends BaseController {
                     result.put("msg", "該維度的數據已存在，不能重複上傳");
                 } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
                     try {
-                        poTableService.validateMonth(taskId);
-                    }catch (RuntimeException e){
-                        result.put("flag", "fail");
-                        result.put("msg", e.getMessage() + "配置的CD比例過低,請重新維護上傳");
+                        result=poTableService.validateMonth(taskId,result);
                     }catch (Exception e){
                         e.printStackTrace();
                         result.put("flag", "fail");

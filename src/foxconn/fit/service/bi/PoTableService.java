@@ -3,6 +3,7 @@ package foxconn.fit.service.bi;
 import foxconn.fit.dao.base.BaseDaoHibernate;
 import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.dao.bi.PoTaskDao;
+import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.BaseService;
@@ -206,7 +207,7 @@ public class PoTableService extends BaseService<PoTable> {
     /**
        校驗月份展開cd校驗
      */
-    public void validateMonth(String taskId) throws Exception {
+    public AjaxResult validateMonth(String taskId,AjaxResult result) throws Exception {
         Connection c = SessionFactoryUtils.getDataSource(poTableDao.getSessionFactory()).getConnection();
         CallableStatement cs = c.prepareCall("{ CALL fit_po_cd_month_down_pkg.main(?,?)}");
         cs.setString(1, taskId);
@@ -217,8 +218,10 @@ public class PoTableService extends BaseService<PoTable> {
         cs.close();
         c.close();
         if (StringUtils.isNotEmpty(message)) {
-            throw new RuntimeException(message);
+            result.put("flag", "fail");
+            result.put("msg", message+ "配置的CD比例過低,請重新維護上傳");
         }
+        return result;
     }
 
     public String validate(String tableName, String year, String period, String entity, String type, Locale locale) throws Exception {

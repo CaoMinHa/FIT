@@ -205,11 +205,7 @@ public class PoTaskService extends BaseService<PoTask> {
             }
         }
         try {
-            poTableService.validateMonth(taskId);
-        }catch (RuntimeException e){
-            ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", e.getMessage() + "配置的CD比例過低,請重新維護上傳");
-            return ajaxResult;
+           ajaxResult=poTableService.validateMonth(taskId,ajaxResult);
         }catch (Exception e){
             e.printStackTrace();
             ajaxResult.put("flag", "fail");
