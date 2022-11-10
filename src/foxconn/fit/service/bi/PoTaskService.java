@@ -476,9 +476,14 @@ public class PoTaskService extends BaseService<PoTask> {
                                     "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','ADMIN','PLACECLASS1','MANAGER','PLACECLASS','T_MANAGER','TDC')  and COMMODITY_MAJOR is not null";
                             List<String> emailList = roRoleService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
-                            msg="尊敬的主管:</br> &nbsp;&nbsp;"+taskList.get(0).get("CREATE_USER_REAL").toString()+"已經完成"+task[0]+"_"+task[1]+"年度SBU CD目標數據，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
-                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"_"+task[1]+" SBU年度VOC",msg+"</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId=list\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
-                            if(!isSends){
+                            List<Map> maps = poFlowDao.listMapBySql("select count(1) from FIT_PO_TASK where name='"+taskList.get(0).get("NAME").toString()+"' and FLAG='-1' ");
+                            if (maps != null && !"0".equals(maps.get(0).get("COUNT(1)").toString())) {
+                                msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "對" + task[0] + "_" + task[1] + "年度SBU CD目標數據有作更新，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
+                            }else {
+                                msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "已經完成" + task[0] + "_" + task[1] + "年度SBU CD目標數據，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
+                            }
+                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0] + "_" + task[1] + " SBU年度VOC", msg + "</br>&nbsp;&nbsp;<a href=\"https://itpf-test.one-fit.com/fit/login?taskId=list\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+                            if (!isSends) {
                                 ajaxResult.put("flag", "fail");
                                 ajaxResult.put("msg", "審核通過郵件通知發送失敗 (Failed to send the audit notification by email)");
                                 return ajaxResult;
@@ -655,7 +660,7 @@ public class PoTaskService extends BaseService<PoTask> {
                     poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(taskSql).executeUpdate();
                 }
 
-                String deleteSql= "delete from fit_po_task where id='"+id+"'";
+                String deleteSql= "delete from fit_po_task where flag !='-1' and id='"+id+"'";
                 poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
                 if(!list.get(0).equalsIgnoreCase("FIT_PO_Target_CPO_CD_DTL")){
                     String deleteSqlSJY= "delete from "+list.get(0)+" where TASK_ID='"+id+"'";

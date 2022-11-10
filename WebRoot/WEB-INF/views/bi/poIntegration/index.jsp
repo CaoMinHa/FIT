@@ -327,6 +327,8 @@
                     $("#buVal").show();
                     $("#priceControl").show();
                     $("#founderVal").hide();
+                    $("#sbuVal").show();
+                    $("#commodity").show();
                     switch (tableName) {
                         //實際採購非價格CD匯總表
                         case "FIT_ACTUAL_PO_NPRICECD_DTL":
@@ -413,13 +415,15 @@
                     success: function (data) {
                         $("#commdityTable").empty();
                         var commdityTr=0;
-                        jQuery.each(data, function (i, item) {
-                            if (i % 4 == 0) {
-                                $("#commdityTable").append("<tr id='commdityTr"+i+"'></tr>");
-                                commdityTr=i;
-                                console.log("進來commdityTr"+commdityTr);
-                            }
-                            $("#commdityTr"+commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal' value='" + item + "'>" + item + "</td>");
+                        jQuery.each(data, function (key, values) {
+                            $("#commdityTable").append("<tr style='border-top: 1px solid #dadada;height: 30px;font-weight:bold;'><td colspan='4'><input type='checkbox' onchange='commodity(this)' value='"+key+"'>"+key+"</td></tr>");
+                            jQuery.each(values, function (i, item) {
+                                if (i % 4 == 0) {
+                                    commdityTr++;
+                                    $("#commdityTable").append("<tr id='commdityTr"+commdityTr+"'></tr>");
+                                }
+                                $("#commdityTr"+commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal "+key+"' value='" + item + "'>" + item + "</td>");
+                            })
                         })
                     },
                     error: function () {
@@ -451,6 +455,15 @@
                 $(".userGroupVal").prop("checked", false);
             }
         });
+
+        function  commodity(e){
+            var a= $(e).val();
+            if ( $(e).prop("checked") == true) {
+                $("."+a).prop("checked", true);
+            } else {
+                $("."+a).prop("checked", false);
+            }
+        }
     </script>
 </head>
 <body>
@@ -663,14 +676,19 @@
             </div>
             <div class="modal-body">
                 <table id="commdityTable" border="0" cellpadding="0" cellspacing="1">
-                    <c:forEach items="${commodityList}" var="column" varStatus="status">
-                    <c:if test="${status.index %4 eq 0}">
-                    <tr>
-                        </c:if>
-                        <td height="25px" width="140px">
-                            <input type="checkbox" class="userGroupVal" value="${column}">${column}
-                        </td>
+                    <c:forEach items="${commodityMap}" var="dataMap">
+                        <tr style="border-top: 1px solid #dadada;height: 30px;font-weight:bold;">
+                            <td colspan="4"><input type="checkbox" onchange="commodity(this)" value="${dataMap.key}">${dataMap.key}</td>
+                        </tr>
+                        <c:forEach items="${dataMap.value}" var="commodity" varStatus="status">
+                                <c:if test="${status.index %4 eq 0}">
+                                    <tr>
+                                </c:if>
+                                <td width="140px">
+                                    <input type="checkbox" class="userGroupVal ${dataMap.key}" value="${commodity}">${commodity}
+                                </td>
                         </c:forEach>
+                    </c:forEach>
                 </table>
             </div>
             <div class="modal-footer">

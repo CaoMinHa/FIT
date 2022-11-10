@@ -418,6 +418,21 @@ public class PoTableService extends BaseService<PoTable> {
         }
         return b;
     }
+
+
+    /**
+     * 获取採購中心對應物料大類的map
+     * @return
+     */
+    public Map<String,List> selectCommodity(){
+        Map<String,List> map=new HashMap<>();
+        List<String> list=poTableDao.listBySql("select FUNCTION_NAME from  BIDEV.v_dm_d_commodity_major");
+        for (String m:list) {
+            List<String> listCommodity=poTableDao.listBySql("select distinct COMMODITY_MAJOR  from BIDEV.v_dm_d_commodity_major where FUNCTION_NAME='"+m+"'");
+            map.put(m,listCommodity);
+        }
+        return map;
+    }
 }
 
 

@@ -232,25 +232,28 @@
             //selectCommdity
             $("#QpoCenter").change(function (e) {
                 $.ajax({
-                    type:"POST",
-                    url:"${ctx}/bi/poIntegrationList/selectCommdity",
-                    async:false,
-                    dataType:"json",
-                    data:{
-                        functionName:$(this).val()
+                    type: "POST",
+                    url: "${ctx}/bi/poIntegrationList/selectCommdity",
+                    async: false,
+                    dataType: "json",
+                    data: {
+                        functionName: $(this).val()
                     },
-                    success: function(data){
+                    success: function (data) {
                         $("#commdityTable").empty();
                         var commdityTr=0;
-                        jQuery.each(data, function (i, item) {
-                            if (i % 4 == 0) {
-                                $("#commdityTable").append("<tr id='commdityTr"+i+"'></tr>");
-                                commdityTr=i;
-                            }
-                            $("#commdityTr"+commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal' value='" + item + "'>" + item + "</td>");
+                        jQuery.each(data, function (key, values) {
+                            $("#commdityTable").append("<tr style='border-top: 1px solid #dadada;height: 30px;font-weight:bold;'><td colspan='4'><input type='checkbox' onchange='commodity(this)' value='"+key+"'>"+key+"</td></tr>");
+                            jQuery.each(values, function (i, item) {
+                                if (i % 4 == 0) {
+                                    commdityTr++;
+                                    $("#commdityTable").append("<tr id='commdityTr"+commdityTr+"'></tr>");
+                                }
+                                $("#commdityTr"+commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal "+key+"' value='" + item + "'>" + item + "</td>");
+                            })
                         })
                     },
-                    error: function() {
+                    error: function () {
                         layer.alert("<spring:message code='connect_fail'/>");
                     }
                 });
@@ -442,13 +445,18 @@
             </div>
             <div class="modal-body">
                 <table id="commdityTable" border="0" cellpadding="0" cellspacing="1">
-                    <c:forEach items="${commodityList}" var="column" varStatus="status">
+                    <c:forEach items="${commodityMap}" var="dataMap">
+                    <tr style="border-top: 1px solid #dadada;height: 30px;font-weight:bold;">
+                        <td colspan="4"><input type="checkbox" onchange="commodity(this)" value="${dataMap.key}">${dataMap.key}</td>
+                    </tr>
+                    <c:forEach items="${dataMap.value}" var="commodity" varStatus="status">
                     <c:if test="${status.index %4 eq 0}">
                     <tr>
                         </c:if>
-                        <td  height="25px" width="140px">
-                            <input type="checkbox" class="userGroupVal" value="${column}">${column}
+                        <td width="140px">
+                            <input type="checkbox" class="userGroupVal ${dataMap.key}" value="${commodity}">${commodity}
                         </td>
+                        </c:forEach>
                         </c:forEach>
                 </table>
             </div>

@@ -170,11 +170,10 @@ public class PoIntegrationController extends BaseController {
                 }
             }
 
-            List<String> commodityList=poTableService.listBySql("select COMMODITY_MAJOR  from BIDEV.v_dm_d_commodity_major order by FUNCTION_NAME");
             List<String> poCenters = poCenterService.findPoCenters();
             session.setAttribute("dataRange", dataRange);
             request.setAttribute("poCenters", poCenters);
-            model.addAttribute("commodityList", commodityList);
+            model.addAttribute("commodityMap", poTableService.selectCommodity());
 
             model.addAttribute("poTableList", tableList);
             model.addAttribute("poTableOutList", tableOutList);
@@ -688,7 +687,7 @@ public class PoIntegrationController extends BaseController {
                 if (StringUtils.isNotEmpty(buVal)) {
                     whereSql += " and bu LIKE " + "'%" + buVal + "%'";
                 }
-                sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql+" and flag='3'";
+                sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql+" and flag in('1','2','10','3')";
                 //獲取配置排序順序
                 List<PoKey> keys = poTable.getKeys();
                 String orderBy ="";
@@ -992,17 +991,5 @@ public class PoIntegrationController extends BaseController {
             return true;
         }
         return false;
-
-    }
-
-    @RequestMapping(value = "/selectCommdity")
-    @ResponseBody
-    public List<String> selectCommdity(HttpServletRequest request, String functionName){
-        if(functionName.isEmpty()){
-            List<String> commodityList=poTableService.listBySql("select distinct COMMODITY_MAJOR from BIDEV.v_dm_d_commodity_major ");
-            return  commodityList;
-        }
-        List<String> commodityList=poTableService.listBySql("select distinct COMMODITY_MAJOR from BIDEV.v_dm_d_commodity_major where FUNCTION_NAME='"+functionName+"'");
-        return  commodityList;
     }
 }
