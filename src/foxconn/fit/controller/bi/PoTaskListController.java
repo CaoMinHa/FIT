@@ -66,7 +66,7 @@ public class PoTaskListController extends BaseController {
         try {
             pageRequest.setPageSize(14);
             String sql="select  ID , TYPE ,NAME, FLAG ,remark,CREATE_USER_REAL, create_time, " +
-                    " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE 1=1 ";
+                    " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE 1=1 and flag>-1";
             if(!StringUtils.isBlank(name)){
                 name="%"+name+"%";
                 sql=sql+" and name like "+"'"+name+"'";

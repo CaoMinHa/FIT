@@ -243,7 +243,7 @@
                         $("#commdityTable").empty();
                         var commdityTr=0;
                         jQuery.each(data, function (key, values) {
-                            $("#commdityTable").append("<tr style='border-top: 1px solid #dadada;height: 30px;font-weight:bold;'><td colspan='4'><input type='checkbox' onchange='commodity(this)' value='"+key+"'>"+key+"</td></tr>");
+                            $("#commdityTable").append("<tr style='border-top: 1px solid #dadada;height: 30px;font-weight:bold;'><td colspan='4'><input type='checkbox' onchange='checkedChild(this)' value='"+key+"'>"+key+"</td></tr>");
                             jQuery.each(values, function (i, item) {
                                 if (i % 4 == 0) {
                                     commdityTr++;
@@ -261,25 +261,6 @@
         });
 
         var periodId;
-        $("#affirmBut").click(function () {
-            var valueUser='';
-            $(".userGroupVal:checked").each(function () {
-                valueUser+=$(this).val()+",";
-            })
-            $("#commodity").val(valueUser.substring(0,valueUser.length-1));
-        })
-        $("#closeBut").click(function () {
-            $(".userGroupVal:checked").prop("checked",false);
-            $("#commodity").val();
-        })
-        $("#allCheck").click(function(){
-            if ($("#allCheck").prop("checked") == true) {
-                $(".userGroupVal").prop("checked", true);
-            } else {
-                $(".userGroupVal").prop("checked", false);
-            }
-        });
-
 
         $("#Download").click(function () {
             if ($("#QTableName").val().length == 0) {
@@ -346,14 +327,67 @@
 
         $(document).ready(function(){
             if("${detailsTsak}"=="ok"){
-                // setTimeout(function () {
                     $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
                     $("#QTableName").change();
                     $("#DateYear").val("${DateYear}");
                     $("#QueryBtn").click();
-                // },1000)
             }
         })
+
+        function affirmModal(v) {
+            var valueUser = '';
+            if(v=="c"){
+                $(".userGroupVal:checked").each(function () {
+                    valueUser += $(this).val() + ",";
+                })
+                $("#commodity").val(valueUser.substring(0, valueUser.length - 1));
+            }else {
+                $(".userGroupValSbu:checked").each(function () {
+                    valueUser += $(this).val() + ",";
+                })
+                $("#sbuVal").val(valueUser.substring(0, valueUser.length - 1));
+            }
+        }
+
+        function closeModal(v) {
+            if(v=="c"){
+                $("#myModal input[type='checkbox']").prop("checked", false);
+            }else {
+                $("#myModalSbu input[type='checkbox']").prop("checked", false);
+            }
+        }
+
+        function  checkedChild(e){
+            var a= $(e).val();
+            if ( $(e).prop("checked") == true) {
+                $("."+a).prop("checked", true);
+            } else {
+                $("."+a).prop("checked", false);
+            }
+        }
+        function modelShow() {
+            $('#myModal').modal('show');
+        }
+        function modelShowSbu() {
+            $('#myModalSbu').modal('show');
+        }
+
+        function allCheck(e,v){
+            debugger;
+            if(v=="c"){
+                if ($(e).prop("checked") == true) {
+                    $("#myModal input[type='checkbox']").prop("checked", true);
+                } else {
+                    $("#myModal input[type='checkbox']").prop("checked", false);
+                }
+            }else{
+                if ($(e).prop("checked") == true) {
+                    $("#myModalSbu input[type='checkbox']").prop("checked", true);
+                } else {
+                    $("#myModalSbu input[type='checkbox']").prop("checked", false);
+                }
+            }
+        }
     </script>
 </head>
 <body>
@@ -397,16 +431,16 @@
                 <select id="QpoCenter" name="QpoCenter" class="input-large"
                         style="width:120px;">
                     <option value=""><spring:message code='poCenter'/></option>
-                    <c:forEach items="${poCenters}" var="code">
-                        <option value="${code}">${code}</option>
+                    <c:forEach items="${commodityMap}" var="code">
+                        <option value="${code.key}">${code.key}</option>
                     </c:forEach>
                 </select>
                 <input type="text" id="commodity" style="width: 120px;" data-toggle="modal"
-                       data-target="#myModal" placeholder="commodity">
+                       ondblclick="modelShow()" placeholder="commodity">
                 <input type="text" style="width: 120px;" id="buVal" value="${buVal}"
                        placeholder="BU">
-                <input type="text" style="width: 120px;" id="sbuVal" value="${sbuVal}"
-                       placeholder="SBU">
+                <input type="text" style="width: 120px;" id="sbuVal" value="${sbuVal}" data-toggle="modal"
+                       ondblclick="modelShowSbu()" placeholder="SBU">
                 <input type="text" style="width: 120px;display: none;" id="founderVal" value="${founderVal}"
                        placeholder="<spring:message code='founder'/>">
                 <select id="priceControl" name="priceControl" class="input-large"
@@ -431,7 +465,9 @@
     </div>
 </div>
 
-<div class="modal fade" id="myModal" style="display: none" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+<div class="modal fade" id="myModal" style="display: none" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -441,13 +477,13 @@
                 <h4 class="modal-title" id="myModalLabel">
                     commodity
                 </h4>
-                <span>全選 <input id="allCheck" type="checkbox"></span>
+                <span>全選 <input onclick="allCheck(this,'c')" type="checkbox"></span>
             </div>
             <div class="modal-body">
                 <table id="commdityTable" border="0" cellpadding="0" cellspacing="1">
                     <c:forEach items="${commodityMap}" var="dataMap">
                     <tr style="border-top: 1px solid #dadada;height: 30px;font-weight:bold;">
-                        <td colspan="4"><input type="checkbox" onchange="commodity(this)" value="${dataMap.key}">${dataMap.key}</td>
+                        <td colspan="4"><input type="checkbox" onchange="checkedChild(this)" value="${dataMap.key}">${dataMap.key}</td>
                     </tr>
                     <c:forEach items="${dataMap.value}" var="commodity" varStatus="status">
                     <c:if test="${status.index %4 eq 0}">
@@ -461,9 +497,52 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" id="closeBut" class="btn btn-default" data-dismiss="modal"><spring:message code="close"/>
+                <button type="button" onclick="closeModal('c')" class="btn btn-default" data-dismiss="modal"><spring:message
+                        code="close"/>
                 </button>
-                <button type="button" id="affirmBut" class="btn btn-primary" data-dismiss="modal"><spring:message code="submit"/></button>
+                <button type="button" onclick="affirmModal('c')" class="btn btn-primary" data-dismiss="modal"><spring:message
+                        code="submit"/></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalSbu" style="display: none" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabelSbu">
+                    SBU
+                </h4>
+                <span>全選 <input onclick="allCheck(this,'s')" type="checkbox"></span>
+            </div>
+            <div class="modal-body">
+                <table id="sbuTable" border="0" cellpadding="0" cellspacing="1">
+                    <c:forEach items="${sbuMap}" var="dataMap">
+                    <tr style="border-top: 1px solid #dadada;height: 30px;font-weight:bold;">
+                        <td colspan="4"><input type="checkbox" onchange="checkedChild(this)" value="${dataMap.key}">${dataMap.key}</td>
+                    </tr>
+                    <c:forEach items="${dataMap.value}" var="commodity" varStatus="status">
+                    <c:if test="${status.index %4 eq 0}">
+                    <tr>
+                        </c:if>
+                        <td width="140px">
+                            <input type="checkbox" class="userGroupValSbu ${dataMap.key}" value="${commodity}">${commodity}
+                        </td>
+                        </c:forEach>
+                        </c:forEach>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeModal('s')" class="btn btn-default" data-dismiss="modal"><spring:message
+                        code="close"/>
+                </button>
+                <button type="button" onclick="affirmModal('s')" class="btn btn-primary" data-dismiss="modal"><spring:message
+                        code="submit"/></button>
             </div>
         </div>
     </div>

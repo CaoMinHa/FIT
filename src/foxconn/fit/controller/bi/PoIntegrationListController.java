@@ -149,10 +149,9 @@ public class PoIntegrationListController extends BaseController {
                 }
             }
 
-            List<String> poCenters = poCenterService.findPoCenters();
             session.setAttribute("dataRange", dataRange);
-            request.setAttribute("poCenters", poCenters);
             model.addAttribute("commodityMap", poTableService.selectCommodity());
+            model.addAttribute("sbuMap", poTableService.selectSBU());
 
             model.addAttribute("poTableList", tableList);
             model.addAttribute("poTableOutList", tableOutList);
@@ -344,14 +343,30 @@ public class PoIntegrationListController extends BaseController {
                 if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())||
                         "FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(poTable.getTableName())||
                         "FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-                    whereSql += " and COMMODITY_MAJOR in(" + commotityVal.substring(0,commotityVal.length()-1) + ")";
+                    if(commodity.indexOf(",")==-1){
+                        whereSql += " and COMMODITY_MAJOR like '%"+commodity+"%'";
+                    }else {
+                        whereSql += " and COMMODITY_MAJOR in(" + commotityVal.substring(0,commotityVal.length()-1) + ")";
+                    }
                 }else{
-                    whereSql += " and COMMODITY in (" + commotityVal.substring(0,commotityVal.length()-1) + ")";
+                    if(commodity.indexOf(",")==-1){
+                        whereSql += " and COMMODITY like '%"+commodity+"%'";
+                    }else {
+                        whereSql += " and COMMODITY in (" + commotityVal.substring(0,commotityVal.length()-1) + ")";
+                    }
                 }
             }
 
-            if (StringUtils.isNotEmpty(sbuVal)) {
-                whereSql += " and sbu LIKE " + "'%" + sbuVal + "%'";
+            if(null!=sbuVal && !"".equalsIgnoreCase(sbuVal)) {
+                String sbu = "";
+                for (int i = 0; i < sbuVal.split(",").length; i++) {
+                    sbu += "'" + sbuVal.split(",")[i] + "',";
+                }
+                if(sbuVal.indexOf(",")==-1){
+                    whereSql += " and sbu LIKE " + "'%" + sbuVal + "%'";
+                }else {
+                    whereSql += " and sbu in(" + sbu.substring(0,sbu.length()-1) + ")";
+                }
             }
             if (StringUtils.isNotEmpty(buVal)) {
                 whereSql += " and bu LIKE " + "'%" + buVal + "%'";

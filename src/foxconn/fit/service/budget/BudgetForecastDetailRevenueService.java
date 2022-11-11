@@ -178,6 +178,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				/**報告幣種**/List<String> currencyList = new ArrayList<>();
 				List<String> entityMakeList=new ArrayList<>();
 				String check = "";
+				String productChek="";
 				for (int i = 3; i < rowNum; i++) {
 					Row row = sheet.getRow(i);
 					String entity=ExcelUtil.getCellStringValue(row.getCell(0), i);
@@ -191,13 +192,22 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					if (row == null|| !"".equalsIgnoreCase(check.trim()) || check.length() > 0) {
 						continue;
 					}
+					if(ExcelUtil.getCellStringValue(row.getCell(5), i).isEmpty()
+							&&ExcelUtil.getCellStringValue(row.getCell(6), i).isEmpty()){
+						productChek+=i+"、";
+						continue;
+					}
 					entityList.add(entity);
 					entityMakeList.add(ExcelUtil.getCellStringValue(row.getCell(1), i));
 					industryList.add(ExcelUtil.getCellStringValue(row.getCell(2), i));
 					mainBusinessList.add(ExcelUtil.getCellStringValue(row.getCell(3), i));
 					threeList.add(ExcelUtil.getCellStringValue(row.getCell(4), i));
-					productSeriesList.add(ExcelUtil.getCellStringValue(row.getCell(5), i));
-					productNoList.add(ExcelUtil.getCellStringValue(row.getCell(6), i));
+					if(!ExcelUtil.getCellStringValue(row.getCell(5), i).isEmpty()){
+						productSeriesList.add(ExcelUtil.getCellStringValue(row.getCell(5), i));
+					}
+					if(!ExcelUtil.getCellStringValue(row.getCell(6), i).isEmpty()){
+						productNoList.add(ExcelUtil.getCellStringValue(row.getCell(6), i));
+					}
 					endCustomerList.add(ExcelUtil.getCellStringValue(row.getCell(7), i));
 					loanCustomerList.add(ExcelUtil.getCellStringValue(row.getCell(8), i));
 					tradeTypeList.add(ExcelUtil.getCellStringValue(row.getCell(9), i));
@@ -355,6 +365,9 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
 				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
 					result.put("msg", instrumentClassService.getLanguage(locale, "以下數據未上傳成功，請檢查您是否具備該SBU權限。--------->" + check, "The following data fails to be uploaded. Check whether you have the SBU permission--------->" + check));
+				}
+				if (!"".equalsIgnoreCase(productChek.trim()) && productChek.length() > 0) {
+					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品系列和產品料號必填其一。--------->" + productChek.substring(0,productChek.length()-1), "The following lines of data have not been uploaded successfully, one of the product series and product number is required--------->" + productChek.substring(0,productChek.length()-1)));
 				}
 			} else {
 				result.put("flag", "fail");

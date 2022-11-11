@@ -94,7 +94,7 @@ public class PoTaskController extends BaseController {
                 commodityMajor=maps.get(0).get("COMMODITY_MAJOR")==null?"":maps.get(0).get("COMMODITY_MAJOR").toString();
             }
             String sql="select  ID , TYPE ,NAME, FLAG ,remark,CREATE_USER_REAL, create_time, " +
-                    " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE 1=1 ";
+                    " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE 1=1  and flag>-1 ";
             if(!StringUtils.isBlank(name)){
                 name="%"+name+"%";
                 sql=sql+" and name like "+"'"+name+"'";
