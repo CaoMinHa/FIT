@@ -94,7 +94,8 @@ function clickPage(page){
 				poCenter: entity,
 				sbuVal: sbuVal,
 				priceControl:$("#priceControl").val(),
-				commodity:$("#commodity").val()
+				commodity:$("#commodity").val(),
+				flag:$("#flag").val()
 			},function(){$("#loading").fadeOut(1000);});
 }
 

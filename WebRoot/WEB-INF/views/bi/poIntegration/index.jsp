@@ -243,7 +243,8 @@
                         priceControl: $("#priceControl").val(),
                         commodity: $("#commodity").val(),
                         buVal: $("#buVal").val(),
-                        founderVal: $("#founderVal").val()
+                        founderVal: $("#founderVal").val(),
+                        flag:$("#flag").val()
                     },
                     success: function (data) {
                         $("#loading").hide();
@@ -600,6 +601,27 @@
                                            type="text" value=""
                                            placeholder="<spring:message code='end_time'/>"
                                            readonly>
+                                    <select id="flag" class="input-large" style="width:100px;">
+                                        <option value="">
+                                            <c:if test="${languageS eq 'zh_CN'}">審批狀態</c:if>
+                                            <c:if test="${languageS eq 'en_US'}">Approval status</c:if>
+                                            </option>
+                                        <option value="0"><c:if test="${languageS eq 'zh_CN'}">未提交</c:if>
+                                            <c:if test="${languageS eq 'en_US'}">Unsubmitted</c:if></td></option>
+                                        <option value="1"><spring:message code='praeiudicium'/></option>
+                                        <option value="2">
+                                            <c:if test="${languageS eq 'zh_CN'}">終審</c:if>
+                                            <c:if test="${languageS eq 'en_US'}">Final Judgment</c:if>
+                                            </option>
+                                        <option value="10">
+                                            <c:if test="${languageS eq 'zh_CN'}">審核</c:if>
+                                            <c:if test="${languageS eq 'en_US'}">Audit</c:if>
+                                            </option>
+                                        <option value="3">
+                                            <c:if test="${languageS eq 'zh_CN'}">完成</c:if>
+                                            <c:if test="${languageS eq 'en_US'}">Finish</c:if>
+                                        </option>
+                                    </select>
                                     <select id="QpoCenter" name="QpoCenter" class="input-large"
                                             style="width:120px;">
                                         <option value=""><spring:message code='poCenter'/></option>
@@ -609,11 +631,11 @@
                                     </select>
                                     <input type="text" id="commodity" style="width: 120px;" data-toggle="modal"
                                            ondblclick="modelShow()" placeholder="commodity">
-                                    <input type="text" style="width: 120px;" id="buVal" value="${buVal}"
+                                    <input type="text" style="width: 100px;" id="buVal" value="${buVal}"
                                            placeholder="BU">
-                                    <input type="text" style="width: 120px;" id="sbuVal" value="${sbuVal}" data-toggle="modal"
+                                    <input type="text" style="width: 100px;" id="sbuVal" value="${sbuVal}" data-toggle="modal"
                                            ondblclick="modelShowSbu()" placeholder="SBU">
-                                    <input type="text" style="width: 120px;display: none;" id="founderVal" value="${founderVal}"
+                                    <input type="text" style="width: 100px;display: none;" id="founderVal" value="${founderVal}"
                                            placeholder="<spring:message code='founder'/>">
                                     <select id="priceControl" name="priceControl" class="input-large"
                                             style="width:100px;display: none;">

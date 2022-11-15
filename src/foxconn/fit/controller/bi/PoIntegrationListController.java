@@ -168,7 +168,7 @@ public class PoIntegrationListController extends BaseController {
 
     @RequestMapping(value = "/list")
     public String list(Model model, PageRequest pageRequest, HttpServletRequest request, String DateYear,
-                       String date, String dateEnd, String tableName,
+                       String date, String dateEnd, String tableName,String flag,
                        String poCenter, String sbuVal, String priceControl,String commodity,String founderVal,String buVal) {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -343,17 +343,17 @@ public class PoIntegrationListController extends BaseController {
                 if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())||
                         "FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(poTable.getTableName())||
                         "FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-                    if(commodity.indexOf(",")==-1){
-                        whereSql += " and COMMODITY_MAJOR like '%"+commodity+"%'";
-                    }else {
+//                    if(commodity.indexOf(",")==-1){
+//                        whereSql += " and COMMODITY_MAJOR like '%"+commodity+"%'";
+//                    }else {
                         whereSql += " and COMMODITY_MAJOR in(" + commotityVal.substring(0,commotityVal.length()-1) + ")";
-                    }
+//                    }
                 }else{
-                    if(commodity.indexOf(",")==-1){
-                        whereSql += " and COMMODITY like '%"+commodity+"%'";
-                    }else {
+//                    if(commodity.indexOf(",")==-1){
+//                        whereSql += " and COMMODITY like '%"+commodity+"%'";
+//                    }else {
                         whereSql += " and COMMODITY in (" + commotityVal.substring(0,commotityVal.length()-1) + ")";
-                    }
+//                    }
                 }
             }
 
@@ -370,6 +370,9 @@ public class PoIntegrationListController extends BaseController {
             }
             if (StringUtils.isNotEmpty(buVal)) {
                 whereSql += " and bu LIKE " + "'%" + buVal + "%'";
+            }
+            if (StringUtils.isNotEmpty(flag)) {
+                whereSql += " and flag = '" + flag + "'";
             }
             orderBy += " ID,SBU";
             sql += whereSql+" and flag in('1','2','10','3') " +orderBy;

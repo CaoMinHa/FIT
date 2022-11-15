@@ -101,7 +101,8 @@
 						priceControl:$("#priceControl").val(),
 						commodity:$("#commodity").val(),
 						buVal: $("#buVal").val(),
-						founderVal: $("#founderVal").val()
+						founderVal: $("#founderVal").val(),
+						flag:$("#flag").val()
 					},function(){$("#loading").fadeOut(1000);});
 		}
 

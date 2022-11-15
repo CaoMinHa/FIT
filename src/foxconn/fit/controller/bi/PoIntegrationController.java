@@ -542,7 +542,7 @@ public class PoIntegrationController extends BaseController {
     @Log(name = "採購模块-->下载")
     public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
                                         String DateYear,
-                                        String date, String dateEnd, String tableNames,
+                                        String date, String dateEnd, String tableNames,String flag,
                                         String poCenter, String sbuVal, String priceControl,String commodity,String founderVal,String buVal) {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -671,17 +671,17 @@ public class PoIntegrationController extends BaseController {
                     if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())||
                             "FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(poTable.getTableName())||
                             "FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-                        if(commodity.indexOf(",")==-1){
-                            whereSql += " and COMMODITY_MAJOR like '%"+commodity+"%'";
-                        }else {
+//                        if(commodity.indexOf(",")==-1){
+//                            whereSql += " and COMMODITY_MAJOR like '%"+commodity+"%'";
+//                        }else {
                             whereSql += " and COMMODITY_MAJOR in(" + commotityVal.substring(0,commotityVal.length()-1) + ")";
-                        }
+//                        }
                     }else{
-                        if(commodity.indexOf(",")==-1){
-                            whereSql += " and COMMODITY like '%"+commodity+"%'";
-                        }else {
+//                        if(commodity.indexOf(",")==-1){
+//                            whereSql += " and COMMODITY like '%"+commodity+"%'";
+//                        }else {
                             whereSql += " and COMMODITY in (" + commotityVal.substring(0,commotityVal.length()-1) + ")";
-                        }
+//                        }
                     }
                 }
 
@@ -698,6 +698,9 @@ public class PoIntegrationController extends BaseController {
                 }
                 if (StringUtils.isNotEmpty(buVal)) {
                     whereSql += " and bu LIKE " + "'%" + buVal + "%'";
+                }
+                if (StringUtils.isNotEmpty(flag)) {
+                    whereSql += " and flag = '" + flag + "'";
                 }
                 sql = sql.substring(0, sql.length() - 1) + " from " + tableName + whereSql+" and flag in('1','2','10','3')";
                 //獲取配置排序順序
