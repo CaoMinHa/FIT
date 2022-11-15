@@ -313,7 +313,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 						return result.getJson();
 					}
 					/**賬款客戶**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"' and PARENT in('Customer_Total') ";
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
 					check=this.check(loanCustomerList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
@@ -560,7 +560,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 						return result.getJson();
 					}
 					/**賬款客戶**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"' and PARENT in('Customer_Total') ";
+					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
 					check=this.check(loanCustomerList,sql);
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");

@@ -107,7 +107,7 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**賬款客戶*/
 			sheet = workBook.getSheetAt(11);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"' and PARENT in('Customer_Total') ";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
 			this.selectDimension(sql,sheet);
 
 			/**交易類型*/
