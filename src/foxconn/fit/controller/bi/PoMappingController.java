@@ -630,20 +630,20 @@ public class PoMappingController extends BaseController{
 
 		return result.getJson();
 	}
-	/*
+	/**
 	  對同一批Excel數據編碼去重，
 	 */
 	public static List<List<String>> ifRepeat(List<List<String>> list){
-
-			for (int i=0;i<list.size();i++)
+		List<List<String>> list1=new ArrayList<>();
+		for (int i=0;i<list.size();i++)
+		{
+			for (int j=i+1;j<list.size();j++)
 			{
-				for (int j=i+1;j<list.size();j++)
-				{
-					if(list.get(i).get(0).equals(list.get(j).get(0))){
-						list.remove(j);
-					}
+				if(!list.get(i).toString().equals(list.get(j).toString())){
+					list1.add(list.get(i));
 				}
 			}
+		}
 			return list;
 	}
 
