@@ -472,7 +472,7 @@ public class PoTaskService extends BaseService<PoTask> {
                                     "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','ADMIN','PLACECLASS1','MANAGER','PLACECLASS','T_MANAGER','TDC')  and COMMODITY_MAJOR is not null";
                             List<String> emailList = roRoleService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
-                            List<Map> maps = poFlowDao.listMapBySql("select count(1) from FIT_PO_TASK where name='"+taskList.get(0).get("NAME").toString()+"' and FLAG='-1' ");
+                            List<Map> maps = poFlowDao.listMapBySql("select count(1) from FIT_PO_TASK_LOG where TASK_NAME='"+taskList.get(0).get("NAME").toString()+"' and FLAG='-1' ");
                             if (maps != null && !"0".equals(maps.get(0).get("COUNT(1)").toString())) {
                                 msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "對" + task[0] + "_" + task[1] + "年度SBU CD目標數據有作更新，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
                             }else {
