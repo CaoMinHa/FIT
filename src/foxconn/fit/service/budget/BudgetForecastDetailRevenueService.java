@@ -180,6 +180,9 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				String check = "";
 				String productChek="";
 				for (int i = 3; i < rowNum; i++) {
+					if(null==sheet.getRow(i)){
+						continue;
+					}
 					Row row = sheet.getRow(i);
 					String entity=ExcelUtil.getCellStringValue(row.getCell(0), i);
 					if(row == null||entity.length()<1||"".equals(entity)){
@@ -362,6 +365,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
 				}
+				sbuList=instrumentClassService.removeDuplicate(sbuList);
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
 				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
 					result.put("msg", instrumentClassService.getLanguage(locale, "以下數據未上傳成功，請檢查您是否具備該SBU權限。--------->" + check, "The following data fails to be uploaded. Check whether you have the SBU permission--------->" + check));
