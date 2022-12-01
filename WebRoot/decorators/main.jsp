@@ -279,7 +279,7 @@
 				$("a[url='/fit/bi/poTask/index']").click();
 			}else if("${detailsTsak}" == "Y"){
 				$("a[url='/fit/bi/poTask/index']").click();
-			}else if("${detailsTsak}"=="ok"||"${detailsTsak}"=="list"){
+			}else if("${detailsTsak}"=="ok"){
 				$("a[url='/fit/bi/poIntegrationList/index']").click();
 			}else{
 				$(".two_bar li a:first").parent("li").parent("ul").show();
@@ -355,7 +355,7 @@ function updateTask(id,status,time){
 			<nav class="navbar navbar-static-left">
 				<ul class="nav js_menu" id="navMenu">
 					<li class="nav-header">
-						<img style="width:100%;height:100%;border:none;" src="${ctx }/static/image/logo/logo.png"/>
+						<img style="width:100%;height:100%;border:none;" src="${ctx }/static/image/logo/logo.gif"/>
 					</li>
 					<security:authorize access="hasRole('ROLE_ADMIN')">
 						<li class="nav-body">

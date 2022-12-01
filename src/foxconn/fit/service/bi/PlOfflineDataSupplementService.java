@@ -3,8 +3,10 @@ package foxconn.fit.service.bi;
 import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoColumns;
+import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.util.ExcelUtil;
 import foxconn.fit.util.ExceptionUtil;
+import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -27,12 +29,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author maggao
@@ -134,6 +134,15 @@ public class PlOfflineDataSupplementService {
 
     public String uploadFile(Sheet sheet,AjaxResult result, Locale locale,String tableName) throws Exception {
         System.out.print("开始处理数据-------》");
+        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+        String roleSql="select count(1) from  fit_user u \n" +
+                " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+                " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+                " WHERE r.code='PLadmin' and  u.username="+"'"+loginUser.getUsername()+"'";
+        List<BigDecimal> countList = (List<BigDecimal>)poTableDao.listBySql(roleSql);
+        int count = countList.get(0).intValue();
+        Calendar calendar=Calendar.getInstance();
+        int yearMonth=(calendar.get(Calendar.YEAR)*100)+calendar.get(Calendar.MONTH);
         List<PoColumns> columns = poTableDao.listBySql("select * from fit_po_table_columns where table_name='"+tableName+"' ORDER BY to_number(SERIAL)",PoColumns.class);
         int COLUMN_NUM = columns.size();
         List<List<String>> dataList=new ArrayList<List<String>>();
@@ -145,9 +154,9 @@ public class PlOfflineDataSupplementService {
             if (row.getRowNum() < 4) {
                 Assert.notNull(row, getByLocale(locale, "Please use the downloaded template to import data_請使用所下載的模板導入數據！"));
                 int columnNum = row.getPhysicalNumberOfCells();
-                if (columnNum < 17) {
+                if (columnNum < 16) {
                     result.put("flag", "fail");
-                    result.put("msg", getByLocale(locale, "The number of columns cannot be less than 17_列數不能小於17,請檢查上傳模板是否正確！"));
+                    result.put("msg", getByLocale(locale, "The number of columns cannot be less than 16_列數不能小於16,請檢查上傳模板是否正確！"));
                     return result.getJson();
                 }
                 continue;
@@ -157,6 +166,21 @@ public class PlOfflineDataSupplementService {
                     result.put("flag", "fail");
                     result.put("msg", getByLocale(locale, "Please fill in the correct period data such as: 2022-01_請填寫正確期間數據如：2022-01！"));
                     return result.getJson();
+                }
+                if (count<1){
+                    if(!period.replace("-","").equals(Integer.toString(yearMonth))){
+                        result.put("flag", "fail");
+                        result.put("msg", getByLocale(locale, "Only upload unpublished P&L data for the previous month is allowed_僅允許上傳上月未發佈的損益表數據。"));
+                        return result.getJson();
+                    }else{
+                        countList = (List<BigDecimal>)poTableDao.listBySql("select count(1) from BIDEV.CUX_PL_DEFAULT_BI_V where YEAR_MONTH='"+period.replace("-","")+"'");
+                        count = countList.get(0).intValue();
+                        if(count>0){
+                            result.put("flag", "fail");
+                            result.put("msg", getByLocale(locale, "Published income statement data does not allow updates_已發佈的損益表數據不允許更新。"));
+                            return result.getJson();
+                        }
+                    }
                 }
                 if(Integer.parseInt(period.substring(0,4))<2022){
                     result.put("flag", "fail");

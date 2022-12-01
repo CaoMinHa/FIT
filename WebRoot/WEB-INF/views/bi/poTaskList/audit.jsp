@@ -105,7 +105,7 @@
             }, function(){
                 //下載
                 var tempwindow=window.open('_blank');
-                tempwindow.location= "${ctx}/static/download/"+val;
+                tempwindow.location= "${ctx}/static/taskFile/"+val;
                 layer.close(index);
             }, function(){
                 //关闭提示框

@@ -332,6 +332,7 @@
                     $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
                     $("#QTableName").change();
                     $("#DateYear").val("${DateYear}");
+                    $("#sbuVal").val("${sbuVal}");
                     $("#QueryBtn").click();
             }
         })
