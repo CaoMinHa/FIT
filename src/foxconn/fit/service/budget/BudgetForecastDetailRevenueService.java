@@ -448,6 +448,9 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				List<String> entityMakeList=new ArrayList<>();
 				String check = "";
 				for (int i = 3; i < rowNum; i++) {
+					if(null==sheet.getRow(i)){
+						continue;
+					}
 					Row row = sheet.getRow(i);
 					String entity=ExcelUtil.getCellStringValue(row.getCell(0), i);
 					if(row == null||entity.length()<1||"".equals(entity)){

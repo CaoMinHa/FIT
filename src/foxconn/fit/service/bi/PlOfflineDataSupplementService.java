@@ -141,8 +141,6 @@ public class PlOfflineDataSupplementService {
                 " WHERE r.code='PLadmin' and  u.username="+"'"+loginUser.getUsername()+"'";
         List<BigDecimal> countList = (List<BigDecimal>)poTableDao.listBySql(roleSql);
         int count = countList.get(0).intValue();
-        Calendar calendar=Calendar.getInstance();
-        int yearMonth=(calendar.get(Calendar.YEAR)*100)+calendar.get(Calendar.MONTH);
         List<PoColumns> columns = poTableDao.listBySql("select * from fit_po_table_columns where table_name='"+tableName+"' ORDER BY to_number(SERIAL)",PoColumns.class);
         int COLUMN_NUM = columns.size();
         List<List<String>> dataList=new ArrayList<List<String>>();
@@ -168,18 +166,12 @@ public class PlOfflineDataSupplementService {
                     return result.getJson();
                 }
                 if (count<1){
-                    if(!period.replace("-","").equals(Integer.toString(yearMonth))){
+                    countList = (List<BigDecimal>)poTableDao.listBySql("select count(1) from BIDEV.CUX_PL_DEFAULT_BI_V where YEAR_MONTH='"+period.replace("-","")+"'");
+                    count = countList.get(0).intValue();
+                    if(count>0){
                         result.put("flag", "fail");
-                        result.put("msg", getByLocale(locale, "Only upload unpublished P&L data for the previous month is allowed_僅允許上傳上月未發佈的損益表數據。"));
+                        result.put("msg", getByLocale(locale, "Published income statement data does not allow updates_已發佈的損益表數據不允許更新。"));
                         return result.getJson();
-                    }else{
-                        countList = (List<BigDecimal>)poTableDao.listBySql("select count(1) from BIDEV.CUX_PL_DEFAULT_BI_V where YEAR_MONTH='"+period.replace("-","")+"'");
-                        count = countList.get(0).intValue();
-                        if(count>0){
-                            result.put("flag", "fail");
-                            result.put("msg", getByLocale(locale, "Published income statement data does not allow updates_已發佈的損益表數據不允許更新。"));
-                            return result.getJson();
-                        }
                     }
                 }
                 if(Integer.parseInt(period.substring(0,4))<2022){
