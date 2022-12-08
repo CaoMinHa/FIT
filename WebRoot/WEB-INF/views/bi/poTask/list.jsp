@@ -463,7 +463,6 @@ function cancelTask(index) {
 
 		</tbody>
 	</table>
-	<input id="role" style="display: none" placeholder="請輸入查詢名稱" type="text" value="${role}">
 </div>
 <div id="Fenye"></div>
 <input type="hidden" id="PageNo" value="${fn:escapeXml(page.pageNo)}" />

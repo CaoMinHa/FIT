@@ -82,7 +82,7 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**產品系列*/
 			sheet = workBook.getSheetAt(6);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and PARENT in('Product_Total')";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' ";
 			this.selectDimension(sql,sheet);
 
 			/**Product series for FOIT*/

@@ -48,8 +48,7 @@ $(function() {
 		            text: "<spring:message code='submit'/>",
 		            click: function() {
 		            	var $dialog=$(this);
-
-						if($("#userForm input[name=menus]:checked").length>0){
+						if($("#userForm input[name=menus]:checked").length>0||$("#userForm select[name=type]").val()=="HFM"){
 							$("#MenuTip").hide();
 							userFormValid=true;
 						}else{

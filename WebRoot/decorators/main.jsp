@@ -372,13 +372,13 @@ function updateTask(id,status,time){
 								</div>
 							</a>
 						</li>
-<%--						<li class="nav-body">--%>
-<%--							<a href="javascript:void(0);" url="${ctx}/admin/dimension/index">--%>
-<%--								<div class="div-middle">--%>
-<%--									<span><spring:message code='dimension'/></span>--%>
-<%--								</div>--%>
-<%--							</a>--%>
-<%--						</li>--%>
+						<li class="nav-body">
+							<a href="javascript:void(0);" url="${ctx}/admin/dimension/index">
+								<div class="div-middle">
+									<span><spring:message code='dimension'/></span>
+								</div>
+							</a>
+						</li>
 						<li class="nav-body">
 							<a href="javascript:void(0);" url="${ctx}/admin/table/index">
 								<div class="div-middle">

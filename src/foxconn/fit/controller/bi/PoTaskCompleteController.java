@@ -2,8 +2,6 @@ package foxconn.fit.controller.bi;
 
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
-import foxconn.fit.dao.bi.PoTableDao;
-import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.base.User;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
@@ -11,39 +9,26 @@ import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.service.base.UserService;
 import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.service.bi.PoTaskService;
-import foxconn.fit.util.ExceptionUtil;
 import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.util.WebUtils;
 import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * @author Yang DaiSheng
- * @program fit
- * @description 作爲審核模塊開發
- * @create 2021-04-20 16:04
- **/
 @Controller
-@RequestMapping("/bi/poTask")
-public class PoTaskController extends BaseController {
+@RequestMapping("/bi/poTaskComplete")
+public class PoTaskCompleteController extends BaseController {
 
     @Autowired
     private UserService userService;
@@ -51,9 +36,6 @@ public class PoTaskController extends BaseController {
     private PoTaskService poTaskService;
     @Autowired
     private PoTableService poTableService;
-    @Autowired
-    private PoTableDao poTableDao;
-
 
     @RequestMapping(value = "index")
     public String index(PageRequest pageRequest, Model model, HttpServletRequest request) {
@@ -67,15 +49,13 @@ public class PoTaskController extends BaseController {
             List<Map> roleList = userService.listMapBySql(roleSql);
             pageRequest.setOrderBy("serial");
             pageRequest.setOrderDir("asc");
-            User user = userService.getByUsername(SecurityUtils.getLoginUsername());
             model.addAttribute("roles", roleList);
-            model.addAttribute("attribute", user.getAttribute());
-
         } catch (Exception e) {
             logger.error("查询明细配置表列表信息失败", e);
         }
-        return "/bi/poTask/index";
+        return "/bi/poTaskComplete/index";
     }
+
     @RequestMapping(value="/list")
     @Log(name = "採購任務-->查看列表")
     public String list(Model model, PageRequest pageRequest,HttpServletRequest request,@Log(name = "任務名稱") String name,
@@ -83,18 +63,16 @@ public class PoTaskController extends BaseController {
         try {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String userName=loginUser.getUsername();
-            String userSql=" select sbu,email,COMMODITY_MAJOR from fit_user where username="+"'"+userName+"'";
+            String userSql=" select sbu,COMMODITY_MAJOR from fit_user where username="+"'"+userName+"'";
             List<Map> maps = userService.listMapBySql(userSql);
             String sbu="";
-            String email="";
             String commodityMajor="";
             if(maps!=null&&maps.size()==1){
                 sbu=maps.get(0).get("SBU")==null?"":maps.get(0).get("SBU").toString();
-                email=maps.get(0).get("EMAIL")==null?"":maps.get(0).get("EMAIL").toString();
                 commodityMajor=maps.get(0).get("COMMODITY_MAJOR")==null?"":maps.get(0).get("COMMODITY_MAJOR").toString();
             }
             String sql="select  ID , TYPE ,NAME, FLAG ,remark,CREATE_USER_REAL, create_time, " +
-                    " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE flag not in('-1','3')  ";
+                    " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE flag=3 ";
             if(!StringUtils.isBlank(name)){
                 name="%"+name+"%";
                 sql=sql+" and name like "+"'"+name+"'";
@@ -110,18 +88,6 @@ public class PoTaskController extends BaseController {
                 date=date+"%";
                 sql=sql+" and name like"+"'"+date+"'";
             }
-            //  数据状态：未提交->初審中->終審中->已核准
-            //  不同角色人员，自己看到自己对应阶段的数据
-            //1 采购员看到自己创建的数据 by 物料大类 Sourcer
-            //2 企划 看到自己创建的数据  by SBU  MM
-            //3 TDC 看到自己创建的数据  cpo
-            //4 课级主管 阶段是初审中 by 物料大类（3表）class
-            //5 部级主管 阶段是終審中 by 物料大类（3表）Manager
-            //备注 若同一物料大类部门只维护了部级主管，则任务直接提交至部级主管
-            //6 TDC部主管 阶段是初审中 by 物料大类（cpo表）class 可修改cpo
-            //7 CPO核准 阶段是終審中 by 物料大类（cpo表）Manager 可修改cpo
-            //备注 若同一物料大类部门只维护了部级主管，则任务直接提交至部级主管
-            //8 系统管理员 所有数据 且阶段是終審中(sbu表)可审核 KeyUser
             if("KEYUSER".equalsIgnoreCase(roleCode)){
 
             }else if("SOURCER".equalsIgnoreCase(roleCode)){
@@ -131,7 +97,6 @@ public class PoTaskController extends BaseController {
                 sql+=" and CREATE_USER="+"'"+userName+"'  and type='FIT_PO_SBU_YEAR_CD_SUM' and instr(',"+sbu+",',','||SBU||',')>0";
                 roleCode="BASE";
             }else if("TDC".equalsIgnoreCase(roleCode)){
-                // and CREATE_USER="+"'"+userName+ "'
                 sql+="and type='FIT_PO_Target_CPO_CD_DTL' ";
             }else if("PD".equalsIgnoreCase(roleCode)){
                 sql+= "  and type='FIT_PO_SBU_YEAR_CD_SUM' and instr(',"+sbu+",',','||SBU||',')>0 and (flag='1' or AUDIT_ONE='"+userName+"' )";
@@ -150,9 +115,6 @@ public class PoTaskController extends BaseController {
             }
             sql+=" order by create_time desc,flag asc";
             System.out.println(sql);
-            model.addAttribute("email", email);
-            model.addAttribute("sbu", sbu);
-            model.addAttribute("commodityMajor", commodityMajor);
             model.addAttribute("role", roleCode);
             Page<Object[]> page = poTaskService.findPageBySql(pageRequest, sql);
             int index=1;
@@ -165,23 +127,8 @@ public class PoTaskController extends BaseController {
         } catch (Exception e) {
             logger.error("查询明细配置表列表失败:", e);
         }
-        return "/bi/poTask/list";
+        return "/bi/poTaskComplete/list";
     }
-    @RequestMapping(value="/addCpo")
-    @ResponseBody
-    @Transactional
-    @Log(name = "採購任務-->新增SBU年度CD目標核准表任務")
-    public String addRole(AjaxResult ajaxResult, HttpServletRequest request,@Log(name = "年份") String year) {
-        try {
-            ajaxResult=poTaskService.addCpoTask(ajaxResult,year);
-        } catch (Exception e) {
-            logger.error("新增cpo任务失败", e);
-            ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", "新增cpo任务失败(add Cpo Task Fail) : " + ExceptionUtil.getRootCauseMessage(e));
-        }
-        return ajaxResult.getJson();
-    }
-
     @RequestMapping(value="/audit")
     @Log(name = "採購任務-->查看任務詳細信息")
     public String userList(Model model, PageRequest pageRequest,HttpServletRequest request,@Log(name="任務ID") String id,
@@ -189,7 +136,7 @@ public class PoTaskController extends BaseController {
         try {
             HttpSession session = request.getSession(false);
             session.setAttribute("detailsTsak","N");
-            Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+            Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
             model.addAttribute("statusType", statusType);
             model.addAttribute("role", role);
             //查询当前任务明细所有的附件
@@ -243,11 +190,11 @@ public class PoTaskController extends BaseController {
                         index=2;
                     }
                     model.addAttribute("index", index);
-                    return "/bi/poTask/cpo";
+                    return "/bi/poTaskComplete/cpo";
                 }else{
                     //查询任务明细及增加汇总数
                     model=this.selectPoTask(model,tableName,locale,pageRequest,id);
-                    return "/bi/poTask/audit";
+                    return "/bi/poTaskComplete/audit";
                 }
             }else{
                 logger.error("沒有任務綁定數據:");
@@ -255,7 +202,7 @@ public class PoTaskController extends BaseController {
         } catch (Exception e) {
             logger.error("查询明细配置表列表失败:", e);
         }
-        return "/bi/poTask/audit";
+        return "/bi/poTaskComplete/audit";
     }
 
     /**
@@ -377,203 +324,4 @@ public class PoTaskController extends BaseController {
         return model;
     }
 
-
-    /**
-     *   submitTask  任务提交
-     *   sbu flag=0提交到任務管理員 flag=2
-     *   采購數據 flag=0提交到課級flag=1->科級flag=2
-     *   若只維護了部級別主管 直接提交到部級別
-     *   tdc  flag=0->tdc部門flag=1-》cpo核准 flag=2
-     * */
-    @RequestMapping(value="/submitTask")
-    @ResponseBody
-    @Log(name = "採購任務-->提交")
-    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID")String id,String taskType,
-                             @Log(name="審批意見")String remark,String roleCode) {
-        try {
-            ajaxResult=poTaskService.submit(ajaxResult,taskType,id,roleCode,remark);
-        } catch (Exception e) {
-            logger.error("提交任务失败", e);
-            ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", "提交任务失败(sbumit Task Fail) : " + ExceptionUtil.getRootCauseMessage(e));
-        }
-        return ajaxResult.getJson();
-    }
-
-    /**
-     * 初審
-     */
-    @RequestMapping(value="/submitOneAudit")
-    @ResponseBody
-    @Log(name = "採購任務-->初審")
-    public String submitOneAudit(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID") String id,String taskType,
-                                 @Log(name="審批意見")String remark,String status,String roleCode) {
-        try {
-            ajaxResult=poTaskService.submitOne(ajaxResult,taskType,id,status,remark,roleCode);
-        } catch (Exception e) {
-            logger.error("初审任务失败", e);
-            ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", "初审任务失败(submit One Audit Fail) : " + ExceptionUtil.getRootCauseMessage(e));
-        }
-        return ajaxResult.getJson();
-    }
-
-    /**
-     * 中审
-     * @return
-     */
-    @RequestMapping(value="/CPOAudit")
-    @ResponseBody
-    @Log(name = "採購任務-->CPO目標核准初審")
-    public String CPOAudit(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID") String id,String taskType,
-                                 @Log(name="審批意見")String remark,String status,String roleCode) {
-        try {
-            ajaxResult=poTaskService.CPOAudit(ajaxResult,taskType,id,status,remark,roleCode);
-        } catch (Exception e) {
-            logger.error("初审任务失败", e);
-            ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", "初审任务失败(submit One Audit Fail) : " + ExceptionUtil.getRootCauseMessage(e));
-        }
-        return ajaxResult.getJson();
-    }
-
-    /**
-     * 终审
-     */
-    @Log(name = "採購任務-->終審")
-    @RequestMapping(value="/submitAudit")
-    @ResponseBody
-    public String submitEndAudit(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID")String id,String taskType,
-                                 @Log(name="審批意見")String remark,String status) {
-        try {
-            ajaxResult=poTaskService.submitEnd(ajaxResult,taskType,id,status,remark);
-        } catch (Exception e) {
-            logger.error("终审任务失败", e);
-            ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", "终审任务失败(submit Audit Fail) : " + ExceptionUtil.getRootCauseMessage(e));
-        }
-        return ajaxResult.getJson();
-    }
-
-    /**
-     *  管理員取消審批任務，所有任務退回未提交 flag=0
-     */
-    @RequestMapping(value="/cancelAudit")
-    @ResponseBody
-    @Log(name = "採購任務-->管理員取消審批任務")
-    public String cancelAudit(AjaxResult ajaxResult, HttpServletRequest request,String id,String taskType,String remark) {
-        try {
-            ajaxResult=poTaskService.cancelAudit(ajaxResult,taskType,id,remark);
-        } catch (Exception e) {
-            logger.error("取消審批任务失败", e);
-            ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", "取消審批任务失败(cancel Audit Fail) : " + ExceptionUtil.getRootCauseMessage(e));
-        }
-        return ajaxResult.getJson();
-    }
-
-    /**
-     TDC取消審任務，任務數據刪除，且所綁定的業務數據flag=null task_id清空
-    */
-    @RequestMapping(value="/cancelTask")
-    @ResponseBody
-    @Log(name = "採購任務-->提交人取消審批任務")
-    public String cancelTask(AjaxResult ajaxResult, HttpServletRequest request,String id) {
-        try {
-            ajaxResult=poTaskService.cancelTask(ajaxResult,id);
-        } catch (Exception e) {
-            logger.error("取消審批任务失败", e);
-            ajaxResult.put("flag", "fail");
-            ajaxResult.put("msg", "取消審批任务失败(cancel Audit Fail) : " + ExceptionUtil.getRootCauseMessage(e));
-        }
-        return ajaxResult.getJson();
-    }
-
-    /**
-     * 刪除任務附檔
-     */
-    @RequestMapping(value = "deleteUrl")
-    @ResponseBody
-    @Log(name = "採購任務-->刪除任務附檔")
-    public String deleteUrl(HttpServletRequest request, HttpServletResponse response,
-                            AjaxResult result,@Log(name = "附檔ID") String fileId){
-        Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-        result.put("msg", getLanguage(locale, "刪除成功", "Delete success"));
-        try {
-            String realPath = request.getRealPath("");
-            //获取存储路径文件夹
-            File outFile=new File(realPath+File.separator+"static"+File.separator+"taskFile"+File.separator+fileId);
-            if(outFile.isDirectory()) {
-                File[] files = outFile.listFiles();
-                for (int i = 0; i < files.length; i++) {
-                    //删除子文件
-                    if (files[i].isFile()) {
-                        files[i].delete();
-                    }
-                }
-                outFile.delete();
-                String deleteSql="delete from fit_po_task_file where FILEID='"+fileId+"'";
-                poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-            }else {
-                result.put("msg", getLanguage(locale, "刪除失敗，未找到文件路徑。", "Failed to delete the file because the file path was not found."));
-            }
-        }catch (Exception e) {
-            result.put("msg", ExceptionUtil.getRootCauseMessage(e));
-        }
-        return result.getJson();
-    }
-
-    @RequestMapping(value = "upload")
-    @ResponseBody
-    @Log(name = "採購任務-->上传任务附档")
-    public String upload(HttpServletRequest request, HttpServletResponse response,
-                         AjaxResult result,@Log(name="任務ID") String taskId) {
-        Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-        result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
-        File localFile = null;
-        try {
-            String realPath = request.getRealPath("");
-            MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
-            Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
-            if (mutipartFiles != null && mutipartFiles.size() > 0) {
-                MultipartFile file = (MultipartFile) mutipartFiles.values().toArray()[0];
-                String suffix = "";
-                if (file.getOriginalFilename().lastIndexOf(".") != -1) {
-                    suffix = file.getOriginalFilename().substring(
-                            file.getOriginalFilename().lastIndexOf(".") + 1,
-                            file.getOriginalFilename().length());
-                    suffix = suffix.toLowerCase();
-                }
-                if (!"xls".equals(suffix) && !"xlsx".equals(suffix)&& ! "pdf".equals(suffix)) {
-                    result.put("flag", "fail");
-                    result.put("msg", getLanguage(locale, "請上傳正確格式的Excel文件", "The format of excel is error"));
-                    return result.getJson();
-                } else {
-                    String Id = Long.toString(System.currentTimeMillis());
-                    //获取存储路径文件夹
-                    File outFile=new File(realPath+File.separator+"static"+File.separator+"taskFile"+File.separator+Id);
-                    outFile.mkdirs();
-                    //保存到本地
-                    localFile = new File(outFile.getAbsolutePath() +File.separator +file.getOriginalFilename());
-                    file.transferTo(localFile);
-                    UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-                    String user = loginUser.getUsername();
-                    String insertSql="insert into FIT_PO_TASK_FILE(CREATE_USER,TASKID,FILEURL,FILENAME,FILEID) " +
-                            "values ('"+user+"','"+taskId+"','"+Id+File.separator +file.getOriginalFilename()+"','"+
-                            file.getOriginalFilename()+"','"+Id+"')";
-                    poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(insertSql).executeUpdate();
-                    result.put("fileName",file.getOriginalFilename());
-                    result.put("fileId",Id);
-                }
-            } else {
-                result.put("flag", "fail");
-                result.put("msg", getLanguage(locale, "對不起，未接收到上傳的文件", "Uploaded file not received"));
-            }
-        } catch (Exception e) {
-            logger.error("保存文件失败", e);
-            result.put("flag", "fail");
-            result.put("msg", ExceptionUtil.getRootCauseMessage(e));
-        }
-        return result.getJson();
-    }
 }
