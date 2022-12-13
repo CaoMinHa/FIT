@@ -349,7 +349,7 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 				}
 			} else {
 				result.put("flag", "fail");
-				result.put("msg", instrumentClassService.getLanguage(locale, "对不起,未接收到上传的文件", "Unreceived File"));
+				result.put("msg", instrumentClassService.getLanguage(locale, "對不起，未接受到上傳的文件", "Unreceived File"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

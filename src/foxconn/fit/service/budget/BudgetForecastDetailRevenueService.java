@@ -375,7 +375,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				}
 			} else {
 				result.put("flag", "fail");
-				result.put("msg", instrumentClassService.getLanguage(locale, "对不起,未接收到上传的文件", "Unreceived File"));
+				result.put("msg", instrumentClassService.getLanguage(locale, "對不起，未接受到上傳的文件", "Unreceived File"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -622,7 +622,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				}
 			} else {
 				result.put("flag", "fail");
-				result.put("msg", instrumentClassService.getLanguage(locale, "对不起,未接收到上传的文件", "Unreceived File"));
+				result.put("msg", instrumentClassService.getLanguage(locale, "對不起，未接受到上傳的文件", "Unreceived File"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -631,7 +631,6 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		}
 		return result.getJson();
 	}
-
 
 	/**check*/
 	public String check(List<String> list,String sql){
@@ -951,7 +950,6 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		return mapResult;
 	}
 
-
 	/**預算版本控制*/
 	public String versionBudget(){
 		Calendar calendar=Calendar.getInstance();
@@ -1014,5 +1012,124 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 
 	public void deleteForecast(String id) throws Exception {
 		forecastSalesRevenueDao.delete(id);
+	}
+
+	/**重複校驗**/
+	public String doubleCheck(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest) {
+		try {
+			Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
+			if (mutipartFiles != null && mutipartFiles.size() > 0) {
+				MultipartFile file = (MultipartFile) mutipartFiles.values().toArray()[0];
+				String suffix = "";
+				if (file.getOriginalFilename().lastIndexOf(".") != -1) {
+					suffix = file.getOriginalFilename().substring(
+							file.getOriginalFilename().lastIndexOf(".") + 1,
+							file.getOriginalFilename().length());
+					suffix = suffix.toLowerCase();
+				}
+				if (!"xls".equals(suffix) && !"xlsx".equals(suffix)) {
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale, "请您上传正确格式的Excel文件", "Error File Formats"));
+					return result.getJson();
+				}
+				Workbook wb = null;
+				if ("xls".equals(suffix)) {
+					//Excel2003
+					wb = new HSSFWorkbook(file.getInputStream());
+				} else {
+					//Excel2007
+					wb = new XSSFWorkbook(file.getInputStream());
+				}
+				wb.close();
+				Sheet sheet = wb.getSheetAt(0);
+				int rowNum = sheet.getPhysicalNumberOfRows();
+				if (rowNum < 4) {
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale, "检测到Excel没有行数据", "Row Data Not Empty"));
+					return result.getJson();
+				}
+				List<BudgetDetailRevenue> list = new ArrayList<>();
+				for (int i = 3; i < rowNum; i++) {
+					if(null==sheet.getRow(i)){
+						continue;
+					}
+					Row row = sheet.getRow(i);
+					BudgetDetailRevenue budgetDetailRevenue = new BudgetDetailRevenue();
+					budgetDetailRevenue.setEntity(ExcelUtil.getCellStringValue(row.getCell(0), i));
+					budgetDetailRevenue.setIndustry(ExcelUtil.getCellStringValue(row.getCell(2), i));
+					budgetDetailRevenue.setmainBusiness(ExcelUtil.getCellStringValue(row.getCell(3), i));
+					budgetDetailRevenue.setThree(ExcelUtil.getCellStringValue(row.getCell(4), i));
+					budgetDetailRevenue.setProductSeries(ExcelUtil.getCellStringValue(row.getCell(5), i));
+					budgetDetailRevenue.setProductNo(ExcelUtil.getCellStringValue(row.getCell(6), i));
+					budgetDetailRevenue.setEndCustomer(ExcelUtil.getCellStringValue(row.getCell(7), i));
+					budgetDetailRevenue.setLoanCustomer(ExcelUtil.getCellStringValue(row.getCell(8), i));
+					budgetDetailRevenue.setTradeType(ExcelUtil.getCellStringValue(row.getCell(9), i));
+					budgetDetailRevenue.setCurrency(ExcelUtil.getCellStringValue(row.getCell(10), i));
+
+					budgetDetailRevenue.setPriceMonth1(ExcelUtil.getCellStringValue(row.getCell(33), i));
+					budgetDetailRevenue.setPriceMonth2(ExcelUtil.getCellStringValue(row.getCell(34), i));
+					budgetDetailRevenue.setPriceMonth3(ExcelUtil.getCellStringValue(row.getCell(35), i));
+					budgetDetailRevenue.setPriceMonth4(ExcelUtil.getCellStringValue(row.getCell(36), i));
+					budgetDetailRevenue.setPriceMonth5(ExcelUtil.getCellStringValue(row.getCell(37), i));
+					budgetDetailRevenue.setPriceMonth6(ExcelUtil.getCellStringValue(row.getCell(38), i));
+					budgetDetailRevenue.setPriceMonth7(ExcelUtil.getCellStringValue(row.getCell(39), i));
+					budgetDetailRevenue.setPriceMonth8(ExcelUtil.getCellStringValue(row.getCell(40), i));
+					budgetDetailRevenue.setPriceMonth9(ExcelUtil.getCellStringValue(row.getCell(41), i));
+					budgetDetailRevenue.setPriceMonth10(ExcelUtil.getCellStringValue(row.getCell(42), i));
+					budgetDetailRevenue.setPriceMonth11(ExcelUtil.getCellStringValue(row.getCell(43), i));
+					budgetDetailRevenue.setPriceMonth12(ExcelUtil.getCellStringValue(row.getCell(44), i));
+					budgetDetailRevenue.setYear(ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(13), 0));
+					list.add(budgetDetailRevenue);
+				}
+				result=this.saveDoubleCheck(result,list,locale);
+
+			} else {
+				result.put("flag", "fail");
+				result.put("msg", instrumentClassService.getLanguage(locale, "對不起，未接受到上傳的文件", "Unreceived File"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("flag", "fail");
+			result.put("msg", ExceptionUtil.getRootCauseMessage(e));
+		}
+		return result.getJson();
+	}
+
+	/**重複數據校驗*/
+	public AjaxResult saveDoubleCheck(AjaxResult result,List<BudgetDetailRevenue> list,Locale locale){
+		String sql="delete from FIT_REVENUE_DOUBLE_CHECK";
+		budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
+		for (int i = 0; i < list.size(); i++) {
+			BudgetDetailRevenue d=list.get(i);
+			sql="insert into FIT_REVENUE_DOUBLE_CHECK values('"+d.getYear()+"','"+d.getEntity()+"','"+d.getIndustry()+"','"
+					+d.getmainBusiness()+"','"+d.getThree()+"','"+d.getProductSeries()+"','"+d.getProductNo()+"','"
+					+d.getLoanCustomer()+"','"+d.getEndCustomer()+"','"+d.getCurrency()+"','"+d.getTradeType()+ "','"
+					+d.getPriceMonth1()+"','"+d.getPriceMonth2()+"','"+d.getPriceMonth3()+"','"+d.getPriceMonth4()+"','"
+					+d.getPriceMonth5()+"','"+d.getPriceMonth6()+"','"+d.getPriceMonth7()+"','"+d.getPriceMonth8()+"','"
+					+d.getPriceMonth9()+"','"+d.getPriceMonth10()+"','"+d.getPriceMonth11()+"','"+d.getPriceMonth12()+"')";
+			budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
+		}
+		sql="select distinct year,entity,industry,main_business,three,nvl(product_series,' ') product_series,nvl(product_no,' ') product_no,loan_customer,end_customer,\n" +
+				"currency,trade_type from(\n" +
+				"select * from FIT_REVENUE_DOUBLE_CHECK unpivot(price for month in(price_month1 as '1',price_month2 as '2',price_month3 as '3',price_month4 as '4',price_month5 as '5',price_month6 as '6',price_month7 as '7',\n" +
+				"price_month8 as '8',price_month9 as '9',price_month10 as '10',price_month11 as '11',price_month12 as '12'))\n" +
+				"ORDER BY year,entity,industry,main_business,three,product_series,product_no,loan_customer,end_customer,\n" +
+				"currency,trade_type,month\n" +
+				")t Group by year,entity,industry,main_business,three,product_series,product_no,loan_customer,end_customer,\n" +
+				"currency,trade_type,month,price Having count(*)>1";
+		List<Map> listMap= budgetDetailRevenueDao.listMapBySql(sql);
+		if(null==listMap||listMap.size()<1){
+			result.put("flag", "fail");
+			result.put("msg", instrumentClassService.getLanguage(locale, "沒有重複數據。", "No duplicate data"));
+		}else {
+			sql="";
+			for (Map map:listMap){
+				sql+="<p>"+map.get("ENTITY")+","+map.get("INDUSTRY")+","+map.get("MAIN_BUSINESS")+","+map.get("THREE")+","+map.get("PRODUCT_SERIES")+","+map.get("PRODUCT_NO")+","
+				+map.get("LOAN_CUSTOMER")+","+map.get("END_CUSTOMER")+","+map.get("CURRENCY");
+			}
+			result.put("flag", "fail");
+			result.put("msg", instrumentClassService.getLanguage(locale, "<font style=\"color:red;font-size:large;\">以下維度數據重複:</font>"+sql, "<font style=\"color:red;\">The following dimension data is repeated--></font>"+sql));
+		}
+		return result;
 	}
 }

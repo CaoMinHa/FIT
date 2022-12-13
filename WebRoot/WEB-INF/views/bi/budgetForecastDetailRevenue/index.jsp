@@ -32,7 +32,7 @@
 				dataType: "json",
 				url: "${ctx}/bi/budgetForecastDetailRevenue/upload",
 				add: function (e, data) {
-					$("#FileUpload").unbind();
+					$("#FileUpload,#check").unbind();
 					var filename=data.originalFiles[0]['name'];
 					var acceptFileTypes = /(\.|\/)(xls|xlsx|XLS|XLSX)$/i;
 					if(filename.length && !acceptFileTypes.test(filename)) {
@@ -51,12 +51,15 @@
 					$(".upload-tip").attr("title",filename);
 					$("#UploadTip").hide();
 
-					$("#FileUpload").click(function(){
+					$("#FileUpload,#check").click(function(e){
 						if(!$("#scenarios").val()){
 							$("#scenariosTip").show();
 							return;
 						}
 						$("#loading").show();
+						if($(this).attr("id")=='check'){
+							$("input[name='doubleCheck']").val("Yes");
+						}
 						data.submit();
 					});
 				},
@@ -76,7 +79,7 @@
 				}
 			});
 
-			$("#FileUpload").click(function(){
+			$("#FileUpload,#check").click(function(){
 				$("#UploadTip").show();
 			});
 
@@ -282,13 +285,17 @@
 										<option value="budget"><%=EnumScenarios.Budget %></option>
 										<option value="forecast"><%=EnumScenarios.Forecast%></option>
 									</select>
+									<input name="doubleCheck" value="No" style="display: none"/>
 								</div>
 								<div id="scenariosTip" style="display:none;float:left;">
 									<span class="Validform_checktip Validform_wrong"><spring:message code='please_select'/></span>
 								</div>
 							</div>
 							<div style="float:left;margin-left:10px;display:inline-block;">
-								<button id="FileUpload" style="float:left;width: 80px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
+								<button id="check" style="float:left;width: 100px;" class="btn search-btn" type="button"><spring:message code='doubleCheck'/></button>
+							</div>
+							<div style="float:left;margin-left:10px;display:inline-block;">
+								<button id="FileUpload" style="float:left;width: 100px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 							</div>
 							<div style="text-align: right">
 								<button onclick="DownloadTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='budgetTemplate'/></button>

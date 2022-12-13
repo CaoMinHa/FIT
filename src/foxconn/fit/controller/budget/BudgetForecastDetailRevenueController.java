@@ -91,14 +91,18 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "upload")
 	@ResponseBody
 	@Log(name = "銷售收入-->上传")
-	public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result,@Log(name="場景") String scenarios) {
+	public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result,@Log(name="場景") String scenarios,@Log(name="重複校驗") String doubleCheck) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		result.put("msg", getLanguage(locale, "上传成功", "Upload Success"));
 		MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
-		if(scenarios.equals("budget")){
-			return budgetForecastDetailRevenueService.uploadBudget(result,locale,multipartHttpServletRequest);
-		}else{
-			return budgetForecastDetailRevenueService.uploadForecast(result,locale,multipartHttpServletRequest);
+		if(doubleCheck.equals("Yes")){
+			return budgetForecastDetailRevenueService.doubleCheck(result,locale,multipartHttpServletRequest);
+		}else {
+			if (scenarios.equals("budget")) {
+				return budgetForecastDetailRevenueService.uploadBudget(result, locale, multipartHttpServletRequest);
+			} else {
+				return budgetForecastDetailRevenueService.uploadForecast(result, locale, multipartHttpServletRequest);
+			}
 		}
 	}
 
@@ -158,7 +162,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "template")
 	@ResponseBody
 	@Log(name = "銷售收入下載模板")
-	public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result,String type) {
+	public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result,@Log(name = "場景") String type) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> map=budgetForecastDetailRevenueService.template(request,type);
 		if(map.get("result").equals("Y")){

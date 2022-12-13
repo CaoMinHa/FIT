@@ -386,7 +386,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				}
 			} else {
 				result.put("flag", "fail");
-				result.put("msg", instrumentClassService.getLanguage(locale, "对不起,未接收到上传的文件", "Unreceived File"));
+				result.put("msg", instrumentClassService.getLanguage(locale, "對不起，未接受到上傳的文件", "Unreceived File"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -633,7 +633,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				}
 			} else {
 				result.put("flag", "fail");
-				result.put("msg", instrumentClassService.getLanguage(locale, "对不起,未接收到上传的文件", "Unreceived File"));
+				result.put("msg", instrumentClassService.getLanguage(locale, "對不起，未接受到上傳的文件", "Unreceived File"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -729,8 +729,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row=sheet.createRow(rowNo++);
 				row.createCell(0).setCellValue(map.get("ENTITY").toString());
 				row.createCell(1).setCellValue(map.get("MAKE_ENTITY").toString());
-				row.createCell(2).setCellValue(map.get("PRODUCT_SERIES").toString());
-				row.createCell(3).setCellValue(map.get("PRODUCT_NO").toString());
+				row.createCell(2).setCellValue(map.get("PRODUCT_SERIES")==null?"":map.get("PRODUCT_SERIES").toString());
+				row.createCell(3).setCellValue(map.get("PRODUCT_NO")==null?"":map.get("PRODUCT_NO").toString());
 
 				row.createCell(4).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(6).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
@@ -967,8 +967,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row=sheet.createRow(rowNo++);
 				row.createCell(0).setCellValue(map.get("ENTITY").toString());
 				row.createCell(1).setCellValue(map.get("MAKE_ENTITY").toString());
-				row.createCell(2).setCellValue(map.get("PRODUCT_SERIES").toString());
-				row.createCell(3).setCellValue(map.get("PRODUCT_NO").toString());
+				row.createCell(2).setCellValue(map.get("PRODUCT_SERIES")==null?"":map.get("PRODUCT_SERIES").toString());
+				row.createCell(3).setCellValue(map.get("PRODUCT_NO")==null?"":map.get("PRODUCT_NO").toString());
 
 				row.createCell(4).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(6).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
