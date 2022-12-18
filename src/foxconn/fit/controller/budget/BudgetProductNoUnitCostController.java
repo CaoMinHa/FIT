@@ -4,7 +4,6 @@ import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.budget.BudgetProductNoUnitCost;
-import foxconn.fit.entity.budget.ForecastSalesCost;
 import foxconn.fit.entity.budget.ForecastSalesCostV;
 import foxconn.fit.service.budget.BudgetProductNoUnitCostService;
 import foxconn.fit.util.ExceptionUtil;
