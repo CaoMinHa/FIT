@@ -4,15 +4,14 @@ import com.csvreader.CsvWriter;
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.base.EnumDimensionType;
 import foxconn.fit.service.base.BudgetService;
-import foxconn.fit.service.base.UserService;
+import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.util.ExceptionUtil;
+import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springside.modules.orm.PageRequest;
@@ -20,6 +19,7 @@ import org.springside.modules.orm.PageRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,6 +104,17 @@ public class BudgetController extends BaseController {
 				writer.close();
 				result.put("fileName", time+".csv");
 				System.gc();
+				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+				String userName=loginUser.getUsername();
+				String roleSql="select count(1) from  fit_user u \n" +
+						" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+						" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+						" WHERE  u.username="+"'"+userName+"' and code='BudgetForecast' ";
+				List<BigDecimal> countList = (List<BigDecimal>)budgetService.listBySql(roleSql);
+				result.put("role","NO");
+				if(countList.get(0).intValue()>0){
+					result.put("role","YES");
+				}
 			}else {
 				result.put("flag", "fail");
 				result.put("msg", "没有查询到可下载的数据(No data can be downloaded)");
@@ -113,7 +124,6 @@ public class BudgetController extends BaseController {
 			result.put("flag", "fail");
 			result.put("msg", ExceptionUtil.getRootCauseMessage(e));
 		}
-
 		return result.getJson();
 	}
 

@@ -219,8 +219,11 @@ $(function() {
 			success: function(data){
 				$("#loading").hide();
 				if(data.flag=="success"){
-					<%--window.location.href="${ctx}/static/download/"+data.fileName;--%>
-					layer.alert(data.msg);
+					if(data.role=="YES"){
+						window.location.href="${ctx}/static/download/"+data.fileName;
+					}else{
+						layer.alert(data.msg);
+					}
 				}else{
 					layer.alert(data.msg);
 				}
@@ -322,10 +325,10 @@ function simplifyTemplate(type){
 							<div style="text-align: right">
 								<button onclick="downloadTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
 									<spring:message code='budgetTemplate'/></button>
-								<button onclick="downloadTemplate('forecast')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='forecastTemplate'/></button>
 								<button onclick="simplifyTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
 									<spring:message code='simplified'/><spring:message code='budgetTemplate'/>
 								</button>
+								<button onclick="downloadTemplate('forecast')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='forecastTemplate'/></button>
 								<button onclick="simplifyTemplate('forecast')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
 									<spring:message code='simplified'/><spring:message code='forecastTemplate'/>
 								</button>

@@ -323,11 +323,13 @@ public class PoIntegrationListController extends BaseController {
                     break;
                 //SBU年度CD目標匯總表
                 case "FIT_PO_SBU_YEAR_CD_SUM":
-                    whereSql = " where 1=1";
+                    whereSql = " where 1=1 and PO_CENTER not in('Buy-sell','資訊採購')";
                     if (StringUtils.isNotEmpty(DateYear)) {
                         whereSql += " and " + columns.get(0).getColumnName() + "='" + DateYear + "'";
                     }
-                    if (StringUtils.isNotEmpty(poCenter)) {
+                    if(poCenter.equals("Buy-sell")||poCenter.equals("資訊採購")){
+                        whereSql += " and " + columns.get(1).getColumnName() + "='1'";
+                    }else if (StringUtils.isNotEmpty(poCenter)) {
                         whereSql += " and " + columns.get(1).getColumnName() + "='" + poCenter + "'";
                     }
                     if (StringUtils.isNotEmpty(priceControl)) {

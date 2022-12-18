@@ -803,10 +803,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(105).setCellFormula("AR"+rowNo);
 				row.createCell(106).setCellFormula("BP"+rowNo);
 				row.createCell(107).setCellFormula("SUM(DA"+rowNo+":DC"+rowNo+")");
-				row.createCell(104).setCellFormula("V"+rowNo);
-				row.createCell(105).setCellFormula("AT"+rowNo);
-				row.createCell(106).setCellFormula("BR"+rowNo);
-				row.createCell(107).setCellFormula("SUM(DE"+rowNo+":DG"+rowNo+")");
 				row.createCell(108).setCellFormula("V"+rowNo);
 				row.createCell(109).setCellFormula("AT"+rowNo);
 				row.createCell(110).setCellFormula("BR"+rowNo);
@@ -1041,10 +1037,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(105).setCellFormula("AR"+rowNo);
 				row.createCell(106).setCellFormula("BP"+rowNo);
 				row.createCell(107).setCellFormula("SUM(DA"+rowNo+":DC"+rowNo+")");
-				row.createCell(104).setCellFormula("V"+rowNo);
-				row.createCell(105).setCellFormula("AT"+rowNo);
-				row.createCell(106).setCellFormula("BR"+rowNo);
-				row.createCell(107).setCellFormula("SUM(DE"+rowNo+":DG"+rowNo+")");
 				row.createCell(108).setCellFormula("V"+rowNo);
 				row.createCell(109).setCellFormula("AT"+rowNo);
 				row.createCell(110).setCellFormula("BR"+rowNo);
