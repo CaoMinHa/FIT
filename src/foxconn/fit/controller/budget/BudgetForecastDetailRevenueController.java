@@ -150,7 +150,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 				result.put("fileName", map.get("str"));
 			}else{
 				result.put("flag", "fail");
-				result.put("msg", getLanguage(locale, "下載模板文件失敗", "Fail to download template file") + " : " + map.get("str"));
+				result.put("msg", getLanguage(locale, "下載失敗", "download failed") + " : " + map.get("str"));
 			}
 		return result.getJson();
 	}
