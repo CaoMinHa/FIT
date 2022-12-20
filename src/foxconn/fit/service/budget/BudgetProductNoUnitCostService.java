@@ -643,7 +643,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		return result.getJson();
 	}
 
-	/**check*/
+	/**匹配用戶上傳的主數據list是否在維度表中能找到*/
 	public String check(List<String> list,String sql){
 		list = instrumentClassService.removeDuplicate(list);
 		List<String> checkList = this.listBySql(sql);

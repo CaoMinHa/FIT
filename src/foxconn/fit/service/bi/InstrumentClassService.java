@@ -94,4 +94,11 @@ public class InstrumentClassService{
         }
         return  sql;
     }
+
+    public String mapValString(Object o){
+        if(null == o || o.toString().length()==0){
+            return "";
+        }
+        return o.toString();
+    }
 }
