@@ -1,4 +1,4 @@
-package foxconn.fit.entity.Investment;
+package foxconn.fit.entity.investment;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,7 +16,7 @@ import java.util.Date;
 public class ProjectBudget implements Serializable{
 
 	@Id
-	@Column(name = "ID",nullable = true)
+	@Column(name = "ID")
 	private String id;
 	private String year;
 	/**專案編號*/
@@ -52,16 +52,16 @@ public class ProjectBudget implements Serializable{
 	private String productLifeCycle;
 	/**預計開始年份*/
 	@Column(name = "start_year")
-	private Integer startYear;
+	private String startYear;
 	/**預計開始月份*/
 	@Column(name = "start_month")
-	private Integer startMonth;
+	private String startMonth;
 	/**預計結束年份*/
 	@Column(name = "end_year")
-	private Integer endYear;
+	private String endYear;
 	/**預計結束月度*/
 	@Column(name = "end_month")
-	private Integer endMonth;
+	private String endMonth;
 	/**預計費用支出(含人力)*/
 	@Column(name = "expenditure_Expenses")
 	private Double expenditureExpenses;
@@ -215,35 +215,35 @@ public class ProjectBudget implements Serializable{
 		this.productLifeCycle = productLifeCycle;
 	}
 
-	public Integer getStartYear() {
+	public String getStartYear() {
 		return startYear;
 	}
 
-	public void setStartYear(Integer startYear) {
+	public void setStartYear(String startYear) {
 		this.startYear = startYear;
 	}
 
-	public Integer getStartMonth() {
+	public String getStartMonth() {
 		return startMonth;
 	}
 
-	public void setStartMonth(Integer startMonth) {
+	public void setStartMonth(String startMonth) {
 		this.startMonth = startMonth;
 	}
 
-	public Integer getEndYear() {
+	public String getEndYear() {
 		return endYear;
 	}
 
-	public void setEndYear(Integer endYear) {
+	public void setEndYear(String endYear) {
 		this.endYear = endYear;
 	}
 
-	public Integer getEndMonth() {
+	public String getEndMonth() {
 		return endMonth;
 	}
 
-	public void setEndMonth(Integer endMonth) {
+	public void setEndMonth(String endMonth) {
 		this.endMonth = endMonth;
 	}
 

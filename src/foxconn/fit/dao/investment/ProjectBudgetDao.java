@@ -1,7 +1,7 @@
-package foxconn.fit.dao.Investment;
+package foxconn.fit.dao.investment;
 
 import foxconn.fit.dao.base.BaseDaoHibernate;
-import foxconn.fit.entity.Investment.ProjectBudget;
+import foxconn.fit.entity.investment.ProjectBudget;
 import org.springframework.stereotype.Repository;
 
 /**

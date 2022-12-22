@@ -28,9 +28,9 @@
 	</style>
 	<script type="text/javascript">
 		$(function() {
-			$("#projectBudgetForm").fileupload({
+			$("#investmentBudgetForm").fileupload({
 				dataType: "json",
-				url: "${ctx}/bi/projectBudget/upload",
+				url: "${ctx}/bi/investmentBudget/upload",
 				add: function (e, data) {
 					$("#FileUpload").unbind();
 					var filename=data.originalFiles[0]['name'];
@@ -103,7 +103,7 @@
 				$("#loading").show();
 				$.ajax({
 					type:"POST",
-					url:"${ctx}/bi/projectBudget/download",
+					url:"${ctx}/bi/investmentBudget/download",
 					async:true,
 					dataType:"json",
 					data:{year:$("#QYear").val(),entitys:entitys,version:$("#QVersion").val(),scenarios:$("#QScenarios").val()},
@@ -126,7 +126,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/bi/projectBudget/dimension",
+					url: "${ctx}/bi/investmentBudget/dimension",
 					async: true,
 					dataType: "json",
 					success: function (data) {
@@ -152,7 +152,7 @@
 				$("#loading").show();
 				$.ajax({
 					type: "POST",
-					url: "${ctx}/bi/projectBudget/version",
+					url: "${ctx}/bi/investmentBudget/version",
 					async: true,
 					dataType: "json",
                     data:{scenarios:$("#QScenarios").val()},
@@ -241,7 +241,7 @@
 					url:"${ctx}/bi/budget/create",
 					async:true,
 					dataType:"json",
-					data:{sbu:sbu,year:$("#QYear").val(),scenarios:$("#QScenarios").val(),type:"project"},
+					data:{sbu:sbu,year:$("#QYear").val(),scenarios:$("#QScenarios").val(),type:"investment"},
 					success: function(data){
 						$("#loading").hide();
 						if(data.flag=="success"){
@@ -266,7 +266,7 @@
 			$("#loading").show();
 			$.ajax({
 				type: "POST",
-				url: "${ctx}/bi/projectBudget/template",
+				url: "${ctx}/bi/investmentBudget/template",
 				async: true,
 				dataType: "json",
 				data: {type:type},
@@ -285,8 +285,7 @@
 			});
 		};
 
-		$("#Content").load("${ctx}/bi/projectBudget/list",{scenarios:"",entity:"",year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
-
+		$("#Content").load("${ctx}/bi/investmentBudget/list",{scenarios:"",entity:"",year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
 	</script>
 </head>
 <body>
@@ -294,13 +293,13 @@
 	<div class="span12">
 		<div class="page-header bg-white">
 			<h2>
-				<span><spring:message code='projectBudget'/></span>
+				<span><spring:message code='investmentBudget'/></span>
 			</h2>
 		</div>
 		<div class="m-l-md m-t-md m-r-md">
 			<div class="controls">
 				<div>
-					<form id="projectBudgetForm" style="margin-bottom: 0;margin-top:0;" method="POST" enctype="multipart/form-data" class="form-horizontal">
+					<form id="investmentBudgetForm" style="margin-bottom: 0;margin-top:0;" method="POST" enctype="multipart/form-data" class="form-horizontal">
 						<input type="file" style="display:none;" class="input-file" multiple="false"/>
 						<div>
 							<div style="float: left;text-align: right;" title="<spring:message code='not_exceed_30M'/>">
@@ -327,8 +326,8 @@
 								<button id="FileUpload" style="float:left;width: 100px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 							</div>
 							<div style="text-align: right">
-								<button onclick="DownloadTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='projectBudget'/><spring:message code="template"/></button>
-								<button onclick="DownloadTemplate('forecast')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='projectForecast'/><spring:message code="template"/></button>
+								<button onclick="DownloadTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='investmentBudget'/><spring:message code="template"/></button>
+								<button onclick="DownloadTemplate('forecast')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='investmentForecast'/><spring:message code="template"/></button>
 								<button id="DimensionTable" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='dimension'/></button>
 							</div>
 						</div>

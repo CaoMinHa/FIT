@@ -17,6 +17,8 @@ public class InstrumentClassService{
     }
     //找出两个list不同值
     public String getDiffrent(List<String> list1, List<String> list2) {
+        list1=this.removeDuplicate(list1);
+        list2=this.removeDuplicate(list2);
         String string="";
         for(String str:list1)
         {

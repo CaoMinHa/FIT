@@ -94,7 +94,7 @@ public class MainController extends BaseController{
 	public String getLoginPage(ModelMap model,@RequestParam(value="error",required=false) boolean error,HttpServletRequest request,HttpServletResponse response,
 							   String lang,String task,String taskId,String statusType,String roleCode) {
 		try {
-			HttpSession session = request.getSession(false);
+			HttpSession session = request.getSession();
 			Locale local=Locale.US;
 			List<MenuMappingList> list=menuService.selectMenu();
 			session.setAttribute("menuList",list);
