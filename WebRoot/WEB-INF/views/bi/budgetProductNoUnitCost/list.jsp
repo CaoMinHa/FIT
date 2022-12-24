@@ -107,6 +107,7 @@ function refresh(){
 					<th rowspan="3"><spring:message code='operation'/></th>
 					<th rowspan="3">SBU_法人</th>
 					<th rowspan="3">產品系列</th>
+					<th rowspan="3">交易類型</th>
 					<th colspan="60">FY${year}</th>
 					<th rowspan="2" colspan="4">FY${year}</th>
 				</tr>
@@ -213,6 +214,7 @@ function refresh(){
 						</td>
 						<td style="border-right:1px solid #eee;text-align:left;">${mapping.entity}</td>
 						<td style="border-right:1px solid #eee;">${mapping.product}</td>
+						<td style="border-right:1px solid #eee;">${mapping.tradeType}</td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.salesQuantity1}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCost1}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.laborCost1}" pattern="#,##0.##"></fmt:formatNumber></td>
@@ -301,6 +303,7 @@ function refresh(){
 					<th rowspan="3"><spring:message code='operation'/></th>
 					<th rowspan="3">SBU_法人</th>
 					<th rowspan="3">產品系列</th>
+					<th rowspan="3">交易類型</th>
 					<th colspan="60">FY${year}</th>
 					<th rowspan="2" colspan="4">FY${year}</th>
 					<th rowspan="2" colspan="4">FY${year+1}</th>
@@ -431,6 +434,7 @@ function refresh(){
 						</td>
 						<td style="border-right:1px solid #eee;text-align:left;">${mapping.entity}</td>
 						<td style="border-right:1px solid #eee;">${mapping.product}</td>
+						<td style="border-right:1px solid #eee;">${mapping.tradeType}</td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.salesQuantity1}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCost1}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.laborCost1}" pattern="#,##0.##"></fmt:formatNumber></td>

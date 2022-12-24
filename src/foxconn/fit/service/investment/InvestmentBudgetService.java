@@ -167,7 +167,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 					String currency=ExcelUtil.getCellStringValue(row.getCell(8), i);
 					if(project.isEmpty()||combine.isEmpty()||entity.isEmpty()||department.isEmpty()||bak.isEmpty()||mainBusiness.isEmpty()||segment.isEmpty()||
 							view.isEmpty()||currency.isEmpty()){
-						mianDataChek=(i+1)+",";
+						mianDataChek+=(i+1)+",";
 						continue;
 					}
 					//跳過沒有SBU權限的數據

@@ -155,7 +155,7 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 					String department=ExcelUtil.getCellStringValue(row.getCell(2), i);
 					String segment=ExcelUtil.getCellStringValue(row.getCell(3), i);
 					if(project.isEmpty()||entity.isEmpty()||department.isEmpty()||segment.isEmpty()){
-						mianDataChek=(i+1)+",";
+						mianDataChek+=(i+1)+",";
 						continue;
 					}
 					//跳過沒有SBU權限的數據

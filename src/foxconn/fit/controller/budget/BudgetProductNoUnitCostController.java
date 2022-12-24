@@ -47,14 +47,16 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,@Log(name="版本") String scenarios,@Log(name ="SBU") String entitys,
 					   @Log(name="年份") String year,@Log(name="版本") String version) {
 		try {
-			if(scenarios.equals("budget")){
-				String sql=budgetProductNoUnitCostService.budgetList(year,version,entitys);
-				Page<Object[]> page = budgetProductNoUnitCostService.findPageBySql(pageRequest, sql, BudgetProductNoUnitCost.class);
-				model.addAttribute("page", page);
-			}else{
-				String sql=budgetProductNoUnitCostService.forecastList(year,version,entitys);
-				Page<Object[]> page = budgetProductNoUnitCostService.findPageBySql(pageRequest, sql, ForecastSalesCostV.class);
-				model.addAttribute("page", page);
+			if(null!=scenarios){
+				if(scenarios.equals("budget")){
+					String sql=budgetProductNoUnitCostService.budgetList(year,version,entitys);
+					Page<Object[]> page = budgetProductNoUnitCostService.findPageBySql(pageRequest, sql, BudgetProductNoUnitCost.class);
+					model.addAttribute("page", page);
+				}else{
+					String sql=budgetProductNoUnitCostService.forecastList(year,version,entitys);
+					Page<Object[]> page = budgetProductNoUnitCostService.findPageBySql(pageRequest, sql, ForecastSalesCostV.class);
+					model.addAttribute("page", page);
+				}
 			}
 			model.addAttribute("scenarios", scenarios);
 			model.addAttribute("year", year.substring(2));

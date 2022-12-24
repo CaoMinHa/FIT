@@ -155,7 +155,7 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 					String department=ExcelUtil.getCellStringValue(row.getCell(1), i);
 					String combine=ExcelUtil.getCellStringValue(row.getCell(2), i);
 					if(combine.isEmpty()||entity.isEmpty()||department.isEmpty()){
-						mianDataChek=(i+1)+",";
+						mianDataChek+=(i+1)+",";
 						continue;
 					}
 					//跳過沒有SBU權限的數據
