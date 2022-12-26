@@ -323,6 +323,7 @@ function simplifyTemplate(type){
 								<button id="FileUpload" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 							</div>
 							<div style="text-align: right">
+								<div color="red" style="display:inline-block;font-size: 18;color: red;height: 40px;margin-top: 7px;"> 重要提示：幣別單位-美金(USD)</div>
 								<button onclick="downloadTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
 									<spring:message code='budgetTemplate'/></button>
 								<button onclick="simplifyTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
