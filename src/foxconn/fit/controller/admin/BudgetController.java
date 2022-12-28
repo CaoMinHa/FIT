@@ -10,6 +10,9 @@ import foxconn.fit.util.ExceptionUtil;
 import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +21,8 @@ import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
+import java.io.*;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,28 +64,74 @@ public class BudgetController extends BaseController {
 			list.addAll(lists);
 			String realPath = request.getRealPath("");
 			if (CollectionUtils.isNotEmpty(list)) {
-				long time = System.currentTimeMillis();
-				String filePath=realPath+File.separator+"static"+File.separator+"download"+File.separator+time+".csv";
-				CsvWriter writer=new CsvWriter(filePath, ',', Charset.forName("UTF8"));
-				writer.writeRecord(new String[]{"Account","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","YT","Point-of-View","Data Load Cube Name"});
+				String filePath=realPath+"static"+File.separator+"download"+File.separator+"Hyperion.xlsx";
+				InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+"Hyperion.xlsx");
+				XSSFWorkbook workBook = new XSSFWorkbook(ins);
+				Sheet sheet = workBook.getSheetAt(0);
+				Row row =sheet.createRow(0);
+				row.createCell(0).setCellValue("Account");
+				row.createCell(1).setCellValue("Jan");
+				row.createCell(2).setCellValue("Feb");
+				row.createCell(3).setCellValue("Mar");
+				row.createCell(4).setCellValue("Apr");
+				row.createCell(5).setCellValue("May");
+				row.createCell(6).setCellValue("Jun");
+				row.createCell(7).setCellValue("Jul");
+				row.createCell(8).setCellValue("Aug");
+				row.createCell(9).setCellValue("Sep");
+				row.createCell(10).setCellValue("Oct");
+				row.createCell(11).setCellValue("Nov");
+				row.createCell(12).setCellValue("Dec");
+				row.createCell(13).setCellValue("YT");
+				row.createCell(14).setCellValue("Point-of-View");
+				row.createCell(15).setCellValue("Data Load Cube Name");
+				int i=1;
 				for (Map map : list) {
+					row =sheet.createRow(i);
+					i++;
 					if(null==map.get("DATA_LOAD_CUBE_NAME")){
-						writer.writeRecord(new String[]{map.get("ACCOUNT").toString(),
-						judgement(map.get("JAN").toString()),judgement(map.get("FEB").toString()),judgement(map.get("MAR").toString()),judgement(map.get("APR").toString()),
-						judgement(map.get("MAY").toString()),judgement(map.get("JUN").toString()),judgement(map.get("JUL").toString()),judgement(map.get("AUG").toString()),
-						judgement(map.get("SEP").toString()),judgement(map.get("OCT").toString()),judgement(map.get("NOV").toString()),judgement(map.get("DEC").toString()),
-						map.get("YT").toString(),map.get("POINT_OF_VIEW").toString(),""});
+						row.createCell(0).setCellValue(map.get("ACCOUNT").toString());
+						row.createCell(1).setCellValue(map.get("JAN").toString());
+						row.createCell(2).setCellValue(map.get("FEB").toString());
+						row.createCell(3).setCellValue(map.get("MAR").toString());
+						row.createCell(4).setCellValue(map.get("APR").toString());
+						row.createCell(5).setCellValue(map.get("MAY").toString());
+						row.createCell(6).setCellValue(map.get("JUN").toString());
+						row.createCell(7).setCellValue(map.get("JUL").toString());
+						row.createCell(8).setCellValue(map.get("AUG").toString());
+						row.createCell(9).setCellValue(map.get("SEP").toString());
+						row.createCell(10).setCellValue(map.get("OCT").toString());
+						row.createCell(11).setCellValue(map.get("NOV").toString());
+						row.createCell(12).setCellValue(map.get("DEC").toString());
+						row.createCell(13).setCellValue(map.get("YT").toString());
+						row.createCell(14).setCellValue(map.get("POINT_OF_VIEW").toString());
+						row.createCell(16).setCellValue("");
 					}else{
-						writer.writeRecord(new String[]{map.get("ACCOUNT").toString(),
-								judgement(map.get("JAN").toString()),judgement(map.get("FEB").toString()),judgement(map.get("MAR").toString()),judgement(map.get("APR").toString()),
-								judgement(map.get("MAY").toString()),judgement(map.get("JUN").toString()),judgement(map.get("JUL").toString()),judgement(map.get("AUG").toString()),
-								judgement(map.get("SEP").toString()),judgement(map.get("OCT").toString()),judgement(map.get("NOV").toString()),judgement(map.get("DEC").toString()),
-								map.get("YT").toString(),map.get("POINT_OF_VIEW").toString(),map.get("DATA_LOAD_CUBE_NAME").toString()});
+						row.createCell(0).setCellValue(map.get("ACCOUNT").toString());
+						row.createCell(1).setCellValue(map.get("JAN").toString());
+						row.createCell(2).setCellValue(map.get("FEB").toString());
+						row.createCell(3).setCellValue(map.get("MAR").toString());
+						row.createCell(4).setCellValue(map.get("APR").toString());
+						row.createCell(5).setCellValue(map.get("MAY").toString());
+						row.createCell(6).setCellValue(map.get("JUN").toString());
+						row.createCell(7).setCellValue(map.get("JUL").toString());
+						row.createCell(8).setCellValue(map.get("AUG").toString());
+						row.createCell(9).setCellValue(map.get("SEP").toString());
+						row.createCell(10).setCellValue(map.get("OCT").toString());
+						row.createCell(11).setCellValue(map.get("NOV").toString());
+						row.createCell(12).setCellValue(map.get("DEC").toString());
+						row.createCell(13).setCellValue(map.get("YT").toString());
+						row.createCell(14).setCellValue(map.get("POINT_OF_VIEW").toString());
+						row.createCell(16).setCellValue("DATA_LOAD_CUBE_NAME");
 					}
 				}
-				writer.flush();
-				writer.close();
-				result.put("fileName", time+".csv");
+				File outFile = new File(filePath);
+				OutputStream out = new FileOutputStream(outFile);
+				workBook.write(out);
+				workBook.close();
+				out.flush();
+				out.close();
+				result.put("fileName",outFile.getName());
 				System.gc();
 				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 				String userName=loginUser.getUsername();

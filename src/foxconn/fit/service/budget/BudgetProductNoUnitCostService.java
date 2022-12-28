@@ -34,6 +34,7 @@ import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -176,6 +177,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				/**SBU法人**/List<String> entityList = new ArrayList<>();
 				/**SBU**/List<String> sbuList = new ArrayList<>();
 				/**交易類型**/List<String> tradeTypeList = new ArrayList<>();
+				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 				String check = "";
 				for (int i = 3; i < rowNum; i++) {
 					if(null==sheet.getRow(i)){
@@ -186,6 +188,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					if(row == null||entity.length()<1||"".equals(entity)){
 						continue;
 					}
+					//跳過沒有SBU權限的數據
 					String sql="select distinct PARENT from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and ALIAS='"+entity+"'";
 					List<String> listSbu=budgetProductNoUnitCostDao.listBySql(sql);
 					sbuList.addAll(listSbu);
@@ -196,9 +199,13 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					BudgetProductNoUnitCost budgetProductNoUnitCost = new BudgetProductNoUnitCost();
 					entityList.add(entity);
 					if(COLUMN_NUM==70){
-						tradeTypeList.add(ExcelUtil.getCellStringValue(row.getCell(1), i));
+						String tradeType=ExcelUtil.getCellStringValue(row.getCell(1), i);
+						if(tradeType.isEmpty()){
+							tradeTypeList.add("空");
+						}else{
+							tradeTypeList.add(tradeType);
+						}
 						budgetProductNoUnitCost.setTradeType(ExcelUtil.getCellStringValue(row.getCell(1), i));
-
 						budgetProductNoUnitCost.setMaterialCost1(ExcelUtil.getCellStringValue(row.getCell(2), i));
 						budgetProductNoUnitCost.setLaborCost1(ExcelUtil.getCellStringValue(row.getCell(3),i));
 						budgetProductNoUnitCost.setManufactureCost1(ExcelUtil.getCellStringValue(row.getCell(4),i));
@@ -264,6 +271,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						budgetProductNoUnitCost.setManufactureCostFouryear(ExcelUtil.getCellStringValue(row.getCell(68),i));
 					}else if(COLUMN_NUM==220){
 						budgetProductNoUnitCost.setMakeEntity(ExcelUtil.getCellStringValue(row.getCell(1), i));
+//						entityList.add(ExcelUtil.getCellStringValue(row.getCell(1), i));
 						budgetProductNoUnitCost.setProduct(ExcelUtil.getCellStringValue(row.getCell(2), i));
 						budgetProductNoUnitCost.setProductNo(ExcelUtil.getCellStringValue(row.getCell(3), i));
 
@@ -351,7 +359,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					budgetProductNoUnitCost.setYear(v_year);
 					budgetProductNoUnitCost.setVersion("V00");
 					budgetProductNoUnitCost.setId(UUID.randomUUID().toString());
-					UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 					budgetProductNoUnitCost.setCreateName(loginUser.getUsername());
 					budgetProductNoUnitCost.setCreateDate(new Date());
 					list.add(budgetProductNoUnitCost);
@@ -374,8 +381,24 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 							 result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
 							 return result.getJson();
 						 }
-				     }
-					this.saveBatchBudget(list,v_year,instrumentClassService.removeDuplicate(entityList));
+				     }else{
+						 /**SBU_法人校驗*/
+//						 String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
+//						 check=this.check(entityList,sql);
+//						 if (!check.equals("") && check.length() > 0){
+//							 result.put("flag", "fail");
+//							 result.put("msg", "以下【SBU_銷售法人】或[SBU_製造法人]在【維度表】没有找到---> " + check);
+//							 return result.getJson();
+//						 }
+
+						  String msg=this.checkMsgBudget(list,loginUser.getUsername());
+						  if(!msg.isEmpty()){
+							  result.put("flag", "fail");
+							  result.put("msg", "上傳失敗！以下維度數據未在營收明細上傳---> "+msg);
+							  return result.getJson();
+						  }
+					 }
+					this.saveBatchBudget(list,v_year,loginUser.getUsername());
 				} else {
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
@@ -396,6 +419,44 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		return result.getJson();
 	}
 
+	/**校驗成本能在營收中找到嗎**/
+	private String checkMsgBudget(List<BudgetProductNoUnitCost> list,String user){
+		String msg="";
+		String sql="";
+		for (int i = 0; i < list.size(); i++) {
+			BudgetProductNoUnitCost budgetProductNoUnitCost=list.get(i);
+			sql="select count(1) from FIT_BUDGET_DETAIL_REVENUE where " +
+					"ENTITY='"+budgetProductNoUnitCost.getEntity()+"' " +
+					"and MAKE_ENTITY='"+budgetProductNoUnitCost.getMakeEntity()+"' and create_name='"+user+"'" +
+					"and (PRODUCT_SERIES ='"+budgetProductNoUnitCost.getProduct()+"' " +
+					"and PRODUCT_NO='"+budgetProductNoUnitCost.getProductNo()+"') ";
+			List<BigDecimal> countList = (List<BigDecimal>)budgetProductNoUnitCostDao.listBySql(sql);
+			if(countList.get(0).intValue()==0){
+				msg+="<p>"+budgetProductNoUnitCost.getEntity()+","+budgetProductNoUnitCost.getMakeEntity()+","+
+						budgetProductNoUnitCost.getProduct()+","+budgetProductNoUnitCost.getProductNo();
+			}
+		}
+		return msg;
+	}
+	/**校驗成本能在營收中找到嗎**/
+	private String checkMsgForecast(List<ForecastSalesCost> list,String user){
+		String msg="";
+		String sql="";
+		for (int i = 0; i < list.size(); i++) {
+			ForecastSalesCost forecastSalesCost=list.get(i);
+			sql="select count(1) from FIT_FORECAST_SALES_COST where " +
+					"ENTITY='"+forecastSalesCost.getEntity()+"' " +
+					"and MAKE_ENTITY='"+forecastSalesCost.getMakeEntity()+"' and create_name='"+user+"'" +
+					"and (PRODUCT_SERIES ='"+forecastSalesCost.getProduct()+"' " +
+					"and PRODUCT_NO='"+forecastSalesCost.getProductNo()+"') ";
+			List<BigDecimal> countList = (List<BigDecimal>)budgetProductNoUnitCostDao.listBySql(sql);
+			if(countList.get(0).intValue()==0){
+				msg+="<p>"+forecastSalesCost.getEntity()+","+forecastSalesCost.getMakeEntity()+","+
+						forecastSalesCost.getProduct()+","+forecastSalesCost.getProductNo();
+			}
+		}
+		return msg;
+	}
 	/**預測數據上傳*/
 	public String uploadForecast(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest) {
 		try {
@@ -459,6 +520,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				/**SBU法人**/List<String> entityList = new ArrayList<>();
 				/**SBU**/List<String> sbuList = new ArrayList<>();
 				/**交易類型**/List<String> tradeTypeList = new ArrayList<>();
+				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 				String check = "";
 				for (int i = 3; i < rowNum; i++) {
 					if(null==sheet.getRow(i)){
@@ -469,6 +531,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					if(row == null||entity.length()<1||"".equals(entity)){
 						continue;
 					}
+					//跳過沒有SBU權限的數據
 					String sql="select distinct PARENT from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and ALIAS='"+entity+"'";
 					List<String> listSbu=budgetProductNoUnitCostDao.listBySql(sql);
 					sbuList.addAll(listSbu);
@@ -479,7 +542,12 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					ForecastSalesCost forecastSalesCost = new ForecastSalesCost();
 					entityList.add(entity);
 					if(COLUMN_NUM==54){
-						tradeTypeList.add(ExcelUtil.getCellStringValue(row.getCell(1), i));
+						String tradeType=ExcelUtil.getCellStringValue(row.getCell(1), i);
+						if(tradeType.isEmpty()){
+							tradeTypeList.add("空");
+						}else{
+							tradeTypeList.add(tradeType);
+						}
 						forecastSalesCost.setTradeType(ExcelUtil.getCellStringValue(row.getCell(1), i));
 
 						forecastSalesCost.setMaterialCost1(ExcelUtil.getCellStringValue(row.getCell(2), i));
@@ -598,7 +666,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					forecastSalesCost.setYear(v_year);
 					forecastSalesCost.setVersion("V00");
 					forecastSalesCost.setId(UUID.randomUUID().toString());
-					UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 					forecastSalesCost.setCreateName(loginUser.getUsername());
 					forecastSalesCost.setCreateDate(new Date());
 					list.add(forecastSalesCost);
@@ -621,8 +688,15 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 							result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
 							return result.getJson();
 						}
+					}else{
+						String msg=this.checkMsgForecast(list,loginUser.getUsername());
+						if(!msg.isEmpty()){
+							result.put("flag", "fail");
+							result.put("msg", "上傳失敗！以下維度數據未在營收明細上傳---> "+msg);
+							return result.getJson();
+						}
 					}
-					this.saveBatchForecast(list,v_year,instrumentClassService.removeDuplicate(entityList));
+					this.saveBatchForecast(list,v_year,loginUser.getUsername());
 				} else {
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
@@ -653,17 +727,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 
 
 	/**預算保存數據*/
-	public void saveBatchBudget(List<BudgetProductNoUnitCost> list,String year,List<String> entityList) throws Exception {
-		String sql="delete from FIT_BUDGET_PRODUCT_UNIT_COST where VERSION='V00' and YEAR='"+year+"' and ENTITY in(";
-		for (int i=0;i<entityList.size();i++){
-			sql+="'"+entityList.get(i)+"',";
-			if ((i + 50) % 1000 == 0) {
-				budgetProductNoUnitCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql.substring(0,sql.length()-1)+")").executeUpdate();
-				budgetProductNoUnitCostDao.getHibernateTemplate().flush();
-				budgetProductNoUnitCostDao.getHibernateTemplate().clear();
-			}
-		}
-		sql=sql.substring(0,sql.length()-1)+")";
+	public void saveBatchBudget(List<BudgetProductNoUnitCost> list,String year,String userName) throws Exception {
+		String sql="delete from FIT_BUDGET_PRODUCT_UNIT_COST where VERSION='V00' and YEAR='"+year+"' and CREATE_NAME ='"+userName+"'";
 		budgetProductNoUnitCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		for (int i = 0; i < list.size(); i++) {
 			budgetProductNoUnitCostDao.save(list.get(i));
@@ -675,17 +740,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	}
 
 	/**預測保存數據*/
-	public void saveBatchForecast(List<ForecastSalesCost> list,String year,List<String> entityList) throws Exception {
-		String sql="delete from FIT_FORECAST_SALES_COST where VERSION='V00' and YEAR='"+year+"' and ENTITY in(";
-		for (int i=0;i<entityList.size();i++){
-			sql+="'"+entityList.get(i)+"',";
-			if ((i + 50) % 1000 == 0) {
-				forecastSalesCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql.substring(0,sql.length()-1)+")").executeUpdate();
-				forecastSalesCostDao.getHibernateTemplate().flush();
-				forecastSalesCostDao.getHibernateTemplate().clear();
-			}
-		}
-		sql=sql.substring(0,sql.length()-1)+")";
+	public void saveBatchForecast(List<ForecastSalesCost> list,String year,String userName) throws Exception {
+		String sql="delete from FIT_FORECAST_SALES_COST where VERSION='V00' and YEAR='"+year+"'and CREATE_NAME ='"+userName+"'";
 		forecastSalesCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		for (int i = 0; i < list.size(); i++) {
 			forecastSalesCostDao.save(list.get(i));
@@ -1317,14 +1373,14 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			Row row =sheet.getRow(0);
 			int year=Integer.parseInt(y.substring(2));
 
-			row.getCell(2).setCellValue(y);
-			row.getCell(62).setCellValue("FY"+(year));
-			row.getCell(66).setCellValue("FY"+(year+1));
-			row.getCell(70).setCellValue("FY"+(year+2));
-			row.getCell(74).setCellValue("FY"+(year+3));
-			row.getCell(78).setCellValue("FY"+(year+4));
+			row.getCell(3).setCellValue(y);
+			row.getCell(63).setCellValue("FY"+(year));
+			row.getCell(67).setCellValue("FY"+(year+1));
+			row.getCell(71).setCellValue("FY"+(year+2));
+			row.getCell(75).setCellValue("FY"+(year+3));
+			row.getCell(79).setCellValue("FY"+(year+4));
 
-			String sql="select * from FIT_BUDGET_PRODUCT_UNIT_COST where YEAR='"+y+"'";
+			String sql="select * from FIT_BUDGET_PRODUCT_UNITCOST_V1 where YEAR='"+y+"'";
 			if (null!=version && StringUtils.isNotEmpty(version)) {
 				sql+=" and VERSION='"+version+"'";
 			}
@@ -1352,14 +1408,11 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				for (Object[] objects : dataList) {
 					Row contentRow = sheet.createRow(rowIndex++);
 					col=0;
-					for (int i = 3; i < objects.length-7; i++) {
-						if(i==65||i==70||i==75||i==80||i==85){
-							continue;
-						}
+					for (int i = 3; i < objects.length; i++) {
 						Cell cell = contentRow.createCell(col);
 						col++;
 						String text = (objects[i] != null ? objects[i].toString() : "");
-						if (StringUtils.isNotEmpty(text) && i>4 && i<90) {
+						if (StringUtils.isNotEmpty(text) && i>5 && i<91) {
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
@@ -1374,14 +1427,11 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						for (Object[] objects : dataList) {
 							col=0;
 							Row contentRow = sheet.createRow(rowIndex++);
-							for (int i = 3; i < objects.length-8; i++) {
-								if(i==65||i==70||i==75||i==80||i==85){
-									continue;
-								}
+							for (int i = 3; i < objects.length-1; i++) {
 								Cell cell = contentRow.createCell(col);
 								col++;
 								String text = (objects[i] != null ? objects[i].toString() : "");
-								if (StringUtils.isNotEmpty(text) && i>4 && i<90) {
+								if (StringUtils.isNotEmpty(text) && i>5 && i<91) {
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);
@@ -1421,8 +1471,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			Sheet sheet = workBook.getSheetAt(0);
 			Row row =sheet.getRow(0);
 			int year=Integer.parseInt(y.substring(2));
-			row.getCell(2).setCellValue(y);
-			row.getCell(62).setCellValue("FY"+(year));
+			row.getCell(3).setCellValue(y);
+			row.getCell(63).setCellValue("FY"+(year));
 
 			String sql="select * from FIT_FORECAST_SALES_COST_V where YEAR='"+y+"'";
 			if (null!=version && StringUtils.isNotEmpty(version)) {
@@ -1452,11 +1502,11 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				for (Object[] objects : dataList) {
 					Row contentRow = sheet.createRow(rowIndex++);
 					col=0;
-					for (int i = 3; i < objects.length-7; i++) {
+					for (int i = 3; i < objects.length-6; i++) {
 						Cell cell = contentRow.createCell(col);
 						col++;
 						String text = (objects[i] != null ? objects[i].toString() : "");
-						if (StringUtils.isNotEmpty(text) && i>4 && i<69) {
+						if (StringUtils.isNotEmpty(text) && i>5 && i<70) {
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
@@ -1471,11 +1521,11 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						for (Object[] objects : dataList) {
 							col=0;
 							Row contentRow = sheet.createRow(rowIndex++);
-							for (int i = 3; i < objects.length-8; i++) {
+							for (int i = 3; i < objects.length-7; i++) {
 								Cell cell = contentRow.createCell(col);
 								col++;
 								String text = (objects[i] != null ? objects[i].toString() : "");
-								if (StringUtils.isNotEmpty(text) && i>4 && i<69) {
+								if (StringUtils.isNotEmpty(text) && i>5 && i<70) {
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);

@@ -34,6 +34,7 @@ import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -78,7 +79,16 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 	/**頁面查詢*/
 	public String viewList(String year,String version,String entity,String tableName){
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sql="select * from "+tableName+" where CREATE_NAME='"+loginUser.getUsername()+"'";
+		String userName=loginUser.getUsername();
+		String sql="select * from "+tableName+" where CREATE_NAME='"+userName+"'";
+		String roleSql="select count(1) from  fit_user u \n" +
+				" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+				" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+				" WHERE  u.username='"+userName+"' and code='investment' ";
+		List<BigDecimal> countList = (List<BigDecimal>)projectForecastDao.listBySql(roleSql);
+		if(countList.get(0).intValue()>0){
+			sql="select * from "+tableName+" where 1=1 ";
+		}
 		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
 		}

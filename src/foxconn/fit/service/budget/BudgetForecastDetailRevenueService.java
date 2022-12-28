@@ -119,6 +119,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	/**預算數據上傳*/
 	public String uploadBudget(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest) {
 		try {
+			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 //			獲取當前用戶的SBU權限
 			List<String> tarList = instrumentClassService.getBudgetSBU();
 			Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
@@ -267,100 +268,18 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					budgetDetailRevenue.setYear(v_year);
 					budgetDetailRevenue.setVersion("V00");
 					budgetDetailRevenue.setId(UUID.randomUUID().toString());
-					UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 					budgetDetailRevenue.setCreateName(loginUser.getUsername());
 					budgetDetailRevenue.setCreateDate(new Date());
 					list.add(budgetDetailRevenue);
 				}
 				if (!list.isEmpty()) {
-					/**SBU_法人校驗*/
 					entityMakeList.addAll(entityList);
-					String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
-					check=this.check(entityMakeList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【SBU_銷售法人】或[SBU_製造法人]在【維度表】没有找到---> " + check);
+					result=this.checkMainData(result,entityMakeList,industryList,mainBusinessList,threeList,productSeriesList,productNoList,
+							loanCustomerList,endCustomerList,tradeTypeList,currencyList);
+					if ("fail".equals(result.getResult().get("flag"))){
 						return result.getJson();
 					}
-					/**次產業校驗*/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'  or DIMENSION='S00' ";
-					check=this.check(industryList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【次產業】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**主營業務*/
-					/**5GAIOT\EV\AUDIO\Type C\Existing*/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Bak2.getCode() +"'";
-					check=this.check(mainBusinessList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【Main Business】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**3+3**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Project.getCode() +"'";
-					check=this.check(threeList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【3+3】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**產品系列**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' ";
-					check=this.check(productSeriesList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【產品系列】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**賬款客戶**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
-					check=this.check(loanCustomerList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【賬款客戶】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**最終客戶**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Combine.getCode() +"' and PARENT in('C_End Customer') ";
-					check=this.check(endCustomerList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【最終客戶】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**交易類型**/
-					sql="select distinct trim(alias) from fit_dimension where type='"+EnumDimensionType.View.getCode()+ "' and PARENT in('Int000') ";
-					check=this.check(tradeTypeList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**報告幣種**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Currency.getCode() +"'";
-					check=this.check(currencyList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【報告幣種】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**產品料號*/
-					productNoList = instrumentClassService.removeDuplicate(productNoList);
-					forecastDetailRevenueService.saveCheckExist(productNoList);
-					List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
-							"select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' \n" +
-							"union all\n" +
-							"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv\n" +
-							") b where b.product=c.value)");
-					if (!partNoList.isEmpty()) {
-						result.put("flag", "fail");
-						result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
-						return result.getJson();
-					}
-					this.saveBatch(list,v_year,instrumentClassService.removeDuplicate(entityList));
+					this.saveBatch(list,v_year,loginUser.getUsername());
 				} else {
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
@@ -388,6 +307,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	/**預測數據上傳*/
 	public String uploadForecast(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest) {
 		try {
+			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 //			獲取當前用戶的SBU權限
 			List<String> tarList = instrumentClassService.getBudgetSBU();
 			Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
@@ -518,103 +438,22 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					forecastSalesRevenue.setYear(v_year);
 					forecastSalesRevenue.setVersion("V00");
 					forecastSalesRevenue.setId(UUID.randomUUID().toString());
-					UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 					forecastSalesRevenue.setCreateName(loginUser.getUsername());
 					forecastSalesRevenue.setCreateDate(new Date());
 					list.add(forecastSalesRevenue);
 				}
 				if (!list.isEmpty()) {
-					/**SBU_法人校驗*/
 					entityMakeList.addAll(entityList);
-					String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
-					check=this.check(entityMakeList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【SBU_銷售法人】或[SBU_製造法人]在【維度表】没有找到---> " + check);
+					result=this.checkMainData(result,entityMakeList,industryList,mainBusinessList,threeList,productSeriesList,productNoList,
+							loanCustomerList,endCustomerList,tradeTypeList,currencyList);
+					if ("fail".equals(result.getResult().get("flag"))){
 						return result.getJson();
 					}
-					/**次產業校驗*/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'  or DIMENSION='S00'";
-					check=this.check(industryList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【次產業】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**主營業務*/
-					/**5GAIOT\EV\AUDIO\Type C\Existing*/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Bak2.getCode() +"'";
-					check=this.check(mainBusinessList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【Main Business】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**3+3**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Project.getCode() +"'";
-					check=this.check(threeList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【3+3】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**產品系列**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' ";
-					check=this.check(productSeriesList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【產品系列】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**賬款客戶**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
-					check=this.check(loanCustomerList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【賬款客戶】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**最終客戶**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Combine.getCode() +"' and PARENT in('C_End Customer') ";
-					check=this.check(endCustomerList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【最終客戶】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**交易類型**/
-					sql="select distinct trim(alias) from fit_dimension where type='"+EnumDimensionType.View.getCode()+ "' and PARENT in('Int000') ";
-					check=this.check(tradeTypeList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**報告幣種**/
-					sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Currency.getCode() +"'";
-					check=this.check(currencyList,sql);
-					if (!check.equals("") && check.length() > 0){
-						result.put("flag", "fail");
-						result.put("msg", "以下【報告幣種】在【維度表】没有找到---> "+check);
-						return result.getJson();
-					}
-					/**產品料號*/
-					productNoList = instrumentClassService.removeDuplicate(productNoList);
-					forecastDetailRevenueService.saveCheckExist(productNoList);
-					List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
-							"select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' \n" +
-							"union all\n" +
-							"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv\n" +
-							") b where b.product=c.value)");
-					if (!partNoList.isEmpty()) {
-						result.put("flag", "fail");
-						result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
-						return result.getJson();
-					}
-					this.saveBatchForecast(list,v_year,instrumentClassService.removeDuplicate(entityList));
+					this.saveBatchForecast(list,v_year,loginUser.getUsername());
 				} else {
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
+					return result.getJson();
 				}
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
 				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
@@ -632,6 +471,99 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		return result.getJson();
 	}
 
+	private AjaxResult checkMainData(AjaxResult result,List<String> entityMakeList,List<String> industryList,List<String> mainBusinessList,
+	List<String> threeList,List<String> productSeriesList,List<String> productNoList,List<String> loanCustomerList,List<String> endCustomerList,
+									 List<String> tradeTypeList,List<String> currencyList	 ) throws Exception {
+		String check="";
+		/**SBU_法人校驗*/
+		String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
+		check=this.check(entityMakeList,sql);
+		if (!check.equals("") && check.length() > 0){
+			result.put("flag", "fail");
+			result.put("msg", "以下【SBU_銷售法人】或【SBU_製造法人】在【維度表】没有找到---> " + check);
+			return result;
+		}
+		/**次產業校驗*/
+		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'  or DIMENSION='S00' ";
+		check=this.check(industryList,sql);
+		if (!check.equals("") && check.length() > 0){
+			result.put("flag", "fail");
+			result.put("msg", "以下【次產業】在【維度表】没有找到---> "+check);
+			return result;
+		}
+		/**主營業務*/
+		/**5GAIOT\EV\AUDIO\Type C\Existing*/
+		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Bak2.getCode() +"'";
+		check=this.check(mainBusinessList,sql);
+		if (!check.equals("") && check.length() > 0){
+			result.put("flag", "fail");
+			result.put("msg", "以下【Main Business】在【維度表】没有找到---> "+check);
+			return result;
+		}
+		/**3+3**/
+		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Project.getCode() +"'";
+		check=this.check(threeList,sql);
+		if (!check.equals("") && check.length() > 0){
+			result.put("flag", "fail");
+			result.put("msg", "以下【3+3】在【維度表】没有找到---> "+check);
+			return result;
+		}
+		/**產品系列**/
+		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' ";
+		check=this.check(productSeriesList,sql);
+		if (!check.equals("") && check.length() > 0){
+			result.put("flag", "fail");
+			result.put("msg", "以下【產品系列】在【維度表】没有找到---> "+check);
+			return result;
+		}
+		/**賬款客戶**/
+		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
+		check=this.check(loanCustomerList,sql);
+		if (!check.equals("") && check.length() > 0){
+			result.put("flag", "fail");
+			result.put("msg", "以下【賬款客戶】在【維度表】没有找到---> "+check);
+			return result;
+		}
+		/**最終客戶**/
+		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Combine.getCode() +"' and PARENT in('C_End Customer') ";
+		check=this.check(endCustomerList,sql);
+		if (!check.equals("") && check.length() > 0){
+			result.put("flag", "fail");
+			result.put("msg", "以下【最終客戶】在【維度表】没有找到---> "+check);
+			return result;
+		}
+		/**交易類型**/
+		sql="select distinct trim(alias) from fit_dimension where type='"+EnumDimensionType.View.getCode()+ "' and PARENT in('Int000') ";
+		check=this.check(tradeTypeList,sql);
+		if (!check.equals("") && check.length() > 0){
+			result.put("flag", "fail");
+			result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
+			return result;
+		}
+		/**報告幣種**/
+		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Currency.getCode() +"'";
+		check=this.check(currencyList,sql);
+		if (!check.equals("") && check.length() > 0){
+			result.put("flag", "fail");
+			result.put("msg", "以下【報告幣種】在【維度表】没有找到---> "+check);
+			return result;
+		}
+		/**產品料號*/
+		productNoList = instrumentClassService.removeDuplicate(productNoList);
+		forecastDetailRevenueService.saveCheckExist(productNoList);
+		List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
+				"select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' \n" +
+				"union all\n" +
+				"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv\n" +
+				") b where b.product=c.value)");
+		if (!partNoList.isEmpty()) {
+			result.put("flag", "fail");
+			result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
+			return result;
+		}
+		return result;
+	}
+
 	/**匹配用戶上傳的主數據list是否在維度表中能找到*/
 	public String check(List<String> list,String sql){
 		list = instrumentClassService.removeDuplicate(list);
@@ -641,17 +573,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	}
 
 	/**預算保存數據*/
-	public void saveBatch(List<BudgetDetailRevenue> list,String year,List<String> entityList) throws Exception {
-		String sql="delete from FIT_BUDGET_DETAIL_REVENUE where VERSION='V00' and YEAR='"+year+"' and ENTITY in(";
-		for (int i=0;i<entityList.size();i++){
-			sql+="'"+entityList.get(i)+"',";
-			if ((i + 50) % 1000 == 0) {
-				budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql.substring(0,sql.length()-1)+")").executeUpdate();
-				budgetDetailRevenueDao.getHibernateTemplate().flush();
-				budgetDetailRevenueDao.getHibernateTemplate().clear();
-			}
-		}
-		sql=sql.substring(0,sql.length()-1)+")";
+	public void saveBatch(List<BudgetDetailRevenue> list,String year,String userName) throws Exception {
+		String sql="delete from FIT_BUDGET_DETAIL_REVENUE where VERSION='V00' and YEAR='"+year+"' and CREATE_DATE ='"+userName+"'";
 		budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		for (int i = 0; i < list.size(); i++) {
 			budgetDetailRevenueDao.save(list.get(i));
@@ -663,17 +586,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	}
 
 	/**預測保存數據*/
-	public void saveBatchForecast(List<ForecastSalesRevenue> list,String year,List<String> entityList) throws Exception {
-		String sql="delete from FIT_FORECAST_REVENUE where VERSION='V00' and YEAR='"+year+"' and ENTITY in(";
-		for (int i=0;i<entityList.size();i++){
-			sql+="'"+entityList.get(i)+"',";
-			if ((i + 50) % 1000 == 0) {
-				forecastSalesRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql.substring(0,sql.length()-1)+")").executeUpdate();
-				forecastSalesRevenueDao.getHibernateTemplate().flush();
-				forecastSalesRevenueDao.getHibernateTemplate().clear();
-			}
-		}
-		sql=sql.substring(0,sql.length()-1)+")";
+	public void saveBatchForecast(List<ForecastSalesRevenue> list,String year,String userName) throws Exception {
+		String sql="delete from FIT_FORECAST_REVENUE where VERSION='V00' and YEAR='"+year+"' and CREATE_NAME ='"+userName+"'";
 		forecastSalesRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		for (int i = 0; i < list.size(); i++) {
 			forecastSalesRevenueDao.save(list.get(i));

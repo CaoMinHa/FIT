@@ -34,6 +34,7 @@ import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -79,7 +80,16 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 	/**頁面查詢*/
 	public String viewList(String year,String version,String entity,String tableName){
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sql="select * from "+tableName+" where CREATE_NAME='"+loginUser.getUsername()+"'";
+		String userName=loginUser.getUsername();
+		String sql="select * from "+tableName+" where CREATE_NAME='"+userName+"'";
+		String roleSql="select count(1) from  fit_user u \n" +
+				" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+				" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+				" WHERE  u.username='"+userName+"' and code='investment' ";
+		List<BigDecimal> countList = (List<BigDecimal>)investmentBudgetDao.listBySql(roleSql);
+		if(countList.get(0).intValue()>0){
+			sql="select * from "+tableName+" where 1=1 ";
+		}
 		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
 		}
@@ -151,6 +161,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 
 				String check = "";
 				String mianDataChek="";
+				String dateChek="";
 				for (int i = 2; i < rowNum; i++) {
 					if(null==sheet.getRow(i)){
 						continue;
@@ -168,6 +179,9 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 					if(project.isEmpty()||combine.isEmpty()||entity.isEmpty()||department.isEmpty()||bak.isEmpty()||mainBusiness.isEmpty()||segment.isEmpty()||
 							view.isEmpty()||currency.isEmpty()){
 						mianDataChek+=(i+1)+",";
+						continue;
+					}if(ExcelUtil.getCellStringValue(row.getCell(13), i).isEmpty()||ExcelUtil.getCellStringValue(row.getCell(15), i).isEmpty()){
+						dateChek+=(i+1)+",";
 						continue;
 					}
 					//跳過沒有SBU權限的數據
@@ -235,6 +249,9 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 				}
 				if (!"".equalsIgnoreCase(mianDataChek.trim()) && mianDataChek.length() > 0) {
 					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，主數據不可爲空。--->" + mianDataChek.substring(0,mianDataChek.length()-1), "The following lines fail to be uploaded. Primary data cannot be null--->" + mianDataChek.substring(0,mianDataChek.length()-1)));
+				}
+				if (!"".equalsIgnoreCase(dateChek.trim()) && dateChek.length() > 0) {
+					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品生命週期和驗收單年月不可爲空。--->" + dateChek.substring(0,dateChek.length()-1), "The data in the following lines is not uploaded successfully. The product life cycle and date of receipt cannot be blank--->" + dateChek.substring(0,dateChek.length()-1)));
 				}
 			} else {
 				result.put("flag", "fail");
