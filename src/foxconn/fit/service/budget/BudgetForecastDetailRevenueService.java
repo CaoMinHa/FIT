@@ -574,7 +574,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 
 	/**預算保存數據*/
 	public void saveBatch(List<BudgetDetailRevenue> list,String year,String userName) throws Exception {
-		String sql="delete from FIT_BUDGET_DETAIL_REVENUE where VERSION='V00' and YEAR='"+year+"' and CREATE_DATE ='"+userName+"'";
+		String sql="delete from FIT_BUDGET_DETAIL_REVENUE where VERSION='V00' and YEAR='"+year+"' and CREATE_NAME ='"+userName+"'";
 		budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		for (int i = 0; i < list.size(); i++) {
 			budgetDetailRevenueDao.save(list.get(i));

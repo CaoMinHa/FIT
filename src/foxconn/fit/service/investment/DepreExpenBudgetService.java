@@ -82,7 +82,7 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 	public String viewList(String year,String version,String entity,String tableName){
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String userName=loginUser.getUsername();
-		String sql="select * from "+tableName+" where CREATE_NAME='"+tableName+"'";
+		String sql="select * from "+tableName+" where CREATE_NAME='"+userName+"'";
 		String roleSql="select count(1) from  fit_user u \n" +
 				" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
 				" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
@@ -90,7 +90,8 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 		List<BigDecimal> countList = (List<BigDecimal>)depreExpenForecastDao.listBySql(roleSql);
 		if(countList.get(0).intValue()>0){
 			sql="select * from "+tableName+" where 1=1 ";
-		}if (null!=year&&StringUtils.isNotEmpty(year)) {
+		}
+		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
 		}
 		if (null!=version && StringUtils.isNotEmpty(version)) {
@@ -357,11 +358,19 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)表","折舊費用預算(在製)表")+".xlsx";
 			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)模板","折舊費用預算(在製)模板")+".xlsx");
 			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-			String sql="select * from  FIT_DEPRE_EXPEN_BUDGET_V where YEAR='"+y+"' and CREATE_NAME='"+loginUser.getUsername()+"'";
+			String sql="select * from  FIT_DEPRE_EXPEN_BUDGET_V where YEAR='"+y+"' ";
 			if(type.equals("forecast")){
 				filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用预测(在製)表","折舊費用预测(在製)表")+".xlsx";
 				ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用预测(在製)模板","折舊費用预测(在製)模板")+".xlsx");
-				sql="select * from FIT_DEPRE_EXPEN_FORECAST_V where YEAR='"+y+"' and CREATE_NAME='"+loginUser.getUsername()+"'";
+				sql="select * from FIT_DEPRE_EXPEN_FORECAST_V where YEAR='"+y+"' ";
+			}
+			String roleSql="select count(1) from  fit_user u \n" +
+					" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+					" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+					" WHERE  u.username='"+loginUser.getUsername()+"' and code='investment' ";
+			List<BigDecimal> countList = (List<BigDecimal>)depreExpenForecastDao.listBySql(roleSql);
+			if(countList.get(0).intValue()==0){
+				sql+="and CREATE_NAME='"+loginUser.getUsername()+"'";
 			}
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);

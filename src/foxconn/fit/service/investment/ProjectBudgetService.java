@@ -377,11 +377,19 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"專案預算表","專案預算表")+".xlsx";
 			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"專案預算模板","專案預算模板")+".xlsx");
 			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-			String sql="select * from FIT_PROJECT_BUDGET_V where YEAR='"+y+"' and CREATE_NAME='"+loginUser.getUsername()+"'";
+			String sql="select * from FIT_PROJECT_BUDGET_V where YEAR='"+y+"' ";
 			if(type.equals("forecast")){
 				filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"專案預測表","專案預測表")+".xlsx";
 				ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"專案預測模板","專案預測模板")+".xlsx");
-				sql="select * from FIT_PROJECT_FORECAST_V where YEAR='"+y+"' and CREATE_NAME='"+loginUser.getUsername()+"'";
+				sql="select * from FIT_PROJECT_FORECAST_V where YEAR='"+y+"' ";
+			}
+			String roleSql="select count(1) from  fit_user u \n" +
+					" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+					" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+					" WHERE  u.username='"+loginUser.getUsername()+"' and code='investment' ";
+			List<BigDecimal> countList = (List<BigDecimal>)projectForecastDao.listBySql(roleSql);
+			if(countList.get(0).intValue()==0){
+				sql+="and CREATE_NAME='"+loginUser.getUsername()+"'";
 			}
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
