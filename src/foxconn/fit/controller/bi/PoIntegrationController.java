@@ -195,7 +195,7 @@ public class PoIntegrationController extends BaseController {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-        List<String> subs = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie  where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') order by tie.NEW_SBU_NAME");
+        List<String> subs = poTableService.listBySql("select distinct SBU_NAME from BIDEV.DM_D_ENTITY_SBU where FLAG='1' order by SBU_NAME");
         List<String> commoditys = poCenterService.findCommoditys();
         List<String> monthList = new ArrayList<>();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
@@ -899,9 +899,9 @@ public class PoIntegrationController extends BaseController {
                 //List<String> commodityList = poTableService.listBySql("SELECT distinct tie.commodity_major FROM bidev.t_itmecategory_ebs tie order by tie.commodity_major");
                 List<String> commodityList = poTableService.listBySql("select distinct tie.COMMODITY_NAME from CUX_FUNCTION_COMMODITY_MAPPING tie order by tie.COMMODITY_NAME");
                 //SBU 值集修改成新表
-//                List<String> sbuList = poTableService.listBySql("select   distinct  SBU from EPMEBS.CUX_SBU_BU_MAPPING order by SBU ");
-
-                List<String> sbuList = poTableService.listBySql(" select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') order by tie.NEW_SBU_NAME ");
+//                List<String> sbuList = poTableService.listBySql("select distinct SBU from EPMEBS.CUX_SBU_BU_MAPPING order by SBU ");
+//                List<String> sbuList = poTableService.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie where tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') order by tie.NEW_SBU_NAME ");
+                List<String> sbuList = poTableService.listBySql("select distinct SBU_NAME from BIDEV.DM_D_ENTITY_SBU where FLAG='1' order by SBU_NAME");
 
                 Sheet sheet = workBook.createSheet("Commodity大類和SBU");
                 Row titleRow = sheet.createRow(0);

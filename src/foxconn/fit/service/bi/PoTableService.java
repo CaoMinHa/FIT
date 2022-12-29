@@ -442,11 +442,10 @@ public class PoTableService extends BaseService<PoTable> {
      */
     public Map<String,List> selectSBU(){
         Map<String,List> map=new HashMap<>();
-        List<String> list=poTableDao.listBySql("select distinct e.BU_NAME from bidev.v_if_sbu_mapping tie,BIDEV.DM_D_ENTITY_SBUFACTORY e  where e.sbu_name=tie.NEW_SBU_NAME and \n" +
-                "tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD')");
+        List<String> list=poTableDao.listBySql("select distinct tie.SBU_NAME from BIDEV.DM_D_ENTITY_SBU tie,BIDEV.DM_D_ENTITY_SBUFACTORY e  where e.sbu_name=tie.SBU_NAME and tie.flag='1' ");
         for (String m:list) {
-            List<String> listCommodity=poTableDao.listBySql("select distinct tie.NEW_SBU_NAME from bidev.v_if_sbu_mapping tie,BIDEV.DM_D_ENTITY_SBUFACTORY e  where e.sbu_name=tie.NEW_SBU_NAME and   \n" +
-                    "tie.NEW_SBU_NAME in('IDS','EMS','ABS','ACE','ASD','AEC','TSC','APS','CW','FAD','IoT','CIDA','Tengyang','TMTS','FIAD') and BU_NAME='"+m+"'");
+            List<String> listCommodity=poTableDao.listBySql("select distinct tie.SBU_NAME from BIDEV.DM_D_ENTITY_SBU tie,BIDEV.DM_D_ENTITY_SBUFACTORY e where e.sbu_name=tie.SBU_NAME " +
+                    "and tie.flag='1' and e.BU_NAME='"+m+"'");
             map.put(m,listCommodity);
         }
         return map;
