@@ -493,7 +493,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		}
 		/**主營業務*/
 		/**5GAIOT\EV\AUDIO\Type C\Existing*/
-		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Bak2.getCode() +"'";
+		sql="select distinct trim(alias) from fit_dimension where type='Bak2' and PARENT='bak201' ";
 		check=this.check(mainBusinessList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
@@ -501,7 +501,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			return result;
 		}
 		/**3+3**/
-		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Project.getCode() +"'";
+		sql="select distinct trim(alias) from fit_dimension where type='Project'  and PARENT='P_FIT3+3'";
 		check=this.check(threeList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
@@ -533,7 +533,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			return result;
 		}
 		/**交易類型**/
-		sql="select distinct trim(alias) from fit_dimension where type='"+EnumDimensionType.View.getCode()+ "' and PARENT in('Int000') ";
+		sql="select distinct trim(alias) from fit_dimension where type='View' and PARENT in('Int000') and DIMENSION not in('Int005','Int006')";
 		check=this.check(tradeTypeList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
@@ -541,7 +541,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			return result;
 		}
 		/**報告幣種**/
-		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Currency.getCode() +"'";
+		sql="select distinct trim(alias) from fit_dimension where type='Currency' and PARENT ='O_Currency'";
 		check=this.check(currencyList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");

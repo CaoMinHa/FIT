@@ -72,12 +72,12 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**Main Business*/
 			sheet = workBook.getSheetAt(4);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Bak2.getCode()+"'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Bak2' and PARENT='bak201'";
 			this.selectDimension(sql,sheet);
 
 			/**3+3*/
 			sheet = workBook.getSheetAt(5);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Project.getCode()+"'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Project' and PARENT='P_FIT3+3'";
 			this.selectDimension(sql,sheet);
 
 			/**產品系列*/
@@ -112,12 +112,12 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**交易類型*/
 			sheet = workBook.getSheetAt(12);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.View.getCode()+"'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='View' and PARENT in('Int000') and DIMENSION not in('Int005','Int006')";
 			this.selectDimension(sql,sheet);
 
 			/**交易貨幣*/
 			sheet = workBook.getSheetAt(13);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Currency.getCode()+"'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Currency' and PARENT ='O_Currency'";
 			this.selectDimension(sql,sheet);
 
 			File outFile = new File(filePath);
