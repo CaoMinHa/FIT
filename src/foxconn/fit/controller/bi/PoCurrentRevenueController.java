@@ -50,7 +50,7 @@ public class PoCurrentRevenueController extends BaseController {
     public String index(Model model) {
         Calendar calendar=Calendar.getInstance();
         int year=calendar.get(Calendar.YEAR);
-        int month=calendar.get(Calendar.MONTH);
+        int month=calendar.get(Calendar.MONTH)+1;
         model.addAttribute("PERIOD",year+"-"+month);
         return "/bi/poCurrentRevenue/index";
     }

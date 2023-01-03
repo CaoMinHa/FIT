@@ -202,7 +202,7 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 				}
 				Assert.isTrue(null!=list,instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
 				if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
-					checkMianData(projectList,entityList,departmentList,segmentList);
+					checkMianData(projectList,entityList,departmentList,segmentList,loginUser.getUsername());
 					if(type.equals("budget")){
 						this.saveBatch(list,v_year,loginUser.getUsername());
 					}else {
@@ -283,7 +283,7 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 		return projectForecast;
 	}
 	/**上傳保存數據校驗主數據是否正確*/
-	private void checkMianData(List<String> projectList,List<String> entityList,List<String> departmentList,List<String> segmentList){
+	private void checkMianData(List<String> projectList,List<String> entityList,List<String> departmentList,List<String> segmentList,String userName){
 		String check="";
 		/**專案編號*/
 		check=this.check(projectList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Project'");
@@ -292,6 +292,11 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity'");
 		Assert.isTrue("".equals(check),"以下【SBU_法人】在【維度表】没有找到---> " + check);
 		/**提出部門*/
+		List<BigDecimal> countList = (List<BigDecimal>)projectForecastDao.listBySql("select count(1) from FIT_USER_DEPARTMENT_MAPPING where USER_CODE='"+userName+"' ");
+		if(countList.get(0).intValue()>0){
+			check=this.check(departmentList,"select distinct trim(m.alias) from FIT_USER_DEPARTMENT_MAPPING,FIT_ZR_DIMENSION m where DEPARTMENT_CODE=m.parent and USER_CODE='"+userName+"'");
+			Assert.isTrue("".equals(check),"以下【提出部門】沒有上傳權限---> " + check);
+		}
 		check=this.check(departmentList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Department'");
 		Assert.isTrue("".equals(check),"以下【提出部門】在【維度表】没有找到---> " + check);
 		/**產業*/

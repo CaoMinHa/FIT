@@ -200,7 +200,7 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 				}
 				Assert.isTrue(null!=list,instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
 				if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
-					checkMianData(entityList,departmentList,combineList);
+					checkMianData(entityList,departmentList,combineList,loginUser.getUsername());
 					if(type.equals("budget")){
 						this.saveBatch(list,v_year,loginUser.getUsername());
 					}else {
@@ -267,12 +267,17 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 		return depreExpenForecast;
 	}
 	/**上傳保存數據校驗主數據是否正確*/
-	private void checkMianData(List<String> entityList,List<String> departmentList,List<String> combineList){
+	private void checkMianData(List<String> entityList,List<String> departmentList,List<String> combineList,String userName){
 		String check="";
 		/**SBU_法人*/
 		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity'");
 		Assert.isTrue("".equals(check),"以下【SBU_法人】在【維度表】没有找到---> " + check);
 		/**提出部門*/
+		List<BigDecimal> countList = (List<BigDecimal>)depreExpenForecastDao.listBySql("select count(1) from FIT_USER_DEPARTMENT_MAPPING where USER_CODE='"+userName+"' ");
+		if(countList.get(0).intValue()>0){
+			check=this.check(departmentList,"select distinct trim(m.alias) from FIT_USER_DEPARTMENT_MAPPING,FIT_ZR_DIMENSION m where DEPARTMENT_CODE=m.parent and USER_CODE='"+userName+"'");
+			Assert.isTrue("".equals(check),"以下【提出部門】沒有上傳權限---> " + check);
+		}
 		check=this.check(departmentList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Department'");
 		Assert.isTrue("".equals(check),"以下【提出部門】在【維度表】没有找到---> " + check);
 		/**設備類別*/
@@ -474,36 +479,6 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 				"'"+sqlVersion+"' version, \n" +
 				" sysdate version_date,'"+loginUser.getUsername()+"' version_name " +
 				"  from "+tableName+" where version='V00' and Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"')";
-		depreExpenBudgetDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
-		return sqlVersion;
-	}
-
-	/**預測版本控制*/
-	public String versionForecast(){
-		Calendar calendar=Calendar.getInstance();
-		int year=calendar.get(Calendar.YEAR);
-		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sqlVersion="select Max(to_number(substr(version,2))) version  from FIT_FORECAST_REVENUE where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"'";
-		List<Map> maps = depreExpenBudgetDao.listMapBySql(sqlVersion);
-		if(null ==maps.get(0).get("VERSION")){
-			sqlVersion="No finalizable data detected_沒有檢查到可定版的數據！";
-		}else if (maps == null || maps.get(0).get("VERSION").toString().equals("0")) {
-			sqlVersion="V1";
-		}else{
-			int a=Integer.parseInt(maps.get(0).get("VERSION").toString());
-			a++;
-			sqlVersion="V"+a;
-		}
-		String sql="insert into FIT_FORECAST_REVENUE (select\n" +
-				"SEQ_BUDGET_DETAIL_REVENUE.NEXTVAL id,\n" +
-				"'"+sqlVersion+"' version,year, \n" +
-				"entity,make_entity,segment,main_industry,industry,main_business,three,product_series,product_no,loan_customer,end_customer,type_of_airplane,\n" +
-				"trade_type,currency,pm,quantity_month1,quantity_month2,quantity_month3,quantity_month4,quantity_month5,quantity_month6,\n" +
-				"quantity_month7,quantity_month8,quantity_month9,quantity_month10,quantity_month11,quantity_month12,price_month1,\n" +
-				"price_month2,price_month3,price_month4,price_month5,price_month6,price_month7,price_month8,price_month9,price_month10,price_month11,\n" +
-				"price_month12,\n"+
-				"create_name,create_date, sysdate version_date,'"+loginUser.getUsername()+"' version_name,ou,makeou,currency_transition\n" +
-				"  from FIT_FORECAST_REVENUE where version='V00' and Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"')";
 		depreExpenBudgetDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		return sqlVersion;
 	}

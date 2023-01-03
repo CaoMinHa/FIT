@@ -154,6 +154,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 				/**SBU_法人*/List<String> entityList = new ArrayList<>();
 				/**SBU**/List<String> sbuList = new ArrayList<>();
 				/**提出部門*/List<String> departmentList = new ArrayList<>();
+				/**提出部門*/List<String> departmentList1 = new ArrayList<>();
 				/**Segment*/List<String> bakList = new ArrayList<>();
 				/**Main business*/List<String> mainBusinessList= new ArrayList<>();
 				/**產業*/List<String> segmentList = new ArrayList<>();
@@ -197,6 +198,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 					combineList.add(combine);
 					entityList.add(entity);
 					departmentList.add(department);
+					departmentList1.add(department);
 					bakList.add(bak);
 					mainBusinessList.add(mainBusiness);
 					segmentList.add(segment);
@@ -235,7 +237,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 				}
 				Assert.isTrue(null!=list,instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
 				if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
-					checkMianData(projectList,combineList,entityList,departmentList,bakList,mainBusinessList,segmentList,currencyList);
+					checkMianData(projectList,combineList,entityList,departmentList,departmentList1,bakList,mainBusinessList,segmentList,currencyList,loginUser.getUsername());
 					if(type.equals("budget")){
 						this.saveBatch(list,v_year,loginUser.getUsername());
 					}else {
@@ -312,8 +314,8 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		return investmentForecast;
 	}
 	/**上傳保存數據校驗主數據是否正確*/
-	private void checkMianData(List<String> projectList,List<String> combineList,List<String> entityList,List<String> departmentList,
-									 List<String> bakList,List<String> mainBusinessList, List<String> segmentList,List<String> currencyList){
+	private void checkMianData(List<String> projectList,List<String> combineList,List<String> entityList,List<String> departmentList,List<String> departmentList1,
+									 List<String> bakList,List<String> mainBusinessList, List<String> segmentList,List<String> currencyList,String userName){
 		String check="";
 		/**投資編號*/
 		check=this.check(projectList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Project'");
@@ -325,6 +327,11 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity'");
 		Assert.isTrue("".equals(check),"以下【SBU_法人】在【維度表】没有找到---> " + check);
 		/**提出部門*/
+		List<BigDecimal> countList = (List<BigDecimal>)investmentBudgetDao.listBySql("select count(1) from FIT_USER_DEPARTMENT_MAPPING where USER_CODE='"+userName+"' ");
+		if(countList.get(0).intValue()>0){
+			check=this.check(departmentList1,"select distinct trim(m.alias) from FIT_USER_DEPARTMENT_MAPPING,FIT_ZR_DIMENSION m where DEPARTMENT_CODE=m.parent and USER_CODE='"+userName+"'");
+			Assert.isTrue("".equals(check),"以下【提出部門】沒有上傳權限---> " + check);
+		}
 		check=this.check(departmentList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Department'");
 		Assert.isTrue("".equals(check),"以下【部門】在【維度表】没有找到---> " + check);
 		/**Segment*/
