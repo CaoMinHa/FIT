@@ -40,7 +40,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @Controller
@@ -198,8 +198,6 @@ public class PoIntegrationController extends BaseController {
         List<String> subs = poTableService.listBySql("select distinct SBU_NAME from BIDEV.DM_D_ENTITY_SBU where FLAG='1' order by SBU_NAME");
         List<String> commoditys = poCenterService.findCommoditys();
         List<String> monthList = new ArrayList<>();
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        String[] date =formatter.format(new Date()).split("-");
         String tableName = "";
         HttpSession session = request.getSession();
         String dataRangeStr = "";
@@ -209,29 +207,27 @@ public class PoIntegrationController extends BaseController {
             result.put("msg", "系统繁忙，请重新登录");
             return result.getJson();
         }
+        LocalDate localDate=LocalDate.now();
+        String year=localDate.minusDays(60).toString().substring(0,4);
+        String period = localDate.minusMonths(1).toString().substring(5,7);
         try {
             /**測試需要先注釋*/
-//            if(!poTableService.updateState(loginUser.getUsername())){
-//                if("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableNamesOut1[0])||"FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableNamesOut1[0])){
-//                    if(Integer.parseInt(date[0])>10){
-//                        result.put("flag", "fail");
-//                        result.put("msg", getLanguage(locale, "上傳時間為每月1-10號，現已逾期，請聯係管理員。", "The upload time is from the 1st to the 10th of each month, it is overdue, please contact the administrator"));
-//                        return result.getJson();
-//                    }
-//                }
-//            }
+            if(!poTableService.updateState(loginUser.getUsername())){
+                if("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableNamesOut1[0])||"FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableNamesOut1[0])){
+                    if(Integer.parseInt(localDate.toString().substring(8,10))>10){
+                        result.put("flag", "fail");
+                        result.put("msg", getLanguage(locale, "上傳時間為每月1-10號，現已逾期，請聯係管理員。", "The upload time is from the 1st to the 10th of each month, it is overdue, please contact the administrator"));
+                        return result.getJson();
+                    }
+                }
+            }
             Assert.isTrue(tableNamesOut1 != null && tableNamesOut1.length > 0, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
-            String year = date[2];
-            String period = Integer.toString(Integer.valueOf(date[1])-1);
             List<String> sbuList = new ArrayList<>();
             List<String> commodityList = new ArrayList<>();
             Set<String> sbuSet = new HashSet<>();
             Set<String> commoditySet = new HashSet<>();
             String sbu = "";
             String commodity = "";
-            if (period.length() < 2) {
-                period = "0" + period;
-            }
             MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
             Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
             if (mutipartFiles != null && mutipartFiles.size() > 0) {
@@ -294,7 +290,6 @@ public class PoIntegrationController extends BaseController {
                         if (row == null) {
                             continue;
                         }
-
                         boolean isBlankRow = true;
                         for (int k = 0; k < COLUMN_NUM; k++) {
                             if (StringUtils.isNotEmpty(ExcelUtil.getCellStringValue(row.getCell(k), i, j))) {
@@ -306,7 +301,6 @@ public class PoIntegrationController extends BaseController {
                         }
                         int n = 0;
                         List<String> data = new ArrayList<String>();
-                        String year_month = year + period;
                         String recordsYear = ExcelUtil.getCellStringValue(row.getCell(0), i, j);
                         String recordsMonth = ExcelUtil.getCellStringValue(row.getCell(1), i, j);
                         if (recordsMonth.length() < 2) {
@@ -315,13 +309,13 @@ public class PoIntegrationController extends BaseController {
                         String RYM = recordsYear + recordsMonth;
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
                             //測試後續放開
-//                            Assert.isTrue(String.valueOf(Integer.parseInt(year)+1).equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
-                            year=recordsYear;
+                            year=String.valueOf(Integer.parseInt(localDate.minusDays(60).toString().substring(0,4))+1);
+                            Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
                             data.add(recordsYear);
                             n += 1;
                         } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
                             //測試後續放開
-//                            Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
+                            Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
                             if(!poTableService.checkCPO(recordsYear)){
                                 result.put("flag", "fail");
                                 result.put("msg", getLanguage(locale, "採購CD 目標CPO核准還未完成審批，暫無法上個數據。", "The target CPO has not been approved yet, and the last data cannot be uploaded for the time being"));
@@ -332,9 +326,8 @@ public class PoIntegrationController extends BaseController {
                             n = 1;
                         } else {
                             //測試後續放開
-//                            Assert.isTrue(year_month.equals(RYM), getLanguage(locale, "錯誤的月份： " + RYM + "應為：" + year_month, "The year，period is error:" + RYM + "should be：" + year_month));
-                            year=recordsYear;
-                            period=recordsMonth;
+                            year = localDate.minusMonths(1).toString().substring(0,4);
+                            Assert.isTrue((year+period).equals(RYM), getLanguage(locale, "錯誤的月份： " + RYM + "應為：" + (year+period), "The year，period is error:" + RYM + "should be：" + (year+period)));
                             data.add(year);
                             data.add(period);
                             n += 2;
@@ -517,13 +510,7 @@ public class PoIntegrationController extends BaseController {
                     result.put("flag", "fail");
                     result.put("msg", "該維度的數據已存在，不能重複上傳");
                 } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-                    try {
-                        result=poTableService.validateMonth(taskId,result);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                        result.put("flag", "fail");
-                        result.put("msg", "數據庫運行錯誤，請聯係管理員");
-                    }
+                    result=poTableService.validateMonth(taskId,result);
                 }
             } else {
                 result.put("flag", "fail");
@@ -892,6 +879,7 @@ public class PoIntegrationController extends BaseController {
                 } else if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableName)) {
                     sheet.setDefaultColumnStyle(2, lockStyle);
                     sheet.setDefaultColumnStyle(4, lockStyle);
+                    sheet.setDefaultColumnStyle(9, lockStyle);
                 }
             }
             table_type = "PO";

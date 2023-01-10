@@ -59,7 +59,9 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 	public Model index(Model model){
 		List<String> yearsList = projectBudgetDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
-		int year=calendar.get(Calendar.YEAR)+1;
+		//預算應爲測試需要先把年份校驗放開
+//		int year=calendar.get(Calendar.YEAR)+1;
+		int year=calendar.get(Calendar.YEAR);
 		model.addAttribute("yearVal", "FY"+String.valueOf(year).substring(2));
 		model.addAttribute("yearsList", yearsList);
 		return model;
@@ -134,9 +136,10 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 				Sheet sheet = wb.getSheetAt(0);
 				String v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(4), 0);
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
-				Calendar calendar = Calendar.getInstance();
-				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
-				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
+				//預算應爲測試需要先把年份校驗放開
+//				Calendar calendar = Calendar.getInstance();
+//				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
+//				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				int column = sheet.getRow(1).getLastCellNum();
 				Assert.isTrue(column <= 24,instrumentClassService.getLanguage(locale, "Excel列数不能小于" + 24 + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + 24 + ",Please download the correct template to upload the data"));
 				int rowNum = sheet.getPhysicalNumberOfRows();
@@ -200,15 +203,19 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 						list.add(this.projectForecast(projectForecast,row,i));
 					}
 				}
-				Assert.isTrue(null!=list,instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
-				if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
-					checkMianData(projectList,entityList,departmentList,segmentList,loginUser.getUsername());
-					if(type.equals("budget")){
-						this.saveBatch(list,v_year,loginUser.getUsername());
-					}else {
-						this.saveBatchForecast(list,v_year,loginUser.getUsername());
+				if (!list.isEmpty()) {
+					if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
+						checkMianData(projectList,entityList,departmentList,segmentList,loginUser.getUsername());
+						if(type.equals("budget")){
+							this.saveBatch(list,v_year,loginUser.getUsername());
+						}else {
+							this.saveBatchForecast(list,v_year,loginUser.getUsername());
+						}
+						sbuList=instrumentClassService.removeDuplicate(sbuList);
 					}
-					sbuList=instrumentClassService.removeDuplicate(sbuList);
+				}else {
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
 				}
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
 				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
@@ -286,8 +293,8 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 	private void checkMianData(List<String> projectList,List<String> entityList,List<String> departmentList,List<String> segmentList,String userName){
 		String check="";
 		/**專案編號*/
-		check=this.check(projectList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Project'");
-		Assert.isTrue("".equals(check),"以下【投資編號】在【維度表】没有找到---> " + check);
+		check=this.check(projectList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Project' and (DIMENSION like 'P_CE%' or PARENT='P_CE Code02')");
+		Assert.isTrue("".equals(check),"以下【專案編號】在【維度表】没有找到---> " + check);
 		/**SBU_法人*/
 		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity'");
 		Assert.isTrue("".equals(check),"以下【SBU_法人】在【維度表】没有找到---> " + check);
@@ -352,7 +359,9 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
-			int year=calendar.get(Calendar.YEAR);
+			//預算應爲測試需要先把年份校驗放開
+//			int year=calendar.get(Calendar.YEAR);
+			int year=calendar.get(Calendar.YEAR)-1;
 			row.getCell(4).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			row.getCell(20).setCellValue("FY"+ String.valueOf(year+2).substring(2));
 			row.getCell(22).setCellValue("FY"+ String.valueOf(year+3).substring(2));
@@ -413,7 +422,7 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 			sql+=instrumentClassService.querySbuSql(entitys,sbuMap);
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
 			pageRequest.setPageNo(1);
-			pageRequest.setOrderBy("Id");
+			sql+="order by project_number,Id";
 			List<Object[]> dataList = projectBudgetDao.findPageBySql(pageRequest, sql).getResult();
 			if (CollectionUtils.isNotEmpty(dataList)) {
 				int rowIndex = 2;
@@ -525,7 +534,7 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 			InputStream ins = new FileInputStream(request.getRealPath("")+"static"+File.separator+"template"+File.separator+"investment"+File.separator+"專案預算維度表.xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			/**專案編碼*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Project' and DIMENSION like 'P_CE%'",workBook.getSheetAt(0));
+			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Project' and (DIMENSION like 'P_CE%' or PARENT='P_CE Code02')",workBook.getSheetAt(0));
 			/**sbu_法人*/
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Entity'",workBook.getSheetAt(1));
 			/**提出部門*/

@@ -61,7 +61,9 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 	public Model index(Model model){
 		List<String> yearsList = depreExpenBudgetDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
-		int year=calendar.get(Calendar.YEAR)+1;
+		//預算應爲測試需要先把年份校驗放開
+//		int year=calendar.get(Calendar.YEAR)+1;
+		int year=calendar.get(Calendar.YEAR);
 		model.addAttribute("yearVal", "FY"+String.valueOf(year).substring(2));
 		model.addAttribute("yearsList", yearsList);
 		return model;
@@ -136,9 +138,10 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 				Sheet sheet = wb.getSheetAt(0);
 				String v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(3), 0);
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
-				Calendar calendar = Calendar.getInstance();
-				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
-				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
+				//預算應爲測試需要先把年份校驗放開
+//				Calendar calendar = Calendar.getInstance();
+//				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
+//				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				int column = sheet.getRow(1).getLastCellNum();
 				Assert.isTrue(column <= 15,instrumentClassService.getLanguage(locale, "Excel列数不能小于" + 15 + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + 15 + ",Please download the correct template to upload the data"));
 				int rowNum = sheet.getPhysicalNumberOfRows();
@@ -198,15 +201,19 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 						list.add(this.depreExpenForecast(depreExpenForecast,row,i));
 					}
 				}
-				Assert.isTrue(null!=list,instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
-				if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
-					checkMianData(entityList,departmentList,combineList,loginUser.getUsername());
-					if(type.equals("budget")){
-						this.saveBatch(list,v_year,loginUser.getUsername());
-					}else {
-						this.saveBatchForecast(list,v_year,loginUser.getUsername());
+				if (!list.isEmpty()) {
+					if (!instrumentClassService.removeDuplicate(entityList).isEmpty()) {
+						checkMianData(entityList, departmentList, combineList, loginUser.getUsername());
+						if (type.equals("budget")) {
+							this.saveBatch(list, v_year, loginUser.getUsername());
+						} else {
+							this.saveBatchForecast(list, v_year, loginUser.getUsername());
+						}
+						sbuList = instrumentClassService.removeDuplicate(sbuList);
 					}
-					sbuList=instrumentClassService.removeDuplicate(sbuList);
+				}else {
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
 				}
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
 				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
@@ -335,7 +342,9 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
-			int year=calendar.get(Calendar.YEAR);
+			//預算應爲測試需要先把年份校驗放開
+//			int year=calendar.get(Calendar.YEAR);
+			int year=calendar.get(Calendar.YEAR)-1;
 			row.getCell(3).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			File outFile = new File(filePath);
 			OutputStream out = new FileOutputStream(outFile);
@@ -392,7 +401,7 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 			sql+=instrumentClassService.querySbuSql(entitys,sbuMap);
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
 			pageRequest.setPageNo(1);
-			pageRequest.setOrderBy("Id");
+			sql+="order by entity,Id";
 			List<Object[]> dataList = depreExpenBudgetDao.findPageBySql(pageRequest, sql).getResult();
 			if (CollectionUtils.isNotEmpty(dataList)) {
 				int rowIndex = 3;

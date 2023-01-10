@@ -36,6 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author maggao
@@ -60,7 +62,9 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 	public Model index(Model model){
 		List<String> yearsList = investmentBudgetDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
-		int year=calendar.get(Calendar.YEAR)+1;
+		//預算應爲測試需要先把年份校驗放開
+//		int year=calendar.get(Calendar.YEAR)+1;
+		int year=calendar.get(Calendar.YEAR);
 		model.addAttribute("yearVal", "FY"+String.valueOf(year).substring(2));
 		model.addAttribute("yearsList", yearsList);
 		return model;
@@ -136,9 +140,10 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 				Sheet sheet = wb.getSheetAt(0);
 				String v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(9), 0);
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
-				Calendar calendar = Calendar.getInstance();
-				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
-				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
+				//預算應爲測試需要先把年份校驗放開
+//				Calendar calendar = Calendar.getInstance();
+//				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
+//				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				int column = sheet.getRow(1).getLastCellNum();
 				Assert.isTrue(column <= 25,instrumentClassService.getLanguage(locale, "Excel列数不能小于" + 25 + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + 25 + ",Please download the correct template to upload the data"));
 				int rowNum = sheet.getPhysicalNumberOfRows();
@@ -177,13 +182,25 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 					String segment=ExcelUtil.getCellStringValue(row.getCell(6), i);
 					String view=ExcelUtil.getCellStringValue(row.getCell(7), i);
 					String currency=ExcelUtil.getCellStringValue(row.getCell(8), i);
-					if(project.isEmpty()||combine.isEmpty()||entity.isEmpty()||department.isEmpty()||bak.isEmpty()||mainBusiness.isEmpty()||segment.isEmpty()||
+					String receiptDate=ExcelUtil.getCellStringValue(row.getCell(15), i);
+					String productLifeCycle=ExcelUtil.getCellStringValue(row.getCell(13), i);
+					if(productLifeCycle.isEmpty()||receiptDate.isEmpty()||project.isEmpty()||combine.isEmpty()||entity.isEmpty()||department.isEmpty()||bak.isEmpty()||mainBusiness.isEmpty()||segment.isEmpty()||
 							view.isEmpty()||currency.isEmpty()){
 						mianDataChek+=(i+1)+",";
 						continue;
-					}if(ExcelUtil.getCellStringValue(row.getCell(13), i).isEmpty()||ExcelUtil.getCellStringValue(row.getCell(15), i).isEmpty()){
-						dateChek+=(i+1)+",";
-						continue;
+					}
+					if(!receiptDate.isEmpty()||!productLifeCycle.isEmpty()){
+						Pattern pattern = Pattern.compile("[0-9]*\\.?[0-9]+");
+						Matcher isNum = pattern.matcher(productLifeCycle);
+						if (!isNum.matches()) {
+							dateChek+=(i+1)+",";
+							continue;
+						}
+						pattern = Pattern.compile("[0-9]*");
+						if (receiptDate.length()!=6||!pattern.matcher(receiptDate).matches()){
+							dateChek+=(i+1)+",";
+							continue;
+						}
 					}
 					//跳過沒有SBU權限的數據
 					String sql="select distinct PARENT from FIT_ZR_DIMENSION where type='ZR_Entity' and ALIAS='"+entity+"'";
@@ -235,25 +252,29 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 						list.add(this.investmentForecast(investmentForecast,row,i));
 					}
 				}
-				Assert.isTrue(null!=list,instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
-				if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
-					checkMianData(projectList,combineList,entityList,departmentList,departmentList1,bakList,mainBusinessList,segmentList,currencyList,loginUser.getUsername());
-					if(type.equals("budget")){
-						this.saveBatch(list,v_year,loginUser.getUsername());
-					}else {
-						this.saveBatchForecast(list,v_year,loginUser.getUsername());
+				if (!list.isEmpty()) {
+					if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
+						checkMianData(projectList,combineList,entityList,departmentList,departmentList1,bakList,mainBusinessList,segmentList,currencyList,loginUser.getUsername());
+						if(type.equals("budget")){
+							this.saveBatch(list,v_year,loginUser.getUsername());
+						}else {
+							this.saveBatchForecast(list,v_year,loginUser.getUsername());
+						}
+						sbuList=instrumentClassService.removeDuplicate(sbuList);
 					}
-					sbuList=instrumentClassService.removeDuplicate(sbuList);
+				}else {
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
 				}
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
-				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
+				if (!check.trim().isEmpty()) {
 					result.put("msg", instrumentClassService.getLanguage(locale, "以下數據未上傳成功，請檢查您是否具備該SBU權限。--->" + check, "The following data fails to be uploaded. Check whether you have the SBU permission--->" + check));
 				}
-				if (!"".equalsIgnoreCase(mianDataChek.trim()) && mianDataChek.length() > 0) {
-					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，主數據不可爲空。--->" + mianDataChek.substring(0,mianDataChek.length()-1), "The following lines fail to be uploaded. Primary data cannot be null--->" + mianDataChek.substring(0,mianDataChek.length()-1)));
+				if (!mianDataChek.trim().isEmpty()) {
+					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，主數據、產品生命周期、驗收單年月不可爲空。--->" + mianDataChek.substring(0,mianDataChek.length()-1), "The data of the following row has not been uploaded successfully. Master data, product life cycle, and receipt date cannot be empty--->" + mianDataChek.substring(0,mianDataChek.length()-1)));
 				}
-				if (!"".equalsIgnoreCase(dateChek.trim()) && dateChek.length() > 0) {
-					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品生命週期和驗收單年月不可爲空。--->" + dateChek.substring(0,dateChek.length()-1), "The data in the following lines is not uploaded successfully. The product life cycle and date of receipt cannot be blank--->" + dateChek.substring(0,dateChek.length()-1)));
+				if (!dateChek.trim().isEmpty()) {
+					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品生命週期、驗收單年月格式錯誤(示例：4、202301)。--->" + dateChek.substring(0,dateChek.length()-1), "The data of the following row has not been uploaded successfully.Product life cycle, receipt year month format error (example: 4, 202301)--->" + dateChek.substring(0,dateChek.length()-1)));
 				}
 			} else {
 				result.put("flag", "fail");
@@ -318,7 +339,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 									 List<String> bakList,List<String> mainBusinessList, List<String> segmentList,List<String> currencyList,String userName){
 		String check="";
 		/**投資編號*/
-		check=this.check(projectList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Project'");
+		check=this.check(projectList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Project' and DIMENSION not like 'P_CE%'");
 		Assert.isTrue("".equals(check),"以下【投資編號】在【維度表】没有找到---> " + check);
 		/**設備類別*/
 		check=this.check(combineList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Combine'");
@@ -395,7 +416,9 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
-			int year=calendar.get(Calendar.YEAR);
+			//預算應爲測試需要先把年份校驗放開
+//			int year=calendar.get(Calendar.YEAR);
+			int year=calendar.get(Calendar.YEAR)-1;
 			row.getCell(9).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			row.getCell(21).setCellValue("FY"+ String.valueOf(year+2).substring(2));
 			row.getCell(23).setCellValue("FY"+ String.valueOf(year+3).substring(2));
@@ -456,7 +479,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 			sql+=instrumentClassService.querySbuSql(entitys,sbuMap);
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
 			pageRequest.setPageNo(1);
-			pageRequest.setOrderBy("Id");
+			sql+="order by investment_no,Id";
 			List<Object[]> dataList = investmentBudgetDao.findPageBySql(pageRequest, sql).getResult();
 			if (CollectionUtils.isNotEmpty(dataList)) {
 				int rowIndex = 2;

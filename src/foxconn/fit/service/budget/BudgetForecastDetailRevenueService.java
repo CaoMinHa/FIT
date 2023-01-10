@@ -65,7 +65,9 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	public Model index(Model model){
 		List<String> yearsList = budgetDetailRevenueDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
-		int year=calendar.get(Calendar.YEAR)+1;
+		//預算應爲測試需要先把年份校驗放開
+//		int year=calendar.get(Calendar.YEAR)+1;
+		int year=calendar.get(Calendar.YEAR);
 		model.addAttribute("yearVal", "FY"+String.valueOf(year).substring(2));
 		model.addAttribute("yearsList", yearsList);
 		model.addAttribute("versionList", this.versionVal());
@@ -150,9 +152,10 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				int COLUMN_NUM = 45;
 				String v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(21), 0);
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
-				Calendar calendar = Calendar.getInstance();
-				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
-				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
+//預算應爲測試需要先把年份校驗放開
+// 				Calendar calendar = Calendar.getInstance();
+//				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
+//				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				int column = sheet.getRow(2).getLastCellNum();
 				if (column < COLUMN_NUM) {
 					result.put("flag", "fail");
@@ -612,7 +615,9 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				Sheet sheet = workBook.getSheetAt(0);
 				Calendar calendar = Calendar.getInstance();
 				Row row =sheet.getRow(0);
-				int year=calendar.get(Calendar.YEAR);
+				//預算應爲測試需要先把年份校驗放開
+//				int year=calendar.get(Calendar.YEAR);
+				int year=calendar.get(Calendar.YEAR)-1;
 				row.getCell(13).setCellValue("FY"+ String.valueOf(year+2).substring(2));
 				row.getCell(14).setCellValue("FY"+ String.valueOf(year+3).substring(2));
 				row.getCell(15).setCellValue("FY"+ String.valueOf(year+4).substring(2));
@@ -703,7 +708,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			}
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
 			pageRequest.setPageNo(1);
-			pageRequest.setOrderBy("year,Id");
+			sql+="order by entity,PRODUCT_SERIES,id";
 			List<Object[]> dataList = budgetDetailRevenueDao.findPageBySql(pageRequest, sql).getResult();
 			if (CollectionUtils.isNotEmpty(dataList)) {
 				int rowIndex = 3;
@@ -800,7 +805,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			}
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
 			pageRequest.setPageNo(1);
-			pageRequest.setOrderBy("year,Id");
+			sql+="order by entity,PRODUCT_SERIES,id";
 			List<Object[]> dataList = forecastSalesRevenueDao.findPageBySql(pageRequest, sql).getResult();
 			if (CollectionUtils.isNotEmpty(dataList)) {
 				int rowIndex = 3;
