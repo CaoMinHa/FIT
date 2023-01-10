@@ -239,8 +239,8 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 	private ProjectBudget projectBudget(ProjectBudget projectBudget,Row row,int i) throws Exception {
 		projectBudget.setProductSeries(ExcelUtil.getCellStringValue(row.getCell(4), i));
 		projectBudget.setProjectName(ExcelUtil.getCellStringValue(row.getCell(5), i));
-		projectBudget.setObjectInvestment(ExcelUtil.getCellStringValue(row.getCell(6), i));
-		projectBudget.setProjectDescription(ExcelUtil.getCellStringValue(row.getCell(7), i));
+		projectBudget.setProjectDescription(ExcelUtil.getCellStringValue(row.getCell(6), i));
+		projectBudget.setObjectInvestment(ExcelUtil.getCellStringValue(row.getCell(7), i));
 		projectBudget.setThree(ExcelUtil.getCellStringValue(row.getCell(8), i));
 		projectBudget.setSegment(ExcelUtil.getCellStringValue(row.getCell(9), i));
 		projectBudget.setMainBusiness(ExcelUtil.getCellStringValue(row.getCell(10), i));
@@ -266,8 +266,8 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 	private ProjectForecast projectForecast(ProjectForecast projectForecast,Row row,int i) throws Exception {
 		projectForecast.setProductSeries(ExcelUtil.getCellStringValue(row.getCell(4), i));
 		projectForecast.setProjectName(ExcelUtil.getCellStringValue(row.getCell(5), i));
-		projectForecast.setObjectInvestment(ExcelUtil.getCellStringValue(row.getCell(6), i));
-		projectForecast.setProjectDescription(ExcelUtil.getCellStringValue(row.getCell(7), i));
+		projectForecast.setProjectDescription(ExcelUtil.getCellStringValue(row.getCell(6), i));
+		projectForecast.setObjectInvestment(ExcelUtil.getCellStringValue(row.getCell(7), i));
 		projectForecast.setThree(ExcelUtil.getCellStringValue(row.getCell(8), i));
 		projectForecast.setSegment(ExcelUtil.getCellStringValue(row.getCell(9), i));
 		projectForecast.setMainBusiness(ExcelUtil.getCellStringValue(row.getCell(10), i));
