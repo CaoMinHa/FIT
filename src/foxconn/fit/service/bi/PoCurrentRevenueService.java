@@ -2,13 +2,8 @@ package foxconn.fit.service.bi;
 
 import foxconn.fit.dao.base.BaseDaoHibernate;
 import foxconn.fit.dao.bi.PoCurrentRevenueDao;
-import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoCurrentRevenue;
-import foxconn.fit.entity.bi.PoTable;
-import foxconn.fit.entity.budget.BudgetDetailRevenue;
-import foxconn.fit.entity.investment.DepreExpenBudget;
 import foxconn.fit.service.base.BaseService;
 import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.util.ExcelUtil;
@@ -23,26 +18,20 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-import org.springframework.web.util.WebUtils;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.math.BigDecimal;
-import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.util.*;
 
 /**
+ * 非FIT體系當期收入表
  * @author maggao
  */
 @Service
@@ -117,21 +106,21 @@ public class PoCurrentRevenueService extends BaseService<PoCurrentRevenue> {
                 int rowNum = sheet.getPhysicalNumberOfRows();
                 Assert.isTrue(rowNum > 1, instrumentClassService.getLanguage(locale, "检测到Excel没有行数据", "Row Data Not Empty"));
                 UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-                for (int i = 1; i < rowNum; i++) {
+                for (int i = 2; i < rowNum; i++) {
                     if (null == sheet.getRow(i)) {
                         continue;
                     }
                     Row row = sheet.getRow(i);
                     String period = ExcelUtil.getCellStringValue(row.getCell(0), i);
-                    if (period.length() < 7 && period.indexOf("-") != 4) {
-                        result.put("flag", "fail");
-                        result.put("msg", instrumentClassService.getLanguage(locale, "請填寫正確期間數據如：2022-01！", "Please fill in the correct period data such as: 2022-01"));
-                        return result.getJson();
-                    }
                     String bu = ExcelUtil.getCellStringValue(row.getCell(1), i);
                     String sbu = ExcelUtil.getCellStringValue(row.getCell(2), i);
                     if (period.isEmpty() || bu.isEmpty() || sbu.isEmpty()) {
                         continue;
+                    }
+                    if (period.length() < 7 && period.indexOf("-") != 4) {
+                        result.put("flag", "fail");
+                        result.put("msg", instrumentClassService.getLanguage(locale, "請填寫正確期間數據如：2022-01！", "Please fill in the correct period data such as: 2022-01"));
+                        return result.getJson();
                     }
                     PoCurrentRevenue poCurrentRevenue = new PoCurrentRevenue();
                     poCurrentRevenue.setPERIOD(period);
