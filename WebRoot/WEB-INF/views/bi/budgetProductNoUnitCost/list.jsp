@@ -98,15 +98,22 @@ function refresh(){
 </script>
 </head>
 <body>
-<div style="width:500%;">
+<div style="width:800%;">
 	<c:choose>
 		<c:when test="${scenarios eq 'forecast'}">
 			<table class="table table-condensed table-hover">
 				<thead class="tableCss">
 				<tr>
 					<th rowspan="3"><spring:message code='operation'/></th>
-					<th rowspan="3">SBU_法人</th>
+					<th rowspan="3">SBU_銷售法人</th>
+					<th rowspan="3">SBU_製造法人</th>
+					<th rowspan="3">次產業</th>
+					<th rowspan="3">Main Business</th>
+					<th rowspan="3">3+3</th>
 					<th rowspan="3">產品系列</th>
+					<th rowspan="3">產品料號</th>
+					<th rowspan="3">賬款客戶</th>
+					<th rowspan="3">最終客戶</th>
 					<th rowspan="3">交易類型</th>
 					<th colspan="60">FY${year}</th>
 					<th rowspan="2" colspan="4">FY${year}</th>
@@ -213,7 +220,14 @@ function refresh(){
 							</c:if>
 						</td>
 						<td style="border-right:1px solid #eee;text-align:left;">${mapping.entity}</td>
-						<td style="border-right:1px solid #eee;">${mapping.product}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.makeEntity}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.industry}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.mainBusiness}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.three}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.product}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.productNo}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.loanCustomer}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.endCustomer}</td>
 						<td style="border-right:1px solid #eee;">${mapping.tradeType}</td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.salesQuantity1}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCost1}" pattern="#,##0.##"></fmt:formatNumber></td>
@@ -301,8 +315,15 @@ function refresh(){
 				<thead class="tableCss">
 				<tr>
 					<th rowspan="3"><spring:message code='operation'/></th>
-					<th rowspan="3">SBU_法人</th>
+					<th rowspan="3">SBU_銷售法人</th>
+					<th rowspan="3">SBU_製造法人</th>
+					<th rowspan="3">次產業</th>
+					<th rowspan="3">Main Business</th>
+					<th rowspan="3">3+3</th>
 					<th rowspan="3">產品系列</th>
+					<th rowspan="3">產品料號</th>
+					<th rowspan="3">賬款客戶</th>
+					<th rowspan="3">最終客戶</th>
 					<th rowspan="3">交易類型</th>
 					<th colspan="60">FY${year}</th>
 					<th rowspan="2" colspan="4">FY${year}</th>
@@ -433,7 +454,14 @@ function refresh(){
 							</c:if>
 						</td>
 						<td style="border-right:1px solid #eee;text-align:left;">${mapping.entity}</td>
-						<td style="border-right:1px solid #eee;">${mapping.product}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.makeEntity}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.industry}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.mainBusiness}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.three}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.product}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.productNo}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.loanCustomer}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.endCustomer}</td>
 						<td style="border-right:1px solid #eee;">${mapping.tradeType}</td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.salesQuantity1}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCost1}" pattern="#,##0.##"></fmt:formatNumber></td>

@@ -84,8 +84,7 @@ function clickPage(page){
 	$("input[name=entitys]:checked").each(function(i,dom){
 		entity+=$(dom).val()+",";
 	});
-	$("#Content").load("${ctx}/bi/budgetForecastDetailRevenue/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
-		orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
+	$("#Content").load("${ctx}/bi/budgetForecastDetailRevenue/list",{pageNo:$("#PageNo").val(),
 		scenarios:$("#QScenarios").val(),
 		entitys:entity.substring(0,entity.length-1),year:$("#QYear").val(),
 		version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});

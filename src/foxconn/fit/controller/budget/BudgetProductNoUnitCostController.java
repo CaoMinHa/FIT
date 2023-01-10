@@ -49,11 +49,11 @@ public class BudgetProductNoUnitCostController extends BaseController {
 		try {
 			if(null!=scenarios){
 				if(scenarios.equals("budget")){
-					String sql=budgetProductNoUnitCostService.budgetList(year,version,entitys);
+					String sql=budgetProductNoUnitCostService.dataList(year,version,entitys,"FIT_BUDGET_PRODUCT_UNIT_COST");
 					Page<Object[]> page = budgetProductNoUnitCostService.findPageBySql(pageRequest, sql, BudgetProductNoUnitCost.class);
 					model.addAttribute("page", page);
 				}else{
-					String sql=budgetProductNoUnitCostService.forecastList(year,version,entitys);
+					String sql=budgetProductNoUnitCostService.dataList(year,version,entitys,"FIT_FORECAST_SALES_COST_V");
 					Page<Object[]> page = budgetProductNoUnitCostService.findPageBySql(pageRequest, sql, ForecastSalesCostV.class);
 					model.addAttribute("page", page);
 				}

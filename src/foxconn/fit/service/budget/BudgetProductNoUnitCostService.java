@@ -64,7 +64,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		model.addAttribute("sbuList", sbuList);
 		List<String> yearsList = budgetProductNoUnitCostDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
-		int year=calendar.get(Calendar.YEAR)+1;
+		//預算應爲測試需要先把年份校驗放開
+//		int year=calendar.get(Calendar.YEAR)+1;
+		int year=calendar.get(Calendar.YEAR);
 		model.addAttribute("yearVal", "FY"+String.valueOf(year).substring(2));
 		model.addAttribute("yearsList", yearsList);
 		model.addAttribute("versionList", this.versionVal());
@@ -73,7 +75,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 
 	public List<String> versionVal(){
 		Calendar calendar=Calendar.getInstance();
-		int year=calendar.get(Calendar.YEAR)+1;
+		//預算應爲測試需要先把年份校驗放開
+//		int year=calendar.get(Calendar.YEAR)+1;
+		int year=calendar.get(Calendar.YEAR);
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String sqlVersion="select distinct version  from FIT_BUDGET_PRODUCT_UNIT_COST where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"' and version<>'V00' order by version ";
 		List<String> versionList=budgetProductNoUnitCostDao.listBySql(sqlVersion);
@@ -81,25 +85,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	}
 
 	/**預算頁面查詢*/
-	public String budgetList(String year,String version,String entity){
-		String sql="select * from FIT_BUDGET_PRODUCT_UNIT_COST where 1=1";
-		if (null!=year&&StringUtils.isNotEmpty(year)) {
-			sql+=" and YEAR='"+year+"'";
-		}
-		if (null!=version && StringUtils.isNotEmpty(version)) {
-			sql+=" and version='"+version+"'";
-		}
-		String tarList=instrumentClassService.getBudgetSBUStr();
-		String sbu="select distinct substr(ALIAS,0,instr(ALIAS,'_')-1) ALIAS,','||PARENT||',' PARENT from fit_dimension where substr(ALIAS,0,instr(ALIAS,'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+tarList+")";
-		List<Map> sbuMap=budgetProductNoUnitCostDao.listMapBySql(sbu);
-		sql+=instrumentClassService.querySbuSql(entity,sbuMap);
-		sql+=" order by year,entity,make_entity,ID";
-		return sql;
-	}
-
-	/**預測頁面查詢*/
-	public String forecastList(String year,String version,String entity){
-		String sql="select * from FIT_FORECAST_SALES_COST_V where 1=1";
+	public String dataList(String year,String version,String entity,String tableName){
+		String sql="select * from "+tableName+" where 1=1";
 		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
 		}
@@ -147,8 +134,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				int COLUMN_NUM =0;
 				String v_year ="";
 				if(sheet.getSheetName().equals("銷售成本預算表")){
-					COLUMN_NUM =220;
-					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(4), 0);
+					COLUMN_NUM =226;
+					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(10), 0);
 				}else if(sheet.getSheetName().equals("簡易版銷售成本預算表")){
 					COLUMN_NUM =70;
 					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(2), 0);
@@ -158,9 +145,10 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					return result.getJson();
 				}
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
-				Calendar calendar = Calendar.getInstance();
-				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
-				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
+				//預算應爲測試需要先把年份校驗放開
+//				Calendar calendar = Calendar.getInstance();
+//				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
+//				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				int column = sheet.getRow(2).getLastCellNum();
 				if (column < COLUMN_NUM) {
 					result.put("flag", "fail");
@@ -179,6 +167,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				/**交易類型**/List<String> tradeTypeList = new ArrayList<>();
 				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 				String check = "";
+				String checkProduct = "";
+				String type = "";
 				for (int i = 3; i < rowNum; i++) {
 					if(null==sheet.getRow(i)){
 						continue;
@@ -199,6 +189,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					BudgetProductNoUnitCost budgetProductNoUnitCost = new BudgetProductNoUnitCost();
 					entityList.add(entity);
 					if(COLUMN_NUM==70){
+						type="1";
 						String tradeType=ExcelUtil.getCellStringValue(row.getCell(1), i);
 						if(tradeType.isEmpty()){
 							tradeTypeList.add("空");
@@ -269,91 +260,101 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						budgetProductNoUnitCost.setMaterialCostFouryear(ExcelUtil.getCellStringValue(row.getCell(66),i));
 						budgetProductNoUnitCost.setLaborCostFouryear(ExcelUtil.getCellStringValue(row.getCell(67),i));
 						budgetProductNoUnitCost.setManufactureCostFouryear(ExcelUtil.getCellStringValue(row.getCell(68),i));
-					}else if(COLUMN_NUM==220){
+					}else if(COLUMN_NUM==226){
+						type="2";
+						if(ExcelUtil.getCellStringValue(row.getCell(2), i).equals(ExcelUtil.getCellStringValue(row.getCell(3), i))){
+							checkProduct+=(i+1)+",";
+							continue;
+						}
 						budgetProductNoUnitCost.setMakeEntity(ExcelUtil.getCellStringValue(row.getCell(1), i));
-//						entityList.add(ExcelUtil.getCellStringValue(row.getCell(1), i));
-						budgetProductNoUnitCost.setProduct(ExcelUtil.getCellStringValue(row.getCell(2), i));
-						budgetProductNoUnitCost.setProductNo(ExcelUtil.getCellStringValue(row.getCell(3), i));
+						budgetProductNoUnitCost.setIndustry(ExcelUtil.getCellStringValue(row.getCell(2), i));
+						budgetProductNoUnitCost.setMainBusiness(ExcelUtil.getCellStringValue(row.getCell(3), i));
+						budgetProductNoUnitCost.setThree(ExcelUtil.getCellStringValue(row.getCell(4), i));
+						budgetProductNoUnitCost.setProduct(ExcelUtil.getCellStringValue(row.getCell(5), i));
+						budgetProductNoUnitCost.setProductNo(ExcelUtil.getCellStringValue(row.getCell(6), i));
+						budgetProductNoUnitCost.setLoanCustomer(ExcelUtil.getCellStringValue(row.getCell(7), i));
+						budgetProductNoUnitCost.setEndCustomer(ExcelUtil.getCellStringValue(row.getCell(8), i));
+						budgetProductNoUnitCost.setTradeType(ExcelUtil.getCellStringValue(row.getCell(9), i));
 
-						budgetProductNoUnitCost.setSalesQuantity1(ExcelUtil.getCellStringValue(row.getCell(124), i));
-						budgetProductNoUnitCost.setMaterialCost1(ExcelUtil.getCellStringValue(row.getCell(125), i));
-						budgetProductNoUnitCost.setLaborCost1(ExcelUtil.getCellStringValue(row.getCell(126),i));
-						budgetProductNoUnitCost.setManufactureCost1(ExcelUtil.getCellStringValue(row.getCell(127),i));
+						budgetProductNoUnitCost.setSalesQuantity1(ExcelUtil.getCellStringValue(row.getCell(130), i));
+						budgetProductNoUnitCost.setMaterialCost1(ExcelUtil.getCellStringValue(row.getCell(131), i));
+						budgetProductNoUnitCost.setLaborCost1(ExcelUtil.getCellStringValue(row.getCell(132),i));
+						budgetProductNoUnitCost.setManufactureCost1(ExcelUtil.getCellStringValue(row.getCell(133),i));
 
-						budgetProductNoUnitCost.setSalesQuantity2(ExcelUtil.getCellStringValue(row.getCell(129), i));
-						budgetProductNoUnitCost.setMaterialCost2(ExcelUtil.getCellStringValue(row.getCell(130), i));
-						budgetProductNoUnitCost.setLaborCost2(ExcelUtil.getCellStringValue(row.getCell(131),i));
-						budgetProductNoUnitCost.setManufactureCost2(ExcelUtil.getCellStringValue(row.getCell(132),i));
+						budgetProductNoUnitCost.setSalesQuantity2(ExcelUtil.getCellStringValue(row.getCell(135), i));
+						budgetProductNoUnitCost.setMaterialCost2(ExcelUtil.getCellStringValue(row.getCell(136), i));
+						budgetProductNoUnitCost.setLaborCost2(ExcelUtil.getCellStringValue(row.getCell(137),i));
+						budgetProductNoUnitCost.setManufactureCost2(ExcelUtil.getCellStringValue(row.getCell(138),i));
 
-						budgetProductNoUnitCost.setSalesQuantity3(ExcelUtil.getCellStringValue(row.getCell(134), i));
-						budgetProductNoUnitCost.setMaterialCost3(ExcelUtil.getCellStringValue(row.getCell(135), i));
-						budgetProductNoUnitCost.setLaborCost3(ExcelUtil.getCellStringValue(row.getCell(136),i));
-						budgetProductNoUnitCost.setManufactureCost3(ExcelUtil.getCellStringValue(row.getCell(137),i));
+						budgetProductNoUnitCost.setSalesQuantity3(ExcelUtil.getCellStringValue(row.getCell(140), i));
+						budgetProductNoUnitCost.setMaterialCost3(ExcelUtil.getCellStringValue(row.getCell(141), i));
+						budgetProductNoUnitCost.setLaborCost3(ExcelUtil.getCellStringValue(row.getCell(142),i));
+						budgetProductNoUnitCost.setManufactureCost3(ExcelUtil.getCellStringValue(row.getCell(143),i));
 
-						budgetProductNoUnitCost.setSalesQuantity4(ExcelUtil.getCellStringValue(row.getCell(139), i));
-						budgetProductNoUnitCost.setMaterialCost4(ExcelUtil.getCellStringValue(row.getCell(140), i));
-						budgetProductNoUnitCost.setLaborCost4(ExcelUtil.getCellStringValue(row.getCell(141),i));
-						budgetProductNoUnitCost.setManufactureCost4(ExcelUtil.getCellStringValue(row.getCell(142),i));
+						budgetProductNoUnitCost.setSalesQuantity4(ExcelUtil.getCellStringValue(row.getCell(145), i));
+						budgetProductNoUnitCost.setMaterialCost4(ExcelUtil.getCellStringValue(row.getCell(146), i));
+						budgetProductNoUnitCost.setLaborCost4(ExcelUtil.getCellStringValue(row.getCell(147),i));
+						budgetProductNoUnitCost.setManufactureCost4(ExcelUtil.getCellStringValue(row.getCell(148),i));
 
-						budgetProductNoUnitCost.setSalesQuantity5(ExcelUtil.getCellStringValue(row.getCell(144), i));
-						budgetProductNoUnitCost.setMaterialCost5(ExcelUtil.getCellStringValue(row.getCell(145), i));
-						budgetProductNoUnitCost.setLaborCost5(ExcelUtil.getCellStringValue(row.getCell(146),i));
-						budgetProductNoUnitCost.setManufactureCost5(ExcelUtil.getCellStringValue(row.getCell(147),i));
+						budgetProductNoUnitCost.setSalesQuantity5(ExcelUtil.getCellStringValue(row.getCell(150), i));
+						budgetProductNoUnitCost.setMaterialCost5(ExcelUtil.getCellStringValue(row.getCell(151), i));
+						budgetProductNoUnitCost.setLaborCost5(ExcelUtil.getCellStringValue(row.getCell(152),i));
+						budgetProductNoUnitCost.setManufactureCost5(ExcelUtil.getCellStringValue(row.getCell(153),i));
 
-						budgetProductNoUnitCost.setSalesQuantity6(ExcelUtil.getCellStringValue(row.getCell(149), i));
-						budgetProductNoUnitCost.setMaterialCost6(ExcelUtil.getCellStringValue(row.getCell(150), i));
-						budgetProductNoUnitCost.setLaborCost6(ExcelUtil.getCellStringValue(row.getCell(151),i));
-						budgetProductNoUnitCost.setManufactureCost6(ExcelUtil.getCellStringValue(row.getCell(152),i));
+						budgetProductNoUnitCost.setSalesQuantity6(ExcelUtil.getCellStringValue(row.getCell(155), i));
+						budgetProductNoUnitCost.setMaterialCost6(ExcelUtil.getCellStringValue(row.getCell(156), i));
+						budgetProductNoUnitCost.setLaborCost6(ExcelUtil.getCellStringValue(row.getCell(157),i));
+						budgetProductNoUnitCost.setManufactureCost6(ExcelUtil.getCellStringValue(row.getCell(158),i));
 
-						budgetProductNoUnitCost.setSalesQuantity7(ExcelUtil.getCellStringValue(row.getCell(154), i));
-						budgetProductNoUnitCost.setMaterialCost7(ExcelUtil.getCellStringValue(row.getCell(155), i));
-						budgetProductNoUnitCost.setLaborCost7(ExcelUtil.getCellStringValue(row.getCell(156),i));
-						budgetProductNoUnitCost.setManufactureCost7(ExcelUtil.getCellStringValue(row.getCell(157),i));
+						budgetProductNoUnitCost.setSalesQuantity7(ExcelUtil.getCellStringValue(row.getCell(160), i));
+						budgetProductNoUnitCost.setMaterialCost7(ExcelUtil.getCellStringValue(row.getCell(161), i));
+						budgetProductNoUnitCost.setLaborCost7(ExcelUtil.getCellStringValue(row.getCell(162),i));
+						budgetProductNoUnitCost.setManufactureCost7(ExcelUtil.getCellStringValue(row.getCell(163),i));
 
-						budgetProductNoUnitCost.setSalesQuantity8(ExcelUtil.getCellStringValue(row.getCell(159), i));
-						budgetProductNoUnitCost.setMaterialCost8(ExcelUtil.getCellStringValue(row.getCell(160), i));
-						budgetProductNoUnitCost.setLaborCost8(ExcelUtil.getCellStringValue(row.getCell(161),i));
-						budgetProductNoUnitCost.setManufactureCost8(ExcelUtil.getCellStringValue(row.getCell(162),i));
+						budgetProductNoUnitCost.setSalesQuantity8(ExcelUtil.getCellStringValue(row.getCell(165), i));
+						budgetProductNoUnitCost.setMaterialCost8(ExcelUtil.getCellStringValue(row.getCell(166), i));
+						budgetProductNoUnitCost.setLaborCost8(ExcelUtil.getCellStringValue(row.getCell(167),i));
+						budgetProductNoUnitCost.setManufactureCost8(ExcelUtil.getCellStringValue(row.getCell(168),i));
 
-						budgetProductNoUnitCost.setSalesQuantity9(ExcelUtil.getCellStringValue(row.getCell(164), i));
-						budgetProductNoUnitCost.setMaterialCost9(ExcelUtil.getCellStringValue(row.getCell(165), i));
-						budgetProductNoUnitCost.setLaborCost9(ExcelUtil.getCellStringValue(row.getCell(166),i));
-						budgetProductNoUnitCost.setManufactureCost9(ExcelUtil.getCellStringValue(row.getCell(167),i));
+						budgetProductNoUnitCost.setSalesQuantity9(ExcelUtil.getCellStringValue(row.getCell(170), i));
+						budgetProductNoUnitCost.setMaterialCost9(ExcelUtil.getCellStringValue(row.getCell(171), i));
+						budgetProductNoUnitCost.setLaborCost9(ExcelUtil.getCellStringValue(row.getCell(172),i));
+						budgetProductNoUnitCost.setManufactureCost9(ExcelUtil.getCellStringValue(row.getCell(173),i));
 
-						budgetProductNoUnitCost.setSalesQuantity10(ExcelUtil.getCellStringValue(row.getCell(169), i));
-						budgetProductNoUnitCost.setMaterialCost10(ExcelUtil.getCellStringValue(row.getCell(170),i));
-						budgetProductNoUnitCost.setLaborCost10(ExcelUtil.getCellStringValue(row.getCell(171),i));
-						budgetProductNoUnitCost.setManufactureCost10(ExcelUtil.getCellStringValue(row.getCell(172),i));
+						budgetProductNoUnitCost.setSalesQuantity10(ExcelUtil.getCellStringValue(row.getCell(175), i));
+						budgetProductNoUnitCost.setMaterialCost10(ExcelUtil.getCellStringValue(row.getCell(176),i));
+						budgetProductNoUnitCost.setLaborCost10(ExcelUtil.getCellStringValue(row.getCell(177),i));
+						budgetProductNoUnitCost.setManufactureCost10(ExcelUtil.getCellStringValue(row.getCell(178),i));
 
-						budgetProductNoUnitCost.setSalesQuantity11(ExcelUtil.getCellStringValue(row.getCell(174), i));
-						budgetProductNoUnitCost.setMaterialCost11(ExcelUtil.getCellStringValue(row.getCell(175),i));
-						budgetProductNoUnitCost.setLaborCost11(ExcelUtil.getCellStringValue(row.getCell(176),i));
-						budgetProductNoUnitCost.setManufactureCost11(ExcelUtil.getCellStringValue(row.getCell(177),i));
+						budgetProductNoUnitCost.setSalesQuantity11(ExcelUtil.getCellStringValue(row.getCell(180), i));
+						budgetProductNoUnitCost.setMaterialCost11(ExcelUtil.getCellStringValue(row.getCell(181),i));
+						budgetProductNoUnitCost.setLaborCost11(ExcelUtil.getCellStringValue(row.getCell(182),i));
+						budgetProductNoUnitCost.setManufactureCost11(ExcelUtil.getCellStringValue(row.getCell(183),i));
 
-						budgetProductNoUnitCost.setSalesQuantity12(ExcelUtil.getCellStringValue(row.getCell(179), i));
-						budgetProductNoUnitCost.setMaterialCost12(ExcelUtil.getCellStringValue(row.getCell(180),i));
-						budgetProductNoUnitCost.setLaborCost12(ExcelUtil.getCellStringValue(row.getCell(181),i));
-						budgetProductNoUnitCost.setManufactureCost12(ExcelUtil.getCellStringValue(row.getCell(182),i));
+						budgetProductNoUnitCost.setSalesQuantity12(ExcelUtil.getCellStringValue(row.getCell(185), i));
+						budgetProductNoUnitCost.setMaterialCost12(ExcelUtil.getCellStringValue(row.getCell(186),i));
+						budgetProductNoUnitCost.setLaborCost12(ExcelUtil.getCellStringValue(row.getCell(187),i));
+						budgetProductNoUnitCost.setManufactureCost12(ExcelUtil.getCellStringValue(row.getCell(188),i));
 
-						budgetProductNoUnitCost.setSalesQuantityNextyear(ExcelUtil.getCellStringValue(row.getCell(188), i));
-						budgetProductNoUnitCost.setMaterialCostNextyear(ExcelUtil.getCellStringValue(row.getCell(189),i));
-						budgetProductNoUnitCost.setLaborCostNextyear(ExcelUtil.getCellStringValue(row.getCell(190),i));
-						budgetProductNoUnitCost.setManufactureCostNextyear(ExcelUtil.getCellStringValue(row.getCell(191),i));
+						budgetProductNoUnitCost.setSalesQuantityNextyear(ExcelUtil.getCellStringValue(row.getCell(194), i));
+						budgetProductNoUnitCost.setMaterialCostNextyear(ExcelUtil.getCellStringValue(row.getCell(195),i));
+						budgetProductNoUnitCost.setLaborCostNextyear(ExcelUtil.getCellStringValue(row.getCell(196),i));
+						budgetProductNoUnitCost.setManufactureCostNextyear(ExcelUtil.getCellStringValue(row.getCell(197),i));
 
-						budgetProductNoUnitCost.setSalesQuantityTwoyear(ExcelUtil.getCellStringValue(row.getCell(197), i));
-						budgetProductNoUnitCost.setMaterialCostTwoyear(ExcelUtil.getCellStringValue(row.getCell(198),i));
-						budgetProductNoUnitCost.setLaborCostTwoyear(ExcelUtil.getCellStringValue(row.getCell(199),i));
-						budgetProductNoUnitCost.setManufactureCostTwoyear(ExcelUtil.getCellStringValue(row.getCell(200),i));
+						budgetProductNoUnitCost.setSalesQuantityTwoyear(ExcelUtil.getCellStringValue(row.getCell(203), i));
+						budgetProductNoUnitCost.setMaterialCostTwoyear(ExcelUtil.getCellStringValue(row.getCell(204),i));
+						budgetProductNoUnitCost.setLaborCostTwoyear(ExcelUtil.getCellStringValue(row.getCell(205),i));
+						budgetProductNoUnitCost.setManufactureCostTwoyear(ExcelUtil.getCellStringValue(row.getCell(206),i));
 
-						budgetProductNoUnitCost.setSalesQuantityThreeyear(ExcelUtil.getCellStringValue(row.getCell(206), i));
-						budgetProductNoUnitCost.setMaterialCostThreeyear(ExcelUtil.getCellStringValue(row.getCell(207),i));
-						budgetProductNoUnitCost.setLaborCostThreeyear(ExcelUtil.getCellStringValue(row.getCell(208),i));
-						budgetProductNoUnitCost.setManufactureCostThreeyear(ExcelUtil.getCellStringValue(row.getCell(209),i));
+						budgetProductNoUnitCost.setSalesQuantityThreeyear(ExcelUtil.getCellStringValue(row.getCell(212), i));
+						budgetProductNoUnitCost.setMaterialCostThreeyear(ExcelUtil.getCellStringValue(row.getCell(213),i));
+						budgetProductNoUnitCost.setLaborCostThreeyear(ExcelUtil.getCellStringValue(row.getCell(214),i));
+						budgetProductNoUnitCost.setManufactureCostThreeyear(ExcelUtil.getCellStringValue(row.getCell(215),i));
 
-						budgetProductNoUnitCost.setSalesQuantityFouryear(ExcelUtil.getCellStringValue(row.getCell(215), i));
-						budgetProductNoUnitCost.setMaterialCostFouryear(ExcelUtil.getCellStringValue(row.getCell(216),i));
-						budgetProductNoUnitCost.setLaborCostFouryear(ExcelUtil.getCellStringValue(row.getCell(217),i));
-						budgetProductNoUnitCost.setManufactureCostFouryear(ExcelUtil.getCellStringValue(row.getCell(218),i));
+						budgetProductNoUnitCost.setSalesQuantityFouryear(ExcelUtil.getCellStringValue(row.getCell(221), i));
+						budgetProductNoUnitCost.setMaterialCostFouryear(ExcelUtil.getCellStringValue(row.getCell(222),i));
+						budgetProductNoUnitCost.setLaborCostFouryear(ExcelUtil.getCellStringValue(row.getCell(223),i));
+						budgetProductNoUnitCost.setManufactureCostFouryear(ExcelUtil.getCellStringValue(row.getCell(224),i));
 					}
 					budgetProductNoUnitCost.setEntity(ExcelUtil.getCellStringValue(row.getCell(0), i));
 					budgetProductNoUnitCost.setYear(v_year);
@@ -382,15 +383,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 							 return result.getJson();
 						 }
 				     }else{
-						 /**SBU_法人校驗*/
-//						 String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
-//						 check=this.check(entityList,sql);
-//						 if (!check.equals("") && check.length() > 0){
-//							 result.put("flag", "fail");
-//							 result.put("msg", "以下【SBU_銷售法人】或[SBU_製造法人]在【維度表】没有找到---> " + check);
-//							 return result.getJson();
-//						 }
-
 						  String msg=this.checkMsgBudget(list,loginUser.getUsername());
 						  if(!msg.isEmpty()){
 							  result.put("flag", "fail");
@@ -398,10 +390,13 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 							  return result.getJson();
 						  }
 					 }
-					this.saveBatchBudget(list,v_year,loginUser.getUsername());
+					this.saveBatchBudget(list,v_year,instrumentClassService.removeDuplicate(entityList),type);
 				} else {
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
+				}
+				if (!"".equalsIgnoreCase(checkProduct.trim()) && checkProduct.length() > 0) {
+					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品系列和料號一致請上傳簡化版成本預算模板。--->" + checkProduct.substring(0,checkProduct.length()-1), "The following lines fail to be uploaded.The product series and material number are consistent. Please upload the simplified cost budget template--->" + checkProduct.substring(0,checkProduct.length()-1)));
 				}
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
 				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
@@ -444,7 +439,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		String sql="";
 		for (int i = 0; i < list.size(); i++) {
 			ForecastSalesCost forecastSalesCost=list.get(i);
-			sql="select count(1) from FIT_FORECAST_SALES_COST where " +
+			sql="select count(1) from FIT_FORECAST_REVENUE where " +
 					"ENTITY='"+forecastSalesCost.getEntity()+"' " +
 					"and MAKE_ENTITY='"+forecastSalesCost.getMakeEntity()+"' and create_name='"+user+"'" +
 					"and (PRODUCT_SERIES ='"+forecastSalesCost.getProduct()+"' " +
@@ -490,8 +485,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				int COLUMN_NUM =0;
 				String v_year ="";
 				if(sheet.getSheetName().equals("銷售成本預測表")){
-					COLUMN_NUM =184;
-					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(4), 0);
+					COLUMN_NUM =190;
+					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(10), 0);
 				}else if(sheet.getSheetName().equals("簡易版銷售成本預測表")){
 					COLUMN_NUM =54;
 					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(2), 0);
@@ -522,6 +517,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				/**交易類型**/List<String> tradeTypeList = new ArrayList<>();
 				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 				String check = "";
+				String checkProduct = "";
+				String type="";
 				for (int i = 3; i < rowNum; i++) {
 					if(null==sheet.getRow(i)){
 						continue;
@@ -542,6 +539,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					ForecastSalesCost forecastSalesCost = new ForecastSalesCost();
 					entityList.add(entity);
 					if(COLUMN_NUM==54){
+						type="1";
 						String tradeType=ExcelUtil.getCellStringValue(row.getCell(1), i);
 						if(tradeType.isEmpty()){
 							tradeTypeList.add("空");
@@ -597,70 +595,81 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						forecastSalesCost.setMaterialCost12(ExcelUtil.getCellStringValue(row.getCell(46),i));
 						forecastSalesCost.setLaborCost12(ExcelUtil.getCellStringValue(row.getCell(47),i));
 						forecastSalesCost.setManufactureCost12(ExcelUtil.getCellStringValue(row.getCell(48),i));
-					}else if(COLUMN_NUM==184){
+					}else if(COLUMN_NUM==190){
+						type="2";
+						if(ExcelUtil.getCellStringValue(row.getCell(2), i).equals(ExcelUtil.getCellStringValue(row.getCell(3), i))){
+							checkProduct+=(i+1)+",";
+							continue;
+						}
 						forecastSalesCost.setMakeEntity(ExcelUtil.getCellStringValue(row.getCell(1), i));
-						forecastSalesCost.setProduct(ExcelUtil.getCellStringValue(row.getCell(2), i));
-						forecastSalesCost.setProductNo(ExcelUtil.getCellStringValue(row.getCell(3), i));
+						forecastSalesCost.setIndustry(ExcelUtil.getCellStringValue(row.getCell(2), i));
+						forecastSalesCost.setMainBusiness(ExcelUtil.getCellStringValue(row.getCell(3), i));
+						forecastSalesCost.setThree(ExcelUtil.getCellStringValue(row.getCell(4), i));
+						forecastSalesCost.setProduct(ExcelUtil.getCellStringValue(row.getCell(5), i));
+						forecastSalesCost.setProductNo(ExcelUtil.getCellStringValue(row.getCell(6), i));
+						forecastSalesCost.setLoanCustomer(ExcelUtil.getCellStringValue(row.getCell(7), i));
+						forecastSalesCost.setEndCustomer(ExcelUtil.getCellStringValue(row.getCell(8), i));
+						forecastSalesCost.setTradeType(ExcelUtil.getCellStringValue(row.getCell(9), i));
 
-						forecastSalesCost.setSalesQuantity1(ExcelUtil.getCellStringValue(row.getCell(124), i));
-						forecastSalesCost.setMaterialCost1(ExcelUtil.getCellStringValue(row.getCell(125), i));
-						forecastSalesCost.setLaborCost1(ExcelUtil.getCellStringValue(row.getCell(126),i));
-						forecastSalesCost.setManufactureCost1(ExcelUtil.getCellStringValue(row.getCell(127),i));
+						forecastSalesCost.setSalesQuantity1(ExcelUtil.getCellStringValue(row.getCell(130), i));
+						forecastSalesCost.setMaterialCost1(ExcelUtil.getCellStringValue(row.getCell(131), i));
+						forecastSalesCost.setLaborCost1(ExcelUtil.getCellStringValue(row.getCell(132),i));
+						forecastSalesCost.setManufactureCost1(ExcelUtil.getCellStringValue(row.getCell(133),i));
 
-						forecastSalesCost.setSalesQuantity2(ExcelUtil.getCellStringValue(row.getCell(129), i));
-						forecastSalesCost.setMaterialCost2(ExcelUtil.getCellStringValue(row.getCell(130), i));
-						forecastSalesCost.setLaborCost2(ExcelUtil.getCellStringValue(row.getCell(131),i));
-						forecastSalesCost.setManufactureCost2(ExcelUtil.getCellStringValue(row.getCell(132),i));
+						forecastSalesCost.setSalesQuantity2(ExcelUtil.getCellStringValue(row.getCell(135), i));
+						forecastSalesCost.setMaterialCost2(ExcelUtil.getCellStringValue(row.getCell(136), i));
+						forecastSalesCost.setLaborCost2(ExcelUtil.getCellStringValue(row.getCell(137),i));
+						forecastSalesCost.setManufactureCost2(ExcelUtil.getCellStringValue(row.getCell(138),i));
 
-						forecastSalesCost.setSalesQuantity3(ExcelUtil.getCellStringValue(row.getCell(134), i));
-						forecastSalesCost.setMaterialCost3(ExcelUtil.getCellStringValue(row.getCell(135), i));
-						forecastSalesCost.setLaborCost3(ExcelUtil.getCellStringValue(row.getCell(136),i));
-						forecastSalesCost.setManufactureCost3(ExcelUtil.getCellStringValue(row.getCell(137),i));
+						forecastSalesCost.setSalesQuantity3(ExcelUtil.getCellStringValue(row.getCell(140), i));
+						forecastSalesCost.setMaterialCost3(ExcelUtil.getCellStringValue(row.getCell(141), i));
+						forecastSalesCost.setLaborCost3(ExcelUtil.getCellStringValue(row.getCell(142),i));
+						forecastSalesCost.setManufactureCost3(ExcelUtil.getCellStringValue(row.getCell(143),i));
 
-						forecastSalesCost.setSalesQuantity4(ExcelUtil.getCellStringValue(row.getCell(139), i));
-						forecastSalesCost.setMaterialCost4(ExcelUtil.getCellStringValue(row.getCell(140), i));
-						forecastSalesCost.setLaborCost4(ExcelUtil.getCellStringValue(row.getCell(141),i));
-						forecastSalesCost.setManufactureCost4(ExcelUtil.getCellStringValue(row.getCell(142),i));
+						forecastSalesCost.setSalesQuantity4(ExcelUtil.getCellStringValue(row.getCell(145), i));
+						forecastSalesCost.setMaterialCost4(ExcelUtil.getCellStringValue(row.getCell(146), i));
+						forecastSalesCost.setLaborCost4(ExcelUtil.getCellStringValue(row.getCell(147),i));
+						forecastSalesCost.setManufactureCost4(ExcelUtil.getCellStringValue(row.getCell(148),i));
 
-						forecastSalesCost.setSalesQuantity5(ExcelUtil.getCellStringValue(row.getCell(144), i));
-						forecastSalesCost.setMaterialCost5(ExcelUtil.getCellStringValue(row.getCell(145), i));
-						forecastSalesCost.setLaborCost5(ExcelUtil.getCellStringValue(row.getCell(146),i));
-						forecastSalesCost.setManufactureCost5(ExcelUtil.getCellStringValue(row.getCell(147),i));
+						forecastSalesCost.setSalesQuantity5(ExcelUtil.getCellStringValue(row.getCell(150), i));
+						forecastSalesCost.setMaterialCost5(ExcelUtil.getCellStringValue(row.getCell(151), i));
+						forecastSalesCost.setLaborCost5(ExcelUtil.getCellStringValue(row.getCell(152),i));
+						forecastSalesCost.setManufactureCost5(ExcelUtil.getCellStringValue(row.getCell(153),i));
 
-						forecastSalesCost.setSalesQuantity6(ExcelUtil.getCellStringValue(row.getCell(149), i));
-						forecastSalesCost.setMaterialCost6(ExcelUtil.getCellStringValue(row.getCell(150), i));
-						forecastSalesCost.setLaborCost6(ExcelUtil.getCellStringValue(row.getCell(151),i));
-						forecastSalesCost.setManufactureCost6(ExcelUtil.getCellStringValue(row.getCell(152),i));
+						forecastSalesCost.setSalesQuantity6(ExcelUtil.getCellStringValue(row.getCell(155), i));
+						forecastSalesCost.setMaterialCost6(ExcelUtil.getCellStringValue(row.getCell(156), i));
+						forecastSalesCost.setLaborCost6(ExcelUtil.getCellStringValue(row.getCell(157),i));
+						forecastSalesCost.setManufactureCost6(ExcelUtil.getCellStringValue(row.getCell(158),i));
 
-						forecastSalesCost.setSalesQuantity7(ExcelUtil.getCellStringValue(row.getCell(154), i));
-						forecastSalesCost.setMaterialCost7(ExcelUtil.getCellStringValue(row.getCell(155), i));
-						forecastSalesCost.setLaborCost7(ExcelUtil.getCellStringValue(row.getCell(156),i));
-						forecastSalesCost.setManufactureCost7(ExcelUtil.getCellStringValue(row.getCell(157),i));
+						forecastSalesCost.setSalesQuantity7(ExcelUtil.getCellStringValue(row.getCell(160), i));
+						forecastSalesCost.setMaterialCost7(ExcelUtil.getCellStringValue(row.getCell(161), i));
+						forecastSalesCost.setLaborCost7(ExcelUtil.getCellStringValue(row.getCell(162),i));
+						forecastSalesCost.setManufactureCost7(ExcelUtil.getCellStringValue(row.getCell(163),i));
 
-						forecastSalesCost.setSalesQuantity8(ExcelUtil.getCellStringValue(row.getCell(159), i));
-						forecastSalesCost.setMaterialCost8(ExcelUtil.getCellStringValue(row.getCell(160), i));
-						forecastSalesCost.setLaborCost8(ExcelUtil.getCellStringValue(row.getCell(161),i));
-						forecastSalesCost.setManufactureCost8(ExcelUtil.getCellStringValue(row.getCell(162),i));
+						forecastSalesCost.setSalesQuantity8(ExcelUtil.getCellStringValue(row.getCell(165), i));
+						forecastSalesCost.setMaterialCost8(ExcelUtil.getCellStringValue(row.getCell(166), i));
+						forecastSalesCost.setLaborCost8(ExcelUtil.getCellStringValue(row.getCell(167),i));
+						forecastSalesCost.setManufactureCost8(ExcelUtil.getCellStringValue(row.getCell(168),i));
 
-						forecastSalesCost.setSalesQuantity9(ExcelUtil.getCellStringValue(row.getCell(164), i));
-						forecastSalesCost.setMaterialCost9(ExcelUtil.getCellStringValue(row.getCell(165), i));
-						forecastSalesCost.setLaborCost9(ExcelUtil.getCellStringValue(row.getCell(166),i));
-						forecastSalesCost.setManufactureCost9(ExcelUtil.getCellStringValue(row.getCell(167),i));
+						forecastSalesCost.setSalesQuantity9(ExcelUtil.getCellStringValue(row.getCell(170), i));
+						forecastSalesCost.setMaterialCost9(ExcelUtil.getCellStringValue(row.getCell(171), i));
+						forecastSalesCost.setLaborCost9(ExcelUtil.getCellStringValue(row.getCell(172),i));
+						forecastSalesCost.setManufactureCost9(ExcelUtil.getCellStringValue(row.getCell(173),i));
 
-						forecastSalesCost.setSalesQuantity10(ExcelUtil.getCellStringValue(row.getCell(169), i));
-						forecastSalesCost.setMaterialCost10(ExcelUtil.getCellStringValue(row.getCell(170),i));
-						forecastSalesCost.setLaborCost10(ExcelUtil.getCellStringValue(row.getCell(171),i));
-						forecastSalesCost.setManufactureCost10(ExcelUtil.getCellStringValue(row.getCell(172),i));
+						forecastSalesCost.setSalesQuantity10(ExcelUtil.getCellStringValue(row.getCell(175), i));
+						forecastSalesCost.setMaterialCost10(ExcelUtil.getCellStringValue(row.getCell(176),i));
+						forecastSalesCost.setLaborCost10(ExcelUtil.getCellStringValue(row.getCell(177),i));
+						forecastSalesCost.setManufactureCost10(ExcelUtil.getCellStringValue(row.getCell(178),i));
 
-						forecastSalesCost.setSalesQuantity11(ExcelUtil.getCellStringValue(row.getCell(174), i));
-						forecastSalesCost.setMaterialCost11(ExcelUtil.getCellStringValue(row.getCell(175),i));
-						forecastSalesCost.setLaborCost11(ExcelUtil.getCellStringValue(row.getCell(176),i));
-						forecastSalesCost.setManufactureCost11(ExcelUtil.getCellStringValue(row.getCell(177),i));
+						forecastSalesCost.setSalesQuantity11(ExcelUtil.getCellStringValue(row.getCell(180), i));
+						forecastSalesCost.setMaterialCost11(ExcelUtil.getCellStringValue(row.getCell(181),i));
+						forecastSalesCost.setLaborCost11(ExcelUtil.getCellStringValue(row.getCell(182),i));
+						forecastSalesCost.setManufactureCost11(ExcelUtil.getCellStringValue(row.getCell(183),i));
 
-						forecastSalesCost.setSalesQuantity12(ExcelUtil.getCellStringValue(row.getCell(179), i));
-						forecastSalesCost.setMaterialCost12(ExcelUtil.getCellStringValue(row.getCell(180),i));
-						forecastSalesCost.setLaborCost12(ExcelUtil.getCellStringValue(row.getCell(181),i));
-						forecastSalesCost.setManufactureCost12(ExcelUtil.getCellStringValue(row.getCell(182),i));
+						forecastSalesCost.setSalesQuantity12(ExcelUtil.getCellStringValue(row.getCell(185), i));
+						forecastSalesCost.setMaterialCost12(ExcelUtil.getCellStringValue(row.getCell(186),i));
+						forecastSalesCost.setLaborCost12(ExcelUtil.getCellStringValue(row.getCell(187),i));
+						forecastSalesCost.setManufactureCost12(ExcelUtil.getCellStringValue(row.getCell(188),i));
 					}
 					forecastSalesCost.setEntity(ExcelUtil.getCellStringValue(row.getCell(0), i));
 					forecastSalesCost.setYear(v_year);
@@ -696,10 +705,13 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 							return result.getJson();
 						}
 					}
-					this.saveBatchForecast(list,v_year,loginUser.getUsername());
+					this.saveBatchForecast(list,v_year,instrumentClassService.removeDuplicate(entityList),type);
 				} else {
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
+				}
+				if (!"".equalsIgnoreCase(checkProduct.trim()) && checkProduct.length() > 0) {
+					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品系列和料號一致請上傳簡化版成本預算模板。--->" + checkProduct.substring(0,checkProduct.length()-1), "The following lines fail to be uploaded.The product series and material number are consistent. Please upload the simplified cost budget template--->" + checkProduct.substring(0,checkProduct.length()-1)));
 				}
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
 				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
@@ -727,8 +739,22 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 
 
 	/**預算保存數據*/
-	public void saveBatchBudget(List<BudgetProductNoUnitCost> list,String year,String userName) throws Exception {
-		String sql="delete from FIT_BUDGET_PRODUCT_UNIT_COST where VERSION='V00' and YEAR='"+year+"' and CREATE_NAME ='"+userName+"'";
+	public void saveBatchBudget(List<BudgetProductNoUnitCost> list,String year,List<String> entityList,String type) throws Exception {
+		String sql="";
+		if(type.equals("1")){
+			sql="delete from FIT_BUDGET_PRODUCT_UNIT_COST where VERSION='V00' and YEAR='"+year+"' and PRODUCT_NO is null and ENTITY in(";
+		}else{
+			sql="delete from FIT_BUDGET_PRODUCT_UNIT_COST where VERSION='V00' and YEAR='"+year+"' and PRODUCT_NO is not null and ENTITY in(";
+		}
+		for (int i=0;i<entityList.size();i++){
+			sql+="'"+entityList.get(i)+"',";
+			if ((i + 50) % 1000 == 0) {
+				budgetProductNoUnitCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql.substring(0,sql.length()-1)+")").executeUpdate();
+				budgetProductNoUnitCostDao.getHibernateTemplate().flush();
+				budgetProductNoUnitCostDao.getHibernateTemplate().clear();
+			}
+		}
+		sql=sql.substring(0,sql.length()-1)+")";
 		budgetProductNoUnitCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		for (int i = 0; i < list.size(); i++) {
 			budgetProductNoUnitCostDao.save(list.get(i));
@@ -740,8 +766,22 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	}
 
 	/**預測保存數據*/
-	public void saveBatchForecast(List<ForecastSalesCost> list,String year,String userName) throws Exception {
-		String sql="delete from FIT_FORECAST_SALES_COST where VERSION='V00' and YEAR='"+year+"'and CREATE_NAME ='"+userName+"'";
+	public void saveBatchForecast(List<ForecastSalesCost> list,String year,List<String> entityList,String type) throws Exception {
+		String sql="";
+		if(type.equals("1")){
+			sql="delete from FIT_FORECAST_SALES_COST where VERSION='V00' and YEAR='"+year+"' and PRODUCT_NO is null and ENTITY in(";
+		}else{
+			sql="delete from FIT_FORECAST_SALES_COST where VERSION='V00' and YEAR='"+year+"' and PRODUCT_NO is not null and ENTITY in(";
+		}
+		for (int i=0;i<entityList.size();i++){
+			sql+="'"+entityList.get(i)+"',";
+			if ((i + 50) % 1000 == 0) {
+				forecastSalesCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql.substring(0,sql.length()-1)+")").executeUpdate();
+				forecastSalesCostDao.getHibernateTemplate().flush();
+				forecastSalesCostDao.getHibernateTemplate().clear();
+			}
+		}
+		sql=sql.substring(0,sql.length()-1)+")";
 		forecastSalesCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		for (int i = 0; i < list.size(); i++) {
 			forecastSalesCostDao.save(list.get(i));
@@ -765,13 +805,15 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
-			int year=calendar.get(Calendar.YEAR);
-			row.getCell(4).setCellValue("FY"+ String.valueOf(year+1).substring(2));
-			row.getCell(184).setCellValue("FY"+ String.valueOf(year+2).substring(2));
-			row.getCell(193).setCellValue("FY"+ String.valueOf(year+3).substring(2));
-			row.getCell(202).setCellValue("FY"+ String.valueOf(year+4).substring(2));
-			row.getCell(211).setCellValue("FY"+ String.valueOf(year+5).substring(2));
-			String sql=this.templateValBudget("FY"+ String.valueOf(year+1).substring(2)) ;
+			//預算應爲測試需要先把年份校驗放開
+//			int year=calendar.get(Calendar.YEAR);
+			int year=calendar.get(Calendar.YEAR)-1;
+			row.getCell(10).setCellValue("FY"+ String.valueOf(year+1).substring(2));
+			row.getCell(190).setCellValue("FY"+ String.valueOf(year+2).substring(2));
+			row.getCell(199).setCellValue("FY"+ String.valueOf(year+3).substring(2));
+			row.getCell(208).setCellValue("FY"+ String.valueOf(year+4).substring(2));
+			row.getCell(217).setCellValue("FY"+ String.valueOf(year+5).substring(2));
+			String sql=this.templateVal("FY"+ String.valueOf(year+1).substring(2),"fit_budget_detail_revenue") ;
 			List<Map> list=budgetProductNoUnitCostDao.listMapBySql(sql);
 			XSSFCellStyle style = workBook.createCellStyle();
 			style.setFillForegroundColor(new XSSFColor(new java.awt.Color(166,166,166)));
@@ -785,12 +827,15 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row=sheet.createRow(rowNo++);
 				row.createCell(0).setCellValue(map.get("ENTITY").toString());
 				row.createCell(1).setCellValue(map.get("MAKE_ENTITY").toString());
-				row.createCell(2).setCellValue(map.get("PRODUCT_SERIES")==null?"":map.get("PRODUCT_SERIES").toString());
-				row.createCell(3).setCellValue(map.get("PRODUCT_NO")==null?"":map.get("PRODUCT_NO").toString());
+				row.createCell(2).setCellValue(map.get("INDUSTRY").toString());
+				row.createCell(3).setCellValue(map.get("MAIN_BUSINESS").toString());
+				row.createCell(4).setCellValue(map.get("THREE").toString());
+				row.createCell(5).setCellValue(map.get("PRODUCT_SERIES")==null?"":map.get("PRODUCT_SERIES").toString());
+				row.createCell(6).setCellValue(map.get("PRODUCT_NO")==null?"":map.get("PRODUCT_NO").toString());
+				row.createCell(7).setCellValue(map.get("LOAN_CUSTOMER").toString());
+				row.createCell(8).setCellValue(map.get("END_CUSTOMER").toString());
+				row.createCell(9).setCellValue(map.get("TRADE_TYPE").toString());
 
-				row.createCell(4).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
-				row.createCell(6).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
-				row.createCell(8).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(10).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(12).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(14).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
@@ -800,10 +845,10 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(22).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(24).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(26).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(28).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(30).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(32).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 
-				row.createCell(28).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
-				row.createCell(30).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
-				row.createCell(32).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(34).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(36).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(38).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
@@ -813,10 +858,10 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(46).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(48).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(50).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(52).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(54).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(56).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 
-				row.createCell(52).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
-				row.createCell(54).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
-				row.createCell(56).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(58).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(60).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(62).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
@@ -826,154 +871,153 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(70).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(72).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(74).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(76).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(78).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(80).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 
-				row.createCell(76).setCellFormula("F"+rowNo);
-				row.createCell(77).setCellFormula("AD"+rowNo);
-				row.createCell(78).setCellFormula("BB"+rowNo);
-				row.createCell(79).setCellFormula("SUM(BY"+rowNo+":CA"+rowNo+")");
-				row.createCell(80).setCellFormula("H"+rowNo);
-				row.createCell(81).setCellFormula("AF"+rowNo);
-				row.createCell(82).setCellFormula("BD"+rowNo);
-				row.createCell(83).setCellFormula("SUM(CC"+rowNo+":CE"+rowNo+")");
-				row.createCell(84).setCellFormula("J"+rowNo);
-				row.createCell(85).setCellFormula("AH"+rowNo);
-				row.createCell(86).setCellFormula("BF"+rowNo);
-				row.createCell(87).setCellFormula("SUM(CG"+rowNo+":CI"+rowNo+")");
-				row.createCell(88).setCellFormula("L"+rowNo);
-				row.createCell(89).setCellFormula("AJ"+rowNo);
-				row.createCell(90).setCellFormula("BH"+rowNo);
-				row.createCell(91).setCellFormula("SUM(CK"+rowNo+":CM"+rowNo+")");
-				row.createCell(92).setCellFormula("N"+rowNo);
-				row.createCell(93).setCellFormula("AL"+rowNo);
-				row.createCell(94).setCellFormula("BJ"+rowNo);
-				row.createCell(95).setCellFormula("SUM(CO"+rowNo+":CQ"+rowNo+")");
-				row.createCell(96).setCellFormula("P"+rowNo);
-				row.createCell(97).setCellFormula("AN"+rowNo);
-				row.createCell(98).setCellFormula("BL"+rowNo);
-				row.createCell(99).setCellFormula("SUM(CS"+rowNo+":CU"+rowNo+")");
-				row.createCell(100).setCellFormula("R"+rowNo);
-				row.createCell(101).setCellFormula("AP"+rowNo);
-				row.createCell(102).setCellFormula("BN"+rowNo);
-				row.createCell(103).setCellFormula("SUM(CW"+rowNo+":CY"+rowNo+")");
-				row.createCell(104).setCellFormula("T"+rowNo);
-				row.createCell(105).setCellFormula("AR"+rowNo);
-				row.createCell(106).setCellFormula("BP"+rowNo);
-				row.createCell(107).setCellFormula("SUM(DA"+rowNo+":DC"+rowNo+")");
-				row.createCell(108).setCellFormula("V"+rowNo);
-				row.createCell(109).setCellFormula("AT"+rowNo);
-				row.createCell(110).setCellFormula("BR"+rowNo);
-				row.createCell(111).setCellFormula("SUM(DE"+rowNo+":DG"+rowNo+")");
-				row.createCell(112).setCellFormula("X"+rowNo);
-				row.createCell(113).setCellFormula("AV"+rowNo);
-				row.createCell(114).setCellFormula("BT"+rowNo);
-				row.createCell(115).setCellFormula("SUM(DI"+rowNo+":DK"+rowNo+")");
-				row.createCell(116).setCellFormula("Z"+rowNo);
-				row.createCell(117).setCellFormula("AX"+rowNo);
-				row.createCell(118).setCellFormula("BV"+rowNo);
-				row.createCell(119).setCellFormula("SUM(DM"+rowNo+":DO"+rowNo+")");
-				row.createCell(120).setCellFormula("AB"+rowNo);
-				row.createCell(121).setCellFormula("AZ"+rowNo);
-				row.createCell(122).setCellFormula("BX"+rowNo);
-				row.createCell(123).setCellFormula("SUM(DQ"+rowNo+":DS"+rowNo+")");
-				row.createCell(124).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH1").toString()));
-				row.createCell(125).setCellFormula("BY"+rowNo+"*$DU"+rowNo);
-				row.createCell(126).setCellFormula("BZ"+rowNo+"*$DU"+rowNo);
-				row.createCell(127).setCellFormula("CA"+rowNo+"*$DU"+rowNo);
-				row.createCell(128).setCellFormula("SUM(DV"+rowNo+":DX"+rowNo+")");
-				row.createCell(129).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH2").toString()));
-				row.createCell(130).setCellFormula("CC"+rowNo+"*$DZ"+rowNo);
-				row.createCell(131).setCellFormula("CD"+rowNo+"*$DZ"+rowNo);
-				row.createCell(132).setCellFormula("CE"+rowNo+"*$DZ"+rowNo);
-				row.createCell(133).setCellFormula("SUM(EA"+rowNo+":EC"+rowNo+")");
-				row.createCell(134).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH3").toString()));
-				row.createCell(135).setCellFormula("CG"+rowNo+"*$EE"+rowNo);
-				row.createCell(136).setCellFormula("CH"+rowNo+"*$EE"+rowNo);
-				row.createCell(137).setCellFormula("CI"+rowNo+"*$EE"+rowNo);
-				row.createCell(138).setCellFormula("SUM(EF"+rowNo+":EH"+rowNo+")");
-				row.createCell(139).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH4").toString()));
-				row.createCell(140).setCellFormula("CK"+rowNo+"*$EJ"+rowNo);
-				row.createCell(141).setCellFormula("CL"+rowNo+"*$EJ"+rowNo);
-				row.createCell(142).setCellFormula("CM"+rowNo+"*$EJ"+rowNo);
-				row.createCell(143).setCellFormula("SUM(EK"+rowNo+":EM"+rowNo+")");
-				row.createCell(144).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH5").toString()));
-				row.createCell(145).setCellFormula("CO"+rowNo+"*$EO"+rowNo);
-				row.createCell(146).setCellFormula("CP"+rowNo+"*$EO"+rowNo);
-				row.createCell(147).setCellFormula("CQ"+rowNo+"*$EO"+rowNo);
-				row.createCell(148).setCellFormula("SUM(EP"+rowNo+":ER"+rowNo+")");
-				row.createCell(149).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH6").toString()));
-				row.createCell(150).setCellFormula("CS"+rowNo+"*$ET"+rowNo);
-				row.createCell(151).setCellFormula("CT"+rowNo+"*$ET"+rowNo);
-				row.createCell(152).setCellFormula("CU"+rowNo+"*$ET"+rowNo);
-				row.createCell(153).setCellFormula("SUM(EU"+rowNo+":EW"+rowNo+")");
-				row.createCell(154).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH7").toString()));
-				row.createCell(155).setCellFormula("CW"+rowNo+"*$EY"+rowNo);
-				row.createCell(156).setCellFormula("CX"+rowNo+"*$EY"+rowNo);
-				row.createCell(157).setCellFormula("CY"+rowNo+"*$EY"+rowNo);
-				row.createCell(158).setCellFormula("SUM(EZ"+rowNo+":FB"+rowNo+")");
-				row.createCell(159).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH8").toString()));
-				row.createCell(160).setCellFormula("DA"+rowNo+"*$FD"+rowNo);
-				row.createCell(161).setCellFormula("DB"+rowNo+"*$FD"+rowNo);
-				row.createCell(162).setCellFormula("DC"+rowNo+"*$FD"+rowNo);
-				row.createCell(163).setCellFormula("SUM(FE"+rowNo+":FG"+rowNo+")");
-				row.createCell(164).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH9").toString()));
-				row.createCell(165).setCellFormula("DE"+rowNo+"*$FI"+rowNo);
-				row.createCell(166).setCellFormula("DF"+rowNo+"*$FI"+rowNo);
-				row.createCell(167).setCellFormula("DG"+rowNo+"*$FI"+rowNo);
-				row.createCell(168).setCellFormula("SUM(FJ"+rowNo+":FL"+rowNo+")");
-				row.createCell(169).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH10").toString()));
-				row.createCell(170).setCellFormula("DI"+rowNo+"*$FN"+rowNo);
-				row.createCell(171).setCellFormula("DJ"+rowNo+"*$FN"+rowNo);
-				row.createCell(172).setCellFormula("DK"+rowNo+"*$FN"+rowNo);
-				row.createCell(173).setCellFormula("SUM(FO"+rowNo+":FQ"+rowNo+")");
-				row.createCell(174).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH11").toString()));
-				row.createCell(175).setCellFormula("DM"+rowNo+"*$FS"+rowNo);
-				row.createCell(176).setCellFormula("DN"+rowNo+"*$FS"+rowNo);
-				row.createCell(177).setCellFormula("DO"+rowNo+"*$FS"+rowNo);
-				row.createCell(178).setCellFormula("SUM(FT"+rowNo+":FV"+rowNo+")");
-				row.createCell(179).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH12").toString()));
-				row.createCell(180).setCellFormula("DQ"+rowNo+"*$FX"+rowNo);
-				row.createCell(181).setCellFormula("DR"+rowNo+"*$FX"+rowNo);
-				row.createCell(182).setCellFormula("DS"+rowNo+"*$FX"+rowNo);
-				row.createCell(183).setCellFormula("SUM(FY"+rowNo+":GA"+rowNo+")");
+				row.createCell(82).setCellFormula("L"+rowNo);
+				row.createCell(83).setCellFormula("AJ"+rowNo);
+				row.createCell(84).setCellFormula("BH"+rowNo);
+				row.createCell(85).setCellFormula("SUM(CE"+rowNo+":CG"+rowNo+")");
+				row.createCell(86).setCellFormula("N"+rowNo);
+				row.createCell(87).setCellFormula("AL"+rowNo);
+				row.createCell(88).setCellFormula("BJ"+rowNo);
+				row.createCell(89).setCellFormula("SUM(CI"+rowNo+":CK"+rowNo+")");
+				row.createCell(90).setCellFormula("P"+rowNo);
+				row.createCell(91).setCellFormula("AN"+rowNo);
+				row.createCell(92).setCellFormula("BL"+rowNo);
+				row.createCell(93).setCellFormula("SUM(CM"+rowNo+":CO"+rowNo+")");
+				row.createCell(94).setCellFormula("R"+rowNo);
+				row.createCell(95).setCellFormula("AP"+rowNo);
+				row.createCell(96).setCellFormula("BN"+rowNo);
+				row.createCell(97).setCellFormula("SUM(CQ"+rowNo+":CS"+rowNo+")");
+				row.createCell(98).setCellFormula("T"+rowNo);
+				row.createCell(99).setCellFormula("AR"+rowNo);
+				row.createCell(100).setCellFormula("BP"+rowNo);
+				row.createCell(101).setCellFormula("SUM(CU"+rowNo+":CW"+rowNo+")");
+				row.createCell(102).setCellFormula("V"+rowNo);
+				row.createCell(103).setCellFormula("AT"+rowNo);
+				row.createCell(104).setCellFormula("BR"+rowNo);
+				row.createCell(105).setCellFormula("SUM(CY"+rowNo+":DA"+rowNo+")");
+				row.createCell(106).setCellFormula("X"+rowNo);
+				row.createCell(107).setCellFormula("AV"+rowNo);
+				row.createCell(108).setCellFormula("BT"+rowNo);
+				row.createCell(109).setCellFormula("SUM(DC"+rowNo+":DE"+rowNo+")");
+				row.createCell(110).setCellFormula("Z"+rowNo);
+				row.createCell(111).setCellFormula("AX"+rowNo);
+				row.createCell(112).setCellFormula("BV"+rowNo);
+				row.createCell(113).setCellFormula("SUM(DG"+rowNo+":DI"+rowNo+")");
+				row.createCell(114).setCellFormula("AB"+rowNo);
+				row.createCell(115).setCellFormula("AZ"+rowNo);
+				row.createCell(116).setCellFormula("BX"+rowNo);
+				row.createCell(117).setCellFormula("SUM(DK"+rowNo+":DM"+rowNo+")");
+				row.createCell(118).setCellFormula("AD"+rowNo);
+				row.createCell(119).setCellFormula("BB"+rowNo);
+				row.createCell(120).setCellFormula("BZ"+rowNo);
+				row.createCell(121).setCellFormula("SUM(DO"+rowNo+":DQ"+rowNo+")");
+				row.createCell(122).setCellFormula("AF"+rowNo);
+				row.createCell(123).setCellFormula("BD"+rowNo);
+				row.createCell(124).setCellFormula("CB"+rowNo);
+				row.createCell(125).setCellFormula("SUM(DS"+rowNo+":DU"+rowNo+")");
+				row.createCell(126).setCellFormula("AH"+rowNo);
+				row.createCell(127).setCellFormula("BF"+rowNo);
+				row.createCell(128).setCellFormula("CD"+rowNo);
+				row.createCell(129).setCellFormula("SUM(DW"+rowNo+":DY"+rowNo+")");
+				row.createCell(130).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH1").toString()));
+				row.createCell(131).setCellFormula("CE"+rowNo+"*$EA"+rowNo);
+				row.createCell(132).setCellFormula("CF"+rowNo+"*$EA"+rowNo);
+				row.createCell(133).setCellFormula("CG"+rowNo+"*$EA"+rowNo);
+				row.createCell(134).setCellFormula("SUM(EB"+rowNo+":ED"+rowNo+")");
+				row.createCell(135).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH2").toString()));
+				row.createCell(136).setCellFormula("CI"+rowNo+"*$EF"+rowNo);
+				row.createCell(137).setCellFormula("CJ"+rowNo+"*$EF"+rowNo);
+				row.createCell(138).setCellFormula("CK"+rowNo+"*$EF"+rowNo);
+				row.createCell(139).setCellFormula("SUM(EG"+rowNo+":EI"+rowNo+")");
+				row.createCell(140).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH3").toString()));
+				row.createCell(141).setCellFormula("CM"+rowNo+"*$EK"+rowNo);
+				row.createCell(142).setCellFormula("CN"+rowNo+"*$EK"+rowNo);
+				row.createCell(143).setCellFormula("CO"+rowNo+"*$EK"+rowNo);
+				row.createCell(144).setCellFormula("SUM(EL"+rowNo+":EN"+rowNo+")");
+				row.createCell(145).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH4").toString()));
+				row.createCell(146).setCellFormula("CQ"+rowNo+"*$EP"+rowNo);
+				row.createCell(147).setCellFormula("CR"+rowNo+"*$EP"+rowNo);
+				row.createCell(148).setCellFormula("CS"+rowNo+"*$EP"+rowNo);
+				row.createCell(149).setCellFormula("SUM(EQ"+rowNo+":ES"+rowNo+")");
+				row.createCell(150).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH5").toString()));
+				row.createCell(151).setCellFormula("CU"+rowNo+"*$EU"+rowNo);
+				row.createCell(152).setCellFormula("CV"+rowNo+"*$EU"+rowNo);
+				row.createCell(153).setCellFormula("CW"+rowNo+"*$EU"+rowNo);
+				row.createCell(154).setCellFormula("SUM(EV"+rowNo+":EX"+rowNo+")");
+				row.createCell(155).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH6").toString()));
+				row.createCell(156).setCellFormula("CY"+rowNo+"*$EZ"+rowNo);
+				row.createCell(157).setCellFormula("CZ"+rowNo+"*$EZ"+rowNo);
+				row.createCell(158).setCellFormula("DA"+rowNo+"*$EZ"+rowNo);
+				row.createCell(159).setCellFormula("SUM(FA"+rowNo+":FC"+rowNo+")");
+				row.createCell(160).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH7").toString()));
+				row.createCell(161).setCellFormula("DC"+rowNo+"*$FE"+rowNo);
+				row.createCell(162).setCellFormula("DD"+rowNo+"*$FE"+rowNo);
+				row.createCell(163).setCellFormula("DE"+rowNo+"*$FE"+rowNo);
+				row.createCell(164).setCellFormula("SUM(FF"+rowNo+":FH"+rowNo+")");
+				row.createCell(165).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH8").toString()));
+				row.createCell(166).setCellFormula("DG"+rowNo+"*$FJ"+rowNo);
+				row.createCell(167).setCellFormula("DH"+rowNo+"*$FJ"+rowNo);
+				row.createCell(168).setCellFormula("DI"+rowNo+"*$FJ"+rowNo);
+				row.createCell(169).setCellFormula("SUM(FK"+rowNo+":FM"+rowNo+")");
+				row.createCell(170).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH9").toString()));
+				row.createCell(171).setCellFormula("DK"+rowNo+"*$FO"+rowNo);
+				row.createCell(172).setCellFormula("DL"+rowNo+"*$FO"+rowNo);
+				row.createCell(173).setCellFormula("DM"+rowNo+"*$FO"+rowNo);
+				row.createCell(174).setCellFormula("SUM(FP"+rowNo+":FR"+rowNo+")");
+				row.createCell(175).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH10").toString()));
+				row.createCell(176).setCellFormula("DO"+rowNo+"*$FT"+rowNo);
+				row.createCell(177).setCellFormula("DP"+rowNo+"*$FT"+rowNo);
+				row.createCell(178).setCellFormula("DQ"+rowNo+"*$FT"+rowNo);
+				row.createCell(179).setCellFormula("SUM(FU"+rowNo+":FW"+rowNo+")");
+				row.createCell(180).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH11").toString()));
+				row.createCell(181).setCellFormula("DS"+rowNo+"*$FY"+rowNo);
+				row.createCell(182).setCellFormula("DT"+rowNo+"*$FY"+rowNo);
+				row.createCell(183).setCellFormula("DU"+rowNo+"*$FY"+rowNo);
+				row.createCell(184).setCellFormula("SUM(FZ"+rowNo+":GB"+rowNo+")");
+				row.createCell(185).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH12").toString()));
+				row.createCell(186).setCellFormula("DW"+rowNo+"*$GD"+rowNo);
+				row.createCell(187).setCellFormula("DX"+rowNo+"*$GD"+rowNo);
+				row.createCell(188).setCellFormula("DY"+rowNo+"*$GD"+rowNo);
+				row.createCell(189).setCellFormula("SUM(GE"+rowNo+":GG"+rowNo+")");
 
-				row.createCell(187).setCellFormula("SUM(GC"+rowNo+":GE"+rowNo+")");
-				row.createCell(188).setCellValue(Double.parseDouble(map.get("QUANTITY_NEXTYEAR").toString()));
-				row.createCell(189).setCellFormula("GC"+rowNo+"*$GG"+rowNo);
-				row.createCell(190).setCellFormula("GD"+rowNo+"*$GG"+rowNo);
-				row.createCell(191).setCellFormula("GE"+rowNo+"*$GG"+rowNo);
-				row.createCell(192).setCellFormula("SUM(GH"+rowNo+":GJ"+rowNo+")");
+				row.createCell(193).setCellFormula("SUM(GI"+rowNo+":GK"+rowNo+")");
+				row.createCell(194).setCellValue(Double.parseDouble(map.get("QUANTITY_NEXTYEAR").toString()));
+				row.createCell(195).setCellFormula("GI"+rowNo+"*$GM"+rowNo);
+				row.createCell(196).setCellFormula("GJ"+rowNo+"*$GM"+rowNo);
+				row.createCell(197).setCellFormula("GK"+rowNo+"*$GM"+rowNo);
+				row.createCell(198).setCellFormula("SUM(GN"+rowNo+":GP"+rowNo+")");
 
-				row.createCell(196).setCellFormula("SUM(GL"+rowNo+":GN"+rowNo+")");
-				row.createCell(197).setCellValue(Double.parseDouble(map.get("QUANTITY_TWOYEAR").toString()));
-				row.createCell(198).setCellFormula("GL"+rowNo+"*$GP"+rowNo);
-				row.createCell(199).setCellFormula("GM"+rowNo+"*$GP"+rowNo);
-				row.createCell(200).setCellFormula("GN"+rowNo+"*$GP"+rowNo);
-				row.createCell(201).setCellFormula("SUM(GQ"+rowNo+":GS"+rowNo+")");
+				row.createCell(202).setCellFormula("SUM(GR"+rowNo+":GT"+rowNo+")");
+				row.createCell(203).setCellValue(Double.parseDouble(map.get("QUANTITY_TWOYEAR").toString()));
+				row.createCell(204).setCellFormula("GR"+rowNo+"*$GV"+rowNo);
+				row.createCell(205).setCellFormula("GS"+rowNo+"*$GV"+rowNo);
+				row.createCell(206).setCellFormula("GT"+rowNo+"*$GV"+rowNo);
+				row.createCell(207).setCellFormula("SUM(GW"+rowNo+":GY"+rowNo+")");
 
-				row.createCell(205).setCellFormula("SUM(GU"+rowNo+":GW"+rowNo+")");
-				row.createCell(206).setCellValue(Double.parseDouble(map.get("QUANTITY_THREEYEAR").toString()));
-				row.createCell(207).setCellFormula("GU"+rowNo+"*$GY"+rowNo);
-				row.createCell(208).setCellFormula("GV"+rowNo+"*$GY"+rowNo);
-				row.createCell(209).setCellFormula("GW"+rowNo+"*$GY"+rowNo);
-				row.createCell(210).setCellFormula("SUM(GZ"+rowNo+":HB"+rowNo+")");
+				row.createCell(211).setCellFormula("SUM(HA"+rowNo+":HC"+rowNo+")");
+				row.createCell(212).setCellValue(Double.parseDouble(map.get("QUANTITY_THREEYEAR").toString()));
+				row.createCell(213).setCellFormula("HA"+rowNo+"*$HE"+rowNo);
+				row.createCell(214).setCellFormula("HB"+rowNo+"*$HE"+rowNo);
+				row.createCell(215).setCellFormula("HC"+rowNo+"*$HE"+rowNo);
+				row.createCell(216).setCellFormula("SUM(GZ"+rowNo+":HB"+rowNo+")");
 
-				row.createCell(214).setCellFormula("SUM(HD"+rowNo+":HF"+rowNo+")");
-				row.createCell(215).setCellValue(Double.parseDouble(map.get("QUANTITY_FOURYEAR").toString()));
-				row.createCell(216).setCellFormula("HD"+rowNo+"*$HH"+rowNo);
-				row.createCell(217).setCellFormula("HE"+rowNo+"*$HH"+rowNo);
-				row.createCell(218).setCellFormula("HF"+rowNo+"*$HH"+rowNo);
-				row.createCell(219).setCellFormula("SUM(HI"+rowNo+":HK"+rowNo+")");
-				for (int i=0;i<220;i++){
-					if(i==5||i==7||i==9||i==11||i==13||i==15||i==17||i==19||i==21||i==23||i==25||i==27||i==29||i==31||i==33 ||
-						i==35||i==37||i==39||i==41||i==43||i==45||i==47||i==49||i==51||i==53 ||
-							i==55||i==57||i==59||i==61||i==63||i==65||i==67||i==69||i==71||i==73 ||
-							i==75||i==184||i==185||i==186||i==193||i==194||i==195||i==202||i==203||i==204||i==211||i==212||i==213){
+				row.createCell(220).setCellFormula("SUM(HJ"+rowNo+":HL"+rowNo+")");
+				row.createCell(221).setCellValue(Double.parseDouble(map.get("QUANTITY_FOURYEAR").toString()));
+				row.createCell(222).setCellFormula("HJ"+rowNo+"*$HN"+rowNo);
+				row.createCell(223).setCellFormula("HK"+rowNo+"*$HN"+rowNo);
+				row.createCell(224).setCellFormula("HL"+rowNo+"*$HN"+rowNo);
+				row.createCell(225).setCellFormula("SUM(HO"+rowNo+":HQ"+rowNo+")");
+				for (int i=0;i<226;i++){
+					if(null==row.getCell(i)){
 						continue;
 					}
 					row.getCell(i).setCellStyle(style);
 				}
 			}
-
 			File outFile = new File(filePath);
 			OutputStream out = new FileOutputStream(outFile);
 			workBook.write(out);
@@ -1004,8 +1048,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
 			int year=calendar.get(Calendar.YEAR);
-			row.getCell(4).setCellValue("FY"+ String.valueOf(year).substring(2));
-			String sql=this.templateValForecast("FY"+ String.valueOf(year).substring(2)) ;
+			row.getCell(10).setCellValue("FY"+ String.valueOf(year).substring(2));
+			String sql=this.templateVal("FY"+ String.valueOf(year).substring(2),"FIT_FORECAST_REVENUE") ;
 			List<Map> list=budgetProductNoUnitCostDao.listMapBySql(sql);
 			XSSFCellStyle style = workBook.createCellStyle();
 			style.setFillForegroundColor(new XSSFColor(new java.awt.Color(166,166,166)));
@@ -1014,17 +1058,25 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			style.setBorderBottom(BorderStyle.THIN);
 			style.setBorderColor(XSSFCellBorder.BorderSide.LEFT,new XSSFColor(new java.awt.Color(191,191,191)));
 			style.setBorderColor(XSSFCellBorder.BorderSide.BOTTOM,new XSSFColor(new java.awt.Color(191,191,191)));
+			XSSFCellStyle lockStyle = workBook.createCellStyle();
+			lockStyle.setLocked(true);
+			lockStyle.setAlignment(HorizontalAlignment.CENTER);
+			lockStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(217, 217, 217)));
+			lockStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			int rowNo=3;
 			for (Map map:list) {
 				row=sheet.createRow(rowNo++);
 				row.createCell(0).setCellValue(map.get("ENTITY").toString());
 				row.createCell(1).setCellValue(map.get("MAKE_ENTITY").toString());
-				row.createCell(2).setCellValue(map.get("PRODUCT_SERIES")==null?"":map.get("PRODUCT_SERIES").toString());
-				row.createCell(3).setCellValue(map.get("PRODUCT_NO")==null?"":map.get("PRODUCT_NO").toString());
+				row.createCell(2).setCellValue(map.get("INDUSTRY").toString());
+				row.createCell(3).setCellValue(map.get("MAIN_BUSINESS").toString());
+				row.createCell(4).setCellValue(map.get("THREE").toString());
+				row.createCell(5).setCellValue(map.get("PRODUCT_SERIES")==null?"":map.get("PRODUCT_SERIES").toString());
+				row.createCell(6).setCellValue(map.get("PRODUCT_NO")==null?"":map.get("PRODUCT_NO").toString());
+				row.createCell(7).setCellValue(map.get("LOAN_CUSTOMER").toString());
+				row.createCell(8).setCellValue(map.get("END_CUSTOMER").toString());
+				row.createCell(9).setCellValue(map.get("TRADE_TYPE").toString());
 
-				row.createCell(4).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
-				row.createCell(6).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
-				row.createCell(8).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(10).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(12).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(14).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
@@ -1034,10 +1086,10 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(22).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(24).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 				row.createCell(26).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(28).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(30).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
+				row.createCell(32).setCellValue(Double.parseDouble(map.get("MATERIAL_COST").toString()));
 
-				row.createCell(28).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
-				row.createCell(30).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
-				row.createCell(32).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(34).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(36).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(38).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
@@ -1047,10 +1099,10 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(46).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(48).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 				row.createCell(50).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(52).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(54).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
+				row.createCell(56).setCellValue(Double.parseDouble(map.get("LABER_COST").toString()));
 
-				row.createCell(52).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
-				row.createCell(54).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
-				row.createCell(56).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(58).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(60).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(62).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
@@ -1060,126 +1112,125 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				row.createCell(70).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(72).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 				row.createCell(74).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(76).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(78).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
+				row.createCell(80).setCellValue(Double.parseDouble(map.get("OVERHEAD_COST").toString()));
 
-				row.createCell(76).setCellFormula("F"+rowNo);
-				row.createCell(77).setCellFormula("AD"+rowNo);
-				row.createCell(78).setCellFormula("BB"+rowNo);
-				row.createCell(79).setCellFormula("SUM(BY"+rowNo+":CA"+rowNo+")");
-				row.createCell(80).setCellFormula("H"+rowNo);
-				row.createCell(81).setCellFormula("AF"+rowNo);
-				row.createCell(82).setCellFormula("BD"+rowNo);
-				row.createCell(83).setCellFormula("SUM(CC"+rowNo+":CE"+rowNo+")");
-				row.createCell(84).setCellFormula("J"+rowNo);
-				row.createCell(85).setCellFormula("AH"+rowNo);
-				row.createCell(86).setCellFormula("BF"+rowNo);
-				row.createCell(87).setCellFormula("SUM(CG"+rowNo+":CI"+rowNo+")");
-				row.createCell(88).setCellFormula("L"+rowNo);
-				row.createCell(89).setCellFormula("AJ"+rowNo);
-				row.createCell(90).setCellFormula("BH"+rowNo);
-				row.createCell(91).setCellFormula("SUM(CK"+rowNo+":CM"+rowNo+")");
-				row.createCell(92).setCellFormula("N"+rowNo);
-				row.createCell(93).setCellFormula("AL"+rowNo);
-				row.createCell(94).setCellFormula("BJ"+rowNo);
-				row.createCell(95).setCellFormula("SUM(CO"+rowNo+":CQ"+rowNo+")");
-				row.createCell(96).setCellFormula("P"+rowNo);
-				row.createCell(97).setCellFormula("AN"+rowNo);
-				row.createCell(98).setCellFormula("BL"+rowNo);
-				row.createCell(99).setCellFormula("SUM(CS"+rowNo+":CU"+rowNo+")");
-				row.createCell(100).setCellFormula("R"+rowNo);
-				row.createCell(101).setCellFormula("AP"+rowNo);
-				row.createCell(102).setCellFormula("BN"+rowNo);
-				row.createCell(103).setCellFormula("SUM(CW"+rowNo+":CY"+rowNo+")");
-				row.createCell(104).setCellFormula("T"+rowNo);
-				row.createCell(105).setCellFormula("AR"+rowNo);
-				row.createCell(106).setCellFormula("BP"+rowNo);
-				row.createCell(107).setCellFormula("SUM(DA"+rowNo+":DC"+rowNo+")");
-				row.createCell(108).setCellFormula("V"+rowNo);
-				row.createCell(109).setCellFormula("AT"+rowNo);
-				row.createCell(110).setCellFormula("BR"+rowNo);
-				row.createCell(111).setCellFormula("SUM(DE"+rowNo+":DG"+rowNo+")");
-				row.createCell(112).setCellFormula("X"+rowNo);
-				row.createCell(113).setCellFormula("AV"+rowNo);
-				row.createCell(114).setCellFormula("BT"+rowNo);
-				row.createCell(115).setCellFormula("SUM(DI"+rowNo+":DK"+rowNo+")");
-				row.createCell(116).setCellFormula("Z"+rowNo);
-				row.createCell(117).setCellFormula("AX"+rowNo);
-				row.createCell(118).setCellFormula("BV"+rowNo);
-				row.createCell(119).setCellFormula("SUM(DM"+rowNo+":DO"+rowNo+")");
-				row.createCell(120).setCellFormula("AB"+rowNo);
-				row.createCell(121).setCellFormula("AZ"+rowNo);
-				row.createCell(122).setCellFormula("BX"+rowNo);
-				row.createCell(123).setCellFormula("SUM(DQ"+rowNo+":DS"+rowNo+")");
-				row.createCell(124).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH1").toString()));
-				row.createCell(125).setCellFormula("BY"+rowNo+"*$DU"+rowNo);
-				row.createCell(126).setCellFormula("BZ"+rowNo+"*$DU"+rowNo);
-				row.createCell(127).setCellFormula("CA"+rowNo+"*$DU"+rowNo);
-				row.createCell(128).setCellFormula("SUM(DV"+rowNo+":DX"+rowNo+")");
-				row.createCell(129).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH2").toString()));
-				row.createCell(130).setCellFormula("CC"+rowNo+"*$DZ"+rowNo);
-				row.createCell(131).setCellFormula("CD"+rowNo+"*$DZ"+rowNo);
-				row.createCell(132).setCellFormula("CE"+rowNo+"*$DZ"+rowNo);
-				row.createCell(133).setCellFormula("SUM(EA"+rowNo+":EC"+rowNo+")");
-				row.createCell(134).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH3").toString()));
-				row.createCell(135).setCellFormula("CG"+rowNo+"*$EE"+rowNo);
-				row.createCell(136).setCellFormula("CH"+rowNo+"*$EE"+rowNo);
-				row.createCell(137).setCellFormula("CI"+rowNo+"*$EE"+rowNo);
-				row.createCell(138).setCellFormula("SUM(EF"+rowNo+":EH"+rowNo+")");
-				row.createCell(139).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH4").toString()));
-				row.createCell(140).setCellFormula("CK"+rowNo+"*$EJ"+rowNo);
-				row.createCell(141).setCellFormula("CL"+rowNo+"*$EJ"+rowNo);
-				row.createCell(142).setCellFormula("CM"+rowNo+"*$EJ"+rowNo);
-				row.createCell(143).setCellFormula("SUM(EK"+rowNo+":EM"+rowNo+")");
-				row.createCell(144).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH5").toString()));
-				row.createCell(145).setCellFormula("CO"+rowNo+"*$EO"+rowNo);
-				row.createCell(146).setCellFormula("CP"+rowNo+"*$EO"+rowNo);
-				row.createCell(147).setCellFormula("CQ"+rowNo+"*$EO"+rowNo);
-				row.createCell(148).setCellFormula("SUM(EP"+rowNo+":ER"+rowNo+")");
-				row.createCell(149).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH6").toString()));
-				row.createCell(150).setCellFormula("CS"+rowNo+"*$ET"+rowNo);
-				row.createCell(151).setCellFormula("CT"+rowNo+"*$ET"+rowNo);
-				row.createCell(152).setCellFormula("CU"+rowNo+"*$ET"+rowNo);
-				row.createCell(153).setCellFormula("SUM(EU"+rowNo+":EW"+rowNo+")");
-				row.createCell(154).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH7").toString()));
-				row.createCell(155).setCellFormula("CW"+rowNo+"*$EY"+rowNo);
-				row.createCell(156).setCellFormula("CX"+rowNo+"*$EY"+rowNo);
-				row.createCell(157).setCellFormula("CY"+rowNo+"*$EY"+rowNo);
-				row.createCell(158).setCellFormula("SUM(EZ"+rowNo+":FB"+rowNo+")");
-				row.createCell(159).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH8").toString()));
-				row.createCell(160).setCellFormula("DA"+rowNo+"*$FD"+rowNo);
-				row.createCell(161).setCellFormula("DB"+rowNo+"*$FD"+rowNo);
-				row.createCell(162).setCellFormula("DC"+rowNo+"*$FD"+rowNo);
-				row.createCell(163).setCellFormula("SUM(FE"+rowNo+":FG"+rowNo+")");
-				row.createCell(164).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH9").toString()));
-				row.createCell(165).setCellFormula("DE"+rowNo+"*$FI"+rowNo);
-				row.createCell(166).setCellFormula("DF"+rowNo+"*$FI"+rowNo);
-				row.createCell(167).setCellFormula("DG"+rowNo+"*$FI"+rowNo);
-				row.createCell(168).setCellFormula("SUM(FJ"+rowNo+":FL"+rowNo+")");
-				row.createCell(169).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH10").toString()));
-				row.createCell(170).setCellFormula("DI"+rowNo+"*$FN"+rowNo);
-				row.createCell(171).setCellFormula("DJ"+rowNo+"*$FN"+rowNo);
-				row.createCell(172).setCellFormula("DK"+rowNo+"*$FN"+rowNo);
-				row.createCell(173).setCellFormula("SUM(FO"+rowNo+":FQ"+rowNo+")");
-				row.createCell(174).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH11").toString()));
-				row.createCell(175).setCellFormula("DM"+rowNo+"*$FS"+rowNo);
-				row.createCell(176).setCellFormula("DN"+rowNo+"*$FS"+rowNo);
-				row.createCell(177).setCellFormula("DO"+rowNo+"*$FS"+rowNo);
-				row.createCell(178).setCellFormula("SUM(FT"+rowNo+":FV"+rowNo+")");
-				row.createCell(179).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH12").toString()));
-				row.createCell(180).setCellFormula("DQ"+rowNo+"*$FX"+rowNo);
-				row.createCell(181).setCellFormula("DR"+rowNo+"*$FX"+rowNo);
-				row.createCell(182).setCellFormula("DS"+rowNo+"*$FX"+rowNo);
-				row.createCell(183).setCellFormula("SUM(FY"+rowNo+":GA"+rowNo+")");
-
-				for (int i=0;i<184;i++){
-					if(i==5||i==7||i==9||i==11||i==13||i==15||i==17||i==19||i==21||i==23||i==25||i==27||i==29||i==31||i==33||
-							i==35||i==37||i==39||i==41||i==43||i==45||i==47||i==49||i==51||i==53||
-							i==55||i==57||i==59||i==61||i==63||i==65||i==67||i==69||i==71||i==73||i==75){
+				row.createCell(82).setCellFormula("L"+rowNo);
+				row.createCell(83).setCellFormula("AJ"+rowNo);
+				row.createCell(84).setCellFormula("BH"+rowNo);
+				row.createCell(85).setCellFormula("SUM(CE"+rowNo+":CG"+rowNo+")");
+				row.createCell(86).setCellFormula("N"+rowNo);
+				row.createCell(87).setCellFormula("AL"+rowNo);
+				row.createCell(88).setCellFormula("BJ"+rowNo);
+				row.createCell(89).setCellFormula("SUM(CI"+rowNo+":CK"+rowNo+")");
+				row.createCell(90).setCellFormula("P"+rowNo);
+				row.createCell(91).setCellFormula("AN"+rowNo);
+				row.createCell(92).setCellFormula("BL"+rowNo);
+				row.createCell(93).setCellFormula("SUM(CM"+rowNo+":CO"+rowNo+")");
+				row.createCell(94).setCellFormula("R"+rowNo);
+				row.createCell(95).setCellFormula("AP"+rowNo);
+				row.createCell(96).setCellFormula("BN"+rowNo);
+				row.createCell(97).setCellFormula("SUM(CQ"+rowNo+":CS"+rowNo+")");
+				row.createCell(98).setCellFormula("T"+rowNo);
+				row.createCell(99).setCellFormula("AR"+rowNo);
+				row.createCell(100).setCellFormula("BP"+rowNo);
+				row.createCell(101).setCellFormula("SUM(CU"+rowNo+":CW"+rowNo+")");
+				row.createCell(102).setCellFormula("V"+rowNo);
+				row.createCell(103).setCellFormula("AT"+rowNo);
+				row.createCell(104).setCellFormula("BR"+rowNo);
+				row.createCell(105).setCellFormula("SUM(CY"+rowNo+":DA"+rowNo+")");
+				row.createCell(106).setCellFormula("X"+rowNo);
+				row.createCell(107).setCellFormula("AV"+rowNo);
+				row.createCell(108).setCellFormula("BT"+rowNo);
+				row.createCell(109).setCellFormula("SUM(DC"+rowNo+":DE"+rowNo+")");
+				row.createCell(110).setCellFormula("Z"+rowNo);
+				row.createCell(111).setCellFormula("AX"+rowNo);
+				row.createCell(112).setCellFormula("BV"+rowNo);
+				row.createCell(113).setCellFormula("SUM(DG"+rowNo+":DI"+rowNo+")");
+				row.createCell(114).setCellFormula("AB"+rowNo);
+				row.createCell(115).setCellFormula("AZ"+rowNo);
+				row.createCell(116).setCellFormula("BX"+rowNo);
+				row.createCell(117).setCellFormula("SUM(DK"+rowNo+":DM"+rowNo+")");
+				row.createCell(118).setCellFormula("AD"+rowNo);
+				row.createCell(119).setCellFormula("BB"+rowNo);
+				row.createCell(120).setCellFormula("BZ"+rowNo);
+				row.createCell(121).setCellFormula("SUM(DO"+rowNo+":DQ"+rowNo+")");
+				row.createCell(122).setCellFormula("AF"+rowNo);
+				row.createCell(123).setCellFormula("BD"+rowNo);
+				row.createCell(124).setCellFormula("CB"+rowNo);
+				row.createCell(125).setCellFormula("SUM(DS"+rowNo+":DU"+rowNo+")");
+				row.createCell(126).setCellFormula("AH"+rowNo);
+				row.createCell(127).setCellFormula("BF"+rowNo);
+				row.createCell(128).setCellFormula("CD"+rowNo);
+				row.createCell(129).setCellFormula("SUM(DW"+rowNo+":DY"+rowNo+")");
+				row.createCell(130).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH1").toString()));
+				row.createCell(131).setCellFormula("CE"+rowNo+"*$EA"+rowNo);
+				row.createCell(132).setCellFormula("CF"+rowNo+"*$EA"+rowNo);
+				row.createCell(133).setCellFormula("CG"+rowNo+"*$EA"+rowNo);
+				row.createCell(134).setCellFormula("SUM(EB"+rowNo+":ED"+rowNo+")");
+				row.createCell(135).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH2").toString()));
+				row.createCell(136).setCellFormula("CI"+rowNo+"*$EF"+rowNo);
+				row.createCell(137).setCellFormula("CJ"+rowNo+"*$EF"+rowNo);
+				row.createCell(138).setCellFormula("CK"+rowNo+"*$EF"+rowNo);
+				row.createCell(139).setCellFormula("SUM(EG"+rowNo+":EI"+rowNo+")");
+				row.createCell(140).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH3").toString()));
+				row.createCell(141).setCellFormula("CM"+rowNo+"*$EK"+rowNo);
+				row.createCell(142).setCellFormula("CN"+rowNo+"*$EK"+rowNo);
+				row.createCell(143).setCellFormula("CO"+rowNo+"*$EK"+rowNo);
+				row.createCell(144).setCellFormula("SUM(EL"+rowNo+":EN"+rowNo+")");
+				row.createCell(145).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH4").toString()));
+				row.createCell(146).setCellFormula("CQ"+rowNo+"*$EP"+rowNo);
+				row.createCell(147).setCellFormula("CR"+rowNo+"*$EP"+rowNo);
+				row.createCell(148).setCellFormula("CS"+rowNo+"*$EP"+rowNo);
+				row.createCell(149).setCellFormula("SUM(EQ"+rowNo+":ES"+rowNo+")");
+				row.createCell(150).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH5").toString()));
+				row.createCell(151).setCellFormula("CU"+rowNo+"*$EU"+rowNo);
+				row.createCell(152).setCellFormula("CV"+rowNo+"*$EU"+rowNo);
+				row.createCell(153).setCellFormula("CW"+rowNo+"*$EU"+rowNo);
+				row.createCell(154).setCellFormula("SUM(EV"+rowNo+":EX"+rowNo+")");
+				row.createCell(155).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH6").toString()));
+				row.createCell(156).setCellFormula("CY"+rowNo+"*$EZ"+rowNo);
+				row.createCell(157).setCellFormula("CZ"+rowNo+"*$EZ"+rowNo);
+				row.createCell(158).setCellFormula("DA"+rowNo+"*$EZ"+rowNo);
+				row.createCell(159).setCellFormula("SUM(FA"+rowNo+":FC"+rowNo+")");
+				row.createCell(160).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH7").toString()));
+				row.createCell(161).setCellFormula("DC"+rowNo+"*$FE"+rowNo);
+				row.createCell(162).setCellFormula("DD"+rowNo+"*$FE"+rowNo);
+				row.createCell(163).setCellFormula("DE"+rowNo+"*$FE"+rowNo);
+				row.createCell(164).setCellFormula("SUM(FF"+rowNo+":FH"+rowNo+")");
+				row.createCell(165).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH8").toString()));
+				row.createCell(166).setCellFormula("DG"+rowNo+"*$FJ"+rowNo);
+				row.createCell(167).setCellFormula("DH"+rowNo+"*$FJ"+rowNo);
+				row.createCell(168).setCellFormula("DI"+rowNo+"*$FJ"+rowNo);
+				row.createCell(169).setCellFormula("SUM(FK"+rowNo+":FM"+rowNo+")");
+				row.createCell(170).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH9").toString()));
+				row.createCell(171).setCellFormula("DK"+rowNo+"*$FO"+rowNo);
+				row.createCell(172).setCellFormula("DL"+rowNo+"*$FO"+rowNo);
+				row.createCell(173).setCellFormula("DM"+rowNo+"*$FO"+rowNo);
+				row.createCell(174).setCellFormula("SUM(FP"+rowNo+":FR"+rowNo+")");
+				row.createCell(175).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH10").toString()));
+				row.createCell(176).setCellFormula("DO"+rowNo+"*$FT"+rowNo);
+				row.createCell(177).setCellFormula("DP"+rowNo+"*$FT"+rowNo);
+				row.createCell(178).setCellFormula("DQ"+rowNo+"*$FT"+rowNo);
+				row.createCell(179).setCellFormula("SUM(FU"+rowNo+":FW"+rowNo+")");
+				row.createCell(180).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH11").toString()));
+				row.createCell(181).setCellFormula("DS"+rowNo+"*$FY"+rowNo);
+				row.createCell(182).setCellFormula("DT"+rowNo+"*$FY"+rowNo);
+				row.createCell(183).setCellFormula("DU"+rowNo+"*$FY"+rowNo);
+				row.createCell(184).setCellFormula("SUM(FZ"+rowNo+":GB"+rowNo+")");
+				row.createCell(185).setCellValue(Double.parseDouble(map.get("QUANTITY_MONTH12").toString()));
+				row.createCell(186).setCellFormula("DW"+rowNo+"*$GD"+rowNo);
+				row.createCell(187).setCellFormula("DX"+rowNo+"*$GD"+rowNo);
+				row.createCell(188).setCellFormula("DY"+rowNo+"*$GD"+rowNo);
+				row.createCell(189).setCellFormula("SUM(GE"+rowNo+":GG"+rowNo+")");
+				for (int i=0;i<190;i++){
+					if(null==row.getCell(i)){
 						continue;
 					}
 					row.getCell(i).setCellStyle(style);
 				}
 			}
-
 			File outFile = new File(filePath);
 			OutputStream out = new FileOutputStream(outFile);
 			workBook.write(out);
@@ -1197,41 +1248,48 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	}
 
 	/**預算上傳模板填充的數據*/
-	public String templateValBudget(String year){
+	public String templateVal(String year,String tableName){
 		String corporationCode = SecurityUtils.getCorporationCode();
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sql="SELECT b.entity,b.make_entity,\n" +
-				"                b.product_no,\n" +
-				"                b.product_series,\n" +
-				"                nvl(t.material_cost,0) material_cost,\n" +
-				"                nvl(t.laber_cost,0) laber_cost,\n" +
-				"                nvl(t.overhead_cost,0) + nvl(t.outsite_processing_cost,0) overhead_cost, \n" +
-				"                nvl(b.quantity_month1,0) quantity_month1,\n" +
-				"                nvl(b.quantity_month2,0) quantity_month2,\n" +
-				"                nvl(b.quantity_month3,0) quantity_month3,\n" +
-				"                nvl(b.quantity_month4,0) quantity_month4,\n" +
-				"                nvl(b.quantity_month5,0) quantity_month5,\n" +
-				"                nvl(b.quantity_month6,0) quantity_month6,\n" +
-				"                nvl(b.quantity_month7,0) quantity_month7,\n" +
-				"                nvl(b.quantity_month8,0) quantity_month8,\n" +
-				"                nvl(b.quantity_month9,0) quantity_month9,\n" +
-				"                nvl(b.quantity_month10,0) quantity_month10,\n" +
-				"                nvl(b.quantity_month11,0) quantity_month11,\n" +
-				"                nvl(b.quantity_month12,0) quantity_month12,\n" +
-				"                nvl(b.quantity,0) quantity,\n" +
-				"                nvl(b.quantity_nextyear,0) quantity_nextyear,\n" +
-				"                nvl(b.quantity_twoyear,0) quantity_twoyear,\n" +
-				"                nvl(b.quantity_threeyear,0) quantity_threeyear,\n" +
-				"                nvl(b.quantity_fouryear,0) quantity_fouryear\n" +
-				"  FROM epmods.if_ebs_ar_revenue_dtl_cst_v2 t,\n" +
-				"       (SELECT a.*\n" +
-				"          FROM epmods.fit_budget_detail_revenue a\n" +
-				"         WHERE a.version = 'V00'\n" +
-				"           AND a.year = 'FY' || (to_char(SYSDATE,'YY') + 1)) b\n" +
-				" WHERE t.p_n(+) = b.product_no\n" +
-				"   AND t.entity_code(+) = b.ou\n" +
-				"   AND t.rn(+)= 1\n" +
-				"   and b.year='"+year+"' and b.create_name='"+loginUser.getUsername()+"'";
+		String sql="SELECT  b.entity,\n" +
+				"        b.make_entity,\n" +
+				"        b.industry,\n" +
+				"        b.main_business,\n" +
+				"        b.three,\n" +
+				"        b.product_series, \n" +
+				"        b.product_no, \n" +
+				"        b.loan_customer,\n" +
+				"        b.end_customer,\n" +
+				"        b.trade_type,\n" +
+				"        sum(nvl(t.material_cost,0)) material_cost, \n" +
+				"        sum(nvl(t.laber_cost,0)) laber_cost, \n" +
+				"        sum(nvl(t.overhead_cost,0)) + sum(nvl(t.outsite_processing_cost,0)) overhead_cost,  \n" +
+				"        sum(nvl(b.quantity_month1,0)) quantity_month1, \n" +
+				"        sum(nvl(b.quantity_month2,0)) quantity_month2, \n" +
+				"        sum(nvl(b.quantity_month3,0)) quantity_month3, \n" +
+				"        sum(nvl(b.quantity_month4,0)) quantity_month4, \n" +
+				"        sum(nvl(b.quantity_month5,0)) quantity_month5, \n" +
+				"        sum(nvl(b.quantity_month6,0)) quantity_month6, \n" +
+				"        sum(nvl(b.quantity_month7,0)) quantity_month7, \n" +
+				"        sum(nvl(b.quantity_month8,0)) quantity_month8, \n" +
+				"        sum(nvl(b.quantity_month9,0)) quantity_month9, \n" +
+				"        sum(nvl(b.quantity_month10,0)) quantity_month10, \n" +
+				"        sum(nvl(b.quantity_month11,0)) quantity_month11, \n" +
+				"        sum(nvl(b.quantity_month12,0)) quantity_month12, \n" +
+				"        sum(nvl(b.quantity,0)) quantity, \n" +
+				"        sum(nvl(b.quantity_nextyear,0)) quantity_nextyear, \n" +
+				"        sum(nvl(b.quantity_twoyear,0)) quantity_twoyear, \n" +
+				"        sum(nvl(b.quantity_threeyear,0)) quantity_threeyear, \n" +
+				"        sum(nvl(b.quantity_fouryear,0)) quantity_fouryear \n" +
+				"FROM epmods.if_ebs_ar_revenue_dtl_cst_v2 t, \n" +
+				"     (SELECT a.* \n" +
+				"        FROM epmods."+tableName+" a \n" +
+				"       WHERE a.version = 'V00' \n" +
+				"         AND a.year = 'FY' || (to_char(SYSDATE-30,'YY') + 1)) b \n" +
+				"WHERE t.p_n(+) = b.product_no \n" +
+				" AND t.entity_code(+) = b.ou \n" +
+				" AND t.rn(+)= 1 \n" +
+				" and b.product_no!=b.product_series and b.year='"+year+"' and b.create_name='"+loginUser.getUsername()+"'";
 		if (StringUtils.isNotEmpty(corporationCode)) {
 			sql+=" and (";
 			for (String string : corporationCode.split(",")) {
@@ -1241,52 +1299,19 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		}else{
 			sql=sql+" b.entity=1";
 		}
+		sql+=" group by  \n" +
+				" b.entity,\n" +
+				"        b.make_entity,\n" +
+				"        b.industry,\n" +
+				"        b.main_business,\n" +
+				"        b.three,\n" +
+				"        b.product_no, \n" +
+				"        b.product_series, \n" +
+				"        b.loan_customer,\n" +
+				"        b.end_customer,\n" +
+				"        b.trade_type";
 		return sql;
 	}
-
-	/**預測上傳模板填充的數據*/
-	public String templateValForecast(String year){
-		String corporationCode = SecurityUtils.getCorporationCode();
-		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-		String sql="SELECT b.entity,b.make_entity,\n" +
-				"                b.product_no,\n" +
-				"                b.product_series,\n" +
-				"                nvl(t.material_cost,0) material_cost,\n" +
-				"                nvl(t.laber_cost,0) laber_cost,\n" +
-				"                nvl(t.overhead_cost,0) + nvl(t.outsite_processing_cost,0) overhead_cost, \n" +
-				"                nvl(b.quantity_month1,0) quantity_month1,\n" +
-				"                nvl(b.quantity_month2,0) quantity_month2,\n" +
-				"                nvl(b.quantity_month3,0) quantity_month3,\n" +
-				"                nvl(b.quantity_month4,0) quantity_month4,\n" +
-				"                nvl(b.quantity_month5,0) quantity_month5,\n" +
-				"                nvl(b.quantity_month6,0) quantity_month6,\n" +
-				"                nvl(b.quantity_month7,0) quantity_month7,\n" +
-				"                nvl(b.quantity_month8,0) quantity_month8,\n" +
-				"                nvl(b.quantity_month9,0) quantity_month9,\n" +
-				"                nvl(b.quantity_month10,0) quantity_month10,\n" +
-				"                nvl(b.quantity_month11,0) quantity_month11,\n" +
-				"                nvl(b.quantity_month12,0) quantity_month12\n" +
-				"  FROM epmods.if_ebs_ar_revenue_dtl_cst_v2 t,\n" +
-				"       (SELECT a.*\n" +
-				"          FROM epmods.FIT_FORECAST_REVENUE a\n" +
-				"         WHERE a.version = 'V00'\n" +
-				"           AND a.year = 'FY' || (to_char(SYSDATE,'YY'))) b\n" +
-				" WHERE t.p_n(+) = b.product_no\n" +
-				"   AND t.entity_code(+) = b.ou\n" +
-				"   AND t.rn(+)= 1\n" +
-				"   and b.year='"+year+"' and b.create_name='"+loginUser.getUsername()+"'";
-		if (StringUtils.isNotEmpty(corporationCode)) {
-			sql+=" and (";
-			for (String string : corporationCode.split(",")) {
-				sql+=" b.entity like '"+string+"%' or";
-			}
-			sql=sql.substring(0,sql.length()-2)+")";
-		}else{
-			sql=sql+" b.entity=1";
-		}
-		return sql;
-	}
-
 
 	/**預算簡易版*/
 	public Map<String,String> simplifyTemplateBudget(HttpServletRequest request) {
@@ -1301,7 +1326,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
-			int year=calendar.get(Calendar.YEAR);
+			//預算應爲測試需要先把年份校驗放開
+//			int year=calendar.get(Calendar.YEAR);
+			int year=calendar.get(Calendar.YEAR)-1;
 			row.getCell(2).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			row.getCell(50).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			row.getCell(54).setCellValue("FY"+ String.valueOf(year+2).substring(2));
@@ -1373,12 +1400,12 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			Row row =sheet.getRow(0);
 			int year=Integer.parseInt(y.substring(2));
 
-			row.getCell(3).setCellValue(y);
-			row.getCell(63).setCellValue("FY"+(year));
-			row.getCell(67).setCellValue("FY"+(year+1));
-			row.getCell(71).setCellValue("FY"+(year+2));
-			row.getCell(75).setCellValue("FY"+(year+3));
-			row.getCell(79).setCellValue("FY"+(year+4));
+			row.getCell(10).setCellValue(y);
+			row.getCell(70).setCellValue("FY"+(year));
+			row.getCell(74).setCellValue("FY"+(year+1));
+			row.getCell(78).setCellValue("FY"+(year+2));
+			row.getCell(82).setCellValue("FY"+(year+3));
+			row.getCell(86).setCellValue("FY"+(year+4));
 
 			String sql="select * from FIT_BUDGET_PRODUCT_UNITCOST_V1 where YEAR='"+y+"'";
 			if (null!=version && StringUtils.isNotEmpty(version)) {
@@ -1400,7 +1427,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			}
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
 			pageRequest.setPageNo(1);
-			pageRequest.setOrderBy("year,Id");
+			sql+="order by entity,product,Id";
 			List<Object[]> dataList = budgetProductNoUnitCostDao.findPageBySql(pageRequest, sql).getResult();
 			int col=0;
 			if (CollectionUtils.isNotEmpty(dataList)) {
@@ -1412,7 +1439,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						Cell cell = contentRow.createCell(col);
 						col++;
 						String text = (objects[i] != null ? objects[i].toString() : "");
-						if (StringUtils.isNotEmpty(text) && i>5 && i<91) {
+						if (StringUtils.isNotEmpty(text) && i>12 && i<98) {
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
@@ -1431,7 +1458,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 								Cell cell = contentRow.createCell(col);
 								col++;
 								String text = (objects[i] != null ? objects[i].toString() : "");
-								if (StringUtils.isNotEmpty(text) && i>5 && i<91) {
+								if (StringUtils.isNotEmpty(text) && i>12 && i<98) {
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);
@@ -1471,8 +1498,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			Sheet sheet = workBook.getSheetAt(0);
 			Row row =sheet.getRow(0);
 			int year=Integer.parseInt(y.substring(2));
-			row.getCell(3).setCellValue(y);
-			row.getCell(63).setCellValue("FY"+(year));
+			row.getCell(10).setCellValue(y);
+			row.getCell(70).setCellValue("FY"+(year));
 
 			String sql="select * from FIT_FORECAST_SALES_COST_V where YEAR='"+y+"'";
 			if (null!=version && StringUtils.isNotEmpty(version)) {
@@ -1494,7 +1521,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			}
 			pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
 			pageRequest.setPageNo(1);
-			pageRequest.setOrderBy("year,Id");
+			sql+="order by entity,product,Id";
 			List<Object[]> dataList = budgetProductNoUnitCostDao.findPageBySql(pageRequest, sql).getResult();
 			int col=0;
 			if (CollectionUtils.isNotEmpty(dataList)) {
@@ -1502,11 +1529,14 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				for (Object[] objects : dataList) {
 					Row contentRow = sheet.createRow(rowIndex++);
 					col=0;
-					for (int i = 3; i < objects.length-6; i++) {
+					for (int i = 3; i < objects.length; i++) {
+						if(i>76){
+							break;
+						}
 						Cell cell = contentRow.createCell(col);
 						col++;
 						String text = (objects[i] != null ? objects[i].toString() : "");
-						if (StringUtils.isNotEmpty(text) && i>5 && i<70) {
+						if (StringUtils.isNotEmpty(text) && i>12 && i<77) {
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
@@ -1521,11 +1551,14 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						for (Object[] objects : dataList) {
 							col=0;
 							Row contentRow = sheet.createRow(rowIndex++);
-							for (int i = 3; i < objects.length-7; i++) {
+							for (int i = 3; i < objects.length; i++) {
+								if(i>76){
+									break;
+								}
 								Cell cell = contentRow.createCell(col);
 								col++;
 								String text = (objects[i] != null ? objects[i].toString() : "");
-								if (StringUtils.isNotEmpty(text) && i>5 && i<70) {
+								if (StringUtils.isNotEmpty(text) && i>12 && i<77) {
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);
@@ -1554,7 +1587,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	/**預算版本控制*/
 	public String versionBudget(){
 		Calendar calendar=Calendar.getInstance();
-		int year=calendar.get(Calendar.YEAR)+1;
+		//預算應爲測試需要先把年份校驗放開
+//		int year=calendar.get(Calendar.YEAR)+1;
+		int year=calendar.get(Calendar.YEAR);
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String sqlVersion="select Max(to_number(substr(version,2))) version  from FIT_BUDGET_PRODUCT_UNIT_COST where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"'";
 		List<Map> maps = budgetProductNoUnitCostDao.listMapBySql(sqlVersion);
@@ -1662,7 +1697,12 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				"sysdate version_date,'"+loginUser.getUsername()+"' version_name,\n" +
 				" product_no, \n" +
 				" trade_type, \n" +
-				" make_entity\n" +
+				" make_entity, \n" +
+				"industry, \n" +
+				"main_business, \n" +
+				"three, \n" +
+				"loan_customer, \n" +
+				"end_customer" +
 				" from FIT_BUDGET_PRODUCT_UNIT_COST where version='V00' and Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"')";
 		budgetProductNoUnitCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		return sqlVersion;
@@ -1742,7 +1782,12 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				"sysdate version_date,'"+loginUser.getUsername()+"' version_name,\n" +
 				" product_no, \n" +
 				" trade_type, \n" +
-				" make_entity\n" +
+				" make_entity, \n" +
+				"industry, \n" +
+				"main_business, \n" +
+				"three, \n" +
+				"loan_customer, \n" +
+				"end_customer" +
 				" from FIT_FORECAST_SALES_COST where version='V00' and Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"')";
 		forecastSalesCostDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		return sqlVersion;

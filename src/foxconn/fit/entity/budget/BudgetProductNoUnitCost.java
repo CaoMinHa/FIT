@@ -216,6 +216,54 @@ public class BudgetProductNoUnitCost {
 	private String makeEntity;// SBU_製造法人
 	@Column(name = "trade_type")
 	private String tradeType;// 交易類型
+	private String industry;// 次產業
+	@Column(name = "main_business")
+	private String mainBusiness;//MAIN_BUSINESS
+	private String three;//3+3
+	@Column(name = "loan_customer")
+	private String loanCustomer;// 賬款客戶
+	@Column(name = "end_customer")
+	private String endCustomer;// 最終客戶
+
+	public String getIndustry() {
+		return industry;
+	}
+
+	public void setIndustry(String industry) {
+		this.industry = industry;
+	}
+
+	public String getMainBusiness() {
+		return mainBusiness;
+	}
+
+	public void setMainBusiness(String mainBusiness) {
+		this.mainBusiness = mainBusiness;
+	}
+
+	public String getThree() {
+		return three;
+	}
+
+	public void setThree(String three) {
+		this.three = three;
+	}
+
+	public String getLoanCustomer() {
+		return loanCustomer;
+	}
+
+	public void setLoanCustomer(String loanCustomer) {
+		this.loanCustomer = loanCustomer;
+	}
+
+	public String getEndCustomer() {
+		return endCustomer;
+	}
+
+	public void setEndCustomer(String endCustomer) {
+		this.endCustomer = endCustomer;
+	}
 
 	public String getSalesQuantity() {
 		return salesQuantity;

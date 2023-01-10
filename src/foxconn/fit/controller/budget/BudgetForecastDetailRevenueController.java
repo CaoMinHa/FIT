@@ -46,7 +46,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 
 	@RequestMapping(value="/list")
 	@Log(name = "銷售收入-->查詢")
-	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,@Log(name="版本") String scenarios,@Log(name ="SBU") String entitys,
+	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,@Log(name="場景") String scenarios,@Log(name ="SBU") String entitys,
 					   @Log(name="年份") String year,@Log(name="版本") String version) {
 		try {
 			if(scenarios.equals("budget")){

@@ -5,7 +5,6 @@ import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.UserDetailImpl;
-import foxconn.fit.service.bi.PoCenterService;
 import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.util.DateUtil;
 import foxconn.fit.util.ExceptionUtil;
@@ -31,8 +30,6 @@ import java.util.*;
 public class PoIntegrationListController extends BaseController {
     @Autowired
     private PoTableService poTableService;
-    @Autowired
-    private PoCenterService poCenterService;
 
 
     @RequestMapping(value = "index")
