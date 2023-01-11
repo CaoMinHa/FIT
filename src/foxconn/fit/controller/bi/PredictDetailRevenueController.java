@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- *
+ *營收下的銷貨收入預測表
  */
 @Controller
 @RequestMapping("/bi/predictDetailRevenue")
@@ -51,7 +51,7 @@ public class PredictDetailRevenueController extends BaseController {
 			model.addAttribute("page", page);
 			model.addAttribute("year", year.substring(2));
 		} catch (Exception e) {
-			logger.error("查询預測營收明細列表失败:", e);
+			logger.error("查询營收銷貨收入預測表列表失败:", e);
 		}
 		return "/bi/predictDetailRevenue/list";
 	}
@@ -75,7 +75,7 @@ public class PredictDetailRevenueController extends BaseController {
 	
 	@RequestMapping(value = "upload")
 	@ResponseBody
-	@Log(name = "预测營收明細-->上传")
+	@Log(name = "營收銷貨收入預測表-->上传")
 	public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		result.put("msg", getLanguage(locale, "上传成功", "Upload Success"));
@@ -86,7 +86,7 @@ public class PredictDetailRevenueController extends BaseController {
 	
 	@RequestMapping(value = "download")
 	@ResponseBody
-	@Log(name = "预测營收明細-->下载")
+	@Log(name = "營收銷貨收入預測表-->下载")
 	public synchronized String download(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
 			@Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version){
 		try {
