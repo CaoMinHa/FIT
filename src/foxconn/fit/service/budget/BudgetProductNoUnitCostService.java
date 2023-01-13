@@ -167,7 +167,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				/**交易類型**/List<String> tradeTypeList = new ArrayList<>();
 				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 				String check = "";
-				String checkProduct = "";
 				String type = "";
 				for (int i = 3; i < rowNum; i++) {
 					if(null==sheet.getRow(i)){
@@ -262,10 +261,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						budgetProductNoUnitCost.setManufactureCostFouryear(ExcelUtil.getCellStringValue(row.getCell(68),i));
 					}else if(COLUMN_NUM==226){
 						type="2";
-						if(ExcelUtil.getCellStringValue(row.getCell(2), i).equals(ExcelUtil.getCellStringValue(row.getCell(3), i))){
-							checkProduct+=(i+1)+",";
-							continue;
-						}
 						budgetProductNoUnitCost.setMakeEntity(ExcelUtil.getCellStringValue(row.getCell(1), i));
 						budgetProductNoUnitCost.setIndustry(ExcelUtil.getCellStringValue(row.getCell(2), i));
 						budgetProductNoUnitCost.setMainBusiness(ExcelUtil.getCellStringValue(row.getCell(3), i));
@@ -395,9 +390,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
 				}
-				if (!"".equalsIgnoreCase(checkProduct.trim()) && checkProduct.length() > 0) {
-					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品系列和料號一致請上傳簡化版成本預算模板。--->" + checkProduct.substring(0,checkProduct.length()-1), "The following lines fail to be uploaded.The product series and material number are consistent. Please upload the simplified cost budget template--->" + checkProduct.substring(0,checkProduct.length()-1)));
-				}
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
 				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
 					result.put("msg", instrumentClassService.getLanguage(locale, "以下數據未上傳成功，請檢查您是否具備該SBU權限。--------->" + check, "The following data fails to be uploaded. Check whether you have the SBU permission--------->" + check));
@@ -517,7 +509,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				/**交易類型**/List<String> tradeTypeList = new ArrayList<>();
 				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 				String check = "";
-				String checkProduct = "";
 				String type="";
 				for (int i = 3; i < rowNum; i++) {
 					if(null==sheet.getRow(i)){
@@ -597,10 +588,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						forecastSalesCost.setManufactureCost12(ExcelUtil.getCellStringValue(row.getCell(48),i));
 					}else if(COLUMN_NUM==190){
 						type="2";
-						if(ExcelUtil.getCellStringValue(row.getCell(2), i).equals(ExcelUtil.getCellStringValue(row.getCell(3), i))){
-							checkProduct+=(i+1)+",";
-							continue;
-						}
 						forecastSalesCost.setMakeEntity(ExcelUtil.getCellStringValue(row.getCell(1), i));
 						forecastSalesCost.setIndustry(ExcelUtil.getCellStringValue(row.getCell(2), i));
 						forecastSalesCost.setMainBusiness(ExcelUtil.getCellStringValue(row.getCell(3), i));
@@ -709,9 +696,6 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				} else {
 					result.put("flag", "fail");
 					result.put("msg", instrumentClassService.getLanguage(locale, "无有效数据行", "Unreceived Valid Row Data"));
-				}
-				if (!"".equalsIgnoreCase(checkProduct.trim()) && checkProduct.length() > 0) {
-					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品系列和料號一致請上傳簡化版成本預算模板。--->" + checkProduct.substring(0,checkProduct.length()-1), "The following lines fail to be uploaded.The product series and material number are consistent. Please upload the simplified cost budget template--->" + checkProduct.substring(0,checkProduct.length()-1)));
 				}
 				check = instrumentClassService.getDiffrent(sbuList, tarList);
 				if (!"".equalsIgnoreCase(check.trim()) && check.length() > 0) {
@@ -1275,21 +1259,20 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				"        sum(nvl(b.quantity_month9,0)) quantity_month9, \n" +
 				"        sum(nvl(b.quantity_month10,0)) quantity_month10, \n" +
 				"        sum(nvl(b.quantity_month11,0)) quantity_month11, \n" +
-				"        sum(nvl(b.quantity_month12,0)) quantity_month12, \n" +
-				"        sum(nvl(b.quantity,0)) quantity, \n" +
-				"        sum(nvl(b.quantity_nextyear,0)) quantity_nextyear, \n" +
-				"        sum(nvl(b.quantity_twoyear,0)) quantity_twoyear, \n" +
-				"        sum(nvl(b.quantity_threeyear,0)) quantity_threeyear, \n" +
-				"        sum(nvl(b.quantity_fouryear,0)) quantity_fouryear \n" +
-				"FROM epmods.if_ebs_ar_revenue_dtl_cst_v2 t, \n" +
+				"        sum(nvl(b.quantity_month12,0)) quantity_month12";
+				if(!tableName.equals("FIT_FORECAST_REVENUE")){
+					sql+=",sum(nvl(b.quantity,0)) quantity,sum(nvl(b.quantity_nextyear,0)) quantity_nextyear, \n" +
+							"sum(nvl(b.quantity_twoyear,0)) quantity_twoyear,sum(nvl(b.quantity_threeyear,0)) quantity_threeyear, \n" +
+							"sum(nvl(b.quantity_fouryear,0)) quantity_fouryear  \n";
+				}
+				sql+=" FROM epmods.if_ebs_ar_revenue_dtl_cst_v2 t, \n" +
 				"     (SELECT a.* \n" +
 				"        FROM epmods."+tableName+" a \n" +
 				"       WHERE a.version = 'V00' \n" +
 				"         AND a.year = 'FY' || (to_char(SYSDATE-30,'YY') + 1)) b \n" +
 				"WHERE t.p_n(+) = b.product_no \n" +
 				" AND t.entity_code(+) = b.ou \n" +
-				" AND t.rn(+)= 1 \n" +
-				" and b.product_no!=b.product_series and b.year='"+year+"' and b.create_name='"+loginUser.getUsername()+"'";
+				" AND t.rn(+)= 1 and b.year='"+year+"' and b.create_name='"+loginUser.getUsername()+"'";
 		if (StringUtils.isNotEmpty(corporationCode)) {
 			sql+=" and (";
 			for (String string : corporationCode.split(",")) {

@@ -10,7 +10,7 @@ import java.util.Date;
  * @author maggao
  */
 @Entity
-@Table(name = "FIT_FORECAST_REVENUE_V")
+@Table(name = "FIT_FORECAST_REVENUE_V1")
 public class ForecastSalesRevenueV {
 
 	private static final long serialVersionUID = -6340420848724099549L;

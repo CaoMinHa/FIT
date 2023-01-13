@@ -36,7 +36,7 @@
             data:{userId:userId.substring(0,userId.length-1),type:type},
             success: function(data){
                 if(data.flag=="success"){
-                    $("#Query").trigger("click");
+                    $("#Query").click();
                 }else{
                     layer.alert(data.msg);
                 }
@@ -61,8 +61,14 @@
             <div class="controls">
                 <form id="QueryCondition" style="float:left;margin:0;">
                     <input name="username" style="float:left;width:140px;text-align:center;margin-left:28px;" placeholder="賬號/姓名查詢" type="text">
-                    <input name="SBU" style="float:left;width:140px;text-align:center;margin-left:20px;" placeholder="SBU查詢" type="text">
-                    <input name="COMMODITY_MAJOR" style="float:left;width:140px;text-align:center;margin-left:20px;" placeholder="Commodity查詢" type="text">
+                    <select name="roleCode" class="input-large" style="width:140px;margin-left:20px;">
+                        <option value="">請選擇角色</option>
+                        <c:forEach items="${roles}" var="role">
+                            <option value="${role.CODE}">${role.NAME}</option>
+                        </c:forEach>
+                    </select>
+                    <input name="COMMODITY_MAJOR" style="float:right;width:140px;text-align:center;margin-left:20px;" placeholder="Commodity查詢" type="text">
+                    <input name="SBU" style="float:right;width:140px;text-align:center;margin-left:20px;" placeholder="SBU查詢" type="text">
                     <select name="state" class="input-large" style="width:140px;margin-left:20px;">
                         <option value="">請選擇狀態</option>
                         <option value="Y">Y</option>

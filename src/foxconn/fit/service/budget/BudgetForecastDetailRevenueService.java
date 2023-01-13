@@ -102,7 +102,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 
 	/**預測頁面查詢*/
 	public String forecastList(String year,String version,String entity){
-		String sql="select * from FIT_FORECAST_REVENUE_V where 1=1";
+		String sql="select * from FIT_FORECAST_REVENUE_V1 where 1=1";
 		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
 		}
@@ -785,7 +785,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			Sheet sheet = workBook.getSheetAt(0);
 			Row row =sheet.getRow(0);
 			row.getCell(15).setCellValue(y);
-			String sql="select * from FIT_FORECAST_REVENUE_V where YEAR='"+y+"'";
+			String sql="select * from FIT_FORECAST_REVENUE_V1 where YEAR='"+y+"'";
 			if (null!=version && StringUtils.isNotEmpty(version)) {
 				sql+=" and VERSION='"+version+"'";
 			}

@@ -1,5 +1,6 @@
 package foxconn.fit.controller.bi;
 
+import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.base.User;
@@ -7,7 +8,6 @@ import foxconn.fit.service.base.UserService;
 import foxconn.fit.service.bi.PoUploadOverdueService;
 import foxconn.fit.util.ExceptionUtil;
 import foxconn.fit.util.SecurityUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +17,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/bi/poUploadOverdue")
@@ -34,6 +33,7 @@ public class PoUploadOverdueController extends BaseController {
             pageRequest.setOrderBy("serial");
             pageRequest.setOrderDir("asc");
             User user = userService.getByUsername(SecurityUtils.getLoginUsername());
+            model=poUploadOverdueService.roleList(model);
             model.addAttribute("attribute", user.getAttribute());
         } catch (Exception e) {
             logger.error("查询明细配置表列表信息失败", e);
@@ -44,26 +44,8 @@ public class PoUploadOverdueController extends BaseController {
     @RequestMapping(value="/list")
     public String userList(Model model,PageRequest pageRequest,HttpServletRequest request,String query) {
         try {
-            String sql="select * from FIT_USER_PO_UPLOAD_V where 1=1";
-            if (StringUtils.isNotEmpty(query)) {
-                String[] params = query.split("&");
-                for (String param : params) {
-                    String columnName = param.substring(0, param.indexOf("=")).trim();
-                    String columnValue = param.substring(param.indexOf("=") + 1).trim();
-                    if (StringUtils.isNotEmpty(columnValue)) {
-                        if ("username".equalsIgnoreCase(columnName)) {
-                            sql += " and USERNAME like '%" + columnValue + "%' or  REALNAME like '%" + columnValue + "%'";
-                        } else if ("state".equalsIgnoreCase(columnName)) {
-                            sql += " and state='" + columnValue + "'";
-                        } else {
-                            sql += " and instr(','||" + columnName + "||',','," + columnValue + ",') > 0";
-                        }
-                    }
-                }
-            }
             pageRequest.setOrderBy("ID");
-            System.out.println(sql);
-            Page<Object[]> page = userService.findPageBySql(pageRequest,sql);
+            Page<Object[]> page = userService.findPageBySql(pageRequest,poUploadOverdueService.selectSql(query));
             int index=1;
             if(pageRequest.getPageNo()>1){
                 index=2;
@@ -79,7 +61,8 @@ public class PoUploadOverdueController extends BaseController {
 
     @RequestMapping(value="/allocate")
     @ResponseBody
-    public String delete(HttpServletRequest request,AjaxResult ajaxResult,String userId,String type){
+    @Log(name = "數據上傳逾期處理-->分配/取消")
+    public String delete(HttpServletRequest request,AjaxResult ajaxResult,@Log(name = "用戶ID") String userId,@Log(name = "操作") String type){
         try {
             poUploadOverdueService.updateState(userId,type);
         } catch (Exception e) {
