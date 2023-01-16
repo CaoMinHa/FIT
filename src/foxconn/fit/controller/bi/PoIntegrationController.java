@@ -211,16 +211,6 @@ public class PoIntegrationController extends BaseController {
         String year=localDate.minusDays(60).toString().substring(0,4);
         String period = localDate.minusMonths(1).toString().substring(5,7);
         try {
-            /**測試需要先注釋*/
-            if(!poTableService.updateState(loginUser.getUsername())){
-                if("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableNamesOut1[0])||"FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableNamesOut1[0])){
-                    if(Integer.parseInt(localDate.toString().substring(8,10))>10){
-                        result.put("flag", "fail");
-                        result.put("msg", getLanguage(locale, "上傳時間為每月1-10號，現已逾期，請聯係管理員。", "The upload time is from the 1st to the 10th of each month, it is overdue, please contact the administrator"));
-                        return result.getJson();
-                    }
-                }
-            }
             Assert.isTrue(tableNamesOut1 != null && tableNamesOut1.length > 0, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
             List<String> sbuList = new ArrayList<>();
             List<String> commodityList = new ArrayList<>();
@@ -309,25 +299,40 @@ public class PoIntegrationController extends BaseController {
                         String RYM = recordsYear + recordsMonth;
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
                             //測試後續放開
-                            year=String.valueOf(Integer.parseInt(localDate.minusDays(60).toString().substring(0,4))+1);
-                            Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
-                            data.add(recordsYear);
+                            if(!poTableService.updateState(loginUser.getUsername())){
+                                year=String.valueOf(Integer.parseInt(localDate.minusDays(60).toString().substring(0,4))+1);
+                                Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
+                            }
+                            year=recordsYear;
+                            data.add(year);
                             n += 1;
                         } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
                             //測試後續放開
-                            Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
+                            if(!poTableService.updateState(loginUser.getUsername())){
+                                Assert.isTrue(year.equals(recordsYear), getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
+                            }
                             if(!poTableService.checkCPO(recordsYear)){
                                 result.put("flag", "fail");
-                                result.put("msg", getLanguage(locale, "採購CD 目標CPO核准還未完成審批，暫無法上個數據。", "The target CPO has not been approved yet, and the last data cannot be uploaded for the time being"));
+                                result.put("msg", getLanguage(locale, "採購CD 目標CPO核准還未完成審批，暫無法上傳數據。", "The CPO approval of the purchase CD target has not been completed, so the data cannot be uploaded temporarily"));
                                 return result.getJson();
                             }
                             year=recordsYear;
                             data.add(year);
                             n = 1;
                         } else {
-                            //測試後續放開
-                            year = localDate.minusMonths(1).toString().substring(0,4);
-                            Assert.isTrue((year+period).equals(RYM), getLanguage(locale, "錯誤的月份： " + RYM + "應為：" + (year+period), "The year，period is error:" + RYM + "should be：" + (year+period)));
+                            if(!poTableService.updateState(loginUser.getUsername())){
+                                year = localDate.minusMonths(1).toString().substring(0,4);
+                                if("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableNamesOut1[0])||"FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableNamesOut1[0])){
+                                    if(Integer.parseInt(localDate.toString().substring(8,10))>10){
+                                        result.put("flag", "fail");
+                                        result.put("msg", getLanguage(locale, "上傳時間為每月1-10號，現已逾期，請聯係管理員。", "The upload time is from the 1st to the 10th of each month, it is overdue, please contact the administrator"));
+                                        return result.getJson();
+                                    }
+                                }
+                                Assert.isTrue((year+period).equals(RYM), getLanguage(locale, "錯誤的月份： " + RYM + "應為：" + (year+period), "The year，period is error:" + RYM + "should be：" + (year+period)));
+                            }
+                            year=recordsYear;
+                            period=recordsMonth;
                             data.add(year);
                             data.add(period);
                             n += 2;
@@ -591,18 +596,19 @@ public class PoIntegrationController extends BaseController {
                 if (StringUtils.isNotEmpty(date) && StringUtils.isNotEmpty(dateEnd)) {
                     Date d = DateUtil.parseByYyyy_MM(date);
                     Assert.notNull(d, getLanguage(locale, "年月格式錯誤", "The format of year/month is error"));
-                    String[] split = date.split("-");
-                    String[] split1 = dateEnd.split("-");
-                    String year = split[0];
-                    String period = split[1];
-                    String period1 = split1[1];
-                    if (period.length() < 2) {
-                        period = "0" + period;
+                    StringBuffer str;
+                    date=date.replace("-","");
+                    dateEnd=dateEnd.replace("-","");
+                    if (date.length() < 6) {
+                        str=new StringBuffer(date);
+                        date=str.insert(4,"0").toString();
                     }
-                    if (period1.length() < 2) {
-                        period1 = "0" + period1;
+                    if (dateEnd.length() < 6) {
+                        str=new StringBuffer(dateEnd);
+                        dateEnd=str.insert(4,"0").toString();
                     }
-                    whereSql += " and " + columns.get(0).getColumnName() + " =" + year + " and " + columns.get(1).getColumnName() + ">=" + period + " and " + columns.get(1).getColumnName() + "<=" + period1;
+                    whereSql += " and " + columns.get(0).getColumnName() +"||"+ columns.get(1).getColumnName() + ">=" + date
+                            + " and " + columns.get(0).getColumnName() +"||"+ columns.get(1).getColumnName() + "<=" + dateEnd;
                 }
                 if (StringUtils.isNotEmpty(poCenter)) {
                     whereSql += " and " + columns.get(2).getColumnName() + "='" + poCenter + "'";

@@ -95,21 +95,6 @@ public class PoTaskController extends BaseController {
             }
             String sql="select  ID , TYPE ,NAME, FLAG ,remark,CREATE_USER_REAL, create_time, " +
                     " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE flag not in('-1','3')  ";
-            if(!StringUtils.isBlank(name)){
-                name="%"+name+"%";
-                sql=sql+" and name like "+"'"+name+"'";
-            }
-            if(!StringUtils.isBlank(type)){
-                if(type.equalsIgnoreCase("FIT_PO_CD_MONTH_DOWN")){
-                    sql=sql+" and type ='FIT_PO_CD_MONTH_DTL' ";
-                }else{
-                    sql=sql+" and type ="+"'"+type+"'";
-                }
-            }
-            if(!StringUtils.isBlank(date)){
-                date=date+"%";
-                sql=sql+" and name like"+"'"+date+"'";
-            }
             //  数据状态：未提交->初審中->終審中->已核准
             //  不同角色人员，自己看到自己对应阶段的数据
             //1 采购员看到自己创建的数据 by 物料大类 Sourcer
@@ -123,7 +108,8 @@ public class PoTaskController extends BaseController {
             //备注 若同一物料大类部门只维护了部级主管，则任务直接提交至部级主管
             //8 系统管理员 所有数据 且阶段是終審中(sbu表)可审核 KeyUser
             if("KEYUSER".equalsIgnoreCase(roleCode)){
-
+                sql="select  ID , TYPE ,NAME, FLAG ,remark,CREATE_USER_REAL, create_time, " +
+                        " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE flag not in('-1') ";
             }else if("SOURCER".equalsIgnoreCase(roleCode)){
                 sql+=" and CREATE_USER="+"'"+userName+"' and Type in ('FIT_PO_BUDGET_CD_DTL','FIT_ACTUAL_PO_NPRICECD_DTL','FIT_PO_CD_MONTH_DTL') ";
                 roleCode="BASE";
@@ -147,6 +133,21 @@ public class PoTaskController extends BaseController {
                 sql+=" and type='FIT_PO_Target_CPO_CD_DTL' and (flag='2' or AUDIT_TWO='"+userName+"') ";
             }else{
                 sql+=" and 1=0";
+            }
+            if(!StringUtils.isBlank(name)){
+                name="%"+name+"%";
+                sql=sql+" and name like "+"'"+name+"'";
+            }
+            if(!StringUtils.isBlank(type)){
+                if(type.equalsIgnoreCase("FIT_PO_CD_MONTH_DOWN")){
+                    sql=sql+" and type ='FIT_PO_CD_MONTH_DTL' ";
+                }else{
+                    sql=sql+" and type ="+"'"+type+"'";
+                }
+            }
+            if(!StringUtils.isBlank(date)){
+                date=date+"%";
+                sql=sql+" and name like"+"'"+date+"'";
             }
             sql+=" order by create_time desc,flag asc";
             System.out.println(sql);

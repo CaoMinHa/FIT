@@ -279,19 +279,20 @@ public class PoIntegrationListController extends BaseController {
                 if (StringUtils.isNotEmpty(date) && StringUtils.isNotEmpty(dateEnd)) {
                     Date d = DateUtil.parseByYyyy_MM(date);
                     Assert.notNull(d, getLanguage(locale, "年月格式錯誤", "The format of year/month is error"));
-                    String[] split = date.split("-");
-                    String[] split1 = dateEnd.split("-");
-                    String year = split[0];
-                    String period = split[1];
-                    String period1 = split1[1];
-                    if (period.length() < 2) {
-                        period = "0" + period;
+                    StringBuffer str;
+                    date=date.replace("-","");
+                    dateEnd=dateEnd.replace("-","");
+                    if (date.length() < 6) {
+                        str=new StringBuffer(date);
+                        date=str.insert(4,"0").toString();
                     }
-                    if (period1.length() < 2) {
-                        period1 = "0" + period1;
+                    if (dateEnd.length() < 6) {
+                        str=new StringBuffer(dateEnd);
+                        dateEnd=str.insert(4,"0").toString();
                     }
                     orderBy += columns.get(1).getColumnName() + ", ";
-                    whereSql += " and " + columns.get(0).getColumnName() + " =" + year + " and " + columns.get(1).getColumnName() + ">=" + period + " and " + columns.get(1).getColumnName() + "<=" + period1;
+                    whereSql += " and " + columns.get(0).getColumnName() +"||"+ columns.get(1).getColumnName() + ">=" + date
+                            + " and " + columns.get(0).getColumnName() +"||"+ columns.get(1).getColumnName() + "<=" + dateEnd;
                 }
                 if (StringUtils.isNotEmpty(poCenter)) {
                     whereSql += " and " + columns.get(2).getColumnName() + "='" + poCenter + "'";
