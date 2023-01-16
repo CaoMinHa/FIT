@@ -145,7 +145,7 @@ $(function() {
 			$("#MasterDataTip").hide();
 			$("#loading").show();
 			var masterData=$(this).val();
-			if(masterData.indexOf("SBU")>= 0){
+			if(masterData.indexOf("SBU")>= 0||masterData.indexOf("COMMODITY")>= 0){
                $("#FileUpload").hide()
 				$(".upload-tip").hide();
 			}else{
@@ -218,7 +218,7 @@ $(function() {
 					    	</div>
 							<div style="float: left;margin:0 10px 0 20px;">
 							    <div>
-							    	<select id="MasterData" name="masterData" class="input-xlarge" style="width:120px;color:#9f9a9a;font-weight:bold;">
+							    	<select id="MasterData" name="masterData" class="input-xlarge" style="width:185px;color:#9f9a9a;font-weight:bold;">
 										<option value="" style="color:#9f9a9a;font-weight:bold;"><spring:message code='poMix'/></option>
 										<c:forEach items="${supplierList }" var="supplier">
 											<option value="${fn:split(supplier,'|')[0]}">${fn:split(supplier,'|')[1]}</option>

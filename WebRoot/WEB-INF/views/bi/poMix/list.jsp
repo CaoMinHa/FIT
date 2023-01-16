@@ -125,7 +125,7 @@ function refresh(){
 				<c:forEach items="${titleList }" var="title">
 					<th style="white-space: nowrap; border-right:1px solid #eee;text-align: center;">${title[1] }</th>
 				</c:forEach>
-				<c:if test="${!fn:contains(masterType,'SBU')}">
+				<c:if test="${!fn:contains(masterType,'SBU') && !fn:contains(masterType,'COMMODITY')}">
 				<th style="white-space: nowrap; border-right:1px solid #eee;text-align: center;"><spring:message code='operation'/></th>
 				</c:if>
 			</tr>
@@ -186,7 +186,7 @@ function refresh(){
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
-					<c:if test="${!fn:contains(masterType,'SBU')}">
+					<c:if test="${!fn:contains(masterType,'SBU') && !fn:contains(masterType,'COMMODITY')}">
 						<td style="white-space: nowrap; border-right:1px solid #eee;">
 							<a href="javascript:void(0);" class="update"><spring:message code='update'/></a>
 							<a href="javascript:void(0);" class="delete">刪除</a>
