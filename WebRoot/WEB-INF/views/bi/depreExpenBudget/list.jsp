@@ -97,7 +97,7 @@ function refresh(){
 </script>
 </head>
 <body>
-<div style="width:100%;">
+<div style="width:180%;">
 	<c:choose>
 		<c:when test="${scenarios eq 'forecast'}">
 			<table class="table table-condensed table-hover">

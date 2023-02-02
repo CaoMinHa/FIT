@@ -1269,7 +1269,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				"     (SELECT a.* \n" +
 				"        FROM epmods."+tableName+" a \n" +
 				"       WHERE a.version = 'V00' \n" +
-				"         AND a.year = 'FY' || (to_char(SYSDATE-30,'YY') + 1)) b \n" +
+				"         AND a.year = 'FY' || (to_char(SYSDATE-60,'YY') + 1)) b \n" +
 				"WHERE t.p_n(+) = b.product_no \n" +
 				" AND t.entity_code(+) = b.ou \n" +
 				" AND t.rn(+)= 1 and b.year='"+year+"' and b.create_name='"+loginUser.getUsername()+"'";
