@@ -102,6 +102,18 @@ public class InvestmentBudget implements Serializable{
 	/**版本創建人*/
 	@Column(name = "version_name")
 	private String versionName;
+	/**需求數量 (或場地面積)（明年）*/
+	@Column(name = "next_quantity_required")
+	private Integer nextQuantityRequired;
+	/**投資金額(本位幣)（明年）*/
+	@Column(name = "next_amount_investment")
+	private Double nextAmountInvestment;
+	/**需求數量(或場地面積)（后年）*/
+	@Column(name = "after_quantity_required")
+	private Integer afterQuantityRequired;
+	/**投資金額(本位幣)（后年）*/
+	@Column(name = "after_amount_investment")
+	private Double afterAmountInvestment;
 
 	public InvestmentBudget(){}
 
@@ -359,5 +371,37 @@ public class InvestmentBudget implements Serializable{
 
 	public void setVersionName(String versionName) {
 		this.versionName = versionName;
+	}
+
+	public Integer getNextQuantityRequired() {
+		return nextQuantityRequired;
+	}
+
+	public void setNextQuantityRequired(Integer nextQuantityRequired) {
+		this.nextQuantityRequired = nextQuantityRequired;
+	}
+
+	public Double getNextAmountInvestment() {
+		return nextAmountInvestment;
+	}
+
+	public void setNextAmountInvestment(Double nextAmountInvestment) {
+		this.nextAmountInvestment = nextAmountInvestment;
+	}
+
+	public Integer getAfterQuantityRequired() {
+		return afterQuantityRequired;
+	}
+
+	public void setAfterQuantityRequired(Integer afterQuantityRequired) {
+		this.afterQuantityRequired = afterQuantityRequired;
+	}
+
+	public Double getAfterAmountInvestment() {
+		return afterAmountInvestment;
+	}
+
+	public void setAfterAmountInvestment(Double afterAmountInvestment) {
+		this.afterAmountInvestment = afterAmountInvestment;
 	}
 }

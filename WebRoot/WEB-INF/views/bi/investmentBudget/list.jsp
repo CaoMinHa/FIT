@@ -106,8 +106,8 @@ function refresh(){
 					<th rowspan="2"><spring:message code='operation'/></th>
 					<th colspan="9">基礎數據</th>
 					<th colspan="12">FY${year}</th>
-					<th colspan="2">FY${year+1}</th>
-					<th colspan="2">FY${year+2}</th>
+					<th colspan="4">FY${year+1}</th>
+					<th colspan="4">FY${year+2}</th>
 				</tr>
 				<tr>
 					<th>投資編號</th>
@@ -131,8 +131,12 @@ function refresh(){
 					<th>投資説明</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
+					<th>需求數量(或場地面積)</th>
+					<th>投資金額(本位幣)</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
+					<th>需求數量(或場地面積)</th>
+					<th>投資金額(本位幣)</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
 				</tr>
@@ -166,8 +170,12 @@ function refresh(){
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.descriptionInvestment}</td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.revenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.profit}" pattern="#,##0.##"></fmt:formatNumber></td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.nextQuantityRequired}</td>
+						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextAmountInvestment}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextRevenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextProfit}" pattern="#,##0.##"></fmt:formatNumber></td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.afterQuantityRequired}</td>
+						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterAmountInvestment}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterRevenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterProfit}" pattern="#,##0.##"></fmt:formatNumber></td>
 					</tr>
@@ -182,8 +190,8 @@ function refresh(){
 					<th rowspan="2"><spring:message code='operation'/></th>
 					<th colspan="9">基礎數據</th>
 					<th colspan="12">FY${year}</th>
-					<th colspan="2">FY${year+1}</th>
-					<th colspan="2">FY${year+2}</th>
+					<th colspan="4">FY${year+1}</th>
+					<th colspan="4">FY${year+2}</th>
 				</tr>
 				<tr>
 					<th>投資編號</th>
@@ -207,8 +215,12 @@ function refresh(){
 					<th>投資説明</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
+					<th>需求數量(或場地面積)</th>
+					<th>投資金額(本位幣)</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
+					<th>需求數量(或場地面積)</th>
+					<th>投資金額(本位幣)</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
 				</tr>
@@ -242,8 +254,12 @@ function refresh(){
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.descriptionInvestment}</td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.revenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.profit}" pattern="#,##0.##"></fmt:formatNumber></td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.nextQuantityRequired}</td>
+						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextAmountInvestment}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextRevenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextProfit}" pattern="#,##0.##"></fmt:formatNumber></td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.afterQuantityRequired}</td>
+						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterAmountInvestment}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterRevenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterProfit}" pattern="#,##0.##"></fmt:formatNumber></td>
 					</tr>

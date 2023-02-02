@@ -199,7 +199,9 @@
 				if($(this).val()){
 					$("#QScenarios").val($(this).val());
 					var date=new Date;
-					var year=date.getFullYear();
+					//預算應爲測試需要先把年份校驗放開
+					// var year=date.getFullYear()
+					var year=date.getFullYear()-1;
 					if($(this).val()=="forecast"){
 						$("#QYear").val("FY"+year.toString().substring(2));
 					}else{
@@ -211,7 +213,9 @@
 			$("#QScenarios").change(function () {
 				if($(this).val()){
 					var date=new Date;
-					var year=date.getFullYear();
+					//預算應爲測試需要先把年份校驗放開
+					// var year=date.getFullYear()
+					var year=date.getFullYear()-1;
 					if($(this).val()=="forecast"){
 						$("#QYear").val("FY"+year.toString().substring(2));
 					}else{
