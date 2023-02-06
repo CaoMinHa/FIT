@@ -343,20 +343,17 @@ public class PoIntegrationListController extends BaseController {
                 if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())||
                         "FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(poTable.getTableName())||
                         "FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-//                    if(commodity.indexOf(",")==-1){
-//                        whereSql += " and COMMODITY_MAJOR like '%"+commodity+"%'";
-//                    }else {
                         whereSql += " and COMMODITY_MAJOR in(" + commotityVal.substring(0,commotityVal.length()-1) + ")";
-//                    }
                 }else{
-//                    if(commodity.indexOf(",")==-1){
-//                        whereSql += " and COMMODITY like '%"+commodity+"%'";
-//                    }else {
                         whereSql += " and COMMODITY in (" + commotityVal.substring(0,commotityVal.length()-1) + ")";
-//                    }
                 }
             }
-
+            UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+            String sbuList="select ''''||REPLACE(SBU,',',''',''')||'''' as SBU from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id and r.code in('MM','PD','SBUCompetent') and u.sbu is not null and u.username='"+loginUser.getUsername()+"'";
+            List<Map> list=poTableService.listMapBySql(sbuList);
+            if(!list.isEmpty()){
+                whereSql+=" and sbu in("+list.get(0).get("SBU").toString()+")";
+            }
             if(null!=sbuVal && !"".equalsIgnoreCase(sbuVal)) {
                 String sbu = "";
                 for (int i = 0; i < sbuVal.split(",").length; i++) {
