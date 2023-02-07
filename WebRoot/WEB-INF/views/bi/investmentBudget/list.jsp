@@ -8,93 +8,93 @@
 			text-align:center;
 		}
 	</style>
-<script type="text/javascript">
-var Page;
-$(function() {
-	Page=$("#Fenye").myPagination({
-		currPage : eval('${fn:escapeXml(page.pageNo)}'),
-		pageCount: eval('${fn:escapeXml(page.totalPages)}'),
-		pageNumber : 5,
-		panel : {
-			tipInfo_on : true,
-			tipInfo : '跳{input}/{sumPage}页',
-			tipInfo_css : {
-			width : "20px",
-			height : "20px",
-			border : "2px solid #f0f0f0",
-			padding : "0 0 0 5px",
-			margin : "0 5px 20px 5px",
-			color : "red"
-			}
-		},
-		ajax: {
-            on: false,
-            url:"",
-            pageCountId : 'pageCount',
-			param:{on:true,page:1},
-            dataType: 'json',
-            onClick:clickPage,
-            callback:null
-	   }
-	});
+	<script type="text/javascript">
+		var Page;
+		$(function() {
+			Page=$("#Fenye").myPagination({
+				currPage : eval('${fn:escapeXml(page.pageNo)}'),
+				pageCount: eval('${fn:escapeXml(page.totalPages)}'),
+				pageNumber : 5,
+				panel : {
+					tipInfo_on : true,
+					tipInfo : '跳{input}/{sumPage}页',
+					tipInfo_css : {
+						width : "20px",
+						height : "20px",
+						border : "2px solid #f0f0f0",
+						padding : "0 0 0 5px",
+						margin : "0 5px 20px 5px",
+						color : "red"
+					}
+				},
+				ajax: {
+					on: false,
+					url:"",
+					pageCountId : 'pageCount',
+					param:{on:true,page:1},
+					dataType: 'json',
+					onClick:clickPage,
+					callback:null
+				}
+			});
 
-	$("#Fenye>input:first").bind("blur",function(){
-		Page.jumpPage($(this).val());
-		clickPage(Page.getPage());
-	});
-	
-	$(".table-condensed a.delete").click(function(){
-		var $this=$(this);
-		layer.confirm("<spring:message code='confirm'/>?",{btn: ['<spring:message code='confirm'/>', '<spring:message code='cancel'/>'], title: "<spring:message code='tip'/>"},function(index){
-			layer.close(index);
-			var id=$this.parent().attr("mappingId");
+			$("#Fenye>input:first").bind("blur",function(){
+				Page.jumpPage($(this).val());
+				clickPage(Page.getPage());
+			});
+
+			$(".table-condensed a.delete").click(function(){
+				var $this=$(this);
+				layer.confirm("<spring:message code='confirm'/>?",{btn: ['<spring:message code='confirm'/>', '<spring:message code='cancel'/>'], title: "<spring:message code='tip'/>"},function(index){
+					layer.close(index);
+					var id=$this.parent().attr("mappingId");
+					if(!$("#QScenarios").val()){
+						layer.alert("請選擇場景！(Please select a scene)");
+						return;
+					}
+					$.ajax({
+						type:"POST",
+						url:"${ctx}/bi/investmentBudget/delete",
+						async:true,
+						dataType:"json",
+						data:{id:id,scenarios: $("#QScenarios").val()},
+						success: function(data){
+							layer.alert(data.msg);
+							if(data.flag=="success"){
+								refresh();
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown) {
+							layer.alert("<spring:message code='connect_fail'/>");
+						}
+					});
+				});
+			});
+		});
+
+		//用于触发当前点击事件
+		function clickPage(page){
+			$("#PageNo").val(page);
 			if(!$("#QScenarios").val()){
 				layer.alert("請選擇場景！(Please select a scene)");
 				return;
 			}
-			$.ajax({
-				type:"POST",
-				url:"${ctx}/bi/investmentBudget/delete",
-				async:true,
-				dataType:"json",
-				data:{id:id,scenarios: $("#QScenarios").val()},
-				success: function(data){
-					layer.alert(data.msg);
-					if(data.flag=="success"){
-						refresh();
-					}
-			   	},
-			   	error: function(XMLHttpRequest, textStatus, errorThrown) {
-			   		layer.alert("<spring:message code='connect_fail'/>");
-			   	}
+			$("#loading").show();
+			var entity="";
+			$("input[name=entitys]:checked").each(function(i,dom){
+				entity+=$(dom).val()+",";
 			});
-		});
-	});
-});
+			$("#Content").load("${ctx}/bi/investmentBudget/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
+				orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
+				scenarios:$("#QScenarios").val(),
+				entitys:entity.substring(0,entity.length-1),year:$("#QYear").val(),
+				version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
+		}
 
-//用于触发当前点击事件
-function clickPage(page){
-	$("#PageNo").val(page);
-	if(!$("#QScenarios").val()){
-		layer.alert("請選擇場景！(Please select a scene)");
-		return;
-	}
-	$("#loading").show();
-	var entity="";
-	$("input[name=entitys]:checked").each(function(i,dom){
-		entity+=$(dom).val()+",";
-	});
-	$("#Content").load("${ctx}/bi/investmentBudget/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
-		orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
-		scenarios:$("#QScenarios").val(),
-		entitys:entity.substring(0,entity.length-1),year:$("#QYear").val(),
-		version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
-}
-
-function refresh(){
-	clickPage("1");
-}
-</script>
+		function refresh(){
+			clickPage("1");
+		}
+	</script>
 </head>
 <body>
 <div style="width:260%;">
@@ -106,8 +106,8 @@ function refresh(){
 					<th rowspan="2"><spring:message code='operation'/></th>
 					<th colspan="9">基礎數據</th>
 					<th colspan="12">FY${year}</th>
-					<th colspan="4">FY${year+1}</th>
-					<th colspan="4">FY${year+2}</th>
+					<th colspan="2">FY${year+1}</th>
+					<th colspan="2">FY${year+2}</th>
 				</tr>
 				<tr>
 					<th>投資編號</th>
@@ -131,12 +131,8 @@ function refresh(){
 					<th>投資説明</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
-					<th>需求數量(或場地面積)</th>
-					<th>投資金額(本位幣)</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
-					<th>需求數量(或場地面積)</th>
-					<th>投資金額(本位幣)</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
 				</tr>
@@ -170,12 +166,8 @@ function refresh(){
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.descriptionInvestment}</td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.revenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.profit}" pattern="#,##0.##"></fmt:formatNumber></td>
-						<td style="border-right:1px solid #eee;text-align: left;">${mapping.nextQuantityRequired}</td>
-						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextAmountInvestment}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextRevenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextProfit}" pattern="#,##0.##"></fmt:formatNumber></td>
-						<td style="border-right:1px solid #eee;text-align: left;">${mapping.afterQuantityRequired}</td>
-						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterAmountInvestment}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterRevenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterProfit}" pattern="#,##0.##"></fmt:formatNumber></td>
 					</tr>
@@ -190,8 +182,8 @@ function refresh(){
 					<th rowspan="2"><spring:message code='operation'/></th>
 					<th colspan="9">基礎數據</th>
 					<th colspan="12">FY${year}</th>
-					<th colspan="4">FY${year+1}</th>
-					<th colspan="4">FY${year+2}</th>
+					<th colspan="2">FY${year+1}</th>
+					<th colspan="2">FY${year+2}</th>
 				</tr>
 				<tr>
 					<th>投資編號</th>
@@ -215,12 +207,8 @@ function refresh(){
 					<th>投資説明</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
-					<th>需求數量(或場地面積)</th>
-					<th>投資金額(本位幣)</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
-					<th>需求數量(或場地面積)</th>
-					<th>投資金額(本位幣)</th>
 					<th>預估收益-營收(本位幣)</th>
 					<th>預估收益-淨利(本位幣)</th>
 				</tr>
@@ -254,12 +242,8 @@ function refresh(){
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.descriptionInvestment}</td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.revenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.profit}" pattern="#,##0.##"></fmt:formatNumber></td>
-						<td style="border-right:1px solid #eee;text-align: left;">${mapping.nextQuantityRequired}</td>
-						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextAmountInvestment}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextRevenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.nextProfit}" pattern="#,##0.##"></fmt:formatNumber></td>
-						<td style="border-right:1px solid #eee;text-align: left;">${mapping.afterQuantityRequired}</td>
-						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterAmountInvestment}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterRevenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.afterProfit}" pattern="#,##0.##"></fmt:formatNumber></td>
 					</tr>

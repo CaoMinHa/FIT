@@ -145,7 +145,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 //				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
 //				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				int column = sheet.getRow(1).getLastCellNum();
-				Assert.isTrue(column <= 29,instrumentClassService.getLanguage(locale, "請下載正確的模板上傳數據！", "Please download the correct template to upload the data"));
+				Assert.isTrue(column <= 25,instrumentClassService.getLanguage(locale, "Excel列数不能小于" + 25 + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + 25 + ",Please download the correct template to upload the data"));
 				int rowNum = sheet.getPhysicalNumberOfRows();
 				Assert.isTrue(rowNum > 2,instrumentClassService.getLanguage(locale, "检测到Excel没有行数据", "Row Data Not Empty"));
 				List list;
@@ -302,14 +302,10 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		investmentBudget.setDescriptionInvestment(ExcelUtil.getCellStringValue(row.getCell(18), i));
 		investmentBudget.setRevenue(ExcelUtil.getCellDoubleValue(row.getCell(19), i));
 		investmentBudget.setProfit(ExcelUtil.getCellDoubleValue(row.getCell(20), i));
-		investmentBudget.setNextQuantityRequired(ExcelUtil.getCellIntegerValue(row.getCell(21), i));
-		investmentBudget.setNextAmountInvestment(ExcelUtil.getCellDoubleValue(row.getCell(22), i));
-		investmentBudget.setNextRevenue(ExcelUtil.getCellDoubleValue(row.getCell(23), i));
-		investmentBudget.setNextProfit(ExcelUtil.getCellDoubleValue(row.getCell(24), i));
-		investmentBudget.setAfterQuantityRequired(ExcelUtil.getCellIntegerValue(row.getCell(25), i));
-		investmentBudget.setAfterAmountInvestment(ExcelUtil.getCellDoubleValue(row.getCell(26), i));
-		investmentBudget.setAfterRevenue(ExcelUtil.getCellDoubleValue(row.getCell(27), i));
-		investmentBudget.setAfterProfit(ExcelUtil.getCellDoubleValue(row.getCell(28), i));
+		investmentBudget.setNextRevenue(ExcelUtil.getCellDoubleValue(row.getCell(21), i));
+		investmentBudget.setNextProfit(ExcelUtil.getCellDoubleValue(row.getCell(22), i));
+		investmentBudget.setAfterRevenue(ExcelUtil.getCellDoubleValue(row.getCell(23), i));
+		investmentBudget.setAfterProfit(ExcelUtil.getCellDoubleValue(row.getCell(24), i));
 		investmentBudget.setId(UUID.randomUUID().toString());
 		investmentBudget.setVersion("V00");
 		investmentBudget.setCreateDate(new Date());
@@ -329,14 +325,10 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		investmentForecast.setDescriptionInvestment(ExcelUtil.getCellStringValue(row.getCell(18), i));
 		investmentForecast.setRevenue(ExcelUtil.getCellDoubleValue(row.getCell(19), i));
 		investmentForecast.setProfit(ExcelUtil.getCellDoubleValue(row.getCell(20), i));
-		investmentForecast.setNextQuantityRequired(ExcelUtil.getCellIntegerValue(row.getCell(21), i));
-		investmentForecast.setNextAmountInvestment(ExcelUtil.getCellDoubleValue(row.getCell(22), i));
-		investmentForecast.setNextRevenue(ExcelUtil.getCellDoubleValue(row.getCell(23), i));
-		investmentForecast.setNextProfit(ExcelUtil.getCellDoubleValue(row.getCell(24), i));
-		investmentForecast.setAfterQuantityRequired(ExcelUtil.getCellIntegerValue(row.getCell(25), i));
-		investmentForecast.setAfterAmountInvestment(ExcelUtil.getCellDoubleValue(row.getCell(26), i));
-		investmentForecast.setAfterRevenue(ExcelUtil.getCellDoubleValue(row.getCell(27), i));
-		investmentForecast.setAfterProfit(ExcelUtil.getCellDoubleValue(row.getCell(28), i));
+		investmentForecast.setNextRevenue(ExcelUtil.getCellDoubleValue(row.getCell(21), i));
+		investmentForecast.setNextProfit(ExcelUtil.getCellDoubleValue(row.getCell(22), i));
+		investmentForecast.setAfterRevenue(ExcelUtil.getCellDoubleValue(row.getCell(23), i));
+		investmentForecast.setAfterProfit(ExcelUtil.getCellDoubleValue(row.getCell(24), i));
 		investmentForecast.setId(UUID.randomUUID().toString());
 		investmentForecast.setVersion("V00");
 		investmentForecast.setCreateDate(new Date());
@@ -344,7 +336,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 	}
 	/**上傳保存數據校驗主數據是否正確*/
 	private void checkMianData(List<String> projectList,List<String> combineList,List<String> entityList,List<String> departmentList,List<String> departmentList1,
-									 List<String> bakList,List<String> mainBusinessList, List<String> segmentList,List<String> currencyList,String userName){
+							   List<String> bakList,List<String> mainBusinessList, List<String> segmentList,List<String> currencyList,String userName){
 		String check="";
 		/**投資編號*/
 		check=this.check(projectList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Project' and DIMENSION not like 'P_CE%'");
@@ -429,7 +421,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 			int year=calendar.get(Calendar.YEAR)-1;
 			row.getCell(9).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			row.getCell(21).setCellValue("FY"+ String.valueOf(year+2).substring(2));
-			row.getCell(25).setCellValue("FY"+ String.valueOf(year+3).substring(2));
+			row.getCell(23).setCellValue("FY"+ String.valueOf(year+3).substring(2));
 			File outFile = new File(filePath);
 			OutputStream out = new FileOutputStream(outFile);
 			workBook.write(out);
@@ -476,7 +468,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 			int year=Integer.parseInt(y.substring(2));
 			row.getCell(9).setCellValue("FY"+(year));
 			row.getCell(21).setCellValue("FY"+(year+1));
-			row.getCell(25).setCellValue("FY"+(year+2));
+			row.getCell(23).setCellValue("FY"+(year+2));
 			if (null!=version && StringUtils.isNotEmpty(version)) {
 				sql+=" and VERSION='"+version+"'";
 			}
