@@ -271,6 +271,45 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						budgetProductNoUnitCost.setEndCustomer(ExcelUtil.getCellStringValue(row.getCell(8), i));
 						budgetProductNoUnitCost.setTradeType(ExcelUtil.getCellStringValue(row.getCell(9), i));
 
+						budgetProductNoUnitCost.setUnitMaterial1(ExcelUtil.getCellStringValue(row.getCell(11), i));
+						budgetProductNoUnitCost.setUnitMaterial2(ExcelUtil.getCellStringValue(row.getCell(13), i));
+						budgetProductNoUnitCost.setUnitMaterial3(ExcelUtil.getCellStringValue(row.getCell(15), i));
+						budgetProductNoUnitCost.setUnitMaterial4(ExcelUtil.getCellStringValue(row.getCell(17), i));
+						budgetProductNoUnitCost.setUnitMaterial5(ExcelUtil.getCellStringValue(row.getCell(19), i));
+						budgetProductNoUnitCost.setUnitMaterial6(ExcelUtil.getCellStringValue(row.getCell(21), i));
+						budgetProductNoUnitCost.setUnitMaterial7(ExcelUtil.getCellStringValue(row.getCell(23), i));
+						budgetProductNoUnitCost.setUnitMaterial8(ExcelUtil.getCellStringValue(row.getCell(25), i));
+						budgetProductNoUnitCost.setUnitMaterial9(ExcelUtil.getCellStringValue(row.getCell(27), i));
+						budgetProductNoUnitCost.setUnitMaterial10(ExcelUtil.getCellStringValue(row.getCell(29), i));
+						budgetProductNoUnitCost.setUnitMaterial11(ExcelUtil.getCellStringValue(row.getCell(31), i));
+						budgetProductNoUnitCost.setUnitMaterial12(ExcelUtil.getCellStringValue(row.getCell(33), i));
+
+						budgetProductNoUnitCost.setUnitLabor1(ExcelUtil.getCellStringValue(row.getCell(35), i));
+						budgetProductNoUnitCost.setUnitLabor2(ExcelUtil.getCellStringValue(row.getCell(37), i));
+						budgetProductNoUnitCost.setUnitLabor3(ExcelUtil.getCellStringValue(row.getCell(39), i));
+						budgetProductNoUnitCost.setUnitLabor4(ExcelUtil.getCellStringValue(row.getCell(41), i));
+						budgetProductNoUnitCost.setUnitLabor5(ExcelUtil.getCellStringValue(row.getCell(43), i));
+						budgetProductNoUnitCost.setUnitLabor6(ExcelUtil.getCellStringValue(row.getCell(45), i));
+						budgetProductNoUnitCost.setUnitLabor7(ExcelUtil.getCellStringValue(row.getCell(47), i));
+						budgetProductNoUnitCost.setUnitLabor8(ExcelUtil.getCellStringValue(row.getCell(49), i));
+						budgetProductNoUnitCost.setUnitLabor9(ExcelUtil.getCellStringValue(row.getCell(51), i));
+						budgetProductNoUnitCost.setUnitLabor10(ExcelUtil.getCellStringValue(row.getCell(53), i));
+						budgetProductNoUnitCost.setUnitLabor11(ExcelUtil.getCellStringValue(row.getCell(55), i));
+						budgetProductNoUnitCost.setUnitLabor12(ExcelUtil.getCellStringValue(row.getCell(57), i));
+
+						budgetProductNoUnitCost.setUnitManufacture1(ExcelUtil.getCellStringValue(row.getCell(59), i));
+						budgetProductNoUnitCost.setUnitManufacture2(ExcelUtil.getCellStringValue(row.getCell(61), i));
+						budgetProductNoUnitCost.setUnitManufacture3(ExcelUtil.getCellStringValue(row.getCell(63), i));
+						budgetProductNoUnitCost.setUnitManufacture4(ExcelUtil.getCellStringValue(row.getCell(65), i));
+						budgetProductNoUnitCost.setUnitManufacture5(ExcelUtil.getCellStringValue(row.getCell(67), i));
+						budgetProductNoUnitCost.setUnitManufacture6(ExcelUtil.getCellStringValue(row.getCell(69), i));
+						budgetProductNoUnitCost.setUnitManufacture7(ExcelUtil.getCellStringValue(row.getCell(71), i));
+						budgetProductNoUnitCost.setUnitManufacture8(ExcelUtil.getCellStringValue(row.getCell(73), i));
+						budgetProductNoUnitCost.setUnitManufacture9(ExcelUtil.getCellStringValue(row.getCell(75), i));
+						budgetProductNoUnitCost.setUnitManufacture10(ExcelUtil.getCellStringValue(row.getCell(77), i));
+						budgetProductNoUnitCost.setUnitManufacture11(ExcelUtil.getCellStringValue(row.getCell(79), i));
+						budgetProductNoUnitCost.setUnitManufacture12(ExcelUtil.getCellStringValue(row.getCell(81), i));
+
 						budgetProductNoUnitCost.setSalesQuantity1(ExcelUtil.getCellStringValue(row.getCell(130), i));
 						budgetProductNoUnitCost.setMaterialCost1(ExcelUtil.getCellStringValue(row.getCell(131), i));
 						budgetProductNoUnitCost.setLaborCost1(ExcelUtil.getCellStringValue(row.getCell(132),i));
@@ -597,6 +636,46 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						forecastSalesCost.setLoanCustomer(ExcelUtil.getCellStringValue(row.getCell(7), i));
 						forecastSalesCost.setEndCustomer(ExcelUtil.getCellStringValue(row.getCell(8), i));
 						forecastSalesCost.setTradeType(ExcelUtil.getCellStringValue(row.getCell(9), i));
+
+						forecastSalesCost.setUnitMaterial1(ExcelUtil.getCellStringValue(row.getCell(11), i));
+						forecastSalesCost.setUnitMaterial2(ExcelUtil.getCellStringValue(row.getCell(13), i));
+						forecastSalesCost.setUnitMaterial3(ExcelUtil.getCellStringValue(row.getCell(15), i));
+						forecastSalesCost.setUnitMaterial4(ExcelUtil.getCellStringValue(row.getCell(17), i));
+						forecastSalesCost.setUnitMaterial5(ExcelUtil.getCellStringValue(row.getCell(19), i));
+						forecastSalesCost.setUnitMaterial6(ExcelUtil.getCellStringValue(row.getCell(21), i));
+						forecastSalesCost.setUnitMaterial7(ExcelUtil.getCellStringValue(row.getCell(23), i));
+						forecastSalesCost.setUnitMaterial8(ExcelUtil.getCellStringValue(row.getCell(25), i));
+						forecastSalesCost.setUnitMaterial9(ExcelUtil.getCellStringValue(row.getCell(27), i));
+						forecastSalesCost.setUnitMaterial10(ExcelUtil.getCellStringValue(row.getCell(29), i));
+						forecastSalesCost.setUnitMaterial11(ExcelUtil.getCellStringValue(row.getCell(31), i));
+						forecastSalesCost.setUnitMaterial12(ExcelUtil.getCellStringValue(row.getCell(33), i));
+
+						forecastSalesCost.setUnitLabor1(ExcelUtil.getCellStringValue(row.getCell(35), i));
+						forecastSalesCost.setUnitLabor2(ExcelUtil.getCellStringValue(row.getCell(37), i));
+						forecastSalesCost.setUnitLabor3(ExcelUtil.getCellStringValue(row.getCell(39), i));
+						forecastSalesCost.setUnitLabor4(ExcelUtil.getCellStringValue(row.getCell(41), i));
+						forecastSalesCost.setUnitLabor5(ExcelUtil.getCellStringValue(row.getCell(43), i));
+						forecastSalesCost.setUnitLabor6(ExcelUtil.getCellStringValue(row.getCell(45), i));
+						forecastSalesCost.setUnitLabor7(ExcelUtil.getCellStringValue(row.getCell(47), i));
+						forecastSalesCost.setUnitLabor8(ExcelUtil.getCellStringValue(row.getCell(49), i));
+						forecastSalesCost.setUnitLabor9(ExcelUtil.getCellStringValue(row.getCell(51), i));
+						forecastSalesCost.setUnitLabor10(ExcelUtil.getCellStringValue(row.getCell(53), i));
+						forecastSalesCost.setUnitLabor11(ExcelUtil.getCellStringValue(row.getCell(55), i));
+						forecastSalesCost.setUnitLabor12(ExcelUtil.getCellStringValue(row.getCell(57), i));
+
+						forecastSalesCost.setUnitManufacture1(ExcelUtil.getCellStringValue(row.getCell(59), i));
+						forecastSalesCost.setUnitManufacture2(ExcelUtil.getCellStringValue(row.getCell(61), i));
+						forecastSalesCost.setUnitManufacture3(ExcelUtil.getCellStringValue(row.getCell(63), i));
+						forecastSalesCost.setUnitManufacture4(ExcelUtil.getCellStringValue(row.getCell(65), i));
+						forecastSalesCost.setUnitManufacture5(ExcelUtil.getCellStringValue(row.getCell(67), i));
+						forecastSalesCost.setUnitManufacture6(ExcelUtil.getCellStringValue(row.getCell(69), i));
+						forecastSalesCost.setUnitManufacture7(ExcelUtil.getCellStringValue(row.getCell(71), i));
+						forecastSalesCost.setUnitManufacture8(ExcelUtil.getCellStringValue(row.getCell(73), i));
+						forecastSalesCost.setUnitManufacture9(ExcelUtil.getCellStringValue(row.getCell(75), i));
+						forecastSalesCost.setUnitManufacture10(ExcelUtil.getCellStringValue(row.getCell(77), i));
+						forecastSalesCost.setUnitManufacture11(ExcelUtil.getCellStringValue(row.getCell(79), i));
+						forecastSalesCost.setUnitManufacture12(ExcelUtil.getCellStringValue(row.getCell(81), i));
+
 
 						forecastSalesCost.setSalesQuantity1(ExcelUtil.getCellStringValue(row.getCell(130), i));
 						forecastSalesCost.setMaterialCost1(ExcelUtil.getCellStringValue(row.getCell(131), i));

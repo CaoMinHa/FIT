@@ -225,6 +225,84 @@ public class BudgetProductNoUnitCost {
 	@Column(name = "end_customer")
 	private String endCustomer;// 最終客戶
 
+	//單位材料成本
+	@Column(name = "unit_material1")
+	private String unitMaterial1;
+	@Column(name = "unit_material2")
+	private String unitMaterial2;
+	@Column(name = "unit_material3")
+	private String unitMaterial3;
+	@Column(name = "unit_material4")
+	private String unitMaterial4;
+	@Column(name = "unit_material5")
+	private String unitMaterial5;
+	@Column(name = "unit_material6")
+	private String unitMaterial6;
+	@Column(name = "unit_material7")
+	private String unitMaterial7;
+	@Column(name = "unit_material8")
+	private String unitMaterial8;
+	@Column(name = "unit_material9")
+	private String unitMaterial9;
+	@Column(name = "unit_material10")
+	private String unitMaterial10;
+	@Column(name = "unit_material11")
+	private String unitMaterial11;
+	@Column(name = "unit_material12")
+	private String unitMaterial12;
+
+	//單位人工成本
+	@Column(name = "unit_labor1")
+	private String unitLabor1;
+	@Column(name = "unit_labor2")
+	private String unitLabor2;
+	@Column(name = "unit_labor3")
+	private String unitLabor3;
+	@Column(name = "unit_labor4")
+	private String unitLabor4;
+	@Column(name = "unit_labor5")
+	private String unitLabor5;
+	@Column(name = "unit_labor6")
+	private String unitLabor6;
+	@Column(name = "unit_labor7")
+	private String unitLabor7;
+	@Column(name = "unit_labor8")
+	private String unitLabor8;
+	@Column(name = "unit_labor9")
+	private String unitLabor9;
+	@Column(name = "unit_labor10")
+	private String unitLabor10;
+	@Column(name = "unit_labor11")
+	private String unitLabor11;
+	@Column(name = "unit_labor12")
+	private String unitLabor12;
+
+	//單位製造費用
+	@Column(name = "unit_manufacture1")
+	private String unitManufacture1;
+	@Column(name = "unit_manufacture2")
+	private String unitManufacture2;
+	@Column(name = "unit_manufacture3")
+	private String unitManufacture3;
+	@Column(name = "unit_manufacture4")
+	private String unitManufacture4;
+	@Column(name = "unit_manufacture5")
+	private String unitManufacture5;
+	@Column(name = "unit_manufacture6")
+	private String unitManufacture6;
+	@Column(name = "unit_manufacture7")
+	private String unitManufacture7;
+	@Column(name = "unit_manufacture8")
+	private String unitManufacture8;
+	@Column(name = "unit_manufacture9")
+	private String unitManufacture9;
+	@Column(name = "unit_manufacture10")
+	private String unitManufacture10;
+	@Column(name = "unit_manufacture11")
+	private String unitManufacture11;
+	@Column(name = "unit_manufacture12")
+	private String unitManufacture12;
+
 	public String getIndustry() {
 		return industry;
 	}
@@ -1041,7 +1119,293 @@ public class BudgetProductNoUnitCost {
 		this.versionDate = versionDate;
 	}
 
+	public String getUnitMaterial1() {
+		return unitMaterial1;
+	}
 
+	public void setUnitMaterial1(String unitMaterial1) {
+		this.unitMaterial1 = unitMaterial1;
+	}
+
+	public String getUnitMaterial2() {
+		return unitMaterial2;
+	}
+
+	public void setUnitMaterial2(String unitMaterial2) {
+		this.unitMaterial2 = unitMaterial2;
+	}
+
+	public String getUnitMaterial3() {
+		return unitMaterial3;
+	}
+
+	public void setUnitMaterial3(String unitMaterial3) {
+		this.unitMaterial3 = unitMaterial3;
+	}
+
+	public String getUnitMaterial4() {
+		return unitMaterial4;
+	}
+
+	public void setUnitMaterial4(String unitMaterial4) {
+		this.unitMaterial4 = unitMaterial4;
+	}
+
+	public String getUnitMaterial5() {
+		return unitMaterial5;
+	}
+
+	public void setUnitMaterial5(String unitMaterial5) {
+		this.unitMaterial5 = unitMaterial5;
+	}
+
+	public String getUnitMaterial6() {
+		return unitMaterial6;
+	}
+
+	public void setUnitMaterial6(String unitMaterial6) {
+		this.unitMaterial6 = unitMaterial6;
+	}
+
+	public String getUnitMaterial7() {
+		return unitMaterial7;
+	}
+
+	public void setUnitMaterial7(String unitMaterial7) {
+		this.unitMaterial7 = unitMaterial7;
+	}
+
+	public String getUnitMaterial8() {
+		return unitMaterial8;
+	}
+
+	public void setUnitMaterial8(String unitMaterial8) {
+		this.unitMaterial8 = unitMaterial8;
+	}
+
+	public String getUnitMaterial9() {
+		return unitMaterial9;
+	}
+
+	public void setUnitMaterial9(String unitMaterial9) {
+		this.unitMaterial9 = unitMaterial9;
+	}
+
+	public String getUnitMaterial10() {
+		return unitMaterial10;
+	}
+
+	public void setUnitMaterial10(String unitMaterial10) {
+		this.unitMaterial10 = unitMaterial10;
+	}
+
+	public String getUnitMaterial11() {
+		return unitMaterial11;
+	}
+
+	public void setUnitMaterial11(String unitMaterial11) {
+		this.unitMaterial11 = unitMaterial11;
+	}
+
+	public String getUnitMaterial12() {
+		return unitMaterial12;
+	}
+
+	public void setUnitMaterial12(String unitMaterial12) {
+		this.unitMaterial12 = unitMaterial12;
+	}
+
+	public String getUnitLabor1() {
+		return unitLabor1;
+	}
+
+	public void setUnitLabor1(String unitLabor1) {
+		this.unitLabor1 = unitLabor1;
+	}
+
+	public String getUnitLabor2() {
+		return unitLabor2;
+	}
+
+	public void setUnitLabor2(String unitLabor2) {
+		this.unitLabor2 = unitLabor2;
+	}
+
+	public String getUnitLabor3() {
+		return unitLabor3;
+	}
+
+	public void setUnitLabor3(String unitLabor3) {
+		this.unitLabor3 = unitLabor3;
+	}
+
+	public String getUnitLabor4() {
+		return unitLabor4;
+	}
+
+	public void setUnitLabor4(String unitLabor4) {
+		this.unitLabor4 = unitLabor4;
+	}
+
+	public String getUnitLabor5() {
+		return unitLabor5;
+	}
+
+	public void setUnitLabor5(String unitLabor5) {
+		this.unitLabor5 = unitLabor5;
+	}
+
+	public String getUnitLabor6() {
+		return unitLabor6;
+	}
+
+	public void setUnitLabor6(String unitLabor6) {
+		this.unitLabor6 = unitLabor6;
+	}
+
+	public String getUnitLabor7() {
+		return unitLabor7;
+	}
+
+	public void setUnitLabor7(String unitLabor7) {
+		this.unitLabor7 = unitLabor7;
+	}
+
+	public String getUnitLabor8() {
+		return unitLabor8;
+	}
+
+	public void setUnitLabor8(String unitLabor8) {
+		this.unitLabor8 = unitLabor8;
+	}
+
+	public String getUnitLabor9() {
+		return unitLabor9;
+	}
+
+	public void setUnitLabor9(String unitLabor9) {
+		this.unitLabor9 = unitLabor9;
+	}
+
+	public String getUnitLabor10() {
+		return unitLabor10;
+	}
+
+	public void setUnitLabor10(String unitLabor10) {
+		this.unitLabor10 = unitLabor10;
+	}
+
+	public String getUnitLabor11() {
+		return unitLabor11;
+	}
+
+	public void setUnitLabor11(String unitLabor11) {
+		this.unitLabor11 = unitLabor11;
+	}
+
+	public String getUnitLabor12() {
+		return unitLabor12;
+	}
+
+	public void setUnitLabor12(String unitLabor12) {
+		this.unitLabor12 = unitLabor12;
+	}
+
+	public String getUnitManufacture1() {
+		return unitManufacture1;
+	}
+
+	public void setUnitManufacture1(String unitManufacture1) {
+		this.unitManufacture1 = unitManufacture1;
+	}
+
+	public String getUnitManufacture2() {
+		return unitManufacture2;
+	}
+
+	public void setUnitManufacture2(String unitManufacture2) {
+		this.unitManufacture2 = unitManufacture2;
+	}
+
+	public String getUnitManufacture3() {
+		return unitManufacture3;
+	}
+
+	public void setUnitManufacture3(String unitManufacture3) {
+		this.unitManufacture3 = unitManufacture3;
+	}
+
+	public String getUnitManufacture4() {
+		return unitManufacture4;
+	}
+
+	public void setUnitManufacture4(String unitManufacture4) {
+		this.unitManufacture4 = unitManufacture4;
+	}
+
+	public String getUnitManufacture5() {
+		return unitManufacture5;
+	}
+
+	public void setUnitManufacture5(String unitManufacture5) {
+		this.unitManufacture5 = unitManufacture5;
+	}
+
+	public String getUnitManufacture6() {
+		return unitManufacture6;
+	}
+
+	public void setUnitManufacture6(String unitManufacture6) {
+		this.unitManufacture6 = unitManufacture6;
+	}
+
+	public String getUnitManufacture7() {
+		return unitManufacture7;
+	}
+
+	public void setUnitManufacture7(String unitManufacture7) {
+		this.unitManufacture7 = unitManufacture7;
+	}
+
+	public String getUnitManufacture8() {
+		return unitManufacture8;
+	}
+
+	public void setUnitManufacture8(String unitManufacture8) {
+		this.unitManufacture8 = unitManufacture8;
+	}
+
+	public String getUnitManufacture9() {
+		return unitManufacture9;
+	}
+
+	public void setUnitManufacture9(String unitManufacture9) {
+		this.unitManufacture9 = unitManufacture9;
+	}
+
+	public String getUnitManufacture10() {
+		return unitManufacture10;
+	}
+
+	public void setUnitManufacture10(String unitManufacture10) {
+		this.unitManufacture10 = unitManufacture10;
+	}
+
+	public String getUnitManufacture11() {
+		return unitManufacture11;
+	}
+
+	public void setUnitManufacture11(String unitManufacture11) {
+		this.unitManufacture11 = unitManufacture11;
+	}
+
+	public String getUnitManufacture12() {
+		return unitManufacture12;
+	}
+
+	public void setUnitManufacture12(String unitManufacture12) {
+		this.unitManufacture12 = unitManufacture12;
+	}
 
 	public BudgetProductNoUnitCost(){}
 }

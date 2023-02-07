@@ -197,8 +197,11 @@ public class ExcelUtil {
 		int cellValue = 0;
 
 		try {
-			if (cell!=null) {
+			if (cell!=null&&cell.toString()!="") {
 				switch (cell.getCellType()) {
+				case BLANK: // 空值
+					cellValue = 0;
+					break;
 				case NUMERIC: // 数字
 					cellValue=Double.valueOf(cell.getNumericCellValue()).intValue();
 					break;
@@ -225,8 +228,11 @@ public class ExcelUtil {
 		double cellValue = 0;
 
 		try {
-			if (cell!=null) {
+			if (cell!=null&&cell.toString()!="") {
 				switch (cell.getCellType()) {
+				case BLANK: // 空值
+					cellValue = 0;
+					break;
 				case NUMERIC: // 数字
 					cellValue=cell.getNumericCellValue();
 					break;
