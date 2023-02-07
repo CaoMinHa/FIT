@@ -442,7 +442,7 @@ public class PoTableService extends BaseService<PoTable> {
      */
     public Map<String,List> selectSBU(){
         Map<String,List> map=new HashMap<>();
-        List<String> list=poTableDao.listBySql("select distinct tie.SBU_NAME from BIDEV.DM_D_ENTITY_SBU tie,BIDEV.DM_D_ENTITY_SBUFACTORY e  where e.sbu_name=tie.SBU_NAME and tie.flag='1' ");
+        List<String> list=poTableDao.listBySql("select distinct tie.BU_NAME from BIDEV.DM_D_ENTITY_SBU tie,BIDEV.DM_D_ENTITY_SBUFACTORY e  where e.sbu_name=tie.SBU_NAME and tie.flag='1' ");
         for (String m:list) {
             List<String> listCommodity=poTableDao.listBySql("select distinct tie.SBU_NAME from BIDEV.DM_D_ENTITY_SBU tie,BIDEV.DM_D_ENTITY_SBUFACTORY e where e.sbu_name=tie.SBU_NAME " +
                     "and tie.flag='1' and e.BU_NAME='"+m+"'");
