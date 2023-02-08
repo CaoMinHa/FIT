@@ -43,8 +43,9 @@
         .table-condensed td {
             padding: 1px 5px !important;
         }
+
         .modal-backdrop {
-            position: initial!important;
+            position: initial !important;
         }
     </style>
     <script type="text/javascript">
@@ -72,9 +73,9 @@
             });
 
             $("input[type='radio']").change(function () {
-                if($(this).val()=='FIT_PO_CD_MONTH_DTL'){
+                if ($(this).val() == 'FIT_PO_CD_MONTH_DTL') {
                     $("#cdFormula").show();
-                }else{
+                } else {
                     $("#cdFormula").hide();
                 }
             });
@@ -150,13 +151,13 @@
                 var DateYear = $("#DateYear").val();
                 var date = $("#QDate").val();
                 var dateEnd = $("#QDateEnd").val();
-                if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'){
+                if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DTL') {
                     var r = /^\+?[1-9][0-9]*$/;
-                    if (DateYear.length!=4 || !r.test(DateYear)) {
-                      layer.alert("請填寫正確的年份(Please fill in the correct year)");
+                    if (DateYear.length != 4 || !r.test(DateYear)) {
+                        layer.alert("請填寫正確的年份(Please fill in the correct year)");
                         return;
                     }
-                }else{
+                } else {
                     if (date.length == 0) {
                         layer.alert("請選擇開始日期！(Please select a start date)");
                         return;
@@ -165,7 +166,7 @@
                         layer.alert("請選擇結束日期！(Please select an end date)");
                         return;
                     }
-                    if(date.substr(0,3)!=dateEnd.substr(0,3)){
+                    if (date.substr(0, 3) != dateEnd.substr(0, 3)) {
                         layer.alert("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
                         return;
                     }
@@ -187,7 +188,7 @@
                     commodity: $("#commodity").val(),
                     buVal: $("#buVal").val(),
                     founderVal: $("#founderVal").val(),
-                    flag:$("#flag").val()
+                    flag: $("#flag").val()
                 }, function () {
                     $("#loading").fadeOut(1000);
                 });
@@ -202,27 +203,27 @@
                         data = data + $(this).val() + ",";
                     }
                 });
-                if(data===""){
+                if (data === "") {
                     layer.alert("請勾選要刪除的數據！(Select the data to delete)");
-                }else{
+                } else {
                     data = data.substring(0, data.length - 1);
                     console.log(data)
                     var tableName = $("#QTableName").val();
-                    var obj={
-                        id:data,
+                    var obj = {
+                        id: data,
                         tableName: tableName
                     }
                     $.ajax({
-                        type:"POST",
-                        url:"${ctx}/bi/poIntegrationList/delete",
-                        async:false,
-                        dataType:"json",
-                        data:obj,
-                        success: function(data){
+                        type: "POST",
+                        url: "${ctx}/bi/poIntegrationList/delete",
+                        async: false,
+                        dataType: "json",
+                        data: obj,
+                        success: function (data) {
                             layer.alert(data.msg);
                             refresh();
                         },
-                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
                             layer.alert("<spring:message code='connect_fail'/>");
                         }
                     });
@@ -242,15 +243,15 @@
                     },
                     success: function (data) {
                         $("#commdityTable").empty();
-                        var commdityTr=0;
+                        var commdityTr = 0;
                         jQuery.each(data, function (key, values) {
-                            $("#commdityTable").append("<tr style='border-top: 1px solid #dadada;height: 30px;font-weight:bold;'><td colspan='4'><input type='checkbox' onchange='checkedChild(this)' value='"+key+"'>"+key+"</td></tr>");
+                            $("#commdityTable").append("<tr style='border-top: 1px solid #dadada;height: 30px;font-weight:bold;'><td colspan='4'><input type='checkbox' onchange='checkedChild(this)' value='" + key + "'>" + key + "</td></tr>");
                             jQuery.each(values, function (i, item) {
                                 if (i % 4 == 0) {
                                     commdityTr++;
-                                    $("#commdityTable").append("<tr id='commdityTr"+commdityTr+"'></tr>");
+                                    $("#commdityTable").append("<tr id='commdityTr" + commdityTr + "'></tr>");
                                 }
-                                $("#commdityTr"+commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal "+key+"' value='" + item + "'>" + item + "</td>");
+                                $("#commdityTr" + commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal " + key + "' value='" + item + "'>" + item + "</td>");
                             })
                         })
                     },
@@ -272,13 +273,13 @@
             var date = $("#QDate").val();
             var dateEnd = $("#QDateEnd").val();
             var DateYear = $("#DateYear").val();
-            if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'){
+            if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DTL') {
                 var r = /^\+?[1-9][0-9]*$/;
-                if (DateYear.length!=4 || !r.test(DateYear)) {
+                if (DateYear.length != 4 || !r.test(DateYear)) {
                     layer.alert("請填寫正確的年份(Please fill in the correct year)");
                     return;
                 }
-            }else{
+            } else {
                 if (date.length == 0) {
                     layer.alert("請選擇開始日期！(Please select a start date)");
                     return;
@@ -287,7 +288,7 @@
                     layer.alert("請選擇結束日期！(Please select an end date)");
                     return;
                 }
-                if(date.substr(0,3)!=dateEnd.substr(0,3)){
+                if (date.substr(0, 3) != dateEnd.substr(0, 3)) {
                     layer.alert("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
                     return;
                 }
@@ -300,17 +301,18 @@
                 url: "${ctx}/bi/poIntegration/download",
                 async: true,
                 dataType: "json",
-                data: {date: date,
+                data: {
+                    date: date,
                     dateEnd: dateEnd,
                     DateYear: DateYear,
                     tableNames: tableName,
                     poCenter: entity,
                     sbuVal: sbuVal,
-                    priceControl:$("#priceControl").val(),
-                    commodity:$("#commodity").val(),
+                    priceControl: $("#priceControl").val(),
+                    commodity: $("#commodity").val(),
                     buVal: $("#buVal").val(),
                     founderVal: $("#founderVal").val(),
-                    flag:$("#flag").val()
+                    flag: $("#flag").val()
                 },
                 success: function (data) {
                     $("#loading").hide();
@@ -327,24 +329,24 @@
             });
         });
 
-        $(document).ready(function(){
-            if("${detailsTsak}"=="ok"){
-                    $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
-                    $("#QTableName").change();
-                    $("#DateYear").val("${DateYear}");
-                    $("#sbuVal").val("${sbuVal}");
-                    $("#QueryBtn").click();
+        $(document).ready(function () {
+            if ("${detailsTsak}" == "ok") {
+                $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
+                $("#QTableName").change();
+                $("#DateYear").val("${DateYear}");
+                $("#sbuVal").val("${sbuVal}");
+                $("#QueryBtn").click();
             }
         })
 
         function affirmModal(v) {
             var valueUser = '';
-            if(v=="c"){
+            if (v == "c") {
                 $(".userGroupVal:checked").each(function () {
                     valueUser += $(this).val() + ",";
                 })
                 $("#commodity").val(valueUser.substring(0, valueUser.length - 1));
-            }else {
+            } else {
                 $(".userGroupValSbu:checked").each(function () {
                     valueUser += $(this).val() + ",";
                 })
@@ -353,37 +355,39 @@
         }
 
         function closeModal(v) {
-            if(v=="c"){
+            if (v == "c") {
                 $("#myModal input[type='checkbox']").prop("checked", false);
-            }else {
+            } else {
                 $("#myModalSbu input[type='checkbox']").prop("checked", false);
             }
         }
 
-        function  checkedChild(e){
-            var a= $(e).val();
-            if ( $(e).prop("checked") == true) {
-                $("."+a).prop("checked", true);
+        function checkedChild(e) {
+            var a = $(e).val();
+            if ($(e).prop("checked") == true) {
+                $("." + a).prop("checked", true);
             } else {
-                $("."+a).prop("checked", false);
+                $("." + a).prop("checked", false);
             }
         }
+
         function modelShow() {
             $('#myModal').modal('show');
         }
+
         function modelShowSbu() {
             $('#myModalSbu').modal('show');
         }
 
-        function allCheck(e,v){
+        function allCheck(e, v) {
             debugger;
-            if(v=="c"){
+            if (v == "c") {
                 if ($(e).prop("checked") == true) {
                     $("#myModal input[type='checkbox']").prop("checked", true);
                 } else {
                     $("#myModal input[type='checkbox']").prop("checked", false);
                 }
-            }else{
+            } else {
                 if ($(e).prop("checked") == true) {
                     $("#myModalSbu input[type='checkbox']").prop("checked", true);
                 } else {
@@ -459,12 +463,12 @@
                         <option value="${code.key}">${code.key}</option>
                     </c:forEach>
                 </select>
-                <input type="text" id="commodity" style="width: 120px;" data-toggle="modal"
-                       ondblclick="modelShow()" placeholder="commodity">
+                <input type="text" id="commodity" style="width: 147px;" data-toggle="modal"
+                       ondblclick="modelShow()" placeholder="commodity(雙擊多選)">
                 <input type="text" style="width: 100px;" id="buVal" value="${buVal}"
                        placeholder="BU">
-                <input type="text" style="width: 100px;" id="sbuVal" value="${sbuVal}" data-toggle="modal"
-                       ondblclick="modelShowSbu()" placeholder="SBU">
+                <input type="text" style="width: 110px;" id="sbuVal" value="${sbuVal}" data-toggle="modal"
+                       ondblclick="modelShowSbu()" placeholder="SBU(雙擊多選)">
                 <input type="text" style="width: 100px;display: none;" id="founderVal" value="${founderVal}"
                        placeholder="<spring:message code='founder'/>">
                 <select id="priceControl" name="priceControl" class="input-large"
@@ -507,7 +511,8 @@
                 <table id="commdityTable" border="0" cellpadding="0" cellspacing="1">
                     <c:forEach items="${commodityMap}" var="dataMap">
                     <tr style="border-top: 1px solid #dadada;height: 30px;font-weight:bold;">
-                        <td colspan="4"><input type="checkbox" onchange="checkedChild(this)" value="${dataMap.key}">${dataMap.key}</td>
+                        <td colspan="4"><input type="checkbox" onchange="checkedChild(this)"
+                                               value="${dataMap.key}">${dataMap.key}</td>
                     </tr>
                     <c:forEach items="${dataMap.value}" var="commodity" varStatus="status">
                     <c:if test="${status.index %4 eq 0}">
@@ -521,11 +526,13 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" onclick="closeModal('c')" class="btn btn-default" data-dismiss="modal"><spring:message
-                        code="close"/>
+                <button type="button" onclick="closeModal('c')" class="btn btn-default" data-dismiss="modal">
+                    <spring:message
+                            code="close"/>
                 </button>
-                <button type="button" onclick="affirmModal('c')" class="btn btn-primary" data-dismiss="modal"><spring:message
-                        code="submit"/></button>
+                <button type="button" onclick="affirmModal('c')" class="btn btn-primary" data-dismiss="modal">
+                    <spring:message
+                            code="submit"/></button>
             </div>
         </div>
     </div>
@@ -548,25 +555,29 @@
                 <table id="sbuTable" border="0" cellpadding="0" cellspacing="1">
                     <c:forEach items="${sbuMap}" var="dataMap">
                     <tr style="border-top: 1px solid #dadada;height: 30px;font-weight:bold;">
-                        <td colspan="4"><input type="checkbox" onchange="checkedChild(this)" value="${dataMap.key}">${dataMap.key}</td>
+                        <td colspan="4"><input type="checkbox" onchange="checkedChild(this)"
+                                               value="${dataMap.key}">${dataMap.key}</td>
                     </tr>
                     <c:forEach items="${dataMap.value}" var="commodity" varStatus="status">
                     <c:if test="${status.index %4 eq 0}">
                     <tr>
                         </c:if>
                         <td width="140px">
-                            <input type="checkbox" class="userGroupValSbu ${dataMap.key}" value="${commodity}">${commodity}
+                            <input type="checkbox" class="userGroupValSbu ${dataMap.key}"
+                                   value="${commodity}">${commodity}
                         </td>
                         </c:forEach>
                         </c:forEach>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" onclick="closeModal('s')" class="btn btn-default" data-dismiss="modal"><spring:message
-                        code="close"/>
+                <button type="button" onclick="closeModal('s')" class="btn btn-default" data-dismiss="modal">
+                    <spring:message
+                            code="close"/>
                 </button>
-                <button type="button" onclick="affirmModal('s')" class="btn btn-primary" data-dismiss="modal"><spring:message
-                        code="submit"/></button>
+                <button type="button" onclick="affirmModal('s')" class="btn btn-primary" data-dismiss="modal">
+                    <spring:message
+                            code="submit"/></button>
             </div>
         </div>
     </div>

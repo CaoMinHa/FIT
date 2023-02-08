@@ -508,7 +508,7 @@
                         <div style="float:left;display:flex;">
                             <ul class="nav dropdown" style="margin-left:10px;">
                                 <li class="dropdown">
-                                    <select class="input-large" style="width:240px;" id="tableName" name="tableName">
+                                    <select class="input-large" style="width:200px;" id="tableName" name="tableName">
                                         <option value=""><spring:message code='tableSelect'/></option>
                                         <c:forEach items="${tableListSelect }" var="poTable">
                                             <option value="${poTable.tableName }">${poTable.comments }</option>
@@ -533,7 +533,7 @@
                         <div class="m-l-md m-t-md m-r-md" style="clear:both;">
                             <ul class="nav dropdown" style="float:left;margin-left: -10px;">
                                 <li class="dropdown" style="margin-top:0;">
-                                    <select class="input-large" style="width:240px;" id="tableNamesOut1"
+                                    <select class="input-large" style="width:200px;" id="tableNamesOut1"
                                             name="tableNamesOut1">
                                         <option value=""><spring:message code='tableSelect'/></option>
                                         <c:forEach items="${tableListSelect }" var="poTable">
@@ -572,7 +572,7 @@
                                 <ul style="float:left;margin-right:10px;">
                                     <li>
                                         <select id="QTableName" class="input-large"
-                                                style="width:240px;margin-bottom:0;margin-left:-10px;">
+                                                style="width:200px;margin-bottom:0;margin-left:-10px;">
                                             <option value=""><spring:message code='tableSelect'/></option>
                                             <c:forEach items="${poTableOutList }" var="poTableOut">
                                                 <option value="${poTableOut.tableName }">${poTableOut.comments}</option>
@@ -601,7 +601,7 @@
                                            type="text" value=""
                                            placeholder="<spring:message code='end_time'/>"
                                            readonly>
-                                    <select id="flag" class="input-large" style="width:100px;">
+                                    <select id="flag" class="input-large" style="width:92px;">
                                         <option value="">
                                             <c:if test="${languageS eq 'zh_CN'}">審批狀態</c:if>
                                             <c:if test="${languageS eq 'en_US'}">Approval status</c:if>
@@ -629,12 +629,12 @@
                                             <option value="${code.key}">${code.key}</option>
                                         </c:forEach>
                                     </select>
-                                    <input type="text" id="commodity" style="width: 120px;" data-toggle="modal"
-                                           ondblclick="modelShow()" placeholder="commodity">
+                                    <input type="text" id="commodity" style="width: 150px;" data-toggle="modal"
+                                           ondblclick="modelShow()" placeholder="commodity(雙擊多選)">
                                     <input type="text" style="width: 100px;" id="buVal" value="${buVal}"
                                            placeholder="BU">
-                                    <input type="text" style="width: 100px;" id="sbuVal" value="${sbuVal}" data-toggle="modal"
-                                           ondblclick="modelShowSbu()" placeholder="SBU">
+                                    <input type="text" style="width: 110px;" id="sbuVal" value="${sbuVal}" data-toggle="modal"
+                                           ondblclick="modelShowSbu()" placeholder="SBU(雙擊多選)">
                                     <input type="text" style="width: 100px;display: none;" id="founderVal" value="${founderVal}"
                                            placeholder="<spring:message code='founder'/>">
                                     <select id="priceControl" name="priceControl" class="input-large"
