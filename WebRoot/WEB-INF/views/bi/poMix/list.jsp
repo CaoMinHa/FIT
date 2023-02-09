@@ -42,63 +42,7 @@ $(function() {
 		Page.jumpPage($(this).val());
 		clickPage(Page.getPage());
 	});
-	
-	$("a.update").click(function(){
-		var masterData=$("#MasterData").val();
-		var updateData="";
-		$(this).parent().parent().find("input,select").each(function(i){
-			var columnName=$(this).attr("name");
-			var value=$(this).val();
-			updateData+=columnName+"="+value+"&";
-		});
-		updateData=updateData.substring(0,updateData.length-1);
-		console.log(updateData);
-		$("#loading").show();
-		$.ajax({
-			type:"POST",
-			url:"${ctx}/bi/poMix/update",
-			async:true,
-			dataType:"json",
-			data:{masterData:masterData,updateData:updateData},
-			success: function(data){
-				layer.alert(data.msg);
-				$("#loading").hide();
-				$("#Query").click();
-		   	},
-		   	error: function(XMLHttpRequest, textStatus, errorThrown) {
-		   		$("#loading").hide();
-		   		window.location.href="${ctx}/logout";
-		   	}
-		});
-	});
-	$("a.delete").click(function(){
-		var masterData=$("#MasterData").val();
-		var updateData="";
-		$(this).parent().parent().find("input,select").each(function(i){
-			var columnName=$(this).attr("name");
-			var value=$(this).val();
-			updateData+=columnName+"="+value+"&";
-		});
-		updateData=updateData.substring(0,updateData.length-1);
-		console.log(updateData);
-		$("#loading").show();
-		$.ajax({
-			type:"POST",
-			url:"${ctx}/bi/poMix/delete",
-			async:true,
-			dataType:"json",
-			data:{masterData:masterData,updateData:updateData},
-			success: function(data){
-				layer.alert(data.msg);
-				$("#loading").hide();
-				refresh();
-			},
-			error: function(XMLHttpRequest, textStatus, errorThrown) {
-				$("#loading").hide();
-				window.location.href="${ctx}/logout";
-			}
-		});
-	});
+
 });
 
 //用于触发当前点击事件
@@ -115,6 +59,70 @@ function clickPage(page){
 function refresh(){
 	clickPage("1");
 }
+function copyLastRow() {
+	var the_table = document.getElementById('table');
+	the_row = the_table.rows.length - 1;
+	the_table.appendChild(the_table.rows[the_row].cloneNode(true));
+	$("#table tr:last input[type='text']").removeAttrs("value");
+	$("#table tr:last .fixed").text("");
+	$("#table tr:last td:first input").attr("value","addData");
+}
+function updateDate(e){
+	var masterData=$("#MasterData").val();
+	var updateData="";
+	$(e).parent().parent().find("input,select").each(function(i){
+		var columnName=$(this).attr("name");
+		var value=$(this).val();
+		updateData+=columnName+"="+value+"&";
+	});
+	updateData=updateData.substring(0,updateData.length-1);
+	console.log(updateData);
+	$("#loading").show();
+	$.ajax({
+		type:"POST",
+		url:"${ctx}/bi/poMix/update",
+		async:true,
+		dataType:"json",
+		data:{masterData:masterData,updateData:updateData},
+		success: function(data){
+			layer.alert(data.msg);
+			$("#loading").hide();
+			$("#Query").click();
+		},
+		error: function() {
+			$("#loading").hide();
+			window.location.href="${ctx}/logout";
+		}
+	});
+}
+function deleteData(e){
+	var masterData=$("#MasterData").val();
+	var updateData="";
+	$(e).parent().parent().find("input,select").each(function(i){
+		var columnName=$(this).attr("name");
+		var value=$(this).val();
+		updateData+=columnName+"="+value+"&";
+	});
+	updateData=updateData.substring(0,updateData.length-1);
+	console.log(updateData);
+	$("#loading").show();
+	$.ajax({
+		type:"POST",
+		url:"${ctx}/bi/poMix/delete",
+		async:true,
+		dataType:"json",
+		data:{masterData:masterData,updateData:updateData},
+		success: function(data){
+			layer.alert(data.msg);
+			$("#loading").hide();
+			refresh();
+		},
+		error: function() {
+			$("#loading").hide();
+			window.location.href="${ctx}/logout";
+		}
+	});
+}
 </script>
 </head>
 <body>
@@ -130,7 +138,7 @@ function refresh(){
 				</c:if>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody id="table">
 			<c:forEach items="${page.result}"  var="row">
 				<tr>
 					<c:forEach items="${row }" var="data" begin="0" end="${fn:length(row)-index}" varStatus="status">
@@ -180,7 +188,7 @@ function refresh(){
 										</td>
 									</c:when>
 									<c:otherwise>
-										<td style="white-space: nowrap; border-right:1px solid #eee;  text-align: center">${fn:split(data,'|')[2] }</td>
+										<td class="fixed" style="white-space: nowrap; border-right:1px solid #eee;  text-align: center">${fn:split(data,'|')[2] }</td>
 									</c:otherwise>
 								</c:choose>
 							</c:otherwise>
@@ -188,8 +196,8 @@ function refresh(){
 					</c:forEach>
 					<c:if test="${!fn:contains(masterType,'SBU') && !fn:contains(masterType,'COMMODITY')}">
 						<td style="white-space: nowrap; border-right:1px solid #eee;">
-							<a href="javascript:void(0);" class="update"><spring:message code='update'/></a>
-							<a href="javascript:void(0);" class="delete">刪除</a>
+							<a href="javascript:void(0);" onclick="updateDate(this)"><spring:message code='update'/></a>
+							<a href="javascript:void(0);" onclick="deleteData(this)">刪除</a>
 						</td>
 					</c:if>
 

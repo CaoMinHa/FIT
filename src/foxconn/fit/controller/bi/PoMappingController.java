@@ -4,6 +4,7 @@ import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.service.base.MasterDataService;
+import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.service.bi.MappingDataService;
 import foxconn.fit.util.ExcelUtil;
 import foxconn.fit.util.ExceptionUtil;
@@ -113,20 +114,37 @@ public class PoMappingController extends BaseController{
 				String updateSql="update "+tableName+" set ";
 				String where="";
 				String[] params = updateData.split("&");
-				for (String param : params) {
-					String columnName = param.substring(0,param.indexOf("="));
-					String columnValue = param.substring(param.indexOf("=")+1).trim();
-					if ("ID".equalsIgnoreCase(columnName)) {
-						where=" where ID='"+columnValue+"'";
-					}else{
-						if (StringUtils.isNotEmpty(columnValue)) {
-							updateSql+=columnName+"='"+columnValue+"',";
+				if("ID".equals(params[0].substring(0,params[0].indexOf("=")))
+						&&"addData".equals(params[0].substring(params[0].indexOf("=")+1).trim())){
+					UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+					updateSql="";
+					for (String param : params) {
+						String columnName = param.substring(0,param.indexOf("="));
+						String columnValue = param.substring(param.indexOf("=")+1).trim();
+						updateSql+=columnName+",";
+						if("addData".equals(columnValue)){
+							where+="'"+UUID.randomUUID()+"',";
+						}else{
+							where+="'"+columnValue+"',";
 						}
 					}
+					updateSql="insert into "+tableName+"("+updateSql+"LAST_UPDATED_BY,CREATED_BY) values("
+							+where+"'"+loginUser.getUsername()+"','"+loginUser.getUsername()+"')";
+				}else{
+					for (String param : params) {
+						String columnName = param.substring(0,param.indexOf("="));
+						String columnValue = param.substring(param.indexOf("=")+1).trim();
+						if ("ID".equalsIgnoreCase(columnName)) {
+							where=" where ID='"+columnValue+"'";
+						}else{
+							if (StringUtils.isNotEmpty(columnValue)) {
+								updateSql+=columnName+"='"+columnValue+"',";
+							}
+						}
+					}
+					updateSql=updateSql+" LAST_UPDATED_DATE=sysdate,LAST_UPDATED_BY='"+ SecurityUtils.getLoginUsername()+"'";
+					updateSql+=where;
 				}
-				updateSql=updateSql+" LAST_UPDATED_DATE=sysdate,LAST_UPDATED_BY='"+ SecurityUtils.getLoginUsername()+"'";
-				updateSql+=where;
-
 				masterDataService.updateMasterData(updateSql);
 			}
 		} catch (Exception e) {

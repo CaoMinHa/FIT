@@ -148,9 +148,11 @@ $(function() {
 			if(masterData.indexOf("SBU")>= 0||masterData.indexOf("COMMODITY")>= 0){
                $("#FileUpload").hide()
 				$(".upload-tip").hide();
+				$("#add").hide();
 			}else{
 				$("#FileUpload").show();
 				$(".upload-tip").show();
+				$("#add").show();
 			}
 			$.ajax({
 				type:"POST",
@@ -243,6 +245,9 @@ $(function() {
 	        <div class="controls" style="display:inline-block;vertical-align:top;width:100%;">
 	        	<form id="QueryCondition" style="float:left;margin:0;"></form>
 	        	<button id="Query" class="btn search-btn btn-warning m-l-md" type="button"><spring:message code='query'/></button>
+				<span id="add">
+					<button id="insert" class="btn search-btn btn-warning m-l-md" type="button" onclick="copyLastRow()"><spring:message code='add'/></button>
+				<span>
 	        </div>
 		</div>
 		<div class="p-l-md p-r-md p-b-md p-t-sm" id="Content" style="max-width:150%;"></div>
