@@ -184,7 +184,7 @@
 								<c:when test="${sort.index eq fn:length(page.result)-1}">
 									<c:forEach var="i" begin="0" end="${fn:length(mapping)-1}" varStatus="status">
 										<c:choose>
-											<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==20|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==26|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==28}">
+											<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
 												<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 											</c:when>
 											<c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index >fn:length(mapping)-4}">
@@ -202,7 +202,7 @@
 								<c:otherwise>
 									<c:forEach var="i" begin="0" end="${fn:length(mapping)-index}" varStatus="status">
 										<c:choose>
-											<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==20|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==26|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==28}">
+											<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21||tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
 												<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 											</c:when>
 											<c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index >fn:length(mapping)-4}">
@@ -222,7 +222,7 @@
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'}">
-								<td style="border-right:1px solid #eee;background-color: beige">${mapping[21]+mapping[27]}</td>
+								<td style="border-right:1px solid #eee;background-color: beige">${mapping[21]+mapping[29]}</td>
 							</c:if>
 						</tr>
 					</c:forEach>

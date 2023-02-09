@@ -179,7 +179,7 @@
 										<input name="ID" type="checkbox" value="${mapping[i]}"/>
 									</td>
 								</c:when>
-								<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
+								<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==22 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==30}">
 									<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 								</c:when>
 								<c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index >fn:length(mapping)-4}">
@@ -202,7 +202,7 @@
 										<input name="ID" type="checkbox" value="${mapping[i]}"/>
 									</td>
 								</c:when>
-								<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
+								<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==22 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==30}">
 									<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 								</c:when>
 								<c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index > fn:length(mapping)-index-3}">
@@ -219,7 +219,7 @@
 					</c:otherwise>
 				</c:choose>
 				<c:if test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'}">
-					<td style="border-right:1px solid #eee;background-color: beige">${mapping[21]+mapping[27]}</td>
+					<td style="border-right:1px solid #eee;background-color: beige">${mapping[22]+mapping[30]}</td>
 				</c:if>
 			</tr>
 		</c:forEach>
