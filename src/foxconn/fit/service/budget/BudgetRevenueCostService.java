@@ -159,7 +159,7 @@ public class BudgetRevenueCostService {
 					for (int i = 2; i < objects.length; i++) {
 						Cell cell = contentRow.createCell(i-2);
 						String text = (objects[i] != null ? objects[i].toString() : "");
-						if (StringUtils.isNotEmpty(text) && i>15&&!text.equals("-")) {
+						if (StringUtils.isNotEmpty(text) && i>15) {
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
@@ -176,7 +176,7 @@ public class BudgetRevenueCostService {
 							for (int i = 2; i < objects.length; i++) {
 								Cell cell = contentRow.createCell(i-2);
 								String text = (objects[i] != null ? objects[i].toString() : "");
-								if (StringUtils.isNotEmpty(text) && i>15&&!text.equals("-")) {
+								if (StringUtils.isNotEmpty(text) && i>15) {
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);

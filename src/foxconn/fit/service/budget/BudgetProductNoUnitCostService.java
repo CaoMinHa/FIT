@@ -455,7 +455,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					"ENTITY='"+budgetProductNoUnitCost.getEntity()+"' " +
 					"and MAKE_ENTITY='"+budgetProductNoUnitCost.getMakeEntity()+"' and create_name='"+user+"'" +
 					"and (PRODUCT_SERIES ='"+budgetProductNoUnitCost.getProduct()+"' " +
-					"and PRODUCT_NO='"+budgetProductNoUnitCost.getProductNo()+"') ";
+					" or PRODUCT_NO='"+budgetProductNoUnitCost.getProductNo()+"') ";
 			List<BigDecimal> countList = (List<BigDecimal>)budgetProductNoUnitCostDao.listBySql(sql);
 			if(countList.get(0).intValue()==0){
 				msg+="<p>"+budgetProductNoUnitCost.getEntity()+","+budgetProductNoUnitCost.getMakeEntity()+","+
@@ -474,7 +474,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					"ENTITY='"+forecastSalesCost.getEntity()+"' " +
 					"and MAKE_ENTITY='"+forecastSalesCost.getMakeEntity()+"' and create_name='"+user+"'" +
 					"and (PRODUCT_SERIES ='"+forecastSalesCost.getProduct()+"' " +
-					"and PRODUCT_NO='"+forecastSalesCost.getProductNo()+"') ";
+					" or PRODUCT_NO='"+forecastSalesCost.getProductNo()+"') ";
 			List<BigDecimal> countList = (List<BigDecimal>)budgetProductNoUnitCostDao.listBySql(sql);
 			if(countList.get(0).intValue()==0){
 				msg+="<p>"+forecastSalesCost.getEntity()+","+forecastSalesCost.getMakeEntity()+","+

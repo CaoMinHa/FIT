@@ -498,9 +498,6 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
-							if(i==13){
-								cell.setCellValue("USD");
-							}
 						}
 					}
 				}
@@ -518,9 +515,6 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);
-									if(i==13){
-										cell.setCellValue("USD");
-									}
 								}
 							}
 						}
