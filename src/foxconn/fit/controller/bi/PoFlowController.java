@@ -65,7 +65,7 @@ public class PoFlowController extends BaseController {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
             Assert.hasText(tableName, getLanguage(locale, "明細表不能為空", "The table cannot be empty"));
-            String flagSql="select  flag  " + "from "+tableName+ " where year='"+date+"'  and flag is null";
+            String flagSql="select distinct flag from "+tableName+ " where year='"+date+"'  and flag is null";
             List <String> flags= poTableService.listBySql(flagSql);
             if(flags!=null&&flags.size()>0){
                 String flag=flags.get(0);
@@ -73,8 +73,6 @@ public class PoFlowController extends BaseController {
                     poFlowService.executeCpo(date);
                     System.out.println("實時計算date");
                 }
-            }else{
-                poFlowService.executeCpo(date);
             }
             String sql="select ID,PO_CENTER,COMMODITY_MAJOR,NO_PO_TOTAL, NO_CD ,NO_CPO ,PO_TOTAL,CD,CPO  " +
                     "from "+tableName+ " where year="+date+" order by ID,PO_CENTER";
