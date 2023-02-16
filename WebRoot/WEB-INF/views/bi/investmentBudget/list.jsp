@@ -70,6 +70,10 @@
 					});
 				});
 			});
+
+			if($("#onlyQuery").val()=="Y"){
+				$(".onlyQuery").hide();
+			}
 		});
 
 		//用于触发当前点击事件
@@ -103,7 +107,7 @@
 			<table class="table table-condensed table-hover">
 				<thead class="theadCss">
 				<tr>
-					<th rowspan="2"><spring:message code='operation'/></th>
+					<th class="onlyQuery" rowspan="2"><spring:message code='operation'/></th>
 					<th colspan="9">基礎數據</th>
 					<th colspan="12">FY${year}</th>
 					<th colspan="2">FY${year+1}</th>
@@ -140,7 +144,7 @@
 				<tbody>
 				<c:forEach items="${page.result}" var="mapping">
 					<tr>
-						<td style="border-right:1px solid #eee;" mappingId="${mapping.id }">
+						<td class="onlyQuery" style="border-right:1px solid #eee;" mappingId="${mapping.id }">
 							<c:if test="${mapping.version eq 'V00'}">
 								<a href="javascript:void(0);" class="m-r-md delete"><spring:message code='delete'/></a>
 							</c:if>
@@ -179,7 +183,8 @@
 			<table class="table table-condensed table-hover">
 				<thead class="theadCss">
 				<tr>
-					<th rowspan="2"><spring:message code='operation'/></th>
+					<th class="onlyQuery" rowspan="2"><spring:message code='operation'/></th>
+
 					<th colspan="9">基礎數據</th>
 					<th colspan="12">FY${year}</th>
 					<th colspan="2">FY${year+1}</th>
@@ -216,7 +221,7 @@
 				<tbody>
 				<c:forEach items="${page.result}" var="mapping">
 					<tr>
-						<td style="border-right:1px solid #eee;" mappingId="${mapping.id }">
+						<td class="onlyQuery" style="border-right:1px solid #eee;" mappingId="${mapping.id }">
 							<c:if test="${mapping.version eq 'V00'}">
 								<a href="javascript:void(0);" class="m-r-md delete"><spring:message code='delete'/></a>
 							</c:if>

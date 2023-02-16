@@ -194,7 +194,7 @@ $(function() {
 		}
 	})
 
-	$("#Content").load("${ctx}/bi/budgetProductNoUnitCost/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#loading").fadeOut(1000);});
+	$("#Content").load("${ctx}/bi/budgetProductNoUnitCost/list",{entity:$("#QEntity").val(),year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#QueryBtn").click();});
 
 	$("#DownloadPlanning").click(function(){
 		if(!$("#QScenarios").val()){
@@ -291,9 +291,10 @@ function simplifyTemplate(type){
 		<div class="page-header bg-white">
 			<h2>
 				<span><spring:message code='budgetProductNoUnitCost'/></span>
+				<input id="onlyQuery" style="display: none" value="${onlyQuery}"/>
 			</h2>
 		</div>
-		<div class="m-l-md m-t-md m-r-md">
+		<div class="m-l-md m-t-md m-r-md" <c:if test="${onlyQuery  eq 'Y'}"> style="display: none"</c:if>>
 			<div class="controls">
                	<div>
 					<form id="budgetProductNoUnitCostForm" style="margin-bottom: 0;margin-top:0;" method="POST" enctype="multipart/form-data" class="form-horizontal">
@@ -342,7 +343,6 @@ function simplifyTemplate(type){
         <div class="m-l-md m-t-md m-r-md" style="clear:both;">
 	        <div class="controls">
 				<select id="QScenarios" name="scenarios" class="input-large" style="width:100px;">
-					<option value=""><spring:message code='scenarios'/></option>
 					<option value="budget"><%=EnumScenarios.Budget %></option>
 					<option value="forecast"><%=EnumScenarios.Forecast%></option>
 				</select>
@@ -378,8 +378,8 @@ function simplifyTemplate(type){
 				</ul>
 	        	<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin:0 0 0 10px;width: 80px" type="submit"><spring:message code='query'/></button>
 				<button id="Download" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='download'/></button>
-				<button id="Version" class="btn search-btn" style="margin:0 0 0 10px;width: 80px;" type="button"><spring:message code='version'/></button>
-				<button id="DownloadPlanning" style="margin:0 0 0 10px;" class="btn search-btn" type="button"><spring:message code='submit'/></button>
+				<button id="Version" class="btn search-btn" style="margin:0 0 0 10px;width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" type="button"><spring:message code='version'/></button>
+				<button id="DownloadPlanning" style="margin:0 0 0 10px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='submit'/></button>
 			</div>
 		</div>		
 		<div class="p-l-md p-r-md p-b-md" id="Content"></div>

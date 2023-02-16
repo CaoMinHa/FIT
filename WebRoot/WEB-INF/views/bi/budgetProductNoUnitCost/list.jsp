@@ -71,6 +71,10 @@ $(function() {
 			});
 		});
 	});
+	if($("#onlyQuery").val()=="Y"){
+		$(".onlyQuery").hide();
+	}
+
 });
 
 //用于触发当前点击事件
@@ -104,7 +108,7 @@ function refresh(){
 			<table class="table table-condensed table-hover">
 				<thead class="tableCss">
 				<tr>
-					<th rowspan="3"><spring:message code='operation'/></th>
+					<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
 					<th rowspan="3">SBU_銷售法人</th>
 					<th rowspan="3">SBU_製造法人</th>
 					<th rowspan="3">次產業</th>
@@ -214,7 +218,7 @@ function refresh(){
 				<tbody>
 				<c:forEach items="${page.result}" var="mapping">
 					<tr>
-						<td style="border-right:1px solid #eee;" mappingId="${mapping.id }">
+						<td class="onlyQuery"  style="border-right:1px solid #eee;" mappingId="${mapping.id }">
 							<c:if test="${mapping.version eq 'V00'}">
 								<a href="javascript:void(0);" class="m-r-md delete"><spring:message code='delete'/></a>
 							</c:if>
@@ -314,7 +318,7 @@ function refresh(){
 			<table class="table table-condensed table-hover">
 				<thead class="tableCss">
 				<tr>
-					<th rowspan="3"><spring:message code='operation'/></th>
+					<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
 					<th rowspan="3">SBU_銷售法人</th>
 					<th rowspan="3">SBU_製造法人</th>
 					<th rowspan="3">次產業</th>
@@ -448,7 +452,7 @@ function refresh(){
 				<tbody>
 				<c:forEach items="${page.result}" var="mapping">
 					<tr>
-						<td style="border-right:1px solid #eee;" mappingId="${mapping.id }">
+						<td class="onlyQuery"  style="border-right:1px solid #eee;" mappingId="${mapping.id }">
 							<c:if test="${mapping.version eq 'V00'}">
 								<a href="javascript:void(0);" class="m-r-md delete"><spring:message code='delete'/></a>
 							</c:if>

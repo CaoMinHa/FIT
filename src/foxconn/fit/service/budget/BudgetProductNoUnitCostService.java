@@ -67,6 +67,14 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		//預算應爲測試需要先把年份校驗放開
 //		int year=calendar.get(Calendar.YEAR)+1;
 		int year=calendar.get(Calendar.YEAR);
+		//查看當前用戶是否只有查看下載數據權限
+		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+		String roleSql="select count(1) from  fit_user u \n" +
+				" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+				" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+				" WHERE  u.username='"+loginUser.getUsername()+"' and code='salesQuery' ";
+		List<BigDecimal> countList = (List<BigDecimal>)budgetProductNoUnitCostDao.listBySql(roleSql);
+		model.addAttribute("onlyQuery", countList.get(0).intValue()>0 ? "Y" : "N");
 		model.addAttribute("yearVal", "FY"+String.valueOf(year).substring(2));
 		model.addAttribute("yearsList", yearsList);
 		model.addAttribute("versionList", this.versionVal());
