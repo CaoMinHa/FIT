@@ -61,6 +61,8 @@
                 $("#taskStatus").show();
                 $("#type").show();
                 $("#name").show();
+                $("#QDate").show();
+                $("#QDateEnd").show();
                 $("#Query").show();
                 $("#Query").click();
             })

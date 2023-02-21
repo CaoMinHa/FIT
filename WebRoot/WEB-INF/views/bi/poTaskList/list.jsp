@@ -63,7 +63,7 @@ function clickPage(page){
 	$("#Content").load("${ctx}/bi/poTaskList/list",{
 		pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
 		orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
-		date:date,name:name,type:type,QDate:QDate,QDateEnd:QDateEnd
+		date:date,name:name,type:type,QDate:QDate,QDateEnd:QDateEnd,taskStatus:$("#taskStatus").val()
 	},function(){$("#loading").fadeOut(1000);});
 }
 
@@ -81,6 +81,8 @@ function toUser(index){
 	$("#taskStatus").hide();
 	$("#type").hide();
 	$("#name").hide();
+	$("#QDate").hide();
+	$("#QDateEnd").hide();
 	$("#Content").load("${ctx}/bi/poTaskList/audit",{pageNo:"1",pageSize:"15",id:id,statusType:statusType},function(){$("#loading").fadeOut(1000);});
 }
 

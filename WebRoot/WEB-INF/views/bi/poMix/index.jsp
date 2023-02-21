@@ -145,7 +145,7 @@ $(function() {
 			$("#MasterDataTip").hide();
 			$("#loading").show();
 			var masterData=$(this).val();
-			if(masterData.indexOf("SBU")>= 0||masterData.indexOf("COMMODITY")>= 0){
+			if(masterData.indexOf("SBU")>= 0||masterData.indexOf("PO_COMMODITY")>= 0){
                $("#FileUpload").hide()
 				$(".upload-tip").hide();
 				$("#add").hide();

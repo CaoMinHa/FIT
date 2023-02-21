@@ -194,7 +194,7 @@ function deleteData(e){
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
-					<c:if test="${!fn:contains(masterType,'SBU') && !fn:contains(masterType,'COMMODITY')}">
+					<c:if test="${!fn:contains(masterType,'SBU') && !fn:contains(masterType,'PO_COMMODITY')}">
 						<td style="white-space: nowrap; border-right:1px solid #eee;">
 							<a href="javascript:void(0);" onclick="updateDate(this)"><spring:message code='update'/></a>
 							<a href="javascript:void(0);" onclick="deleteData(this)">刪除</a>
