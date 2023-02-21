@@ -11,7 +11,7 @@ public class InstrumentClassService{
     //list去重
     public List<String> removeDuplicate(List<String> list) {
         HashSet h = new HashSet(list);
-        list.clear();
+        list=new ArrayList();
         list.addAll(h);
         return list;
     }
