@@ -35,7 +35,7 @@ public class TaskJob {
      * 任務截止日當天及前一天上午8點檢查
      * @Scheduled(cron = "0 0 8 * * MON-SAT")
      */
-    @Scheduled(cron = "0 0 8 * * MON-SAT")
+//    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void job(){
         try{
             System.out.print("任務截止日當天及前一天上午8點檢查。");
@@ -145,7 +145,7 @@ public class TaskJob {
      * 检查有没有产品信息未在维度表维护
      * @Scheduled(cron = "0 0 1 * * MON-SAT")
      */
-    @Scheduled(cron = "0 0 8 * * MON-SAT")
+//    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void checkProductDimension(){
         try{
             String sql="SELECT distinct PRODUCT_SERIES_code FROM epmods.cux_inv_sbu_item_info_mv where PRODUCT_SERIES_DESC not in (select DIMENSION from FIT_DIMENSION where type='Product')";
@@ -169,14 +169,14 @@ public class TaskJob {
      * 採購CD手動匯總表:FIT_PO_BUDGET_CD_DTL
      * @Scheduled(cron = "30 18 * * * *")
      */
-    @Scheduled(cron = "0 0 9 * * MON-SAT")
+//    @Scheduled(cron = "0 0 9 * * MON-SAT")
     public void poSendTaskEamil(){
         poEamil("FIT_ACTUAL_PO_NPRICECD_DTL");
         poEamil("FIT_PO_BUDGET_CD_DTL");
     }
 
     /**每天推送 營收實際+預測Summary 發佈數據**/
-    @Scheduled(cron = "0 0 8 * * MON-SAT")
+//    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void bocklog(){
         Date date=new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
@@ -278,8 +278,8 @@ public class TaskJob {
         poTableService.updateSql("update BIDEV.Bi_user_list set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/RT/D.FIT Revenue and Backlog Sum' where instr(';'||BI_GROUP||';',';RT_Backlog;')> 0 ");
     }
 
-    /**每天固定12点更改还原采购逾期处理的特殊分配*/
-    @Scheduled(cron = "0 0 0 * * MON-SAT")
+    /**每天固定1点更改还原采购逾期处理的特殊分配*/
+    @Scheduled(cron = "0 0 1 * * MON-SAT")
     public void poUpload(){
         poTableService.updateSql("update FIT_USER_PO_UPLOAD set STATE='N' where STATE='Y'");
     }
@@ -384,9 +384,4 @@ public class TaskJob {
         }
     }
 
-    @Scheduled(cron = "0 5 19 * * MON-SAT")
-    public void test(){
-        String content="Dear Gaomin：</br>&nbsp;&nbsp;查看路徑是否正確。<br></br>&nbsp;&nbsp;<br></br>Best Regards!";
-        EmailUtil.emailsMany("maggao@deloitte.com.cn","預算系統 Product Series 維護",content+accessUrl);
-    }
 }
