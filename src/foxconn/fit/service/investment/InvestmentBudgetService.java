@@ -367,7 +367,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		check=this.check(bakList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_bak1'");
 		Assert.isTrue("".equals(check),"以下【Segment】在【維度表】没有找到---> " + check);
 		/**Main business*/
-		check=this.check(mainBusinessList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_bak2' and DIMENSION not in('bak20100','bak20104','bak20105')");
+		check=this.check(mainBusinessList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_bak2' and PARENT in('bak201','bak20199') and DIMENSION not in('bak20199')");
 		Assert.isTrue("".equals(check),"以下【Main business】在【維度表】没有找到---> " + check);
 		/**產業*/
 		check=this.check(segmentList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Segment'");
@@ -612,7 +612,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 			/**Segment*/
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_bak1'",workBook.getSheetAt(4));
 			/**Main business*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_bak2' and DIMENSION not in('bak20100','bak20104','bak20105')",workBook.getSheetAt(5));
+			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_bak2' and PARENT in('bak201','bak20199') and DIMENSION not in('bak20199')",workBook.getSheetAt(5));
 			/**產業*/
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Segment'",workBook.getSheetAt(6));
 			/**投資類型*/

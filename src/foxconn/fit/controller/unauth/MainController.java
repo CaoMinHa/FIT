@@ -150,7 +150,7 @@ public class MainController extends BaseController{
 				model.put("error", "");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("登入失敗",e);
 			model.put("error", "");
 		}
 

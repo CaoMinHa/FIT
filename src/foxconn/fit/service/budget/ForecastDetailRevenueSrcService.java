@@ -72,7 +72,7 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**Main Business*/
 			sheet = workBook.getSheetAt(4);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Bak2' and PARENT='bak201'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199') and DIMENSION not in('bak20199')";
 			this.selectDimension(sql,sheet);
 
 			/**3+3*/
