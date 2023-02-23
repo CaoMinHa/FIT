@@ -12,6 +12,15 @@
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 
     <script type="text/javascript">
+        function query(pageNo) {
+            $("#typeTip").hide();
+            var type=$("#type").val();
+            var name=$("#name").val();
+            var date=$("#QDate").val();
+            var roleCode=$("#roleCode").val();
+            $("#loading").show();
+            $("#Content").load("${ctx}/bi/poTaskComplete/list",{pageNo:pageNo,pageSize:15,date:date,type:type,name:name,roleCode:roleCode},function(){$("#loading").fadeOut(1000);});
+        }
         $(function() {
             $("#task").show();
             $("#audit").hide();
@@ -36,27 +45,14 @@
                     $("#"+periodId+"Tip").hide();
                 }
             });
-            $("#Query").click(function () {
-                $("#typeTip").hide();
-                var type=$("#type").val();
-                var name=$("#name").val();
-                var date=$("#QDate").val();
-                var roleCode=$("#roleCode").val();
-                $("#loading").show();
-                $("#Content").load("${ctx}/bi/poTaskComplete/list",{date:date,type:type,name:name,roleCode:roleCode},function(){$("#loading").fadeOut(1000);});
-            }).click();
+            query(1);
 
         });
-
         $('#backBtn').click(function () {
             $("#audit").hide();
-            $("#task").show();
-            $("#roleCode").show();
-            $("#QDate").show();
-            $("#type").show();
-            $("#name").show();
+            $("ul input,select").show();
             $("#Query").show();
-            $("#Query").click();
+            query($("#PageNoIndex").val());
         })
         var periodId;
     </script>
@@ -109,7 +105,7 @@
                         <input id="name" style="float:left;width:140px;text-align:center;margin-bottom:0;" placeholder="請輸入任務名稱" type="text">
                     </li>
                 </ul>
-                <button id="Query" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" type="submit"><spring:message code='query'/></button>
+                <button id="Query" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" onclick="query(1)" type="submit"><spring:message code='query'/></button>
             </div>
             <div style="height:55px;!important;" class="controls" id="audit">
                 <button  id="backBtn" class="btn search-btn btn-primary" style="margin-left: -20px;background-image: linear-gradient(to bottom, #aad83e, #aad83e);background-color: #aad83e;" type="submit">返回</button>
@@ -162,5 +158,6 @@
         </div>
     </div>
 </div>
+<input type="hidden" id="PageNoIndex" value="1"/>
 </body>
 </html>

@@ -21,11 +21,6 @@
 <head>
 <script type="text/javascript">
 $(function() {
-	$("#roleCode").hide();
-	$("#QDate").hide();
-	$("#type").hide();
-	$("#name").hide();
-	$("#Query").hide();
 	$("#taskDetails tr:gt(2)").each(function(){
 		$(this).children('td').each(function(e){
 			if(e>2&&e<11&&e!=6&&e!=10){

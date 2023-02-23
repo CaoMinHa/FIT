@@ -75,14 +75,11 @@ function refresh(){
 function toUser(index){
 	var id = $('input[type=checkbox]')[index].value;
 	var statusType = document.getElementsByName("statusType")[index].value;
-	$("#task").hide();
+	$("#PageNoIndex").val($("#PageNo").val());
 	$("#audit").show();
 	$("#loading").show();
-	$("#taskStatus").hide();
-	$("#type").hide();
-	$("#name").hide();
-	$("#QDate").hide();
-	$("#QDateEnd").hide();
+	$("#Query").hide();
+	$("ul input,select").hide();
 	$("#Content").load("${ctx}/bi/poTaskList/audit",{pageNo:"1",pageSize:"15",id:id,statusType:statusType},function(){$("#loading").fadeOut(1000);});
 }
 

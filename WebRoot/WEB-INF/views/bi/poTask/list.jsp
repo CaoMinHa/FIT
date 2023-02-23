@@ -80,9 +80,11 @@ function toUser(index){
 	var id = $('input[type=checkbox]')[index].value;
 	var statusType = document.getElementsByName("statusType")[index].value;
 	var role = document.getElementsByName("role")[index].value;
-	$("#task").hide();
+	$("ul input,select").hide();
+	$("#Query").hide();
 	$("#audit").show();
 	$("#loading").show();
+	$("#PageNoIndex").val($("#PageNo").val());
 	$("#Content").load("${ctx}/bi/poTask/audit",{pageNo:"1",pageSize:"15",id:id,statusType:statusType,role:role},function(){$("#loading").fadeOut(1000);});
 }
 
@@ -147,7 +149,7 @@ function submitOneAudit(index,type,url) {
 						success: function(data){
 								$dialog.dialog("destroy");
                                 layer.alert(data.msg);
-							$("#Query").click();
+							query($("#PageNo").val());
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown) {
 							layer.alert("<spring:message code='connect_fail'/>");
@@ -214,7 +216,7 @@ function submitAudit(index) {
 								success: function(data){
 									$dialog.dialog("destroy");
 									layer.alert(data.msg);
-									$("#Query").click();
+									query($("#PageNo").val());
 								},
 								error: function(XMLHttpRequest, textStatus, errorThrown) {
 									layer.alert("<spring:message code='connect_fail'/>");
@@ -231,7 +233,7 @@ function submitAudit(index) {
 						success: function(data){
 								$dialog.dialog("destroy");
 							    layer.alert(data.msg);
-							$("#Query").click();
+							query($("#PageNo").val());
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown) {
 							layer.alert("<spring:message code='connect_fail'/>");
@@ -297,7 +299,7 @@ function cancelAudit(index) {
 						success: function(data){
 							$dialog.dialog("destroy");
 							layer.alert(data.msg);
-							$("#Query").click();
+							query($("#PageNo").val());
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown) {
 							layer.alert("<spring:message code='connect_fail'/>");
@@ -328,7 +330,7 @@ function cancelTask(index) {
 		dataType:"json",
 		data:{id:id},
 		success: function(data){
-			$("#Query").click();
+			query($("#PageNo").val());
 			layer.alert(data.msg);
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) {

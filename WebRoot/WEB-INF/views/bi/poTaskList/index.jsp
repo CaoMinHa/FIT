@@ -39,32 +39,26 @@
         .table-condensed td{padding:5px 3px;}
     </style>
     <script type="text/javascript">
+        function query(pageNo) {
+            $("#typeTip").hide();
+            var type=$("#type").val();
+            var taskStatus=$("#taskStatus").val();
+            var name=$("#name").val();
+            var QDate=$("#QDate").val();
+            var QDateEnd=$("#QDateEnd").val();
+            $("#loading").show();
+            $("#Content").load("${ctx}/bi/poTaskList/list",{pageNo:pageNo,pageSize:15,taskStatus:taskStatus,type:type,
+                name:name,QDate:QDate,QDateEnd:QDateEnd},function(){$("#loading").fadeOut(1000);});
+        }
         $(function() {
             $("#task").show();
             $("#audit").hide();
-            $("#Query").click(function () {
-                $("#typeTip").hide();
-                var type=$("#type").val();
-                var taskStatus=$("#taskStatus").val();
-                var name=$("#name").val();
-                var QDate=$("#QDate").val();
-                var QDateEnd=$("#QDateEnd").val();
-                $("#loading").show();
-                $("#Content").load("${ctx}/bi/poTaskList/list",{pageSize:15,taskStatus:taskStatus,type:type,
-                    name:name,QDate:QDate,QDateEnd:QDateEnd},function(){$("#loading").fadeOut(1000);});
-            }).click();
-
-
+            query(1);
             $("#backBtna").click(function () {
-                debugger
                 $("#audit").hide();
-                $("#taskStatus").show();
-                $("#type").show();
-                $("#name").show();
-                $("#QDate").show();
-                $("#QDateEnd").show();
+                $("ul input,select").show();
                 $("#Query").show();
-                $("#Query").click();
+                query($("#PageNoIndex").val());
             })
             $("#QDate,#QDateEnd").datepicker({
                 changeMonth: true,
@@ -152,7 +146,7 @@
                                readonly>
                     </li>
                 </ul>
-                <button id="Query" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" type="submit"><spring:message code='query'/></button>
+                <button id="Query" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;" onclick="query(1)" type="submit"><spring:message code='query'/></button>
             </div>
             <div style="height:55px;!important;" class="controls" id="audit">
                 <button  id="backBtna" class="btn search-btn btn-primary" style="background-image: linear-gradient(to bottom, #aad83e, #aad83e);background-color: #aad83e;" type="submit">
@@ -164,5 +158,6 @@
         <div class="p-l-md p-r-md p-b-md" id="Content"></div>
     </div>
 </div>
+<input type="hidden" id="PageNoIndex" value="1"/>
 </body>
 </html>

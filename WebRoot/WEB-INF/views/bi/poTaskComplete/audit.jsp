@@ -46,12 +46,6 @@
 			}
 		});
 
-		$("#roleCode").hide();
-		$("#QDate").hide();
-		$("#type").hide();
-		$("#name").hide();
-		$("#Query").hide();
-
 		$("#taskDetails tr:last td").css("text-align","right");
 		$("#taskDetails tbody tr").each(function(i){
 			if(i%2!=0){

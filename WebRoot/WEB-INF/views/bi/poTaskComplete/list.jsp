@@ -81,9 +81,11 @@ function toUser(index){
 	var id = $('input[type=checkbox]')[index].value;
 	var statusType = document.getElementsByName("statusType")[index].value;
 	var role = document.getElementsByName("role")[index].value;
-	$("#task").hide();
+	$("ul input,select").hide();
+	$("#Query").hide();
 	$("#audit").show();
 	$("#loading").show();
+	$("#PageNoIndex").val($("#PageNo").val());
 	$("#Content").load("${ctx}/bi/poTaskComplete/audit",{pageNo:"1",pageSize:"15",id:id,statusType:statusType,role:role},function(){$("#loading").fadeOut(1000);});
 }
 

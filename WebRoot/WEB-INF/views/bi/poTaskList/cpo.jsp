@@ -60,12 +60,6 @@ $(function() {
 			clickPage(Page.getPage());
 		}
 	});
-	$("#roleCode").hide();
-	$("#QDate").hide();
-	$("#QDateEnd").hide();
-	$("#type").hide();
-	$("#name").hide();
-	$("#Query").hide();
 
 	$("#taskDetails tr:gt(2)").each(function(){
 		$(this).children('td').each(function(e){
