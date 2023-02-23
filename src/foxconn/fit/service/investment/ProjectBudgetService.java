@@ -304,7 +304,7 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 		check=this.check(projectList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Project' and (DIMENSION like 'P_CE%' or PARENT='P_CE Code02')");
 		Assert.isTrue("".equals(check),"以下【專案編號】在【維度表】没有找到---> " + check);
 		/**SBU_法人*/
-		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity'");
+		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')");
 		Assert.isTrue("".equals(check),"以下【SBU_法人】在【維度表】没有找到---> " + check);
 		/**提出部門*/
 		List<BigDecimal> countList = (List<BigDecimal>)projectForecastDao.listBySql("select count(1) from FIT_USER_DEPARTMENT_MAPPING where USER_CODE='"+userName+"' ");
@@ -544,7 +544,7 @@ public class ProjectBudgetService extends BaseService<ProjectBudget> {
 			/**專案編碼*/
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Project' and (DIMENSION like 'P_CE%' or PARENT='P_CE Code02')",workBook.getSheetAt(0));
 			/**sbu_法人*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Entity'",workBook.getSheetAt(1));
+			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')",workBook.getSheetAt(1));
 			/**提出部門*/
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Department'",workBook.getSheetAt(2));
 			/**產業*/

@@ -285,7 +285,7 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 	private void checkMianData(List<String> entityList,List<String> departmentList,List<String> combineList,String userName){
 		String check="";
 		/**SBU_法人*/
-		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity'");
+		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')");
 		Assert.isTrue("".equals(check),"以下【SBU_法人】在【維度表】没有找到---> " + check);
 		/**提出部門*/
 		List<BigDecimal> countList = (List<BigDecimal>)depreExpenForecastDao.listBySql("select count(1) from FIT_USER_DEPARTMENT_MAPPING where USER_CODE='"+userName+"' ");
@@ -513,7 +513,7 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 			InputStream ins = new FileInputStream(request.getRealPath("")+"static"+File.separator+"template"+File.separator+"investment"+File.separator+"折舊費用預算(在製)維度表.xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			/**SBU_法人*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Entity'",workBook.getSheetAt(0));
+			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')",workBook.getSheetAt(0));
 			/**提出部門*/
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Department'",workBook.getSheetAt(1));
 			/**設備類別*/

@@ -488,7 +488,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 									 List<String> tradeTypeList,List<String> currencyList	 ) throws Exception {
 		String check="";
 		/**SBU_法人校驗*/
-		String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
+		String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and DIMENSION not in('ABS_A084002')";
 		check=this.check(entityMakeList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");

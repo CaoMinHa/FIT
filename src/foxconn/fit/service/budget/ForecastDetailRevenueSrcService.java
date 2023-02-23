@@ -57,12 +57,12 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**組織维度表*/
 			Sheet sheet = workBook.getSheetAt(1);
-			String sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Entity.getCode()+"' and PARENT <> 'FOET'";
+			String sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Entity.getCode()+"' and PARENT <> 'FOET' and DIMENSION not in('ABS_A084002')";
 			this.selectDimension(sql,sheet);
 
 			/**Entity-for FOIT*/
 			sheet = workBook.getSheetAt(2);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Entity.getCode()+"' and PARENT = 'FOET'";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Entity.getCode()+"' and PARENT = 'FOET' and DIMENSION not in('ABS_A084002')";
 			this.selectDimension(sql,sheet);
 
 			/**次產業*/

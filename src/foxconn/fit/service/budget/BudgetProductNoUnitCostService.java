@@ -409,7 +409,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				if (!list.isEmpty()) {
 				     if(COLUMN_NUM==70){
 						 /**SBU_法人校驗*/
-						 String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
+						 String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and DIMENSION not in('ABS_A084002')";
 						 check=this.check(entityList,sql);
 						 if (!check.equals("") && check.length() > 0){
 							 result.put("flag", "fail");
@@ -756,7 +756,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				if (!list.isEmpty()) {
 					if(COLUMN_NUM==54){
 						/**SBU_法人校驗*/
-						String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"'";
+						String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and DIMENSION not in('ABS_A084002')";
 						check=this.check(entityList,sql);
 						if (!check.equals("") && check.length() > 0){
 							result.put("flag", "fail");
