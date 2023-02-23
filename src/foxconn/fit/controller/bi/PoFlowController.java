@@ -55,7 +55,6 @@ public class PoFlowController extends BaseController {
             model.addAttribute("attribute", user.getAttribute());
 
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("查询明细配置表列表信息失败", e);
         }
         return "/bi/poFlow/index";

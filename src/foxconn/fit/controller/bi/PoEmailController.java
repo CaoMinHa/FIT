@@ -42,7 +42,6 @@ public class PoEmailController extends BaseController {
             model.addAttribute("listGroup",listGroup);
 
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("查詢郵件分組失敗！", e);
         }
         return "/bi/poEmail/index";
