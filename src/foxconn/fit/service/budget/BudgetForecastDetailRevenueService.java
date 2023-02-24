@@ -182,7 +182,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				/**SBU**/List<String> sbuList = new ArrayList<>();
 				/**次產業**/List<String> industryList = new ArrayList<>();
 				/**主營業務*/List<String> mainBusinessList = new ArrayList<>();
-				/**3+3**/List<String> threeList = new ArrayList<>();
+				/**三大技術**/List<String> threeList = new ArrayList<>();
 				/**產品系列**/List<String> productSeriesList = new ArrayList<>();
 				/**產品料號**/List<String> productNoList = new ArrayList<>();
 				/**賬款客戶**/List<String> loanCustomerList = new ArrayList<>();
@@ -370,7 +370,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				/**SBU**/List<String> sbuList = new ArrayList<>();
 				/**次產業**/List<String> industryList = new ArrayList<>();
 				/**主營業務*/List<String> mainBusinessList = new ArrayList<>();
-				/**3+3**/List<String> threeList = new ArrayList<>();
+				/**三大技術**/List<String> threeList = new ArrayList<>();
 				/**產品系列**/List<String> productSeriesList = new ArrayList<>();
 				/**產品料號**/List<String> productNoList = new ArrayList<>();
 				/**賬款客戶**/List<String> loanCustomerList = new ArrayList<>();
@@ -503,21 +503,21 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			result.put("msg", "以下【次產業】在【維度表】没有找到---> "+check);
 			return result;
 		}
-		/**主營業務*/
+		/**3+3*/
 		/**5GAIOT\EV\AUDIO\Type C\Existing*/
 		sql="select distinct trim(alias) from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199') and DIMENSION not in('bak20199') ";
 		check=this.check(mainBusinessList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【Main Business】在【維度表】没有找到---> "+check);
+			result.put("msg", "以下【3+3】在【維度表】没有找到---> "+check);
 			return result;
 		}
-		/**3+3**/
+		/**三大技術**/
 		sql="select distinct trim(alias) from fit_dimension where type='Project'  and PARENT='P_FIT3+3'";
 		check=this.check(threeList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【3+3】在【維度表】没有找到---> "+check);
+			result.put("msg", "以下【三大技術】在【維度表】没有找到---> "+check);
 			return result;
 		}
 		/**產品系列**/

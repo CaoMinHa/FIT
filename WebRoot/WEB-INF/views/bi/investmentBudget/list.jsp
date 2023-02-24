@@ -119,7 +119,7 @@
 					<th>SBU_法人</th>
 					<th>提出部門</th>
 					<th>Segment</th>
-					<th>Main business</th>
+					<th>3+3</th>
 					<th>產業</th>
 					<th>使用部門</th>
 					<th>投資類型</th>
@@ -196,7 +196,7 @@
 					<th>SBU_法人</th>
 					<th>提出部門</th>
 					<th>Segment</th>
-					<th>Main business</th>
+					<th>3+3</th>
 					<th>產業</th>
 					<th>使用部門</th>
 					<th>投資類型</th>

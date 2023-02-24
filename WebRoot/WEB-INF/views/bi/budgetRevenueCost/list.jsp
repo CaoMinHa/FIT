@@ -134,8 +134,8 @@ function refresh(){
 					<th>Segment</th>
 					<th>主產業</th>
 					<th>次產業</th>
-					<th>Main Business</th>
 					<th>3+3</th>
+					<th>三大技術</th>
 					<th>產品系列</th>
 					<th>產品料號</th>
 					<th>賬款客戶</th>
@@ -254,8 +254,8 @@ function refresh(){
 							<th>Segment</th>
 							<th>主產業</th>
 							<th>次產業</th>
-							<th>Main Business</th>
 							<th>3+3</th>
+							<th>三大技術</th>
 							<th>產品系列</th>
 							<th>產品料號</th>
 							<th>賬款客戶</th>

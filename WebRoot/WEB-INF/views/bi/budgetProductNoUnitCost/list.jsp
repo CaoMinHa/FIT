@@ -112,8 +112,8 @@ function refresh(){
 					<th rowspan="3">SBU_銷售法人</th>
 					<th rowspan="3">SBU_製造法人</th>
 					<th rowspan="3">次產業</th>
-					<th rowspan="3">Main Business</th>
 					<th rowspan="3">3+3</th>
+					<th rowspan="3">三大技術</th>
 					<th rowspan="3">產品系列</th>
 					<th rowspan="3">產品料號</th>
 					<th rowspan="3">賬款客戶</th>
@@ -322,8 +322,8 @@ function refresh(){
 					<th rowspan="3">SBU_銷售法人</th>
 					<th rowspan="3">SBU_製造法人</th>
 					<th rowspan="3">次產業</th>
-					<th rowspan="3">Main Business</th>
 					<th rowspan="3">3+3</th>
+					<th rowspan="3">三大技術</th>
 					<th rowspan="3">產品系列</th>
 					<th rowspan="3">產品料號</th>
 					<th rowspan="3">賬款客戶</th>

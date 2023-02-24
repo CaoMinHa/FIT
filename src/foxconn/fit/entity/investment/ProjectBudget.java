@@ -40,11 +40,11 @@ public class ProjectBudget implements Serializable{
 	/**專案説明*/
 	@Column(name = "project_description")
 	private String projectDescription;
-	/**3+3（下拉選擇）*/
+	/**三大技術（下拉選擇）*/
 	private String three;
 	/**Segment（下拉選擇）*/
 	private String segment;
-	/**Main Business（下拉選擇）*/
+	/**3+3（下拉選擇）*/
 	@Column(name = "main_business")
 	private String mainBusiness;
 	/**產品生命週期（用於購置設備）*/

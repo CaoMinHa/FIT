@@ -218,8 +218,8 @@ public class BudgetProductNoUnitCost {
 	private String tradeType;// 交易類型
 	private String industry;// 次產業
 	@Column(name = "main_business")
-	private String mainBusiness;//MAIN_BUSINESS
-	private String three;//3+3
+	private String mainBusiness;//3+3
+	private String three;//三大技術
 	@Column(name = "loan_customer")
 	private String loanCustomer;// 賬款客戶
 	@Column(name = "end_customer")

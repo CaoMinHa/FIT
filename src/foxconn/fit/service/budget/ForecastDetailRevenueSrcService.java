@@ -70,12 +70,12 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Segment.getCode()+"' and PARENT like 'SE_%' or DIMENSION='S00' ";
 			this.selectDimension(sql,sheet);
 
-			/**Main Business*/
+			/**3+3*/
 			sheet = workBook.getSheetAt(4);
 			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199') and DIMENSION not in('bak20199')";
 			this.selectDimension(sql,sheet);
 
-			/**3+3*/
+			/**三大技術*/
 			sheet = workBook.getSheetAt(5);
 			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Project' and PARENT='P_FIT3+3'";
 			this.selectDimension(sql,sheet);

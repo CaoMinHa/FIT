@@ -36,8 +36,8 @@ public class ForecastSalesRevenueV {
 	private String mainIndustry;// 主產業
 	private String industry;// 次產業
 	@Column(name = "main_business",nullable = false)
-	private String mainBusiness;//MAIN_BUSINESS
-	private String three;//3+3
+	private String mainBusiness;//3+3
+	private String three;//三大技術
 	@Column(name = "product_series")
 	private String productSeries;//產品系列
 	@Column(name = "product_no")

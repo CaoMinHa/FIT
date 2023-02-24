@@ -122,9 +122,9 @@ function refresh(){
 						<th>專案名稱</th>
 						<th>專案説明</th>
 						<th>投資對象(設備)名稱</th>
-						<th>3+3（下拉選擇）</th>
+						<th>三大技術（下拉選擇）</th>
 						<th>Segment（下拉選擇）</th>
-						<th>Main Business（下拉選擇）</th>
+						<th>3+3（下拉選擇）</th>
 						<th>產品生命週期-年（用於購置設備）</th>
 						<th>預計開始年份</th>
 						<th>預計開始月度</th>
@@ -196,9 +196,9 @@ function refresh(){
 					<th>專案名稱</th>
 					<th>專案説明</th>
 					<th>投資對象(設備)名稱</th>
-					<th>3+3（下拉選擇）</th>
+					<th>三大技術（下拉選擇）</th>
 					<th>Segment（下拉選擇）</th>
-					<th>Main Business（下拉選擇）</th>
+					<th>3+3（下拉選擇）</th>
 					<th>產品生命週期-年（用於購置設備）</th>
 					<th>預計開始年份</th>
 					<th>預計開始月度</th>

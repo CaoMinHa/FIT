@@ -36,7 +36,7 @@ public class InvestmentBudget implements Serializable{
 	private String department;
 	/**Segment（下拉選擇）*/
 	private String segment;
-	/**Main Business（下拉選擇）*/
+	/**3+3（下拉選擇）*/
 	@Column(name = "main_business")
 	private String mainBusiness;
 	/**產業*/

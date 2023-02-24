@@ -169,7 +169,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 				/**提出部門*/List<String> departmentList = new ArrayList<>();
 				/**提出部門*/List<String> departmentList1 = new ArrayList<>();
 				/**Segment*/List<String> bakList = new ArrayList<>();
-				/**Main business*/List<String> mainBusinessList= new ArrayList<>();
+				/**3+3*/List<String> mainBusinessList= new ArrayList<>();
 				/**產業*/List<String> segmentList = new ArrayList<>();
 				/**投資類型*/List<String> currencyList = new ArrayList<>();
 
@@ -366,9 +366,9 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		/**Segment*/
 		check=this.check(bakList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_bak1'");
 		Assert.isTrue("".equals(check),"以下【Segment】在【維度表】没有找到---> " + check);
-		/**Main business*/
+		/**3+3*/
 		check=this.check(mainBusinessList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_bak2' and PARENT in('bak201','bak20199') and DIMENSION not in('bak20199')");
-		Assert.isTrue("".equals(check),"以下【Main business】在【維度表】没有找到---> " + check);
+		Assert.isTrue("".equals(check),"以下【3+3】在【維度表】没有找到---> " + check);
 		/**產業*/
 		check=this.check(segmentList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Segment'");
 		Assert.isTrue("".equals(check),"以下【產業】在【維度表】没有找到---> " + check);
@@ -611,7 +611,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Department'",workBook.getSheetAt(3));
 			/**Segment*/
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_bak1'",workBook.getSheetAt(4));
-			/**Main business*/
+			/**3+3*/
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_bak2' and PARENT in('bak201','bak20199') and DIMENSION not in('bak20199')",workBook.getSheetAt(5));
 			/**產業*/
 			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Segment'",workBook.getSheetAt(6));
