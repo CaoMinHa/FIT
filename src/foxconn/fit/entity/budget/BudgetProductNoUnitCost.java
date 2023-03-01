@@ -20,6 +20,7 @@ public class BudgetProductNoUnitCost {
 	private String version;// 版本
 	private String entity;//SBU_法人
 	private String product;// 產品系列
+	private String segment;// segment
 	//銷售數量
 	@Column(name = "sales_quantity1")
 	private String salesQuantity1;
@@ -1405,6 +1406,14 @@ public class BudgetProductNoUnitCost {
 
 	public void setUnitManufacture12(String unitManufacture12) {
 		this.unitManufacture12 = unitManufacture12;
+	}
+
+	public String getSegment() {
+		return segment;
+	}
+
+	public void setSegment(String segment) {
+		this.segment = segment;
 	}
 
 	public BudgetProductNoUnitCost(){}

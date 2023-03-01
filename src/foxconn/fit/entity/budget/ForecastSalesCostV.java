@@ -20,6 +20,7 @@ public class ForecastSalesCostV implements Serializable {
 	private String version;// 版本
 	private String entity;//SBU_法人
 	private String product;// 產品系列
+	private String segment;// segment
 	//銷售數量
 	@Column(name = "sales_quantity1")
 	private String salesQuantity1;
@@ -821,6 +822,18 @@ public class ForecastSalesCostV implements Serializable {
 
 	public void setTradeType(String tradeType) {
 		this.tradeType = tradeType;
+	}
+
+	public String getSegment() {
+		return segment;
+	}
+
+	public void setSegment(String segment) {
+		this.segment = segment;
+	}
+
+	public void setEndCustomer(String endCustomer) {
+		this.endCustomer = endCustomer;
 	}
 
 	public ForecastSalesCostV(){}

@@ -377,6 +377,7 @@
 				<button id="Download" class="btn search-btn" style="width: 80px;" type="button"><spring:message code='download'/></button>
 				<button id="Version" class="btn search-btn" style="width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" type="button"><spring:message code='version'/></button>
 				<button id="DownloadPlanning" style="margin:0 0 0 10px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='submit'/></button>
+                <c:if test="${onlyQuery  eq 'Y'}"><button id="DimensionTable" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='dimension'/></button></c:if>
 			</div>
 		</div>
 		<div class="p-l-md p-r-md p-b-md" id="Content"></div>

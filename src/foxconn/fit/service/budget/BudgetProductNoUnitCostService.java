@@ -1470,12 +1470,12 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			Row row =sheet.getRow(0);
 			int year=Integer.parseInt(y.substring(2));
 
-			row.getCell(10).setCellValue(y);
-			row.getCell(70).setCellValue("FY"+(year));
-			row.getCell(74).setCellValue("FY"+(year+1));
-			row.getCell(78).setCellValue("FY"+(year+2));
-			row.getCell(82).setCellValue("FY"+(year+3));
-			row.getCell(86).setCellValue("FY"+(year+4));
+			row.getCell(11).setCellValue(y);
+			row.getCell(71).setCellValue("FY"+(year));
+			row.getCell(75).setCellValue("FY"+(year+1));
+			row.getCell(79).setCellValue("FY"+(year+2));
+			row.getCell(83).setCellValue("FY"+(year+3));
+			row.getCell(87).setCellValue("FY"+(year+4));
 
 			String sql="select * from FIT_BUDGET_PRODUCT_UNITCOST_V1 where YEAR='"+y+"'";
 			if (null!=version && StringUtils.isNotEmpty(version)) {
@@ -1509,7 +1509,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						Cell cell = contentRow.createCell(col);
 						col++;
 						String text = (objects[i] != null ? objects[i].toString() : "");
-						if (StringUtils.isNotEmpty(text) && i>12 && i<98) {
+						if (StringUtils.isNotEmpty(text) && i>13 && i<99) {
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
@@ -1528,7 +1528,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 								Cell cell = contentRow.createCell(col);
 								col++;
 								String text = (objects[i] != null ? objects[i].toString() : "");
-								if (StringUtils.isNotEmpty(text) && i>12 && i<98) {
+								if (StringUtils.isNotEmpty(text) && i>13 && i<99) {
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);
@@ -1568,8 +1568,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			Sheet sheet = workBook.getSheetAt(0);
 			Row row =sheet.getRow(0);
 			int year=Integer.parseInt(y.substring(2));
-			row.getCell(10).setCellValue(y);
-			row.getCell(70).setCellValue("FY"+(year));
+			row.getCell(11).setCellValue(y);
+			row.getCell(71).setCellValue("FY"+(year));
 
 			String sql="select * from FIT_FORECAST_SALES_COST_V where YEAR='"+y+"'";
 			if (null!=version && StringUtils.isNotEmpty(version)) {
@@ -1606,7 +1606,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						Cell cell = contentRow.createCell(col);
 						col++;
 						String text = (objects[i] != null ? objects[i].toString() : "");
-						if (StringUtils.isNotEmpty(text) && i>12 && i<77) {
+						if (StringUtils.isNotEmpty(text) && i>13 && i<78) {
 							cell.setCellValue(Double.parseDouble(text));
 						} else {
 							cell.setCellValue(text);
@@ -1628,7 +1628,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 								Cell cell = contentRow.createCell(col);
 								col++;
 								String text = (objects[i] != null ? objects[i].toString() : "");
-								if (StringUtils.isNotEmpty(text) && i>12 && i<77) {
+								if (StringUtils.isNotEmpty(text) && i>13 && i<78) {
 									cell.setCellValue(Double.parseDouble(text));
 								} else {
 									cell.setCellValue(text);

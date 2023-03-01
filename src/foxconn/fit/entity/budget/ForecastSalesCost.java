@@ -142,6 +142,7 @@ public class ForecastSalesCost implements Serializable {
 	private String loanCustomer;// 賬款客戶
 	@Column(name = "end_customer")
 	private String endCustomer;// 最終客戶
+	private String segment;// segment
 
 	//單位材料成本
 	@Column(name = "unit_material1")
@@ -1027,6 +1028,14 @@ public class ForecastSalesCost implements Serializable {
 
 	public void setUnitManufacture12(String unitManufacture12) {
 		this.unitManufacture12 = unitManufacture12;
+	}
+
+	public String getSegment() {
+		return segment;
+	}
+
+	public void setSegment(String segment) {
+		this.segment = segment;
 	}
 
 	public ForecastSalesCost(){}

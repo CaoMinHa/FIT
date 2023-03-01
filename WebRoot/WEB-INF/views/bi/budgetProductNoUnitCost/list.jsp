@@ -111,6 +111,7 @@ function refresh(){
 					<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
 					<th rowspan="3">SBU_銷售法人</th>
 					<th rowspan="3">SBU_製造法人</th>
+					<th rowspan="3">Segment</th>
 					<th rowspan="3">次產業</th>
 					<th rowspan="3">3+3</th>
 					<th rowspan="3">三大技術</th>
@@ -225,6 +226,7 @@ function refresh(){
 						</td>
 						<td style="border-right:1px solid #eee;text-align:left;">${mapping.entity}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.makeEntity}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.segment}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.industry}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.mainBusiness}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.three}</td>
@@ -321,6 +323,7 @@ function refresh(){
 					<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
 					<th rowspan="3">SBU_銷售法人</th>
 					<th rowspan="3">SBU_製造法人</th>
+					<th rowspan="3">Segment</th>
 					<th rowspan="3">次產業</th>
 					<th rowspan="3">3+3</th>
 					<th rowspan="3">三大技術</th>
@@ -459,6 +462,7 @@ function refresh(){
 						</td>
 						<td style="border-right:1px solid #eee;text-align:left;">${mapping.entity}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.makeEntity}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.segment}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.industry}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.mainBusiness}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.three}</td>
