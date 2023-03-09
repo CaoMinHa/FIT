@@ -103,4 +103,18 @@ public class InstrumentClassService{
         }
         return o.toString();
     }
+
+    /**
+     * 切分中英文
+     */
+    public String getByLocale(Locale locale,String value){
+        if (StringUtils.isNotEmpty(value) && value.indexOf("_")>0) {
+            if (locale!=null && "en_US".equals(locale.toString())) {
+                return value.substring(0,value.lastIndexOf("_"));
+            }else{
+                return value.substring(value.lastIndexOf("_")+1,value.length());
+            }
+        }
+        return value;
+    }
 }

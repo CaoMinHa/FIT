@@ -205,13 +205,13 @@
                 var date = $("#QDate").val();
                 var dateEnd = $("#QDateEnd").val();
                 var DateYear = $("#DateYear").val();
-                if(tableName=='FIT_PO_SBU_YEAR_CD_SUM'||tableName=='FIT_PO_CD_MONTH_DTL'||tableName=='FIT_PO_Target_CPO_CD_DTL'){
+                if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DTL' || tableName == 'FIT_PO_Target_CPO_CD_DTL') {
                     var r = /^\+?[1-9][0-9]*$/;
-                    if (DateYear.length!=4 || !r.test(DateYear)) {
+                    if (DateYear.length != 4 || !r.test(DateYear)) {
                         layer.alert("請填寫正確的年份(Please fill in the correct year)");
                         return;
                     }
-                }else if(tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'||tableName=='FIT_PO_BUDGET_CD_DTL'){
+                } else if (tableName == 'FIT_ACTUAL_PO_NPRICECD_DTL' || tableName == 'FIT_PO_BUDGET_CD_DTL') {
                     if (date.length == 0) {
                         layer.alert("請選擇開始日期！(Please select a start date)");
                         return;
@@ -220,7 +220,7 @@
                         layer.alert("請選擇結束日期！(Please select an end date)");
                         return;
                     }
-                    if(date.substr(0,3)!=dateEnd.substr(0,3)){
+                    if (date.substr(0, 3) != dateEnd.substr(0, 3)) {
                         layer.alert("請選擇同一年日期作爲查詢條件！(Please select the date of the same year)");
                         return;
                     }
@@ -236,15 +236,14 @@
                     data: {
                         date: date,
                         dateEnd: dateEnd,
-                        DateYear: DateYear,
-                        tableNames: tableName,
+                        dateYear: DateYear,
+                        tableName: tableName,
                         poCenter: entity,
                         sbuVal: sbuVal,
                         priceControl: $("#priceControl").val(),
                         commodity: $("#commodity").val(),
-                        buVal: $("#buVal").val(),
                         founderVal: $("#founderVal").val(),
-                        flag:$("#flag").val()
+                        flag: $("#flag").val()
                     },
                     success: function (data) {
                         $("#loading").hide();
@@ -267,16 +266,13 @@
                     $("#TableNameTip").show();
                     return;
                 }
-                if($("#tableName").val()=="FIT_PO_SBU_YEAR_CD_SUM"){
-                    window.location.href="${ctx}/static/template/bi/SBU年度CD目標匯總表.xlsx";
-                }else{
-                    $("#loading").show();
+                $("#loading").show();
                 $.ajax({
                     type: "POST",
                     url: "${ctx}/bi/poIntegration/template",
                     async: true,
                     dataType: "json",
-                    data: {tableNames: $("#tableName").val()},
+                    data: {tableName: $("#tableName").val()},
                     success: function (data) {
                         $("#loading").hide();
                         if (data.flag == "success") {
@@ -290,7 +286,7 @@
                         layer.alert("<spring:message code='connect_fail'/>");
                     }
                 });
-                }
+                // }
             });
 
             $("#ui-datepicker-div").remove();
@@ -320,56 +316,50 @@
                 $("#downCondition select").val("");
                 $("#downCondition").hide();
                 var tableName = $(this).val();
-                if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DOWN' ||
-                    tableName == 'FIT_ACTUAL_PO_NPRICECD_DTL' || tableName == 'FIT_PO_BUDGET_CD_DTL'||tableName =='FIT_PO_Target_CPO_CD_DTL') {
-                    $("#downCondition").show();
-                    $("#QpoCenter").show();
-                    $("#Scenario").text("");
-                    $("#buVal").show();
-                    $("#priceControl").show();
-                    $("#founderVal").hide();
-                    $("#sbuVal").show();
-                    $("#commodity").show();
-                    switch (tableName) {
-                        //實際採購非價格CD匯總表
-                        case "FIT_ACTUAL_PO_NPRICECD_DTL":
-                            $("input[name='YYYY']").hide();
-                            $("input[name='YYYYMM']").show();
-                            $("#priceControl").hide();
-                            $("#founderVal").show();
-                            $("#buVal").hide();
-                            break;
-                        //採購CD手動匯總表
-                        case "FIT_PO_BUDGET_CD_DTL":
-                            $("input[name='YYYY']").hide();
-                            $("input[name='YYYYMM']").show();
-                            $("#Scenario").text("Scenario:Actual")
-                            break;
-                        //SBU年度CD目標匯總表
-                        case "FIT_PO_SBU_YEAR_CD_SUM":
-                            $("input[name='YYYY']").show();
-                            $("input[name='YYYYMM']").hide();
-                            $("#Scenario").text("Scenario:Budget");
-                            break;
-                        //採購CD目標by月展開表
-                        case "FIT_PO_CD_MONTH_DOWN":
-                            $("input[name='YYYY']").show();
-                            $("input[name='YYYYMM']").hide();
-                            $("#QpoCenter").hide();
-                            $("#QpoCenter").change();
-                            break;
-                            //採購CD 目標核准表
-                        case "FIT_PO_Target_CPO_CD_DTL":
-                            $("input[name='YYYY']").show();
-                            $("input[name='YYYYMM']").hide();
-                            $("#QpoCenter").hide();
-                            $("#buVal").hide();
-                            $("#sbuVal").hide();
-                            $("#priceControl").hide();
-                            $("#founderVal").hide();
-                            $("#commodity").hide();
-                            break;
-                    }
+                $("#downCondition").show();
+                $("#QpoCenter").show();
+                $("#Scenario").text("");
+                $("#priceControl").show();
+                $("#founderVal").hide();
+                $("#sbuVal").show();
+                $("#commodity").show();
+                switch (tableName) {
+                    //實際採購非價格CD匯總表
+                    case "FIT_ACTUAL_PO_NPRICECD_DTL":
+                        $("input[name='YYYY']").hide();
+                        $("input[name='YYYYMM']").show();
+                        $("#priceControl").hide();
+                        $("#founderVal").show();
+                        break;
+                    //採購CD手動匯總表
+                    case "FIT_PO_BUDGET_CD_DTL":
+                        $("input[name='YYYY']").hide();
+                        $("input[name='YYYYMM']").show();
+                        $("#Scenario").text("Scenario:Actual")
+                        break;
+                    //SBU年度CD目標匯總表
+                    case "FIT_PO_SBU_YEAR_CD_SUM":
+                        $("input[name='YYYY']").show();
+                        $("input[name='YYYYMM']").hide();
+                        $("#Scenario").text("Scenario:Budget");
+                        break;
+                    //採購CD目標by月展開表
+                    case "FIT_PO_CD_MONTH_DTL":
+                        $("input[name='YYYY']").show();
+                        $("input[name='YYYYMM']").hide();
+                        $("#QpoCenter").hide();
+                        $("#QpoCenter").change();
+                        break;
+                    //採購CD 目標核准表
+                    case "FIT_PO_Target_CPO_CD_DTL":
+                        $("input[name='YYYY']").show();
+                        $("input[name='YYYYMM']").hide();
+                        $("#QpoCenter").hide();
+                        $("#sbuVal").hide();
+                        $("#priceControl").hide();
+                        $("#founderVal").hide();
+                        $("#commodity").hide();
+                        break;
                 }
             });
             $("#tableNamesOut1").change(function () {
@@ -415,15 +405,15 @@
                     },
                     success: function (data) {
                         $("#commdityTable").empty();
-                        var commdityTr=0;
+                        var commdityTr = 0;
                         jQuery.each(data, function (key, values) {
-                            $("#commdityTable").append("<tr style='border-top: 1px solid #dadada;height: 30px;font-weight:bold;'><td colspan='4'><input type='checkbox' onchange='checkedChild(this)' value='"+key+"'>"+key+"</td></tr>");
+                            $("#commdityTable").append("<tr style='border-top: 1px solid #dadada;height: 30px;font-weight:bold;'><td colspan='4'><input type='checkbox' onchange='checkedChild(this)' value='" + key + "'>" + key + "</td></tr>");
                             jQuery.each(values, function (i, item) {
                                 if (i % 4 == 0) {
                                     commdityTr++;
-                                    $("#commdityTable").append("<tr id='commdityTr"+commdityTr+"'></tr>");
+                                    $("#commdityTable").append("<tr id='commdityTr" + commdityTr + "'></tr>");
                                 }
-                                $("#commdityTr"+commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal "+key+"' value='" + item + "'>" + item + "</td>");
+                                $("#commdityTr" + commdityTr).append("<td height='25px' width='140px'> <input type='checkbox' class='userGroupVal " + key + "' value='" + item + "'>" + item + "</td>");
                             })
                         })
                     },
@@ -433,17 +423,21 @@
                 });
             })
 
+            $("#operation").click(function(){
+                window.open("${ctx}/static/template/po/FIT_接口平台平台採購模塊操作手冊_20230307.pdf");
+            })
+
         })
         var periodId;
 
         function affirmModal(v) {
             var valueUser = '';
-            if(v=="c"){
+            if (v == "c") {
                 $(".userGroupVal:checked").each(function () {
                     valueUser += $(this).val() + ",";
                 })
                 $("#commodity").val(valueUser.substring(0, valueUser.length - 1));
-            }else {
+            } else {
                 $(".userGroupValSbu:checked").each(function () {
                     valueUser += $(this).val() + ",";
                 })
@@ -452,37 +446,39 @@
         }
 
         function closeModal(v) {
-            if(v=="c"){
+            if (v == "c") {
                 $("#myModal input[type='checkbox']").prop("checked", false);
-            }else {
+            } else {
                 $("#myModalSbu input[type='checkbox']").prop("checked", false);
             }
         }
 
-        function  checkedChild(e){
-            var a= $(e).val();
-            if ( $(e).prop("checked") == true) {
-                $("."+a).prop("checked", true);
+        function checkedChild(e) {
+            var a = $(e).val();
+            if ($(e).prop("checked") == true) {
+                $("." + a).prop("checked", true);
             } else {
-                $("."+a).prop("checked", false);
+                $("." + a).prop("checked", false);
             }
         }
+
         function modelShow() {
             $('#myModal').modal('show');
         }
+
         function modelShowSbu() {
             $('#myModalSbu').modal('show');
         }
 
-        function allCheck(e,v){
+        function allCheck(e, v) {
             debugger;
-            if(v=="c"){
+            if (v == "c") {
                 if ($(e).prop("checked") == true) {
                     $("#myModal input[type='checkbox']").prop("checked", true);
                 } else {
                     $("#myModal input[type='checkbox']").prop("checked", false);
                 }
-            }else{
+            } else {
                 if ($(e).prop("checked") == true) {
                     $("#myModalSbu input[type='checkbox']").prop("checked", true);
                 } else {
@@ -505,12 +501,12 @@
                 <div>
                     <form id="poForm" style="margin-bottom: 0;margin-top:0;" method="POST" enctype="multipart/form-data"
                           class="form-horizontal">
-                        <div style="float:left;display:flex;">
+                        <div style="float:left;display:flex;width: 100%">
                             <ul class="nav dropdown" style="margin-left:10px;">
                                 <li class="dropdown">
                                     <select class="input-large" style="width:200px;" id="tableName" name="tableName">
                                         <option value=""><spring:message code='tableSelect'/></option>
-                                        <c:forEach items="${tableListSelect }" var="poTable">
+                                        <c:forEach items="${poTableList }" var="poTable">
                                             <option value="${poTable.tableName }">${poTable.comments }</option>
                                         </c:forEach>
                                     </select>
@@ -526,6 +522,9 @@
                                         style="vertical-align: top;height: 40px;font-size: 26px;text-decoration: underline;"
                                         type="button"><spring:message code='template'/></button>
                             </div>
+                            <button id="operation" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 26px;text-decoration: underline;margin-left: 60%" type="button">
+                                <c:if test="${languageS eq 'zh_CN'}">操作手冊</c:if>
+                                <c:if test="${languageS eq 'en_US'}">Operation manual</c:if></button>
                         </div>
                         <%--第二排--%>
                         <input type="file" style="display:none;" class="input-file" multiple="false" id="file"
@@ -536,15 +535,15 @@
                                     <select class="input-large" style="width:200px;" id="tableNamesOut1"
                                             name="tableNamesOut1">
                                         <option value=""><spring:message code='tableSelect'/></option>
-                                        <c:forEach items="${tableListSelect }" var="poTable">
+                                        <c:forEach items="${poTableList }" var="poTable">
                                             <option value="${poTable.tableName }">${poTable.comments }</option>
                                         </c:forEach>
                                     </select>
                                 </li>
                                 <li>
                                     <span id="TableNamesTipX1" style="display:none;"
-                                     class="Validform_checktip Validform_wrong"><spring:message
-                                     code='please_select'/></span>
+                                          class="Validform_checktip Validform_wrong"><spring:message
+                                            code='please_select'/></span>
                                 </li>
                             </ul>
                             <div style="float: left;text-align: right;margin-left: 10px;"
@@ -574,7 +573,7 @@
                                         <select id="QTableName" class="input-large"
                                                 style="width:200px;margin-bottom:0;margin-left:-10px;">
                                             <option value=""><spring:message code='tableSelect'/></option>
-                                            <c:forEach items="${poTableOutList }" var="poTableOut">
+                                            <c:forEach items="${poTableList }" var="poTableOut">
                                                 <option value="${poTableOut.tableName }">${poTableOut.comments}</option>
                                             </c:forEach>
                                         </select>
@@ -606,16 +605,14 @@
                                             <c:if test="${languageS eq 'zh_CN'}">審批狀態</c:if>
                                             <c:if test="${languageS eq 'en_US'}">Approval status</c:if>
                                             </option>
-                                        <option value="0"><c:if test="${languageS eq 'zh_CN'}">未提交</c:if>
-                                            <c:if test="${languageS eq 'en_US'}">Unsubmitted</c:if></td></option>
                                         <option value="1"><spring:message code='praeiudicium'/></option>
-                                        <option value="2">
-                                            <c:if test="${languageS eq 'zh_CN'}">終審</c:if>
-                                            <c:if test="${languageS eq 'en_US'}">Final Judgment</c:if>
-                                            </option>
                                         <option value="10">
                                             <c:if test="${languageS eq 'zh_CN'}">審核</c:if>
                                             <c:if test="${languageS eq 'en_US'}">Audit</c:if>
+                                            </option>
+                                        <option value="2">
+                                            <c:if test="${languageS eq 'zh_CN'}">終審</c:if>
+                                            <c:if test="${languageS eq 'en_US'}">Final Judgment</c:if>
                                             </option>
                                         <option value="3">
                                             <c:if test="${languageS eq 'zh_CN'}">完成</c:if>
@@ -631,11 +628,11 @@
                                     </select>
                                     <input type="text" id="commodity" style="width: 150px;" data-toggle="modal"
                                            ondblclick="modelShow()" placeholder="commodity(雙擊多選)">
-                                    <input type="text" style="width: 100px;" id="buVal" value="${buVal}"
-                                           placeholder="BU">
-                                    <input type="text" style="width: 110px;" id="sbuVal" value="${sbuVal}" data-toggle="modal"
+                                    <input type="text" style="width: 110px;" id="sbuVal" value="${sbuVal}"
+                                           data-toggle="modal"
                                            ondblclick="modelShowSbu()" placeholder="SBU(雙擊多選)">
-                                    <input type="text" style="width: 100px;display: none;" id="founderVal" value="${founderVal}"
+                                    <input type="text" style="width: 100px;display: none;" id="founderVal"
+                                           value="${founderVal}"
                                            placeholder="<spring:message code='founder'/>">
                                     <select id="priceControl" name="priceControl" class="input-large"
                                             style="width:100px;display: none;">
@@ -659,15 +656,17 @@
                                     </span>
                                     </br>
                                     編制說明：</br>
-                                    1.本表為非價格CD金額輸入表，由採購輸入，涉及的Commodity 有標準件，機加工件，...，汽車等等。</br>
+                                    1.本表為手工上傳業務數據未對接BI系統的實際CD金額,由採購輸入，由採購輸入</br>
                                     2.上傳報表管控邏輯：</br>
                                     &nbsp;&nbsp;1）Commodity /年/月份/SBU 為必填欄位，報表上傳時，系統需校驗4個欄位的內容是否與值集相同，不相同則報錯；</br>
-                                    &nbsp;&nbsp;2）BI 系統顯示的BU 欄位內容，由SBU 與BU 綁定關係帶出；</br>
+                                    &nbsp;&nbsp;2）BI 系統顯示的BU 欄位內容，由SBU 與BU 綁定關係帶出（目前系統無SBU與BU的映射關係，無法實現）；</br>
                                     3.上傳的報表需經對應的課/部級主管審核確認後，才能上傳到BI 系統；</br>
                                     &nbsp;&nbsp;1）審核流程： 發起人---課級主管---部級主管。提交及審核需觸發郵件通知。</br>
-                                    &nbsp;&nbsp;2）上傳報表採用開關版管理，由Key User 設定指定時間。上傳報表的時間（年/月份）只能上傳指定月份的數據。</br>
-                                    4.SBU 為必填欄位，BU 欄位可為空，BU 欄位信息可由SBU 的綁定關係帶入。SBU 內容要與值集信息做校驗；</br>
-                                    5.其他Free Key in 欄位非必填，內容需為數字格式，不能為文字。若填報文字，系統會進行報錯提醒。</br>
+                                    &nbsp;&nbsp;2）上傳報表採用開關版管理，每個月的1-10號可以上傳。上傳報表的時間（年/月份）只能上傳指定月份的數據。</br>
+                                    4.查詢表可以download模板；</br>
+                                    5.SBU 為必填欄位，BU 欄位可為空，BU 欄位信息可由SBU 的綁定關係帶入。SBU 內容要與值集信息做校驗；</br>
+                                    6.其他Free Key in 欄位非必填，內容需為數字格式，不能為文字。若填報文字，系統會進行報錯提醒。</br>
+                                    7.創建人：使用EIP賬號登錄；
                                 </span>
                                 <span id="PBCD" class="remark" style="color:#000;display: none">
                                     <span style="color:red;">
@@ -677,14 +676,15 @@
                                     </span>
                                     </br>
                                     編制說明：</br>
-                                    1.本表為手工上傳業務數據未對接BI系統的實際採購金額及價格CD金額；由採購輸入，涉及的Commodity 有標準件，機加工件，...，汽車等等。</br>
+                                    1.本表為手工上傳業務數據未對接BI系統的實際採購金額及價格CD金額,由採購輸入。</br>
                                     2.上傳報表管控邏輯：</br>
-                                    &nbsp;&nbsp;1）Commodity /年/月份/SBU 為必填欄位，報表上傳時，系統需校驗4個字段的內容是否與值集相同，不相同則報錯；客指/非客指也需要進行校驗；年月需要與所選擇年月進行匹配；</br>
-                                    &nbsp;&nbsp;2）BI 系統顯示的BU 字段內容，由SBU 與BU 綁定關係帶出；</br>
+                                    &nbsp;&nbsp;1）Commodity /年/月份/SBU 為必填欄位，報表上傳時，系統需校驗4個字段的內容是否與值集相同，不相同則報錯；客指/非客指也需要進行校驗;年月需要與所選擇年月進行匹配；</br>
+                                    &nbsp;&nbsp;2）BI 系統顯示的BU 字段內容，由SBU 與BU 綁定關係帶出（目前系統無SBU與BU的映射關係，無法實現）；</br>
                                     3.上傳的報表需經對應的課/部級主管審核確認後，才能上傳到BI 系統；</br>
-                                    &nbsp;&nbsp;1）審核流程： 發起人---課級主管---部級主管。提交及審核需觸發郵件通知。接口平臺的四張表單在提交與審核時可以上傳附檔，提交時可以備註/說明。審核主管可根據實際情況增刪附件；</br>
-                                    &nbsp;&nbsp;2）上傳報表採用開關版管理，開關版時間由Key user管理。上傳報表的時間（年/月份）只能上傳指定月份的數據。</br>
+                                    &nbsp;&nbsp;1）審核流程： 發起人---課級主管---部級主管。提交及審核需觸發郵件通知。接口平台的四張表單在提交與審核時可以上傳附檔，提交時可以備註/說明。審核主管可根據實際情況增刪附件；</br>
+                                    &nbsp;&nbsp;2）上傳報表採用開關版管理，每個月的1-10號可以上傳。上傳報表的時間（年/月份）只能上傳指定月份的數據。</br>
                                     4.CD比例=價格CD金額/（採購金額+價格CD金額）</br>
+                                    5.展示頁面按照機能中心、Commodity大類、BU、SBU、客指/非客指的排序；
                                 </span>
                                 <span id="PSYCS" class="remark" style="color:#000;display: none">
                                     編制說明：</br>
@@ -696,7 +696,7 @@
                                 </span>
                                 <span id="PCMD" class="remark" style="color:#000;display: none">
                                     編制說明：</br>
-                                    1	此表單查詢結果中的“CD比率%”需要與《採購CD目標by月展開Form》中的“CD比率%”進行校驗，誤差範圍需控制在0.005%內，若誤差大於0.005%，則校驗無法上傳
+                                    該表單中的“CD比率%”按照Commondity計算後與《SBU年度CD目標核准表》中的by Commodity“CPO Approve(%)”進行校驗，誤差範圍控制在0.005%內，如果大於0.005%，則校驗無法上傳
                                 </span>
                             </div>
                         </div>
@@ -724,26 +724,29 @@
             <div class="modal-body">
                 <table id="commdityTable" border="0" cellpadding="0" cellspacing="1">
                     <c:forEach items="${commodityMap}" var="dataMap">
-                        <tr style="border-top: 1px solid #dadada;height: 30px;font-weight:bold;">
-                            <td colspan="4"><input type="checkbox" onchange="checkedChild(this)" value="${dataMap.key}">${dataMap.key}</td>
-                        </tr>
-                        <c:forEach items="${dataMap.value}" var="commodity" varStatus="status">
-                                <c:if test="${status.index %4 eq 0}">
-                                    <tr>
-                                </c:if>
-                                <td width="140px">
-                                    <input type="checkbox" class="userGroupVal ${dataMap.key}" value="${commodity}">${commodity}
-                                </td>
+                    <tr style="border-top: 1px solid #dadada;height: 30px;font-weight:bold;">
+                        <td colspan="4"><input type="checkbox" onchange="checkedChild(this)"
+                                               value="${dataMap.key}">${dataMap.key}</td>
+                    </tr>
+                    <c:forEach items="${dataMap.value}" var="commodity" varStatus="status">
+                    <c:if test="${status.index %4 eq 0}">
+                    <tr>
+                        </c:if>
+                        <td width="140px">
+                            <input type="checkbox" class="userGroupVal ${dataMap.key}" value="${commodity}">${commodity}
+                        </td>
                         </c:forEach>
-                    </c:forEach>
+                        </c:forEach>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" onclick="closeModal('c')" class="btn btn-default" data-dismiss="modal"><spring:message
-                        code="close"/>
+                <button type="button" onclick="closeModal('c')" class="btn btn-default" data-dismiss="modal">
+                    <spring:message
+                            code="close"/>
                 </button>
-                <button type="button" onclick="affirmModal('c')" class="btn btn-primary" data-dismiss="modal"><spring:message
-                        code="submit"/></button>
+                <button type="button" onclick="affirmModal('c')" class="btn btn-primary" data-dismiss="modal">
+                    <spring:message
+                            code="submit"/></button>
             </div>
         </div>
     </div>
@@ -766,25 +769,29 @@
                 <table id="sbuTable" border="0" cellpadding="0" cellspacing="1">
                     <c:forEach items="${sbuMap}" var="dataMap">
                     <tr style="border-top: 1px solid #dadada;height: 30px;font-weight:bold;">
-                        <td colspan="4"><input type="checkbox" onchange="checkedChild(this)" value="${dataMap.key}">${dataMap.key}</td>
+                        <td colspan="4"><input type="checkbox" onchange="checkedChild(this)"
+                                               value="${dataMap.key}">${dataMap.key}</td>
                     </tr>
                     <c:forEach items="${dataMap.value}" var="commodity" varStatus="status">
                     <c:if test="${status.index %4 eq 0}">
                     <tr>
                         </c:if>
                         <td width="140px">
-                            <input type="checkbox" class="userGroupValSbu ${dataMap.key}" value="${commodity}">${commodity}
+                            <input type="checkbox" class="userGroupValSbu ${dataMap.key}"
+                                   value="${commodity}">${commodity}
                         </td>
                         </c:forEach>
                         </c:forEach>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" onclick="closeModal('s')" class="btn btn-default" data-dismiss="modal"><spring:message
-                        code="close"/>
+                <button type="button" onclick="closeModal('s')" class="btn btn-default" data-dismiss="modal">
+                    <spring:message
+                            code="close"/>
                 </button>
-                <button type="button" onclick="affirmModal('s')" class="btn btn-primary" data-dismiss="modal"><spring:message
-                        code="submit"/></button>
+                <button type="button" onclick="affirmModal('s')" class="btn btn-primary" data-dismiss="modal">
+                    <spring:message
+                            code="submit"/></button>
             </div>
         </div>
     </div>

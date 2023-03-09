@@ -56,11 +56,36 @@ $("a[name='update']").click(function(){
 			window.location.href="${ctx}/logout";
 		}
 	});
-	var tId=$("#tId").val();
-	var statusType = $("#statusType").val();
-	var role=$("#role").val();
-	$("#Content").load("${ctx}/bi/poTask/audit",{id:tId,statusType:statusType,role:role});
 });
+function updateAll(){
+	var updateData="";
+	var tableObj = document.getElementById("dataUpdate");
+	//从第二行开始获取数据
+	for (var i = 0; i < tableObj.rows.length; i++) {  //遍历Table的所有Row
+			var tableVal=tableObj.rows[i].getElementsByTagName("input");
+			if(tableVal.length>1){
+				updateData+=tableVal[0].name+"="+tableVal[0].value+"&"+tableVal[1].name+"="+tableVal[1].value+"&"+tableVal[2].name+"="+tableVal[2].value+";";
+			}
+	}
+
+	$("#loading").show();
+	$.ajax({
+		type:"POST",
+		url:"${ctx}/bi/poFlow/updateAll",
+		async:true,
+		dataType:"json",
+		data:{tableName:"FIT_PO_Target_CPO_CD_DTL",updateData:updateData},
+		success: function(data){
+			layer.alert(data.msg);
+			$("#loading").hide();
+		},
+		error: function() {
+			$("#loading").hide();
+			window.location.href="${ctx}/logout";
+		}
+	});
+}
+
 $(function () {
 	$("#taskDetails tbody").find("tr").each(function(){
 		var val=$(this).children('td:eq(2)').text();
@@ -521,6 +546,12 @@ function fileClick(e,val) {
 							 onclick="submitAuditXQ(this)"><c:if test="${languageS eq 'zh_CN'}">終審</c:if>
 						<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></button>
 					</c:if>
+					<c:if test="${(statusType == '0'&&user == 'N')||(statusType == '10' &&user == 'P')||(statusType == '2' &&user == 'Z')}">
+						<button  class="btn search-btn btn-warning"
+								 type="button"
+								 onclick="updateAll()"><c:if test="${languageS eq 'zh_CN'}">一鍵更新</c:if>
+							<c:if test="${languageS eq 'en_US'}">Updates</c:if></button>
+					</c:if>
 				</td>
 				<td style="margin-top: 10px">
 					<button name="btnKeyUser" class="btn search-btn btn-warning" style="
@@ -566,7 +597,7 @@ function fileClick(e,val) {
 				<th style="text-align:center" >CPO Approve(%)</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody id="dataUpdate">
 			<c:forEach items="${page.result}" var="mapping">
 				<tr>
 					<c:forEach var="i" begin="0" end="${fn:length(mapping)-index }" varStatus="status">

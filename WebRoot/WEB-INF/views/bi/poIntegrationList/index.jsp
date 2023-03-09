@@ -43,7 +43,6 @@
         .table-condensed td {
             padding: 1px 5px !important;
         }
-
         .modal-backdrop {
             position: initial !important;
         }
@@ -102,14 +101,13 @@
                 if ($(this).val().length > 0) {
                     $("#" + $(this).attr("id") + "Tip").hide();
                 }
+                $(".span12 input,select").show();
                 $("#Query input").val("");
                 $("#Query select").val("");
                 $("#NTD").hide();
-                $("#QpoCenter").show();
                 $("#Scenario").text("");
-                $("#buVal").show();
-                $("#priceControl").show();
                 $("#founderVal").hide();
+                $("#deleteBtn").show();
                 switch ($("#QTableName").val()) {
                     //實際採購非價格CD匯總表
                     case "FIT_ACTUAL_PO_NPRICECD_DTL":
@@ -117,7 +115,6 @@
                         $("input[name='YYYYMM']").show();
                         $("#priceControl").hide();
                         $("#founderVal").show();
-                        $("#buVal").hide();
                         break;
                     //採購CD手動匯總表
                     case "FIT_PO_BUDGET_CD_DTL":
@@ -139,6 +136,13 @@
                         $("#QpoCenter").change();
                         $("#NTD").show();
                         break;
+                    case "FIT_PO_Target_CPO_CD_DTL":
+                        $(".span12 input,select").hide();
+                        $("#deleteBtn").hide();
+                        $("#QTableName").show();
+                        $("input[name='YYYY']").show();
+                        $("#QpoCenter").change();
+                        break;
                 }
             });
 
@@ -148,22 +152,18 @@
                     $("#QTableNameTip").show();
                     return;
                 }
-                var DateYear = $("#DateYear").val();
+                var dateYear = $("#dateYear").val();
                 var date = $("#QDate").val();
                 var dateEnd = $("#QDateEnd").val();
-                if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DTL') {
+                if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DTL' || tableName=='FIT_PO_Target_CPO_CD_DTL') {
                     var r = /^\+?[1-9][0-9]*$/;
-                    if (DateYear.length != 4 || !r.test(DateYear)) {
+                    if (dateYear.length != 4 || !r.test(dateYear)) {
                         layer.alert("請填寫正確的年份(Please fill in the correct year)");
                         return;
                     }
                 } else {
-                    if (date.length == 0) {
-                        layer.alert("請選擇開始日期！(Please select a start date)");
-                        return;
-                    }
-                    if (dateEnd.length == 0) {
-                        layer.alert("請選擇結束日期！(Please select an end date)");
+                    if (date.length == 0||dateEnd.length == 0) {
+                        layer.alert("請選擇日期！(Please select a start date)");
                         return;
                     }
                     if (date.substr(0, 3) != dateEnd.substr(0, 3)) {
@@ -171,27 +171,33 @@
                         return;
                     }
                 }
-                var entity = $("#QpoCenter").val();
-                var sbuVal = $("#sbuVal").val();
                 $("#QTableNameTip").hide();
                 $("#QpoCenterTip").hide();
                 $("#PageNo").val(1);
                 $("#loading").show();
-                $("#Content").load("${ctx}/bi/poIntegrationList/list", {
-                    date: date,
-                    dateEnd: dateEnd,
-                    DateYear: DateYear,
-                    tableName: tableName,
-                    poCenter: entity,
-                    sbuVal: sbuVal,
-                    priceControl: $("#priceControl").val(),
-                    commodity: $("#commodity").val(),
-                    buVal: $("#buVal").val(),
-                    founderVal: $("#founderVal").val(),
-                    flag: $("#flag").val()
-                }, function () {
-                    $("#loading").fadeOut(1000);
-                });
+                if(tableName=="FIT_PO_Target_CPO_CD_DTL"){
+                    debugger;
+                    $("#Content").load("${ctx}/bi/poIntegrationList/cpo",{
+                        date: dateYear
+                    }, function () {
+                        $("#loading").fadeOut(1000);
+                    });
+                }else{
+                    $("#Content").load("${ctx}/bi/poIntegrationList/list", {
+                        date: date,
+                        dateEnd: dateEnd,
+                        dateYear: dateYear,
+                        tableName: tableName,
+                        poCenter: $("#QpoCenter").val(),
+                        sbuVal: $("#sbuVal").val(),
+                        priceControl: $("#priceControl").val(),
+                        commodity: $("#commodity").val(),
+                        founderVal: $("#founderVal").val(),
+                        flag: $("#flag").val()
+                    }, function () {
+                        $("#loading").fadeOut(1000);
+                    });
+                }
             });
 
             $('#deleteBtn').click(function () {
@@ -272,10 +278,10 @@
             var tableName = $("#QTableName").val();
             var date = $("#QDate").val();
             var dateEnd = $("#QDateEnd").val();
-            var DateYear = $("#DateYear").val();
-            if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DTL') {
+            var dateYear = $("#dateYear").val();
+            if (tableName == 'FIT_PO_SBU_YEAR_CD_SUM' || tableName == 'FIT_PO_CD_MONTH_DTL' || tableName=='FIT_PO_Target_CPO_CD_DTL') {
                 var r = /^\+?[1-9][0-9]*$/;
-                if (DateYear.length != 4 || !r.test(DateYear)) {
+                if (dateYear.length != 4 || !r.test(dateYear)) {
                     layer.alert("請填寫正確的年份(Please fill in the correct year)");
                     return;
                 }
@@ -304,13 +310,12 @@
                 data: {
                     date: date,
                     dateEnd: dateEnd,
-                    DateYear: DateYear,
-                    tableNames: tableName,
+                    dateYear: dateYear,
+                    tableName: tableName,
                     poCenter: entity,
                     sbuVal: sbuVal,
                     priceControl: $("#priceControl").val(),
                     commodity: $("#commodity").val(),
-                    buVal: $("#buVal").val(),
                     founderVal: $("#founderVal").val(),
                     flag: $("#flag").val()
                 },
@@ -333,7 +338,7 @@
             if ("${detailsTsak}" == "ok") {
                 $("#QTableName").val("FIT_PO_SBU_YEAR_CD_SUM");
                 $("#QTableName").change();
-                $("#DateYear").val("${DateYear}");
+                $("#dateYear").val("${dateYear}");
                 $("#sbuVal").val("${sbuVal}");
                 $("#QueryBtn").click();
             }
@@ -423,7 +428,7 @@
                 </ul>
                 <span id="Query">
                 <span id="Scenario"></span>
-                <input id="DateYear" name="YYYY" type="text"
+                <input id="dateYear" name="YYYY" type="text"
                        style="width:80px;text-align:center;display: none;"
                        placeholder="<spring:message code='year'/>">
                 <input id="QDate" name="YYYYMM"
@@ -435,27 +440,23 @@
                        type="text" value=""
                        placeholder="<spring:message code='end_time'/>"
                        readonly>
+<c:if test="${hasKey eq '1'}">
                 <select id="flag" class="input-large" style="width:100px;">
                     <option value="">
                         <c:if test="${languageS eq 'zh_CN'}">審批狀態</c:if>
                         <c:if test="${languageS eq 'en_US'}">Approval status</c:if>
                         </option>
-                    <option value="0"><c:if test="${languageS eq 'zh_CN'}">未提交</c:if>
-                        <c:if test="${languageS eq 'en_US'}">Unsubmitted</c:if></td></option>
                     <option value="1"><spring:message code='praeiudicium'/></option>
                     <option value="2">
                         <c:if test="${languageS eq 'zh_CN'}">終審</c:if>
                         <c:if test="${languageS eq 'en_US'}">Final Judgment</c:if>
-                        </option>
-                    <option value="10">
-                        <c:if test="${languageS eq 'zh_CN'}">審核</c:if>
-                        <c:if test="${languageS eq 'en_US'}">Audit</c:if>
                         </option>
                     <option value="3">
                         <c:if test="${languageS eq 'zh_CN'}">完成</c:if>
                         <c:if test="${languageS eq 'en_US'}">Finish</c:if>
                     </option>
                 </select>
+</c:if>
                 <select id="QpoCenter" name="QpoCenter" class="input-large"
                         style="width:120px;">
                     <option value=""><spring:message code='poCenter'/></option>
@@ -465,8 +466,6 @@
                 </select>
                 <input type="text" id="commodity" style="width: 147px;" data-toggle="modal"
                        ondblclick="modelShow()" placeholder="commodity(雙擊多選)">
-                <input type="text" style="width: 100px;" id="buVal" value="${buVal}"
-                       placeholder="BU">
                 <input type="text" style="width: 110px;" id="sbuVal" value="${sbuVal}" data-toggle="modal"
                        ondblclick="modelShowSbu()" placeholder="SBU(雙擊多選)">
                 <input type="text" style="width: 100px;display: none;" id="founderVal" value="${founderVal}"

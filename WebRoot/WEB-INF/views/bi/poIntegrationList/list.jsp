@@ -86,7 +86,7 @@
 			var date=$("#QDate").val();
 			var tableName=$("#QTableName").val();
 			var dateEnd = $("#QDateEnd").val();
-			var DateYear = $("#DateYear").val();
+			var dateYear = $("#dateYear").val();
 			var sbuVal = $("#sbuVal").val();
 			var entity = $("#QpoCenter").val();
 			$("#Content").load("${ctx}/bi/poIntegrationList/list",
@@ -94,13 +94,12 @@
 						orderBy:$("#OrderBy").val(),orderDir:$("#OrderDir").val(),
 						date: date,
 						dateEnd: dateEnd,
-						DateYear: DateYear,
+						dateYear: dateYear,
 						tableName: tableName,
 						poCenter: entity,
 						sbuVal: sbuVal,
 						priceControl:$("#priceControl").val(),
 						commodity:$("#commodity").val(),
-						buVal: $("#buVal").val(),
 						founderVal: $("#founderVal").val(),
 						flag:$("#flag").val()
 					},function(){$("#loading").fadeOut(1000);});
@@ -113,7 +112,7 @@
 </head>
 <body>
 <div <c:choose>
-	<c:when test="${tableName eq 'FIT_ACTUAL_PO_NPRICECD_DTL'}">style="width:310%;"</c:when>
+	<c:when test="${tableName eq 'FIT_ACTUAL_PO_NPRICECD_DTL'}">style="width:250%;"</c:when>
 	<c:when test="${tableName eq 'FIT_PO_CD_MONTH_DOWN'}">style="width:480%;"</c:when>
 	<c:when test="${fn:length(columns) gt 15}">style="width:200%;"</c:when></c:choose>>
 	<table class="table table-condensed table-hover">
@@ -122,25 +121,6 @@
 			<th>序号</th>
 			<c:forEach items="${columns }" var="column" varStatus="status">
 				<c:choose>
-					<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'}">
-						<c:choose>
-							<c:when test="${column.comments eq '採購單位與需求單位提供最低單價之價差（NTD）'}">
-								<th>採購單位與需求單位</br>提供最低單價之價差（NTD）</th>
-							</c:when>
-							<c:when test="${column.comments eq '投資(模具/設計/免費借用…)抵CD（NTD）'}">
-								<th>投資(模具/設計/免費借用…)</br>抵CD（NTD）</th>
-							</c:when>
-							<c:when test="${column.comments eq '一次交易議價(成交價低于最低報價)（NTD）'}">
-								<th>一次交易議價</br>(成交價低于最低報價)（NTD）</th>
-							</c:when>
-							<c:when test="${column.comments eq '回收(廢液/下腳料/包材...)（NTD）'}">
-								<th>回收(廢液/下腳料/包材...)</br>（NTD）</th>
-							</c:when>
-							<c:otherwise>
-								<th >${column.comments }</th>
-							</c:otherwise>
-						</c:choose>
-					</c:when>
 					<c:when test="${tableName=='FIT_PO_CD_MONTH_DOWN'}">
 						<c:choose>
 							<c:when test="${column.comments eq 'CD比率%（年度目标）'}">
@@ -179,7 +159,7 @@
 										<input name="ID" type="checkbox" value="${mapping[i]}"/>
 									</td>
 								</c:when>
-								<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==22 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==30}">
+								<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==15 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==23}">
 									<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 								</c:when>
 								<c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index >fn:length(mapping)-4}">
@@ -202,7 +182,7 @@
 										<input name="ID" type="checkbox" value="${mapping[i]}"/>
 									</td>
 								</c:when>
-								<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==22 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==30}">
+								<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==15 || tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==23}">
 									<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 								</c:when>
 								<c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index > fn:length(mapping)-index-3}">
@@ -219,7 +199,7 @@
 					</c:otherwise>
 				</c:choose>
 				<c:if test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'}">
-					<td style="border-right:1px solid #eee;background-color: beige">${mapping[22]+mapping[30]}</td>
+					<td style="border-right:1px solid #eee;background-color: beige">${mapping[15]+mapping[23]}</td>
 				</c:if>
 			</tr>
 		</c:forEach>

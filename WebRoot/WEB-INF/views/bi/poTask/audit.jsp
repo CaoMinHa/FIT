@@ -442,7 +442,7 @@
 </head>
 <body>
 <div <c:choose>
-	<c:when test="${tableName eq 'FIT_ACTUAL_PO_NPRICECD_DTL'}">style="width:310%;"</c:when>
+	<c:when test="${tableName eq 'FIT_ACTUAL_PO_NPRICECD_DTL'}">style="width:250%;"</c:when>
 	<c:when test="${tableName eq 'FIT_PO_CD_MONTH_DOWN'}">style="width:480%;"</c:when>
 	<c:when test="${fn:length(columns) gt 15}">style="width:200%;"</c:when></c:choose>>
 	<form id="taskFileForm" method="POST" enctype="multipart/form-data" class="form-horizontal">
@@ -490,16 +490,6 @@
 						<c:if test="${languageS eq 'en_US'}">Final Judgment</c:if></button>
 				</td>
 				<td style="margin-top: 10px">
-<%--					<c:if test="${statusType == '1' || statusType == '2'}">--%>
-<%--						<button name="btnKeyUser"  class="btn search-btn btn-warning" style="margin-left: -5px;--%>
-<%--							"type="button" onclick="cancelAudit(this)">取消審批</button>--%>
-<%--					</c:if>--%>
-<%--					<c:if test="${statusType == '3' && taskType != 'FIT_PO_SBU_YEAR_CD_SUM'}">--%>
-<%--						<button  class="btn search-btn btn-warning" style="margin-left: -5px;--%>
-<%--							"type="button"--%>
-<%--								 onclick="cancelAudit(this)">取消審批</button>--%>
-<%--					</c:if>--%>
-
 					<button name="btnKeyUser" class="btn search-btn btn-warning" style="
 					<c:if test="${user != 'K' || statusType == '0' || statusType == '-1'}">display: none;</c:if>"
 							 type="button"
@@ -523,25 +513,6 @@
                     <tr>
 						<c:forEach items="${columns }" var="column" varStatus="status">
 							<c:choose>
-								<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'}">
-									<c:choose>
-										<c:when test="${column.comments eq '採購單位與需求單位提供最低單價之價差（NTD）'}">
-											<th>採購單位與需求單位</br>提供最低單價之價差（NTD）</th>
-										</c:when>
-										<c:when test="${column.comments eq '投資(模具/設計/免費借用…)抵CD（NTD）'}">
-											<th>投資(模具/設計/免費借用…)</br>抵CD（NTD）</th>
-										</c:when>
-										<c:when test="${column.comments eq '一次交易議價(成交價低于最低報價)（NTD）'}">
-											<th>一次交易議價</br>(成交價低于最低報價)（NTD）</th>
-										</c:when>
-										<c:when test="${column.comments eq '回收(廢液/下腳料/包材...)（NTD）'}">
-											<th>回收(廢液/下腳料/包材...)</br>（NTD）</th>
-										</c:when>
-										<c:otherwise>
-											<th >${column.comments }</th>
-										</c:otherwise>
-									</c:choose>
-								</c:when>
 								<c:when test="${tableName=='FIT_PO_CD_MONTH_DOWN'}">
 									<c:choose>
 										<c:when test="${column.comments eq 'CD比率%（年度目标）'}">
@@ -575,7 +546,7 @@
 								<c:when test="${sort.index eq fn:length(page.result)-1}">
 									<c:forEach var="i" begin="0" end="${fn:length(mapping)-1}" varStatus="status">
 										<c:choose>
-											<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21||tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
+											<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==22||tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==14}">
 												<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 											</c:when>
 											<c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index >fn:length(mapping)-4}">
@@ -593,7 +564,7 @@
 								<c:otherwise>
 									<c:forEach var="i" begin="0" end="${fn:length(mapping)-index}" varStatus="status">
 										<c:choose>
-											<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==21|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==29}">
+											<c:when test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==22|| tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'&&status.index==14}">
 												<td style="border-right:1px solid #eee;background-color: beige">${mapping[i]}</td>
 											</c:when>
 											<c:when test="${tableName =='FIT_PO_CD_MONTH_DOWN' && status.index >fn:length(mapping)-4}">
@@ -613,7 +584,7 @@
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${tableName=='FIT_ACTUAL_PO_NPRICECD_DTL'}">
-								<td style="border-right:1px solid #eee;background-color: beige">${mapping[21]+mapping[29]}</td>
+								<td style="border-right:1px solid #eee;background-color: beige">${mapping[22]+mapping[14]}</td>
 							</c:if>
 						</tr>
 					</c:forEach>

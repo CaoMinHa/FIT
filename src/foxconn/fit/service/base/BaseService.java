@@ -3,10 +3,7 @@ package foxconn.fit.service.base;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.FlushMode;
 import org.hibernate.classic.Session;
 import org.springside.modules.orm.Page;
@@ -110,16 +107,4 @@ public abstract class BaseService<T> {
 			}
 		}
 	}
-
-	protected String getByLocale(Locale locale, String value){
-		if (StringUtils.isNotEmpty(value) && value.indexOf("_")>0) {
-			if (locale!=null && "en_US".equals(locale.toString())) {
-				return value.substring(0,value.lastIndexOf("_"));
-			}else{
-				return value.substring(value.lastIndexOf("_")+1, value.length());
-			}
-		}
-		return value;
-	}
-	
 }

@@ -3,7 +3,6 @@ package foxconn.fit.service.bi;
 import foxconn.fit.dao.base.BaseDaoHibernate;
 import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.base.EnumGenerateType;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoKey;
 import foxconn.fit.entity.bi.PoTable;
@@ -36,7 +35,9 @@ import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -145,19 +146,8 @@ public class PoTableService extends BaseService<PoTable> {
         } else {
             result.put("msg", "系统繁忙，请重新登录");
         }
-        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
         List<String> subs = this.listBySql("select distinct SBU_NAME from BIDEV.DM_D_ENTITY_SBU where FLAG='1' order by SBU_NAME");
         List<String> commoditys = this.listBySql("select distinct COMMODITY_NAME from CUX_FUNCTION_COMMODITY_MAPPING");
-        List<String> monthList = new ArrayList<>();
-
-        /**获取当前时间往后推60天*/
-        LocalDate localDate = LocalDate.now();
-        String year=localDate.plus(60, ChronoUnit.DAYS).toString().substring(0,4);
-        String period = localDate.minusMonths(1).toString().substring(5, 7);
-        List<String> sbuList = new ArrayList<>();
-        List<String> commodityList = new ArrayList<>();
-        Set<String> sbuSet = new HashSet<>();
-        Set<String> commoditySet = new HashSet<>();
         String sbu = "";
         String commodity = "";
         try {
@@ -183,7 +173,6 @@ public class PoTableService extends BaseService<PoTable> {
                     wb = new XSSFWorkbook(file.getInputStream());
                 }
                 wb.close();
-                Map<PoTable, List<List<String>>> dataMap = new HashMap<PoTable, List<List<String>>>();
                 PoTable poTable = this.get(tableName);
                 List<PoColumns> columns = poTable.getColumns();
                 int COLUMN_NUM = columns.size();
@@ -210,52 +199,6 @@ public class PoTableService extends BaseService<PoTable> {
                     Row row = sheet.getRow(j);
                     int n = 0;
                     List<String> data = new ArrayList<String>();
-                    String recordsYear = ExcelUtil.getCellStringValue(row.getCell(0), 0, j);
-                    String recordsMonth = ExcelUtil.getCellStringValue(row.getCell(1), 0, j);
-                    if (recordsMonth.length() < 2) {
-                        recordsMonth = "0" + recordsMonth;
-                    }
-                    String RYM = recordsYear + recordsMonth;
-                    /**上传管控*/
-                    if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                        //測試後續放開
-                        if (!this.updateState(loginUser.getUsername())) {
-                            Assert.isTrue(year.equals(recordsYear), instrumentClassService.getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
-                        }
-                        year = recordsYear;
-                        data.add(year);
-                        n += 1;
-                    } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-                        //測試後續放開
-                        if (!this.updateState(loginUser.getUsername())) {
-                            Assert.isTrue(year.equals(recordsYear), instrumentClassService.getLanguage(locale, "錯誤的年份： " + recordsYear + "應為：" + year, "The year is error:" + RYM + "should be：" + year));
-                        }
-                        if (!this.checkCPO(recordsYear)) {
-                            result.put("flag", "fail");
-                            result.put("msg", instrumentClassService.getLanguage(locale, "採購CD 目標CPO核准還未完成審批，暫無法上傳數據。", "The CPO approval of the purchase CD target has not been completed, so the data cannot be uploaded temporarily"));
-                            return result.getJson();
-                        }
-                        year = recordsYear;
-                        data.add(year);
-                        n = 1;
-                    } else {
-                        if (!this.updateState(loginUser.getUsername())) {
-                            year = localDate.minusMonths(1).toString().substring(0, 4);
-                            if ("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableName) || "FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableName)) {
-                                if (Integer.parseInt(localDate.toString().substring(8, 10)) > 10) {
-                                    result.put("flag", "fail");
-                                    result.put("msg", instrumentClassService.getLanguage(locale, "上傳時間為每月1-10號，現已逾期，請聯係管理員。", "The upload time is from the 1st to the 10th of each month, it is overdue, please contact the administrator"));
-                                    return result.getJson();
-                                }
-                            }
-                            Assert.isTrue((year + period).equals(RYM), instrumentClassService.getLanguage(locale, "錯誤的月份： " + RYM + "應為：" + (year + period), "The year，period is error:" + RYM + "should be：" + (year + period)));
-                        }
-                        year = recordsYear;
-                        period = recordsMonth;
-                        data.add(year);
-                        data.add(period);
-                        n += 2;
-                    }
                     while (n < COLUMN_NUM) {
                         PoColumns column = columns.get(n);
                         /**字段不能爲空*/
@@ -299,19 +242,12 @@ public class PoTableService extends BaseService<PoTable> {
                             value = value.replaceAll("'", "''");
                             if ("SBU".equalsIgnoreCase(column.getColumnName())) {
                                 sbu = value;
-                                sbuList.add(sbu);
-                                sbuSet.add(value);
                                 if (!subs.contains(sbu)) {
                                     result.put("flag", "fail");
                                     result.put("msg", instrumentClassService.getLanguage(locale, "第" + (j + 1) + "行第" + (n + 1) + "列單元格sbu输入錯誤【" + value + "】", "The sbu of the cell in row " + (j + 1) + " column " + (n + 1) + " is error)"));
                                     return result.getJson();
                                 }
                                 if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                                    if (sbuSet.size() > 1) {
-                                        result.put("flag", "fail");
-                                        result.put("msg", instrumentClassService.getLanguage(locale, "第" + (j + 1) + "行第" + (n + 1) + "列單元格sbu输入錯誤【" + value + "】,sbu必须唯一", "The sbu of the cell in row " + (j + 1) + " column " + (n + 1) + " is error)"));
-                                        return result.getJson();
-                                    }
                                     if (!dataRangeStr.contains(sbu)) {
                                         result.put("flag", "fail");
                                         result.put("msg", instrumentClassService.getLanguage(locale, "第" + (j + 1) + "行第" + (n + 1) + "列單元格sbu输入錯誤【" + value + "】,用户没有维护该sbu的权限", "The sbu of the cell in row " + (j + 1) + " column " + (n + 1) + " is error)"));
@@ -321,16 +257,9 @@ public class PoTableService extends BaseService<PoTable> {
                             }
                             if ("COMMODITY_MAJOR".equalsIgnoreCase(column.getColumnName()) || "COMMODITY".equalsIgnoreCase(column.getColumnName())) {
                                 commodity = value;
-                                commodityList.add(value);
-                                commoditySet.add(value);
                                 if (!commoditys.contains(commodity)) {
                                     result.put("flag", "fail");
                                     result.put("msg", instrumentClassService.getLanguage(locale, "第" + (j + 1) + "行第" + (n + 1) + "列單元格commodity输入錯誤【" + value + "】", "The commodity of the cell in row " + (j + 1) + " column " + (n + 1) + " is error)"));
-                                    return result.getJson();
-                                }
-                                if (commoditySet.size() > 1 && !"FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                                    result.put("flag", "fail");
-                                    result.put("msg", instrumentClassService.getLanguage(locale, "第" + (j + 1) + "行第" + (n + 1) + "列單元格commodity输入錯誤【" + value + "】,物料大类必须唯一", "The commodity of the cell in  row " + (j + 1) + " column " + (n + 1) + " is error)"));
                                     return result.getJson();
                                 }
                                 if (!"FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
@@ -345,7 +274,6 @@ public class PoTableService extends BaseService<PoTable> {
                                 if (value.length() < 2) {
                                     value = "0" + value;
                                 }
-                                monthList.add(value);
                             }
                             if ("PRICE_CONTROL".equalsIgnoreCase(column.getColumnName())) {
                                 if (!"非客指".equals(value) && !"客指".equals(value)) {
@@ -361,24 +289,10 @@ public class PoTableService extends BaseService<PoTable> {
                     dataList.add(data);
                 }
                 if (!dataList.isEmpty()) {
-                    String repetition=repetition(tableName,dataList);
-                    if("Y".equals(repetition)){
-                        dataMap.put(poTable, dataList);
-                    }else{
-                        result.put("flag", "fail");
-                        result.put("msg", instrumentClassService.getLanguage(locale, "上傳失敗，有重複維度數據："+repetition, "Upload failed, Duplicate dimension data："+repetition));
-                        return result.getJson();
-                    }
+                    return repetition(poTable,dataList,result,locale);
                 } else {
                     result.put("flag", "fail");
                     result.put("msg", instrumentClassService.getLanguage(locale, "無有效數據行", "There is no valid data row"));
-                }
-                String taskId = this.savePoData(dataMap, year, period, sbuList, commodityList, monthList);
-                if ("".equals(taskId)) {
-                    result.put("flag", "fail");
-                    result.put("msg", "該維度的數據已存在，不能重複上傳");
-                } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-                    result = this.validateMonth(taskId, result);
                 }
             } else {
                 result.put("flag", "fail");
@@ -391,24 +305,69 @@ public class PoTableService extends BaseService<PoTable> {
         return result.getJson();
     }
 
+    public AjaxResult checkDate(String tableName,String date,Locale locale,AjaxResult result){
+        /**获取当前时间往后推60天*/
+        LocalDate localDate = LocalDate.now();
+        String year=localDate.plus(60, ChronoUnit.DAYS).toString().substring(0,4);
+        String period = localDate.minusMonths(1).toString().substring(5, 7);
+        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+        String userName=loginUser.getUsername();
+        /**上传管控*/
+        if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
+            //測試後續放開
+            if (!this.updateState(userName)) {
+                Assert.isTrue(year.equals(date), instrumentClassService.getLanguage(locale, "錯誤的年份： " + date + "應為：" + year, "The year is error:" + date + "should be：" + year));
+            }
+        } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
+            //測試後續放開
+            if (!this.updateState(userName)) {
+                Assert.isTrue(year.equals(date), instrumentClassService.getLanguage(locale, "錯誤的年份： " + date + "應為：" + year, "The year is error:" + date + "should be：" + year));
+            }
+            if (!this.checkCPO(date)) {
+                result.put("flag", "fail");
+                result.put("msg", instrumentClassService.getLanguage(locale, "採購CD 目標CPO核准還未完成審批，暫無法上傳數據。", "The CPO approval of the purchase CD target has not been completed, so the data cannot be uploaded temporarily"));
+                return result;
+            }
+        } else {
+            if (!this.updateState(userName)) {
+                year = localDate.minusMonths(1).toString().substring(0, 4);
+                if ("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableName) || "FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableName)) {
+                    if (Integer.parseInt(localDate.toString().substring(8, 10)) > 10) {
+                        result.put("flag", "fail");
+                        result.put("msg", instrumentClassService.getLanguage(locale, "上傳時間為每月1-10號，現已逾期，請聯係管理員。", "The upload time is from the 1st to the 10th of each month, it is overdue, please contact the administrator"));
+                        return result;
+                    }
+                }
+                Assert.isTrue((year + period).equals(date), instrumentClassService.getLanguage(locale, "錯誤的月份： " + date + "應為：" + (year + period), "The year，period is error:" + date + "should be：" + (year + period)));
+            }
+        }
+        return result;
+    }
+
+
+
     /**
      * 遍历数组，去重
      * tableName 表格名决定key
      * dataList 之前的数据
      * data 本次数据
      */
-    public String repetition(String tableName, List<List<String>> dataList) {
+    public String repetition(PoTable poTable, List<List<String>> dataList, AjaxResult result,Locale locale) throws Exception {
         List<String> listVal=new ArrayList<>();
+        Set<String> list=new HashSet<>();
         for (int i=0;i<dataList.size();i++) {
-            switch (tableName){
+            switch (poTable.getTableName()){
                 case "FIT_PO_SBU_YEAR_CD_SUM"://SBU年度CD目標匯總表
                     listVal.add(dataList.get(i).get(0)+"_"+dataList.get(i).get(2)+"_"+dataList.get(i).get(3)+"_"+dataList.get(i).get(4));
+                    list.add(dataList.get(i).get(0)+"_"+dataList.get(i).get(3)+"_"+poTable.getComments().split("_")[1]);
                     break;
                 case "FIT_PO_CD_MONTH_DTL"://採購CD目標by月展開表
                     listVal.add(dataList.get(i).get(0)+"_"+dataList.get(i).get(1)+"_"+dataList.get(i).get(2)+"_"+dataList.get(i).get(3)+"_"+dataList.get(i).get(4));
+                    list.add(dataList.get(i).get(0)+"_"+dataList.get(i).get(2)+"_"+poTable.getComments().split("_")[1]);
                     break;
                 default://採購CD手動匯總表 實際採購非價格CD匯總表
                     listVal.add(dataList.get(i).get(0)+dataList.get(i).get(1)+"_"+dataList.get(i).get(3)+"_"+dataList.get(i).get(5)+"_"+dataList.get(i).get(6));
+                    list.add(dataList.get(i).get(0)+dataList.get(i).get(1)+"_"+dataList.get(i).get(3)+"_"+poTable.getComments().split("_")[1]);
                     break;
             }
         }
@@ -419,8 +378,58 @@ public class PoTableService extends BaseService<PoTable> {
                 .filter(e -> e.getValue() > 1)         // 过滤出元素出现次数大于 1 (重复元素）的 entry
                 .map(Map.Entry::getKey)                // 获得 entry 的键（重复元素）对应的 Stream
                 .collect(Collectors.toList());
-        System.out.println(collect.isEmpty()?"Y":collect.toString());
-        return collect.isEmpty()?"Y":collect.toString();
+        String nameList="";
+        String msg="";
+        if(collect.isEmpty()){
+                for (String str:list) {
+                    result=this.checkDate(poTable.getTableName(),str.split("_")[0],locale,result);
+                    if(result.getResult().get("flag").equals("fail")){
+                        return result.getJson();
+                    }
+                    List<List<String>> dataList1=new ArrayList<>();
+                    for (List<String> data:dataList) {
+                        switch (poTable.getTableName()){
+                            case "FIT_PO_SBU_YEAR_CD_SUM"://SBU年度CD目標匯總表
+                                if(str.equals(data.get(0)+"_"+data.get(3)+"_"+poTable.getComments().split("_")[1])){
+                                    dataList1.add(data);
+                                }
+                                break;
+                            case "FIT_PO_CD_MONTH_DTL"://採購CD目標by月展開表
+                                if(str.equals(data.get(0)+"_"+data.get(2)+"_"+poTable.getComments().split("_")[1])){
+                                    dataList1.add(data);
+                                }
+                                break;
+                            default://採購CD手動匯總表 實際採購非價格CD匯總表
+                                if(str.equals(data.get(0)+data.get(1)+"_"+data.get(3)+"_"+poTable.getComments().split("_")[1])){
+                                    dataList1.add(data);
+                                }
+                                break;
+                        }
+                    }
+                    String taskId = this.savePoData(poTable,dataList1,str);
+                    if ("".equals(taskId)) {
+                        nameList+=str+",";
+                    } else{
+                        if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(poTable.getTableName())&&!this.validateMonth(taskId).equals("Y")) {
+                            msg+= this.validateMonth(taskId)+",";
+                        }
+                    }
+                }
+                if(!msg.isEmpty()){
+                    result.put("flag", "fail");
+                    result.put("msg", msg.substring(0,msg.length()-1) + "配置的CD比例過低,請重新維護上傳");
+                }
+                if(!nameList.isEmpty()){
+                    result.put("flag", "fail");
+                    result.put("msg", nameList.substring(0,nameList.length()-1)+"該維度的數據已存在，不能重複上傳");
+                }
+
+        }else{
+            result.put("flag", "fail");
+            result.put("msg", instrumentClassService.getLanguage(locale, "上傳失敗，有重複維度數據："+collect.toString(), "Upload failed, Duplicate dimension data："+collect.toString()));
+            return result.getJson();
+        }
+        return result.getJson();
     }
 
     /**
@@ -503,12 +512,13 @@ public class PoTableService extends BaseService<PoTable> {
         if ("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableName)) {
             sheet.setDefaultColumnStyle(2, lockStyle);
             sheet.setDefaultColumnStyle(4, lockStyle);
+            sheet.setDefaultColumnStyle(14, lockStyle);
             sheet.setDefaultColumnStyle(20, lockStyle);
             sheet.setDefaultColumnStyle(21, lockStyle);
             sheet.setDefaultColumnStyle(22, lockStyle);
         } else if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
             sheet.setDefaultColumnStyle(1, lockStyle);
-            sheet.setDefaultColumnStyle(6, lockStyle);
+            sheet.setDefaultColumnStyle(14, lockStyle);
         } else if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableName)) {
             sheet.setDefaultColumnStyle(2, lockStyle);
             sheet.setDefaultColumnStyle(4, lockStyle);
@@ -585,9 +595,9 @@ public class PoTableService extends BaseService<PoTable> {
      * 生成采购下载文件
      * */
     public String download(HttpServletRequest request, PageRequest pageRequest,
-                   String DateYear,
+                   String dateYear,
                    String date, String dateEnd, String tableName,String flag,
-                   String poCenter, String sbuVal, String priceControl,String commodity,String founderVal,String buVal) throws Exception {
+                   String poCenter, String sbuVal, String priceControl,String commodity,String founderVal) throws Exception {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFWorkbook workBook = new XSSFWorkbook();
         XSSFCellStyle titleStyle = workBook.createCellStyle();
@@ -630,7 +640,11 @@ public class PoTableService extends BaseService<PoTable> {
             cell.setCellStyle(titleStyle);
             sheet.setColumnWidth(i, comments.getBytes("GBK").length * 256 + 400);
         }
-        sql = sql.substring(0, sql.length() - 1) + " from " + tableName +this.whereSql(poTable,columns,locale,DateYear,date,dateEnd,flag,poCenter,sbuVal,priceControl,commodity,founderVal,buVal);
+        if(tableName.equals("FIT_PO_Target_CPO_CD_DTL")){
+            sql="select YEAR,PO_CENTER,COMMODITY_MAJOR ,NO_PO_TOTAL,NO_CD_AMOUNT,NO_CPO,PO_TOTAL ,CD_AMOUNT,CPO from FIT_PO_TARGET_CPO_CD_DTL_V1 where YEAR='"+dateYear+"'";
+        }else {
+            sql = sql.substring(0, sql.length() - 1) + " from " + tableName + this.whereSql(poTable, columns, locale, dateYear, date, dateEnd, flag, poCenter, sbuVal, priceControl, commodity, founderVal);
+        }
         pageRequest.setPageSize(ExcelUtil.PAGE_SIZE);
         pageRequest.setPageNo(1);
         List<Object[]> dataList = this.findPageBySql(pageRequest, sql).getResult();
@@ -691,8 +705,8 @@ public class PoTableService extends BaseService<PoTable> {
     /**
      * 下载sql
      */
-    public String whereSql(PoTable poTable,List<PoColumns> columns , Locale locale, String DateYear, String date, String dateEnd, String flag,
-                           String poCenter, String sbuVal, String priceControl, String commodity, String founderVal, String buVal){
+    public String whereSql(PoTable poTable,List<PoColumns> columns , Locale locale, String dateYear, String date, String dateEnd, String flag,
+                           String poCenter, String sbuVal, String priceControl, String commodity, String founderVal){
         String whereSql=" where 1=1 ";
         if (StringUtils.isNotEmpty(date) && StringUtils.isNotEmpty(dateEnd)) {
             Date d = DateUtil.parseByYyyy_MM(date);
@@ -730,21 +744,16 @@ public class PoTableService extends BaseService<PoTable> {
             //採購CD目標by月展開表
             case "FIT_PO_CD_MONTH_DOWN":
                 whereSql = " where 1=1";
-                whereSql += " and year= " + DateYear;
+                whereSql += " and year= " + dateYear;
                 if (StringUtils.isNotEmpty(priceControl)) {
                     whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
                 }
                 break;
-            //採購CD目標by月展開表
-            case "FIT_PO_Target_CPO_CD_DTL":
-                whereSql = " where 1=1";
-                whereSql += " and year= " + DateYear;
-                break;
             //SBU年度CD目標匯總表
             case "FIT_PO_SBU_YEAR_CD_SUM":
                 whereSql = " where 1=1 and PO_CENTER not in('Buy-sell','資訊採購')";
-                if (StringUtils.isNotEmpty(DateYear)) {
-                    whereSql += " and " + columns.get(0).getColumnName() + "='" + DateYear + "'";
+                if (StringUtils.isNotEmpty(dateYear)) {
+                    whereSql += " and " + columns.get(0).getColumnName() + "='" + dateYear + "'";
                 }
                 if(poCenter.equals("Buy-sell")||poCenter.equals("資訊採購")){
                     whereSql += " and " + columns.get(1).getColumnName() + "='1'";
@@ -762,9 +771,7 @@ public class PoTableService extends BaseService<PoTable> {
             for (int i=0;i<commodity.split(",").length;i++) {
                 commotityVal+="'"+commodity.split(",")[i]+"',";
             }
-            if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())||
-                    "FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(poTable.getTableName())||
-                    "FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
+            if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())||"FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
                 whereSql += " and COMMODITY_MAJOR in(" + commotityVal.substring(0,commotityVal.length()-1) + ")";
             }else{
                 whereSql += " and COMMODITY in (" + commotityVal.substring(0,commotityVal.length()-1) + ")";
@@ -786,9 +793,6 @@ public class PoTableService extends BaseService<PoTable> {
             }else {
                 whereSql += " and sbu in(" + sbu.substring(0,sbu.length()-1) + ")";
             }
-        }
-        if (StringUtils.isNotEmpty(buVal)) {
-            whereSql += " and bu LIKE " + "'%" + buVal + "%'";
         }
         if (StringUtils.isNotEmpty(flag)) {
             whereSql += " and flag = '" + flag + "'";
@@ -818,9 +822,9 @@ public class PoTableService extends BaseService<PoTable> {
             List<String> listYear = this.listBySql(" select year from FIT_PO_SBU_YEAR_CD_SUM where TASK_ID='" + session.getAttribute("taskId") + "'" +
                     "  and rownum=1 ");
             String sbuVal = listSBU.get(0);
-            String DateYear = listYear.get(0);
+            String dateYear = listYear.get(0);
             model.addAttribute("sbuVal", sbuVal);
-            model.addAttribute("DateYear", DateYear);
+            model.addAttribute("dateYear", dateYear);
         }
         return model;
     }
@@ -875,140 +879,83 @@ public class PoTableService extends BaseService<PoTable> {
         return model;
     }
 
-
     /**
      * 保存采购数据
      */
     @Transactional
-    public String savePoData(Map<PoTable, List<List<String>>> dataMap, String year, String period,
-                             List<String> sbu, List<String> commodity,
-                             List<String> monthList) {
+    public String savePoData(PoTable poTable,List<List<String>> dataList,String name) {
         int cnt = 1;
         String id = UUID.randomUUID().toString();
-        for (PoTable poTable : dataMap.keySet()) {
+        String count = " select count(id) from fit_po_task where name='" + name + "' and flag not in('0','-1')";
+        List<BigDecimal> countList = (List<BigDecimal>)poTableDao.listBySql(count);
+        if(countList.get(0).intValue()<1){
             List<PoColumns> columns = poTable.getColumns();
-            String[] s = poTable.getComments().split("_");
-            String name = year + period + "_" + commodity.get(0) + "_" + s[s.length - 1];
-            String tableName = poTable.getTableName();
-            if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                name = year + "_" + sbu.get(0) + "_" + s[s.length - 1];
+            //先删掉数据
+            String deleteSql="delete "+poTable.getTableName()+" where task_id=(select id from FIT_PO_TASK where NAME='"+name+"') and flag in('0','-1')";
+            poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
+            deleteSql="delete FIT_PO_TASK where NAME='"+name+"' and flag in('0','-1')";
+            poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
+            UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+            String user = loginUser.getUsername();
+            List<String> userName = this.listBySql("select realname from FIT_USER where username='" + user + "'");
+            if (null == userName.get(0)) {
+                userName.set(0, user);
             }
-            if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-                name = year + "_" + commodity.get(0) + "_" + s[s.length - 1];
-            }
-            String count = " select count(id) from fit_po_task where name='" + name + "' and flag not in('0','-1')";
-            List<Map> maps = poTableDao.listMapBySql(count);
-            if (maps != null) {
-                String num = maps.get(0).get("COUNT(ID)").toString();
-                if (!"0".equalsIgnoreCase(num)) {
-                    return "";
-                } else {
-                    String deleteSql = "";
-                    if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())) {
-                        for (int i = 0; i < commodity.size(); i++) {
-                            deleteSql = "delete from " + poTable.getTableName() +
-                                    " where 1=1 and  flag !='-1' " +
-                                    " and year ='" + year + "' and sbu='" + sbu.get(i) + "' and COMMODITY_MAJOR='" + commodity.get(i) + "'";
-                            System.out.println(deleteSql);
-                            poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-                        }
-                    } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(poTable.getTableName())) {
-                        for (int i = 0; i < sbu.size(); i++) {
-                            deleteSql = "delete from " + poTable.getTableName() +
-                                    " where 1=1 and flag !='-1' " +
-                                    " and year ='" + year + "' and month='" + monthList.get(i) + "' and sbu='" + sbu.get(i) + "' and COMMODITY_MAJOR='" + commodity.get(i) + "'";
-                            System.out.println(deleteSql);
-                            poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-                        }
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (List<String> data : dataList) {
+                String columnStr = "";
+                for (PoColumns column : columns) {
+                    columnStr += column.getColumnName() + ",";
+                }
+                columnStr = columnStr + "flag,TASK_ID ";
+                String valueStr = "";
+                for (int i = 0; i < data.size(); i++) {
+                    if (columns.get(i).getDataType().equalsIgnoreCase("number")) {
+                        valueStr += "to_number('" + data.get(i) + "'),";
+                    } else if (columns.get(i).getDataType().equalsIgnoreCase("date")) {
+                        valueStr += "to_date('" + data.get(i) + "','dd/mm/yyyy'),";
                     } else {
-                        for (int i = 0; i < sbu.size(); i++) {
-                            deleteSql = "delete from " + poTable.getTableName() +
-                                    " where 1=1 and flag !='-1' " +
-                                    " and year ='" + year + "' and month='" + period + "' and sbu='" + sbu.get(i) + "' and COMMODITY='" + commodity.get(i) + "'";
-                            System.out.println(deleteSql);
-                            poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-                        }
+                        valueStr += "'" + data.get(i) + "',";
                     }
-
-
-                    List<List<String>> dataList = dataMap.get(poTable);
-                    for (List<String> data : dataList) {
-                        String generateType = data.get(0);
-                        String columnStr = "";
-                        for (PoColumns column : columns) {
-                            columnStr += column.getColumnName() + ",";
-                        }
-                        columnStr = columnStr + "flag,TASK_ID ";
-                        String valueStr = "'" + generateType + "',";
-                        for (int i = 1; i < data.size(); i++) {
-                            if (columns.get(i).getDataType().equalsIgnoreCase("number")) {
-                                valueStr += "to_number('" + data.get(i) + "'),";
-                            } else if (columns.get(i).getDataType().equalsIgnoreCase("date")) {
-                                valueStr += "to_date('" + data.get(i) + "','dd/mm/yyyy'),";
-                            } else {
-                                valueStr += "'" + data.get(i) + "',";
-                            }
-                        }
-                        valueStr = valueStr.substring(0, valueStr.length() - 1);
-                        valueStr = valueStr + ",'0'," + "'" + id + "'";
-                        String insertSql = "insert into " + poTable.getTableName() + "(" + columnStr + ") values(" + valueStr + ")";
-                        System.out.println(insertSql);
-                        poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(insertSql).executeUpdate();
-                        cnt++;
-                        if (cnt % 1000 == 0) {
-                            poTableDao.getHibernateTemplate().flush();
-                            poTableDao.getHibernateTemplate().clear();
-                        }
-                    }
-                    //采购删除之前存在的数据
-                    String like = "";
-                    if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                        like = year + "_" + sbu.get(0) + "_" + s[s.length - 1];
-                    } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
-                        like = year + "_" + commodity.get(0) + "_" + s[s.length - 1];
-                    } else {
-                        like = year + period + "_" + commodity.get(0) + "_" + s[s.length - 1];
-                    }
-                    deleteSql = " delete from FIT_PO_TASK where flag !='-1' and name = '" + like + "' and type=" + "'" + tableName + "'";
-                    poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-                    UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-                    String user = loginUser.getUsername();
-                    List<String> userName = this.listBySql("select realname from FIT_USER where username='" + user + "'");
-                    if (null == userName.get(0)) {
-                        userName.set(0, user);
-                    }
-
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String signTimet = df.format(new Date());
-                    String sql = " insert into FIT_PO_TASK (ID,TYPE,NAME,FLAG,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,CREATE_USER_REAL,UPDATE_USER_REAL) " +
-                            " values ( ";
-                    sql = sql + "'" + id + "'," + "'" + tableName + "'," + "'" + name + "'," + "'0'," + "'" + user + "'," + "'" + signTimet + "'," + "'" + user + "'," + "'" + signTimet + "'" +
-                            ",'" + userName.get(0) + "','" + userName.get(0) + "')";
-                    if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableName)
-                            || "FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)
-                            || "FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableName)) {
-                        sql = " insert into FIT_PO_TASK (ID,TYPE,NAME,FLAG,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,COMMODITY_MAJOR,CREATE_USER_REAL,UPDATE_USER_REAL ) " +
-                                " values ( ";
-                        sql = sql + "'" + id + "'," + "'" + tableName + "'," + "'" + name + "'," + "'0'," + "'" + user + "'," + "'" + signTimet + "'," + "'" + user + "'," + "'" + signTimet
-                                + "','" + commodity.get(0) + "'" + ",'" + userName.get(0) + "','" + userName.get(0) + "')";
-                    }
-                    if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
-                        sql = " insert into FIT_PO_TASK (ID,TYPE,NAME,FLAG,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,CREATE_USER_REAL,UPDATE_USER_REAL,SBU) " +
-                                " values ( ";
-                        sql = sql + "'" + id + "'," + "'" + tableName + "'," + "'" + name + "'," + "'0'," + "'" + user + "'," + "'" + signTimet + "'," + "'" + user + "'," + "'" + signTimet + "'" +
-                                ",'" + userName.get(0) + "','" + userName.get(0) + "','" + sbu.get(0) + "')";
-                    }
-                    poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
+                }
+                valueStr = valueStr.substring(0, valueStr.length() - 1) + ",'0'," + "'" + id + "'";
+                String insertSql = "insert into " + poTable.getTableName() + "(" + columnStr + ") values(" + valueStr + ")";
+                poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(insertSql).executeUpdate();
+                cnt++;
+                if (cnt % 1000 == 0) {
+                    poTableDao.getHibernateTemplate().flush();
+                    poTableDao.getHibernateTemplate().clear();
                 }
             }
+            String signTimet = df.format(new Date());
+            String sql = " insert into FIT_PO_TASK (ID,TYPE,NAME,FLAG,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,CREATE_USER_REAL,UPDATE_USER_REAL) " +
+                    " values ('" + id + "'," + "'" + poTable.getTableName() + "'," + "'" + name + "'," + "'0'," + "'" + user + "'," + "'" + signTimet + "'," + "'" + user + "'," + "'" + signTimet + "'" +
+                    ",'" + userName.get(0) + "','" + userName.get(0) + "')";
+            if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(poTable.getTableName())
+                    || "FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(poTable.getTableName())
+                    || "FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(poTable.getTableName())) {
+                sql = " insert into FIT_PO_TASK (ID,TYPE,NAME,FLAG,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,COMMODITY_MAJOR,CREATE_USER_REAL,UPDATE_USER_REAL ) " +
+                        " values ( ";
+                sql = sql + "'" + id + "'," + "'" + poTable.getTableName() + "'," + "'" + name + "'," + "'0'," + "'" + user + "'," + "'" + signTimet + "'," + "'" + user + "'," + "'" + signTimet
+                        + "','" + name.split("_")[1] + "'" + ",'" + userName.get(0) + "','" + userName.get(0) + "')";
+            }else if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())) {
+                sql = " insert into FIT_PO_TASK (ID,TYPE,NAME,FLAG,CREATE_USER,CREATE_TIME,UPDATE_USER,UPDTAE_TIME,CREATE_USER_REAL,UPDATE_USER_REAL,SBU) " +
+                        " values ( ";
+                sql = sql + "'" + id + "'," + "'" + poTable.getTableName() + "'," + "'" + name + "'," + "'0'," + "'" + user + "'," + "'" + signTimet + "'," + "'" + user + "'," + "'" + signTimet + "'" +
+                        ",'" + userName.get(0) + "','" + userName.get(0) + "','" + name.split("_")[1] + "')";
+            }
+            poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
+        }else {
+            return "";
         }
         return id;
     }
 
+
     /**
      * 校驗月份展開cd校驗
      */
-    public AjaxResult validateMonth(String taskId, AjaxResult result) throws Exception {
+    public String validateMonth(String taskId) throws Exception {
         Connection c = SessionFactoryUtils.getDataSource(poTableDao.getSessionFactory()).getConnection();
         CallableStatement cs = c.prepareCall("{ CALL fit_po_cd_month_down_pkg.main(?,?)}");
         cs.setString(1, taskId);
@@ -1019,10 +966,9 @@ public class PoTableService extends BaseService<PoTable> {
         cs.close();
         c.close();
         if (StringUtils.isNotEmpty(message)) {
-            result.put("flag", "fail");
-            result.put("msg", message + "配置的CD比例過低,請重新維護上傳");
+           return message;
         }
-        return result;
+        return "Y";
     }
 
     public String validate(String tableName, String year, String period, String entity, String type, Locale locale) throws Exception {
@@ -1161,11 +1107,12 @@ public class PoTableService extends BaseService<PoTable> {
      * @return
      */
     public Map<String, List> selectCommodity() {
-        Map<String, List> map = new HashMap<>();
-        List<String> list = poTableDao.listBySql("select FUNCTION_NAME from  BIDEV.v_dm_d_commodity_major");
-        for (String m : list) {
-            List<String> listCommodity = poTableDao.listBySql("select distinct COMMODITY_MAJOR  from BIDEV.v_dm_d_commodity_major where FUNCTION_NAME='" + m + "'");
-            map.put(m, listCommodity);
+        Map<String, List> map = new LinkedHashMap<>();
+        List<Map> list = poTableDao.listMapBySql("select distinct FUNCTION_NAME,SORTVAL from  BIDEV.v_dm_d_commodity_major order by SORTVAL");
+       for (int i=0;i<list.size();i++){
+           String val=list.get(i).get("FUNCTION_NAME").toString();
+            List<String> listCommodity = poTableDao.listBySql("select distinct COMMODITY_MAJOR  from BIDEV.v_dm_d_commodity_major where FUNCTION_NAME='" + val+ "'");
+            map.put(val, listCommodity);
         }
         return map;
     }
@@ -1185,9 +1132,19 @@ public class PoTableService extends BaseService<PoTable> {
     }
 
 
-    public Model list(Model model, PageRequest pageRequest, Locale locale, String DateYear,
+    public  Page<Object[]> cpo(String date,PageRequest pageRequest){
+        String sql="select PO_CENTER,COMMODITY_MAJOR ,NO_PO_TOTAL,NO_CD_AMOUNT,NO_CPO,PO_TOTAL ,CD_AMOUNT,CPO from FIT_PO_TARGET_CPO_CD_DTL_V1 where YEAR='"+date+"'";
+        System.out.println(sql);
+        String sql1="select count(1) from FIT_PO_TARGET_CPO_CD_DTL_V1 where YEAR='"+date+"'";
+        List<BigDecimal> count= (List<BigDecimal>)this.listBySql(sql1);
+        pageRequest.setPageSize(count.get(0).intValue());
+        Page<Object[]> page = this.findPageBySql(pageRequest, sql);
+        return page;
+    }
+
+    public Model list(Model model, PageRequest pageRequest, Locale locale, String dateYear,
                       String date, String dateEnd, String tableName,String flag,
-                      String poCenter, String sbuVal, String priceControl,String commodity,String founderVal,String buVal) throws Exception {
+                      String poCenter, String sbuVal, String priceControl,String commodity,String founderVal) throws Exception {
         if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
             tableName = "FIT_PO_CD_MONTH_DOWN";
         }
@@ -1324,7 +1281,7 @@ public class PoTableService extends BaseService<PoTable> {
             //採購CD目標by月展開表
             case "FIT_PO_CD_MONTH_DOWN":
                 whereSql = " where 1=1";
-                whereSql += " and year= " + DateYear;
+                whereSql += " and year= " + dateYear;
                 if (StringUtils.isNotEmpty(priceControl)) {
                     whereSql += " and  PRICE_CONTROL='" + priceControl + "'";
                 }
@@ -1332,8 +1289,8 @@ public class PoTableService extends BaseService<PoTable> {
             //SBU年度CD目標匯總表
             case "FIT_PO_SBU_YEAR_CD_SUM":
                 whereSql = " where 1=1 and PO_CENTER not in('Buy-sell','資訊採購')";
-                if (StringUtils.isNotEmpty(DateYear)) {
-                    whereSql += " and " + columns.get(0).getColumnName() + "='" + DateYear + "'";
+                if (StringUtils.isNotEmpty(dateYear)) {
+                    whereSql += " and " + columns.get(0).getColumnName() + "='" + dateYear + "'";
                 }
                 if(poCenter.equals("Buy-sell")||poCenter.equals("資訊採購")){
                     whereSql += " and " + columns.get(1).getColumnName() + "='1'";
@@ -1374,9 +1331,6 @@ public class PoTableService extends BaseService<PoTable> {
             }else {
                 whereSql += " and sbu in(" + sbu.substring(0,sbu.length()-1) + ")";
             }
-        }
-        if (StringUtils.isNotEmpty(buVal)) {
-            whereSql += " and bu LIKE " + "'%" + buVal + "%'";
         }
         if (StringUtils.isNotEmpty(flag)) {
             whereSql += " and flag = '" + flag + "'";
