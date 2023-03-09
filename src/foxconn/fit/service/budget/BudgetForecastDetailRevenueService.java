@@ -505,7 +505,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		}
 		/**3+3*/
 		/**5GAIOT\EV\AUDIO\Type C\Existing*/
-		sql="select distinct trim(alias) from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199') and DIMENSION not in('bak20199') ";
+		sql="select distinct trim(alias) from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')";
 		check=this.check(mainBusinessList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");

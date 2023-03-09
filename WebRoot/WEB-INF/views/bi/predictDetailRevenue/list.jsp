@@ -165,7 +165,7 @@ function refresh(){
 						<th>產品料號</th>
 						<th>賬款客戶</th>
 						<th>最終客戶</th>
-						<th>机种</th>
+						<th>機種</th>
 						<th>交易類型</th>
 						<th>報告幣種</th>
 						<th>PM</th>

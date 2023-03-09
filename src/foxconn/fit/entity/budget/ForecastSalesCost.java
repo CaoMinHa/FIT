@@ -143,7 +143,16 @@ public class ForecastSalesCost implements Serializable {
 	@Column(name = "end_customer")
 	private String endCustomer;// 最終客戶
 	private String segment;// segment
+	@Column(name = "type_of_airplane")
+	private String typeOfAirplane;// 機種
 
+	public String getTypeOfAirplane() {
+		return typeOfAirplane;
+	}
+
+	public void setTypeOfAirplane(String typeOfAirplane) {
+		this.typeOfAirplane = typeOfAirplane;
+	}
 	//單位材料成本
 	@Column(name = "unit_material1")
 	private String unitMaterial1;

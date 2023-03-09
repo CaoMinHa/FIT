@@ -303,6 +303,16 @@ public class BudgetProductNoUnitCost {
 	private String unitManufacture11;
 	@Column(name = "unit_manufacture12")
 	private String unitManufacture12;
+	@Column(name = "type_of_airplane")
+	private String typeOfAirplane;// 機種
+
+	public String getTypeOfAirplane() {
+		return typeOfAirplane;
+	}
+
+	public void setTypeOfAirplane(String typeOfAirplane) {
+		this.typeOfAirplane = typeOfAirplane;
+	}
 
 	public String getIndustry() {
 		return industry;

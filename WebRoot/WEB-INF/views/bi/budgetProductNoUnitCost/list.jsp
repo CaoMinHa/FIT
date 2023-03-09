@@ -119,6 +119,7 @@ function refresh(){
 					<th rowspan="3">產品料號</th>
 					<th rowspan="3">賬款客戶</th>
 					<th rowspan="3">最終客戶</th>
+					<th rowspan="3">機種</th>
 					<th rowspan="3">交易類型</th>
 					<th colspan="60">FY${year}</th>
 					<th rowspan="2" colspan="4">FY${year}</th>
@@ -234,6 +235,7 @@ function refresh(){
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.productNo}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.loanCustomer}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.endCustomer}</td>
+						<td style="border-right:1px solid #eee;">${mapping.typeOfAirplane}</td>
 						<td style="border-right:1px solid #eee;">${mapping.tradeType}</td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.salesQuantity1}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCost1}" pattern="#,##0.##"></fmt:formatNumber></td>
@@ -331,6 +333,7 @@ function refresh(){
 					<th rowspan="3">產品料號</th>
 					<th rowspan="3">賬款客戶</th>
 					<th rowspan="3">最終客戶</th>
+					<th rowspan="3">機種</th>
 					<th rowspan="3">交易類型</th>
 					<th colspan="60">FY${year}</th>
 					<th rowspan="2" colspan="4">FY${year}</th>
@@ -470,6 +473,7 @@ function refresh(){
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.productNo}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.loanCustomer}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.endCustomer}</td>
+						<td style="border-right:1px solid #eee;">${mapping.typeOfAirplane}</td>
 						<td style="border-right:1px solid #eee;">${mapping.tradeType}</td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.salesQuantity1}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;"><fmt:formatNumber value="${mapping.materialCost1}" pattern="#,##0.##"></fmt:formatNumber></td>
