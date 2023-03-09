@@ -111,17 +111,7 @@ public class RtHistoricalDataService{
         }
         return a;
     }
-
-    private String getByLocale(Locale locale,String value){
-        if (StringUtils.isNotEmpty(value) && value.indexOf("_")>0) {
-            if (locale!=null && "en_US".equals(locale.toString())) {
-                return value.substring(0,value.lastIndexOf("_"));
-            }else{
-                return value.substring(value.lastIndexOf("_")+1,value.length());
-            }
-        }
-        return value;
-    }
+    
 
     public File template(XSSFWorkbook workBook,PoTable poTable,HttpServletRequest request ) throws UnsupportedEncodingException {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -134,7 +124,7 @@ public class RtHistoricalDataService{
         font.setBold(true);
         titleStyle.setFont(font);
         List<PoColumns> columns = poTable.getColumns();
-        Sheet sheet = workBook.createSheet(getByLocale(locale, poTable.getComments()));
+        Sheet sheet = workBook.createSheet(instrumentClassService.getByLocale(locale, poTable.getComments()));
         sheet.createFreezePane(0, 1, 0, 1);
         int rowIndex = 0;
         Row row = sheet.createRow(rowIndex++);
@@ -145,7 +135,7 @@ public class RtHistoricalDataService{
             cell.setCellStyle(titleStyle);
             sheet.setColumnWidth(i, comments.getBytes("GBK").length * 256 + 400);
         }
-        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download/"+getByLocale(locale,poTable.getComments())+".xlsx");
+        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download/"+instrumentClassService.getByLocale(locale,poTable.getComments())+".xlsx");
         return outFile;
     }
 
@@ -166,11 +156,11 @@ public class RtHistoricalDataService{
         int number=0;
         for (Row row : sheet) {
             if (row.getRowNum() == 0) {
-                Assert.notNull(row, getByLocale(locale, "The title line cannot be empty_第一行為標題行，不允許為空"));
+                Assert.notNull(row, instrumentClassService.getByLocale(locale, "The title line cannot be empty_第一行為標題行，不允許為空"));
                 int columnNum = row.getPhysicalNumberOfCells();
                 if (columnNum < COLUMN_NUM) {
                     result.put("flag", "fail");
-                    result.put("msg", getByLocale(locale, "The number of columns cannot be less than " + COLUMN_NUM+"_列數不能小於"+ COLUMN_NUM));
+                    result.put("msg", instrumentClassService.getByLocale(locale, "The number of columns cannot be less than " + COLUMN_NUM+"_列數不能小於"+ COLUMN_NUM));
                     return result.getJson();
                 }
                 number++;
@@ -216,12 +206,12 @@ public class RtHistoricalDataService{
             String  msg=dataCheck(revenueUSD,revenueNTD,yearMonth,listSbu);
             if(!"S".equals(msg)){
                 result.put("flag", "fail");
-                result.put("msg", getByLocale(locale, msg));
+                result.put("msg", instrumentClassService.getByLocale(locale, msg));
                 return result.getJson();
             }
         } else {
             result.put("flag", "fail");
-            result.put("msg", getByLocale(locale, "NO valid data row_無有效數據行"));
+            result.put("msg", instrumentClassService.getByLocale(locale, "NO valid data row_無有效數據行"));
             return result.getJson();
         }
         System.out.print("数据集大小："+map.size());
@@ -406,7 +396,7 @@ public class RtHistoricalDataService{
         List<PoColumns> columns = poTable.getColumns();
         List<Integer> lockSerialList = new ArrayList<Integer>();
         String sql = "select ";
-        Sheet sheet = sxssfWorkbook.createSheet(getByLocale(locale, poTable.getComments()));
+        Sheet sheet = sxssfWorkbook.createSheet(instrumentClassService.getByLocale(locale, poTable.getComments()));
         sheet.createFreezePane(0, 1, 0, 1);
         Row titleRow = sheet.createRow(0);
         List<Integer> numberList = new ArrayList<Integer>();
@@ -499,7 +489,7 @@ public class RtHistoricalDataService{
                 }
             }
         }
-        String fileName = getByLocale(locale,poTable.getComments());
+        String fileName = instrumentClassService.getByLocale(locale,poTable.getComments());
         File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download" + File.separator + fileName + ".xlsx");
         OutputStream out = new FileOutputStream(outFile);
         sxssfWorkbook.write(out);

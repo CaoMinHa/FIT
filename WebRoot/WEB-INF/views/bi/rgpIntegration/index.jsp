@@ -129,24 +129,16 @@
                 $("#UEntityTip").hide();
                 $("#poCenterTip").hide();
                 $("#QTableNameTip").hide();
-                var flag = true;
                 var queryCondition=$("#QueryCondition").serialize();
                 var tableName = $("#QTableName").val();
-                console.log(tableName)
                 if (tableName === "") {
                     $("#QTableNameTip").show();
-                    flag = false;
-                }
-                if (!flag) {
                     return;
                 }
-
                 var checkedVal = "";
                 $("input[name='columnName']:checked").each(function() {
                     checkedVal += $(this).val() + ',';
                 });
-                console.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                console.error(checkedVal);
                 $("#loading").show();
                 $.ajax({
                     type: "POST",
@@ -170,13 +162,10 @@
             });
 
             $("#DownloadTemplate").click(function () {
-                console.log(222)
                 $("#QTableNameTip").hide();
                 $("#UploadTip").hide();
                 $("#DateTip").hide();
-
                 var tableName = $("#QTableName").val();
-                console.log(tableName)
                 if (tableName.length == 0) {
                     $("#QTableNameTip").show();
                     return;
@@ -387,19 +376,13 @@
                 });
 
             if("N"===$("#QTableName option:selected").attr("name")){
-                // $("#Content").hide();
-                $("#deleteBtn").hide();
-                $("#QueryBtn").hide();
-                $("#FileUpload").hide();
-                $("#DownloadTemplate").hide();
-                $(".upload-tip").hide();
+                $(".typeShow").hide();
             }else{
-                // $("#Content").show();
-                $("#deleteBtn").show();
-                $("#QueryBtn").show();
-                $("#FileUpload").show();
-                $("#DownloadTemplate").show();
-                $(".upload-tip").show();
+                $(".typeShow").show();
+            }
+            $("#calculate").hide();
+            if(tableName=="CUX_RGP_SCRAPS_APPORTION"){
+                $("#calculate").show();
             }
         });
         $("#FileUpload").click(function(){
@@ -407,6 +390,30 @@
             if($("#QTableName").val()==""){
                 $("#QTableNameTip").show();
             }
+        });
+
+        $("#calculate").click(function () {
+            var period=$("input[name='YEAR_MONTH']").val();
+            if(!period){
+                layer.alert("請選擇日期(Please select the date)");
+                return;
+            }
+            $("#loading").show();
+            $.ajax({
+                type: "POST",
+                url: "${ctx}/bi/rgpIntegration/calculate",
+                async: true,
+                dataType: "json",
+                data: {period: period},
+                success: function (data) {
+                    $("#loading").hide();
+                    layer.alert(data.msg);
+                },
+                error: function () {
+                    $("#loading").hide();
+                    layer.alert("<spring:message code='connect_fail'/>");
+                }
+            });
         });
 
     </script>
@@ -445,7 +452,7 @@
                                 </ul>
 
                                 <div style="float: left;text-align: right;margin-left: 10px;" title="<spring:message code='not_exceed_30M'/>">
-                                    <div class="upload-tip">
+                                    <div class="upload-tip typeShow">
                                         <span class="tip"><spring:message code='click_select_excel'/></span>
                                     </div>
                                     <div id="UploadTip" style="display:none;float:left;">
@@ -454,12 +461,13 @@
                                     </div>
                                 </div>
 
-                                <button id="FileUpload" style="float:left;" class="btn search-btn" type="button">
+                                <button id="FileUpload" style="float:left;" class="btn search-btn typeShow" type="button">
                                     <spring:message code='upload'/></button>
 
-                                <button id="DownloadTemplate" class="btn btn-link"
+                                <button id="DownloadTemplate" class="btn btn-link typeShow"
                                         style="vertical-align: top;height: 40px;font-size: 26px;text-decoration: underline;"
                                         type="button"><spring:message code='template'/></button>
+                                <button id="calculate"  style="float:left;display: none;" class="btn search-btn" type="button"><spring:message code='calculate'/></button>
                                 <button id="Download" style="float:left;" class="btn search-btn" type="button">
                                     <spring:message code='download'/></button>
                             </div>
@@ -487,9 +495,9 @@
         <div class="m-l-md m-t-md m-r-md" style="clear:both;">
             <div class="controls" style="display:inline-block;vertical-align:top;width:100%;">
                 <form id="QueryCondition" style="float:left;margin:0;margin-top: 10px;"></form>
-                <button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;margin-top: 10px;"
+                <button id="QueryBtn" class="btn search-btn btn-warning m-l-md typeShow" style="margin-left:20px;float:left;margin-top: 10px;"
                         type="submit"><spring:message code='query'/></button>
-                <button id="deleteBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;margin-top: 10px;"
+                <button id="deleteBtn" class="btn search-btn btn-warning m-l-md typeShow" style="margin-left:20px;float:left;margin-top: 10px;"
                         type="submit"><spring:message code='delete'/></button>
             </div>
         </div>
