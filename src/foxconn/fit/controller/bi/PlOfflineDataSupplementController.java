@@ -154,7 +154,7 @@ public class PlOfflineDataSupplementController extends BaseController {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         try {
             String realPath = request.getRealPath("");
-            File file=new File(realPath+File.separator+"static"+File.separator+"template"+File.separator+"bi"+File.separator+"綫下損益表内交模板.xlsx");
+            File file=new File(realPath+File.separator+"static"+File.separator+"template"+File.separator+"bi"+File.separator+getLanguage(locale,"綫下損益表内交模板.xlsx","Template-Offline profit and loss and internal transaction supplement.xlsx"));
             XSSFWorkbook workBook = new XSSFWorkbook(new FileInputStream(file));
             File outFile =offlineDataSupplementService.template(workBook,request);
             OutputStream out = new FileOutputStream(outFile);
