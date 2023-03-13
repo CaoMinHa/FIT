@@ -254,6 +254,37 @@
 
 		$("#Content").load("${ctx}/bi/budgetForecastDetailRevenue/list",{scenarios:"",entity:"",year:$("#QYear").val(),version:$("#QVersion").val()},function(){$("#QueryBtn").click();});
 
+		$("#Delete").click(function(){
+			$("#UploadTip").hide();
+			if(!$("#QScenarios").val()){
+				layer.alert("請選擇場景！(Please select a scene)");
+				return;
+			}
+			if($("input[name=entitys]:checked").length==0){
+				layer.alert("請選擇SBU");
+				return;
+			}
+			var entitys="";
+			$("input[name=entitys]:checked").each(function(i,dom){
+				entitys+=$(dom).val()+",";
+			});
+			$("#loading").show();
+			$.ajax({
+				type:"POST",
+				url:"${ctx}/bi/budgetForecastDetailRevenue/deleteMany",
+				async:true,
+				dataType:"json",
+				data:{year:$("#QYear").val(),entitys:entitys,version:$("#QVersion").val(),scenarios:$("#QScenarios").val()},
+				success: function(data){
+					layer.alert(data.msg);
+					$("#loading").hide();
+				},
+				error: function() {
+					$("#loading").hide();
+					layer.alert("<spring:message code='connect_fail'/>");
+				}
+			});
+		});
 	</script>
 </head>
 <body>
@@ -347,7 +378,8 @@
 				<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="width: 80px;" type="submit"><spring:message code='query'/></button>
 				<button id="Download" class="btn search-btn" style="width: 80px;" type="button"><spring:message code='download'/></button>
 				<button id="Version" class="btn search-btn" style="width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>"  type="button"><spring:message code='version'/></button>
-                <c:if test="${onlyQuery  eq 'Y'}"><button id="DimensionTable" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='dimension'/></button></c:if>
+                <c:if test="${onlyQuery  eq 'Y'}"><button id="DimensionTable" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;width: 80px;text-decoration: underline;" type="button"><spring:message code='dimension'/></button></c:if>
+				<button id="Delete" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='delete'/></button>
 			</div>
 		</div>
 		<div class="p-l-md p-r-md p-b-md" id="Content"></div>

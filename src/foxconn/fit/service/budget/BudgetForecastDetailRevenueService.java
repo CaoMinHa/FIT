@@ -1054,4 +1054,30 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		}
 		return result;
 	}
+
+	public void deleteMany(String entitys,String year,String version,String scenarios){
+		String sql="";
+		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+		//獲取當前用戶的SBU權限
+		String sbuVal="";
+		String sbuStr = instrumentClassService.getBudgetSBUStr();
+		String sbusql="select distinct substr(ALIAS,0,instr(ALIAS,'_')-1) ALIAS, ','||PARENT||',' PARENT from fit_dimension where substr(ALIAS,0,instr(ALIAS,'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+sbuStr+")";
+		List<Map> sbuMap=budgetDetailRevenueDao.listMapBySql(sbusql);
+		String entityStr=","+entitys+",";
+		for (Map map:sbuMap){
+			if(entityStr.indexOf(map.get("PARENT").toString())!=-1){
+				sbuVal+=" ENTITY like '"+map.get("ALIAS").toString()+"_%' or";
+			}
+		}
+		if("forecast".equals(scenarios)){
+			sql="delete FIT_FORECAST_REVENUE ";
+		}else {
+			sql="delete FIT_BUDGET_DETAIL_REVENUE ";
+		}
+		sql+="where YEAR='"+year+"' and VERSION='"+version+"' and CREATE_NAME='"+loginUser.getUsername()+"'";
+		if(!sbuVal.isEmpty()){
+			sql+=" and ("+sbuVal.substring(0,sbuVal.length()-2)+")";
+		}
+		budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
+	}
 }

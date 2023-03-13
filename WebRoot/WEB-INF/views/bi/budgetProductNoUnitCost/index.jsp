@@ -124,6 +124,38 @@ $(function() {
 			}
 		});
 	});
+
+	$("#Delete").click(function(){
+		$("#UploadTip").hide();
+		if(!$("#QScenarios").val()){
+			layer.alert("請選擇場景！(Please select a scene)");
+			return;
+		}
+		if($("input[name=entitys]:checked").length==0){
+			layer.alert("請選擇SBU");
+			return;
+		}
+		var entitys="";
+		$("input[name=entitys]:checked").each(function(i,dom){
+				entitys+=$(dom).val()+",";
+		});
+		$("#loading").show();
+		$.ajax({
+			type:"POST",
+			url:"${ctx}/bi/budgetProductNoUnitCost/deleteMany",
+			async:true,
+			dataType:"json",
+			data:{year:$("#QYear").val(),entitys:entitys,version:$("#QVersion").val(),scenarios:$("#QScenarios").val()},
+			success: function(data){
+				layer.alert(data.msg);
+				$("#loading").hide();
+			},
+			error: function() {
+				$("#loading").hide();
+				layer.alert("<spring:message code='connect_fail'/>");
+			}
+		});
+	});
 	$("#Version").click(function(){
 		if(!$("#QScenarios").val()){
 			layer.alert("請選擇場景！(Please select a scene)");
@@ -324,7 +356,7 @@ function simplifyTemplate(type){
 								<button id="FileUpload" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 							</div>
 							<div style="text-align: right">
-								<div color="red" style="display:inline-block;font-size: 18;color: red;height: 40px;margin-top: 7px;"> 重要提示：幣別單位-美金(USD)</div>
+								<div color="red" style="display:inline-block;font-size:18px;color: red;height: 40px;margin-top: 7px;"> 重要提示：幣別單位-美金(USD)</div>
 								<button onclick="downloadTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
 									<spring:message code='budgetTemplate'/></button>
 								<button onclick="simplifyTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
@@ -379,7 +411,8 @@ function simplifyTemplate(type){
 	        	<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin:0 0 0 10px;width: 80px" type="submit"><spring:message code='query'/></button>
 				<button id="Download" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='download'/></button>
 				<button id="Version" class="btn search-btn" style="margin:0 0 0 10px;width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" type="button"><spring:message code='version'/></button>
-				<button id="DownloadPlanning" style="margin:0 0 0 10px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='submit'/></button>
+				<button id="DownloadPlanning" style="margin:0 0 0 10px;width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='submit'/></button>
+				<button id="Delete" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='delete'/></button>
 			</div>
 		</div>		
 		<div class="p-l-md p-r-md p-b-md" id="Content"></div>

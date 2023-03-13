@@ -206,4 +206,25 @@ public class BudgetProductNoUnitCostController extends BaseController {
 		result.put("version", version);
 		return result.getJson();
 	}
+
+	/**按條件刪除*/
+	@RequestMapping(value="/deleteMany")
+	@ResponseBody
+	@Log(name = "銷售成本-->按條件刪除")
+	public synchronized String deleteMany(HttpServletRequest request,PageRequest pageRequest,AjaxResult result,
+										@Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version,@Log(name="場景")String scenarios){
+		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		try {
+			Assert.hasText(scenarios, getLanguage(locale, "場景不能为空", "The scene cannot be empty"));
+			Assert.hasText(year, getLanguage(locale, "年不能为空", "Year can not be null"));
+			Assert.hasText(entitys, getLanguage(locale, "SBU不能为空", "SBU can not be null"));
+			result.put("msg", getLanguage(locale, "删除成功", "Delete Success"));
+			budgetProductNoUnitCostService.deleteMany(entitys, year, version, scenarios);
+		} catch (Exception e) {
+			logger.error("删除失败:", e);
+			result.put("flag", "fail");
+			result.put("msg", getLanguage(locale, "删除失败", "Delete Fail")+ " : " + ExceptionUtil.getRootCauseMessage(e));
+		}
+		return result.getJson();
+	}
 }
