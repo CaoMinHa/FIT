@@ -97,7 +97,7 @@ public class PlOfflineDataSupplementService {
         return value;
     }
 
-    public File template(XSSFWorkbook workBook,HttpServletRequest request ) {
+    public File template(XSSFWorkbook workBook,HttpServletRequest request,Locale locale) {
         Sheet sheet = workBook.getSheetAt(1);
         String sql="SELECT ATTRIBUTE1,ATTRIBUTE2,COMPANY_CODE,COMPANY_NAME_CN,COMPANY_NAME_EN FROM epmebs.CUX_EBS_COMPANY_V";
         List<Map> listCompany=poTableDao.listMapBySql(sql);
@@ -121,7 +121,7 @@ public class PlOfflineDataSupplementService {
             row.createCell(1).setCellValue(mapValString(map.get("SBU")));
             number++;
         }
-        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download/綫下損益表内交模板.xlsx");
+        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download"+File.separator+getByLocale(locale,"Template-Offline profit and loss and internal transaction supplement.xlsx_綫下損益表内交模板.xlsx"));
         return outFile;
     }
     public static String mapValString(Object o){
@@ -373,7 +373,7 @@ public class PlOfflineDataSupplementService {
                 }
             }
         }
-        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download" + File.separator + "綫下損益表内交模板.xlsx");
+        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download" + File.separator+getByLocale(locale,"Template-Offline profit and loss and internal transaction supplement.xlsx_綫下損益表内交模板.xlsx"));
         OutputStream out = new FileOutputStream(outFile);
         sxssfWorkbook.write(out);
         sxssfWorkbook.close();

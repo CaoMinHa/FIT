@@ -150,13 +150,13 @@ public class PlOfflineDataSupplementController extends BaseController {
      */
     @RequestMapping(value = "template")
     @ResponseBody
-    public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+    public synchronized String template(HttpServletRequest request, AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         try {
             String realPath = request.getRealPath("");
             File file=new File(realPath+File.separator+"static"+File.separator+"template"+File.separator+"bi"+File.separator+getLanguage(locale,"綫下損益表内交模板.xlsx","Template-Offline profit and loss and internal transaction supplement.xlsx"));
             XSSFWorkbook workBook = new XSSFWorkbook(new FileInputStream(file));
-            File outFile =offlineDataSupplementService.template(workBook,request);
+            File outFile =offlineDataSupplementService.template(workBook,request,locale);
             OutputStream out = new FileOutputStream(outFile);
             workBook.write(out);
             workBook.close();
