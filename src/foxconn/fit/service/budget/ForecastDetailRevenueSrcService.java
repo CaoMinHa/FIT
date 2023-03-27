@@ -82,7 +82,7 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**產品系列*/
 			sheet = workBook.getSheetAt(6);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' ";
+			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
 			this.selectDimension(sql,sheet);
 
 			/**Product series for FOIT*/

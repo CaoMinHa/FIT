@@ -521,7 +521,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			return result;
 		}
 		/**產品系列**/
-		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' ";
+		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
 		check=this.check(productSeriesList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
@@ -564,7 +564,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		productNoList = instrumentClassService.removeDuplicate(productNoList);
 		forecastDetailRevenueService.saveCheckExist(productNoList);
 		List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
-				"select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' \n" +
+				"select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx')  \n" +
 				"union all\n" +
 				"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv\n" +
 				") b where b.product=c.value)");

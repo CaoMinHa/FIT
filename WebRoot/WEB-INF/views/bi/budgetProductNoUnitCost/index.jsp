@@ -412,7 +412,7 @@ function simplifyTemplate(type){
 				<button id="Download" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='download'/></button>
 				<button id="Version" class="btn search-btn" style="margin:0 0 0 10px;width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" type="button"><spring:message code='version'/></button>
 				<button id="DownloadPlanning" style="margin:0 0 0 10px;width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='submit'/></button>
-				<button id="Delete" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='delete'/></button>
+				<button id="Delete" style="margin:0 0 0 10px;width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='delete'/></button>
 			</div>
 		</div>		
 		<div class="p-l-md p-r-md p-b-md" id="Content"></div>
