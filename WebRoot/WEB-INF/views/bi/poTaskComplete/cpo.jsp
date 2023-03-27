@@ -190,6 +190,12 @@ function fileClick(e,val) {
 							<c:if test="${languageS eq 'en_US'}">User cancelled</c:if>
 						</td>
 					</c:when>
+					<c:when test="${taskLog.FLAG eq '-3'}">
+						<td  style="border-right:1px solid #eee;">
+							<c:if test="${languageS eq 'zh_CN'}">管理員取消</c:if>
+							<c:if test="${languageS eq 'en_US'}">Administrator cancel</c:if>
+						</td>
+					</c:when>
 					<c:otherwise>
 						<td  style="border-right:1px solid #eee;"></td>
 					</c:otherwise>

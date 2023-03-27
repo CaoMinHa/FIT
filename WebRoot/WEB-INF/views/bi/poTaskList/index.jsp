@@ -119,10 +119,10 @@
                                 <c:if test="${languageS eq 'zh_CN'}">完成</c:if>
                                 <c:if test="${languageS eq 'en_US'}">Finish</c:if>
                             </option>
-                            <option value="-1">
-                                <c:if test="${languageS eq 'zh_CN'}">駁回</c:if>
-                                <c:if test="${languageS eq 'en_US'}">Turn Down</c:if>
-                            </option>
+<%--                            <option value="-1">--%>
+<%--                                <c:if test="${languageS eq 'zh_CN'}">駁回</c:if>--%>
+<%--                                <c:if test="${languageS eq 'en_US'}">Turn Down</c:if>--%>
+<%--                            </option>--%>
                         </select>
                     </li>
                 </ul>

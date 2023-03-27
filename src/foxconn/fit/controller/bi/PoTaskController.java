@@ -94,7 +94,7 @@ public class PoTaskController extends BaseController {
                 commodityMajor=maps.get(0).get("COMMODITY_MAJOR")==null?"":maps.get(0).get("COMMODITY_MAJOR").toString();
             }
             String sql="select  ID , TYPE ,NAME, FLAG ,remark,CREATE_USER_REAL, create_time, " +
-                    " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE flag not in('-1','3')  ";
+                    " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE flag not in('-1','-3','3')  ";
             //  数据状态：未提交->初審中->終審中->已核准
             //  不同角色人员，自己看到自己对应阶段的数据
             //1 采购员看到自己创建的数据 by 物料大类 Sourcer
@@ -109,7 +109,7 @@ public class PoTaskController extends BaseController {
             //8 系统管理员 所有数据 且阶段是終審中(sbu表)可审核 KeyUser
             if("KEYUSER".equalsIgnoreCase(roleCode)){
                 sql="select  ID , TYPE ,NAME, FLAG ,remark,CREATE_USER_REAL, create_time, " +
-                        " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE flag not in('-1') ";
+                        " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE flag not in('-1','-3') ";
             }else if("SOURCER".equalsIgnoreCase(roleCode)){
                 sql+=" and CREATE_USER="+"'"+userName+"' and Type in ('FIT_PO_BUDGET_CD_DTL','FIT_ACTUAL_PO_NPRICECD_DTL','FIT_PO_CD_MONTH_DTL') ";
                 roleCode="BASE";

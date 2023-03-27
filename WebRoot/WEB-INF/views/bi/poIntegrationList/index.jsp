@@ -266,6 +266,10 @@
                     }
                 });
             })
+
+            $("#operation").click(function(){
+                window.open("${ctx}/static/template/po/FIT_接口平台平台採購模塊操作手冊_20230307.pdf");
+            })
         });
 
         var periodId;
@@ -414,7 +418,7 @@
             <div style="margin-top: 20px;">
                 <ul style="float:left;margin-right:10px;">
                     <li>
-                        <select id="QTableName" class="input-large" style="width:200px;margin-bottom:0;">
+                        <select id="QTableName" class="input-large" style="width:195px;margin-bottom:0;">
                             <option value=""><spring:message code='tableSelect'/></option>
                             <c:forEach items="${tableListSelect }" var="poTable">
                                 <option value="${poTable.tableName }">${poTable.comments }</option>
@@ -429,19 +433,19 @@
                 <span id="Query">
                 <span id="Scenario"></span>
                 <input id="dateYear" name="YYYY" type="text"
-                       style="width:80px;text-align:center;display: none;"
+                       style="width:70px;text-align:center;display: none;"
                        placeholder="<spring:message code='year'/>">
                 <input id="QDate" name="YYYYMM"
-                       style="width:80px;text-align:center;"
+                       style="width:70px;text-align:center;"
                        placeholder="<spring:message code='start_time'/>"
                        type="text" value="" readonly>
                 <input id="QDateEnd" name="YYYYMM"
-                       style="width:80px;text-align:center;"
+                       style="width:70px;text-align:center;"
                        type="text" value=""
                        placeholder="<spring:message code='end_time'/>"
                        readonly>
 <c:if test="${hasKey eq '1'}">
-                <select id="flag" class="input-large" style="width:100px;">
+                <select id="flag" class="input-large" style="width:90px;">
                     <option value="">
                         <c:if test="${languageS eq 'zh_CN'}">審批狀態</c:if>
                         <c:if test="${languageS eq 'en_US'}">Approval status</c:if>
@@ -471,20 +475,23 @@
                 <input type="text" style="width: 100px;display: none;" id="founderVal" value="${founderVal}"
                        placeholder="<spring:message code='founder'/>">
                 <select id="priceControl" name="priceControl" class="input-large"
-                        style="width:100px;display: none;">
+                        style="width:95px;display: none;">
                     <option value="">是否客指</option>
                     <option value="客指">客指</option>
                     <option value="非客指">非客指</option>
                 </select>
                 </span>
-                <button id="QueryBtn" class="btn search-btn"
+                <button id="QueryBtn" class="btn search-btn" style="margin-left:0px !important;"
                         type="submit"><spring:message code='query'/></button>
                 <c:if test="${hasKey eq '1'}">
-                    <button id="deleteBtn" class="btn search-btn"
+                    <button id="deleteBtn" class="btn search-btn" style="margin-left:0px !important;"
                             type="submit"><spring:message code='delete'/></button>
                 </c:if>
-                <button id="Download" class="btn search-btn" type="button">
+                <button id="Download" class="btn search-btn" type="button" style="margin-left:0px !important;">
                     <spring:message code='download'/></button>
+                <button id="operation" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 22px;text-decoration: underline;" type="button">
+                    <c:if test="${languageS eq 'zh_CN'}">操作手冊</c:if>
+                    <c:if test="${languageS eq 'en_US'}">Operation manual</c:if></button>
             </div>
         </div>
         <div id="NTD" style="clear: both;margin-left: 20px;display: none;"><h5>單位：K NTD</h5></div>

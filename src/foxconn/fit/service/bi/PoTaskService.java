@@ -107,6 +107,7 @@ public class PoTaskService extends BaseService<PoTask> {
         String msg="";
         String flag="1";
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+        String username=loginUser.getRealname()==null?loginUser.getUsername():loginUser.getRealname();
         //表示三表是否跳了審核步驟，其中0代表每跳，1代表跳了
         String step="";
         List<String> emailList=new ArrayList<>();
@@ -150,7 +151,7 @@ public class PoTaskService extends BaseService<PoTask> {
                     "(select ','||SBU||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
             List<String> keyUser = roRoleService.listBySql(sql);
             emailList=keyUser.stream().distinct().collect(Collectors.toList());
-            msg="尊敬的主管:</br>&nbsp;&nbsp;"+loginUser.getRealname()+"已在接口平臺提交"+task[1]+"_"+task[0]+" SBU採購CD目標，請及時完成初審!";
+            msg="尊敬的主管:</br>&nbsp;&nbsp;"+username+"已在接口平臺提交"+task[1]+"_"+task[0]+" SBU採購CD目標，請及時完成初審!";
             title=task[1]+"_"+task[0]+"採購CD目標待簽核，請勿回復";
         } else if ("FIT_PO_Target_CPO_CD_DTL".equals(type)) {
             sql = " select distinct u.email from  fit_user u \n" +
@@ -306,7 +307,8 @@ public class PoTaskService extends BaseService<PoTask> {
                 for (String e:tManager) {
                     emailCC=emailCC+e+",";
                 }
-                msg="尊敬的主管:</br>&nbsp;&nbsp;"+loginUser.getRealname()+"已在接口平臺完成"+task[1]+"_"+task[0]+" SBU採購CD目標初級審批，請及時完成終審!";
+                String username=loginUser.getRealname()==null?loginUser.getUsername():loginUser.getRealname();
+                msg="尊敬的主管:</br>&nbsp;&nbsp;"+username+"已在接口平臺完成"+task[1]+"_"+task[0]+" SBU採購CD目標初級審批，請及時完成終審!";
             }
             List<String> tManager = roRoleService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());
@@ -479,9 +481,9 @@ public class PoTaskService extends BaseService<PoTask> {
                                     "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','ADMIN','PLACECLASS1','MANAGER','PLACECLASS','T_MANAGER','TDC')  and COMMODITY_MAJOR is not null";
                             List<String> emailList = roRoleService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
-                            List<Map> maps = poFlowDao.listMapBySql("select count(1) from FIT_PO_TASK_LOG where TASK_NAME='"+taskList.get(0).get("NAME").toString()+"' and FLAG='-1' ");
-                            if (maps != null && !"0".equals(maps.get(0).get("COUNT(1)").toString())) {
-                                msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "對" + task[0] + "_" + task[1] + "年度SBU CD目標數據有作更新："+reamrk+"，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
+                            List<Map> maps = poFlowDao.listMapBySql("select * from(select REMARK from FIT_PO_TASK_LOG where TASK_NAME='"+taskList.get(0).get("NAME").toString()+"' and FLAG='-3' order by CREATE_TIME desc) where rownum=1 ");
+                            if (maps != null && maps.size()>0 && null!=maps.get(0).get("REMARK")) {
+                                msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "對" + task[0] + "_" + task[1] + "年度SBU CD目標數據有作更新："+maps.get(0).get("REMARK").toString()+"，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
                             }else {
                                 msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "已經完成" + task[0] + "_" + task[1] + "年度SBU CD目標數據，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
                             }
@@ -625,7 +627,7 @@ public class PoTaskService extends BaseService<PoTask> {
             taskSql="select NAME from FIT_PO_TASK where id='"+id+"'";
             List<String> name= poTaskDao.listBySql(taskSql);
             if(null!=name&&name.size()>0){
-                taskSql="insert into epmods.FIT_PO_TASK_LOG(task_name,create_user,create_time,remark,flag) values('"+name.get(0)+"','"+userName.get(0)+"','"+signTimet+"','系統管理員取消審批 "+remark+"','-1')";
+                taskSql="insert into epmods.FIT_PO_TASK_LOG(task_name,create_user,create_time,remark,flag) values('"+name.get(0)+"','"+userName.get(0)+"','"+signTimet+"','"+remark+"','-3')";
                 poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(taskSql).executeUpdate();
             }
             return ajaxResult;
@@ -663,7 +665,7 @@ public class PoTaskService extends BaseService<PoTask> {
                     poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(taskSql).executeUpdate();
                 }
 
-                String deleteSql= "delete from fit_po_task where flag !='-1' and id='"+id+"'";
+                String deleteSql= "delete from fit_po_task where flag not in('-1','-3') and id='"+id+"'";
                 poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
                 if(!list.get(0).equalsIgnoreCase("FIT_PO_Target_CPO_CD_DTL")){
                     String deleteSqlSJY= "delete from "+list.get(0)+" where TASK_ID='"+id+"'";

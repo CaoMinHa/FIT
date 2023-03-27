@@ -41,6 +41,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -656,7 +657,7 @@ public class PoTableService extends BaseService<PoTable> {
                     Cell cell = contentRow.createCell(i);
                     String text = (objects[i] != null ? objects[i].toString() : "");
                     if (StringUtils.isNotEmpty(text) && numberList.contains(i)) {
-                        cell.setCellValue(Double.parseDouble(text));
+                        cell.setCellValue(DecimalFormat.getNumberInstance().format(Double.parseDouble(text)));
                     } else {
                         cell.setCellValue(text);
                     }
@@ -673,7 +674,7 @@ public class PoTableService extends BaseService<PoTable> {
                             Cell cell = contentRow.createCell(i);
                             String text = (objects[i] != null ? objects[i].toString() : "");
                             if (StringUtils.isNotEmpty(text) && numberList.contains(i)) {
-                                cell.setCellValue(Double.parseDouble(text));
+                                cell.setCellValue(DecimalFormat.getNumberInstance().format(Double.parseDouble(text)));
                             } else {
                                 cell.setCellValue(text);
                             }
@@ -886,14 +887,14 @@ public class PoTableService extends BaseService<PoTable> {
     public String savePoData(PoTable poTable,List<List<String>> dataList,String name) {
         int cnt = 1;
         String id = UUID.randomUUID().toString();
-        String count = " select count(id) from fit_po_task where name='" + name + "' and flag not in('0','-1')";
+        String count = " select count(id) from fit_po_task where name='" + name + "' and flag not in('0','-1','-3')";
         List<BigDecimal> countList = (List<BigDecimal>)poTableDao.listBySql(count);
         if(countList.get(0).intValue()<1){
             List<PoColumns> columns = poTable.getColumns();
             //先删掉数据
-            String deleteSql="delete "+poTable.getTableName()+" where task_id=(select id from FIT_PO_TASK where NAME='"+name+"') and flag in('0','-1')";
+            String deleteSql="delete "+poTable.getTableName()+" where task_id=(select id from FIT_PO_TASK where NAME='"+name+"') and flag in('0','-1','-3')";
             poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
-            deleteSql="delete FIT_PO_TASK where NAME='"+name+"' and flag in('0','-1')";
+            deleteSql="delete FIT_PO_TASK where NAME='"+name+"' and flag in('0','-1','-3')";
             poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String user = loginUser.getUsername();
