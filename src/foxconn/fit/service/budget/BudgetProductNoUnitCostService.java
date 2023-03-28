@@ -1379,7 +1379,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			for (String string : corporationCode.split(",")) {
 				String sbuSql="select distinct ALIAS  from fit_dimension where type='Entity' and PARENT='"+string+"'";
 				List<String> listSbu=budgetProductNoUnitCostDao.listBySql(sbuSql);
-				sql+=" b.entity like '"+listSbu.get(0)+"' or";
+				for(String str:listSbu){
+					sql+=" b.entity = '"+str+"' or";
+				}
 			}
 			sql=sql.substring(0,sql.length()-2)+")";
 		}else{
