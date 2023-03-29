@@ -151,7 +151,7 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 //				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
 //				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				int column = sheet.getRow(1).getLastCellNum();
-				Assert.isTrue(column <= 15,instrumentClassService.getLanguage(locale, "Excel列数不能小于" + 15 + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + 15 + ",Please download the correct template to upload the data"));
+				Assert.isTrue(column == 15,instrumentClassService.getLanguage(locale, "請下載正確的模板上傳數據！", "Please download the correct template to upload the data"));
 				int rowNum = sheet.getPhysicalNumberOfRows();
 				Assert.isTrue(rowNum > 3,instrumentClassService.getLanguage(locale, "检测到Excel没有行数据", "Row Data Not Empty"));
 				List list;

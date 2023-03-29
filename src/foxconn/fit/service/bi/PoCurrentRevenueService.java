@@ -102,7 +102,7 @@ public class PoCurrentRevenueService extends BaseService<PoCurrentRevenue> {
                 wb.close();
                 Sheet sheet = wb.getSheetAt(0);
                 int column = sheet.getRow(0).getLastCellNum();
-                Assert.isTrue(column <= 5, instrumentClassService.getLanguage(locale, "Excel列数不能小于" + 5 + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + 5 + ",Please download the correct template to upload the data"));
+                Assert.isTrue(column == 5, instrumentClassService.getLanguage(locale, "請下載正確的模板上傳數據！", "Please download the correct template to upload the data"));
                 int rowNum = sheet.getPhysicalNumberOfRows();
                 Assert.isTrue(rowNum > 1, instrumentClassService.getLanguage(locale, "检测到Excel没有行数据", "Row Data Not Empty"));
                 UserDetailImpl loginUser = SecurityUtils.getLoginUser();

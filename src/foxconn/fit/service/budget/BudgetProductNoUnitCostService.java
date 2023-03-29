@@ -152,15 +152,16 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 					result.put("msg", instrumentClassService.getLanguage(locale, "請使用模板上傳數據！", "Please use the template to upload data"));
 					return result.getJson();
 				}
+				Assert.hasText(v_year, instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
 				//預算應爲測試需要先把年份校驗放開
 //				Calendar calendar = Calendar.getInstance();
 //				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
 //				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				int column = sheet.getRow(2).getLastCellNum();
-				if (column < COLUMN_NUM) {
+				if (column != COLUMN_NUM) {
 					result.put("flag", "fail");
-					result.put("msg", instrumentClassService.getLanguage(locale, "Excel列数不能小于" + COLUMN_NUM + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + COLUMN_NUM + ",Please download the correct template to upload the data"));
+					result.put("msg", instrumentClassService.getLanguage(locale, "請下載正確的模板上傳數據！", "Please download the correct template to upload the data"));
 					return result.getJson();
 				}
 				int rowNum = sheet.getPhysicalNumberOfRows();
@@ -550,9 +551,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				String year = Integer.toString(calendar.get(Calendar.YEAR));
 				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳當前年的預測數據！", "Only forecast data for the current year can be uploaded"));
 				int column = sheet.getRow(2).getLastCellNum();
-				if (column < COLUMN_NUM) {
+				if (column != COLUMN_NUM) {
 					result.put("flag", "fail");
-					result.put("msg", instrumentClassService.getLanguage(locale, "Excel列数不能小于" + COLUMN_NUM + "，請下載正確的模板上傳數據！", "Number Of Columns Can Not Less Than" + COLUMN_NUM + ",Please download the correct template to upload the data"));
+					result.put("msg", instrumentClassService.getLanguage(locale, "請下載正確的模板上傳數據！", "Please download the correct template to upload the data"));
 					return result.getJson();
 				}
 				int rowNum = sheet.getPhysicalNumberOfRows();
