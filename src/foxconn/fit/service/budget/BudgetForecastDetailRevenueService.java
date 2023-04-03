@@ -160,6 +160,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				Sheet sheet = wb.getSheetAt(0);
 				int COLUMN_NUM = 45;
 				String v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(21), 0);
+				Assert.hasText(v_year, instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
 //預算應爲測試需要先把年份校驗放開
 // 				Calendar calendar = Calendar.getInstance();
@@ -349,6 +350,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				Sheet sheet = wb.getSheetAt(0);
 				int COLUMN_NUM = 37;
 				String v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(13), 0);
+				Assert.hasText(v_year, instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
 				Calendar calendar = Calendar.getInstance();
 				String year = Integer.toString(calendar.get(Calendar.YEAR));
