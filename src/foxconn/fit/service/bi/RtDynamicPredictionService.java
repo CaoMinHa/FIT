@@ -14,7 +14,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -65,8 +64,6 @@ public class RtDynamicPredictionService extends BaseService<RtDynamicPrediction>
         sql += " order by year,CREATE_TIME,id desc";
         return sql;
     }
-
-
     /**數據上傳*/
     public String uploadFile(MultipartHttpServletRequest multipartHttpServletRequest, AjaxResult result, Locale locale,String year) {
         try {
@@ -220,8 +217,6 @@ public class RtDynamicPredictionService extends BaseService<RtDynamicPrediction>
         System.gc();
         return outFile.getName();
     }
-
-
     /**下載模板*/
     public Map<String,String>  template(HttpServletRequest request,Locale locale) {
         Map<String,String> mapResult=new HashMap<>();
