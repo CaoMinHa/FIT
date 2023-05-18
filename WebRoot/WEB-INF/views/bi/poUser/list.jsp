@@ -77,7 +77,6 @@ $(function() {
 			clickPage(Page.getPage());
 		}
 	});
-
 	$('.selectpicker').selectpicker('render');
 });
 
@@ -85,9 +84,6 @@ $(function() {
 function clickPage(page){
 	$("#loading").show();
 	$("#PageNo").val(page);
-	var date=$("#QDate").val();
-	var entity=$("#QEntity").val();
-	var tableName=$("#QTableName").val();
 	$("#Content").load("${ctx}/bi/poUser/list",{pageNo:$("#PageNo").val(),pageSize:$("#PageSize").val(),
 														orderBy:$("#OrderBy").val(),
 		name:$("#name").val()},function(){$("#loading").fadeOut(1000);});
@@ -104,7 +100,6 @@ $('.selectpicker').selectpicker({
 
 function addDept(index) {
 	var id=$('input[type=checkbox]')[index].value;
-	var sid = $("#select_article").val();
 	$("#loading").show();
 	$('.selectpicker').selectpicker('val', '');
 	$('.selectpicker').selectpicker('refresh');
@@ -262,13 +257,13 @@ function addDept(index) {
 				<div class="pull-left" style=" display: inline-block">
 					<i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
 					物料大类：
-					<select multiple class="selectpicker show-tick" style="outline: none;width:350px;" data-live-search="true" id="select_c" name="select_article">
+					<select multiple class="selectpicker show-tick" data-actions-box="true" style="outline: none;width:350px;" data-live-search="true" id="select_c" name="select_article">
 					</select>
 				</div>
 				<div class="pull-left" style=" display: inline-block">
 					<i class="icon-asterisk need m-r-sm" title="<spring:message code='required'/>"></i>
 					SBU 部门：
-					<select  multiple class="selectpicker show-tick" style="outline: none;width:350px;margin-left: 20px" data-live-search="true" id="select_s" name="select_article">
+					<select  multiple class="selectpicker show-tick" data-actions-box="true" style="outline: none;width:350px;margin-left: 20px" data-live-search="true" id="select_s" name="select_article">
 					</select>
 				</div>
 				<div class="pull-left" style=" display: inline-block">

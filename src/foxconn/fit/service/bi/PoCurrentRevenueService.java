@@ -151,14 +151,9 @@ public class PoCurrentRevenueService extends BaseService<PoCurrentRevenue> {
     public void saveBatch(List<PoCurrentRevenue> list) throws Exception {
         for (int i = 0; i < list.size(); i++) {
             PoCurrentRevenue poCurrentRevenue=list.get(i);
-            String sql="select count(1) from FIT_PO_CURRENT_REVENUE where PERIOD='"+poCurrentRevenue.getPERIOD()+"' and BU='"+poCurrentRevenue.getBU()+
-                    "' and SBU='"+poCurrentRevenue.getSBU()+"'";
-            List<BigDecimal> countList = (List<BigDecimal>)poCurrentRevenueDao.listBySql(sql);
-            if(countList.get(0).intValue()>0){
-                sql="delete from FIT_PO_CURRENT_REVENUE where PERIOD='"+poCurrentRevenue.getPERIOD()+"' and BU='"+poCurrentRevenue.getBU()+
+            String sql="delete from FIT_PO_CURRENT_REVENUE where PERIOD='"+poCurrentRevenue.getPERIOD()+"' and BU='"+poCurrentRevenue.getBU()+
                         "' and SBU='"+poCurrentRevenue.getSBU()+"'";
-                poCurrentRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
-            }
+            poCurrentRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
             poCurrentRevenueDao.save(list.get(i));
         }
     }

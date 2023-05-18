@@ -45,7 +45,7 @@ public class PoTaskCompleteController extends BaseController {
             String roleSql="select distinct r.code,r.grade,r.name  from  fit_user u \n" +
                     " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                     " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
-                    " WHERE  u.username="+"'"+userName+"'"+" order by r.grade";
+                    " WHERE  u.username="+"'"+userName+"' and r.type='PO' order by r.grade";
             List<Map> roleList = userService.listMapBySql(roleSql);
             pageRequest.setOrderBy("serial");
             pageRequest.setOrderDir("asc");
@@ -90,7 +90,7 @@ public class PoTaskCompleteController extends BaseController {
             }
             if("KEYUSER".equalsIgnoreCase(roleCode)){
 
-            }else if("SOURCER".equalsIgnoreCase(roleCode)){
+            }else if("SOURCER".equalsIgnoreCase(roleCode)||"specialSourcer".equalsIgnoreCase(roleCode)){
                 sql+=" and CREATE_USER="+"'"+userName+"' and Type in ('FIT_PO_BUDGET_CD_DTL','FIT_ACTUAL_PO_NPRICECD_DTL','FIT_PO_CD_MONTH_DTL') ";
                 roleCode="BASE";
             }else if("MM".equalsIgnoreCase(roleCode)){
@@ -102,8 +102,12 @@ public class PoTaskCompleteController extends BaseController {
                 sql+= "  and type='FIT_PO_SBU_YEAR_CD_SUM' and instr(',"+sbu+",',','||SBU||',')>0 and (flag='1' or AUDIT_ONE='"+userName+"' )";
             }else if("CLASS".equalsIgnoreCase(roleCode)){
                 sql+= " and instr(',"+commodityMajor+",',','||COMMODITY_MAJOR||',')>0 and (flag='1' or AUDIT_ONE='"+userName+"') ";
+            }else if("specialClass".equalsIgnoreCase(roleCode)){
+                sql+= " and instr(',"+sbu+",',','||COMMODITY_MAJOR||',')>0 and (flag='1' or AUDIT_ONE='"+userName+"') ";
             }else if("MANAGER".equalsIgnoreCase(roleCode)){
                 sql+= " and instr(',"+commodityMajor+",',','||COMMODITY_MAJOR||',')>0 and (flag='2' or AUDIT_TWO='"+userName+"') ";
+            }else if("specialManager".equalsIgnoreCase(roleCode)){
+                sql+= " and instr(',"+sbu+",',','||COMMODITY_MAJOR||',')>0 and (flag='2' or AUDIT_TWO='"+userName+"') ";
             }else if("T_MANAGER".equalsIgnoreCase(roleCode)){
                 sql+= " and type='FIT_PO_Target_CPO_CD_DTL' and (flag='1' or AUDIT_CPO='"+userName+"') ";
             }else if("PLACECLASS".equalsIgnoreCase(roleCode)){
@@ -158,11 +162,11 @@ public class PoTaskCompleteController extends BaseController {
                 model.addAttribute("taskName", maps.get(0).get("NAME").toString());
                 //根据角色判断当前明细所在那个节点
                 if(null!= role){
-                    if( "TDC".equalsIgnoreCase(role) || "BASE".equalsIgnoreCase(role)|| "SOURCER".equalsIgnoreCase(role)||"MM".equalsIgnoreCase(role)){
+                    if( "TDC".equalsIgnoreCase(role) || "BASE".equalsIgnoreCase(role)|| "SOURCER".equalsIgnoreCase(role)||"specialSourcer".equalsIgnoreCase(role)||"MM".equalsIgnoreCase(role)){
                         model.addAttribute("user", "N");
-                    }else if("CLASS".equalsIgnoreCase(role) || "T_MANAGER".equalsIgnoreCase(role)||"PD".equalsIgnoreCase(role)){
+                    }else if("CLASS".equalsIgnoreCase(role)||"specialClass".equalsIgnoreCase(role) || "T_MANAGER".equalsIgnoreCase(role)||"PD".equalsIgnoreCase(role)){
                         model.addAttribute("user", "C");
-                    }else if("CPO".equalsIgnoreCase(role) || "MANAGER".equalsIgnoreCase(role)){
+                    }else if("CPO".equalsIgnoreCase(role) || "MANAGER".equalsIgnoreCase(role)||"specialManager".equalsIgnoreCase(role)){
                         model.addAttribute("user", "Z");
                     }else if("KEYUSER".equalsIgnoreCase(role)){
                         model.addAttribute("user", "K");

@@ -11,6 +11,11 @@
     <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
     <meta http-equiv="description" content="This is my page">
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <style type="text/css">
+        .modal-backdrop {
+            position: initial !important;
+        }
+    </style>
     <script type="text/javascript">
         $(function() {
             $("#Query").click(function(){
@@ -30,7 +35,7 @@
         });
         $.ajax({
             type:"POST",
-            url:"${ctx}/bi/poUploadOverdue/allocate",
+            url:"${ctx}/bi/poUploadOverdue/allAllocate",
             async:false,
             dataType:"json",
             data:{userId:userId.substring(0,userId.length-1),type:type},
@@ -71,12 +76,12 @@
                     <input name="SBU" style="float:right;width:140px;text-align:center;margin-left:20px;" placeholder="SBU查詢" type="text">
                     <select name="state" class="input-large" style="width:140px;margin-left:20px;">
                         <option value="">請選擇狀態</option>
-                        <option value="Y">Y</option>
-                        <option value="N">N</option>
+                        <option value="Y">已分配</option>
+                        <option value="N">未分配</option>
                     </select>
                 </form>
                 <button id="Query" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;"><spring:message code='query'/></button>
-                <button id="stateY" onclick="stateBut('Y')" class="btn search-btn btn-warning m-l-md" type="button" >分配</button>
+<%--                <button id="stateY" onclick="stateBut('Y')" class="btn search-btn btn-warning m-l-md" type="button" >分配</button>--%>
                 <button id="stateN" onclick="stateBut('N')" class="btn search-btn btn-warning m-l-md" type="button" >取消</button>
             </div>
         </div>

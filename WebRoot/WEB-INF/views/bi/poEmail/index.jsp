@@ -33,10 +33,13 @@ $(document).ready(function(){
 
 	$("#FileUpload").click(function(){
 		$("#loading").show();
+		var r = /^\+?[1-9][0-9]*$/;
 		if($("input[type='checkbox']:checked").length===0){
 			layer.msg("請選擇用戶分組！");
 		}else if(!$("#emailTitle").val()){
 			layer.msg("請填寫郵件主題！");
+		}else if(!$("#emailYear").val()||$("#emailYear").val().length != 4 || !r.test($("#emailYear").val())){
+			layer.msg("請檢查VOC年份！");
 		}else if(!$("#emailContent").val()){
 			layer.msg("郵件内容不能爲空！");
 		}else{
@@ -48,6 +51,7 @@ $(document).ready(function(){
 				data:{
 					emailGroup:$("#groupUserText").val(),
 					title:$("#emailTitle").val(),
+					year:$("#emailYear").val(),
 					content:$("#emailContent").val(),
 					endDate:$("#endDate").val(),
 					type:"1"
@@ -67,6 +71,7 @@ $(document).ready(function(){
 				}
 			});
 		}
+		$("#loading").hide();
 	});
 
 	$(".groupUser").change(function(e) {
@@ -89,10 +94,8 @@ $(document).ready(function(){
 	})
 	$("#resetBtn").click(function () {
 		$("input[type='checkbox']").prop("checked",false);
-		$("#groupUserText").val("");
-		$("#emailTitle").val("");
+		$("form input").val("");
 		$("#emailContent").val("");
-		$("#endDate").val("");
 		$(".tip").text("請選擇文件");
 		$(".upload-tip").attr("title", "請選擇文件");
 		$("#excelVal span").remove();
@@ -104,7 +107,6 @@ $(document).ready(function(){
 		url: "${ctx}/bi/poEmail/sendEmail",
 		singleFileUploads: false,
 		add: function (e, data) {
-			debugger;
 			array[array.length]=data.files[0];
 			$("#FileUpload").unbind();
 			var filename = data.originalFiles[0]['name'];
@@ -118,15 +120,17 @@ $(document).ready(function(){
 			$("#FileUpload").click(function () {
 				data.originalFiles=array;
 				data.files=array;
+				var r = /^\+?[1-9][0-9]*$/;
 				if($("input[type='checkbox']:checked").length===0){
 					layer.msg("請選擇用戶分組！");
 				}else if(!$("#emailTitle").val()){
 					layer.msg("請填寫郵件主題！");
+				}else if(!$("#emailYear").val()||$("#emailYear").val().length != 4 || !r.test($("#emailYear").val())){
+					layer.msg("請檢查VOC年份！");
 				}else if(!$("#emailContent").val()){
 					layer.msg("郵件内容不能爲空！");
 				}else{
 					$("#loading").show();
-					debugger;
 					if(array.length==0){
 						$.ajax({
 							type:"POST",
@@ -136,6 +140,7 @@ $(document).ready(function(){
 							data:{
 								emailGroup:$("#groupUserText").val(),
 								title:$("#emailTitle").val(),
+								year:$("#emailYear").val(),
 								content:$("#emailContent").val(),
 								endDate:$("#endDate").val(),
 								type:"1"
@@ -174,8 +179,6 @@ $(document).ready(function(){
 		done: function (e, data) {
 			$("#loading").delay(1000).hide();
 			layer.alert(data.result.msg);
-			console.log("qqq")
-
 			$.each(data.result.files, function (index, file) {
 				$('<p/>').text(file.name).appendTo(document.body);
 			});
@@ -183,12 +186,10 @@ $(document).ready(function(){
 		fail: function (e, data) {
 			$("#loading").delay(1000).hide();
 			layer.alert("郵件發送成功！");
-			console.log("222")
 		},
 		processfail: function (e, data) {
 			$("#loading").delay(1000).hide();
 			layer.alert("<spring:message code='upload'/><spring:message code='fail'/>");
-			console.log("333")
 		}
 	});
 	$(".upload-tip").click(function () {
@@ -198,6 +199,7 @@ $(document).ready(function(){
 		data.formData={
 			emailGroup:$("#groupUserText").val(),
 					title:$("#emailTitle").val(),
+					year:$("#emailYear").val(),
 					content:$("#emailContent").val(),
 					endDate:$("#endDate").val(),
 			type:"2"
@@ -222,13 +224,17 @@ $(document).ready(function(){
 				<div>
 					<label style="display: inline!important;">用戶分組：</label>
 					<input id="groupUserText" style="width: 615px;" readonly type="text" placeholder="請點擊按鈕選擇用戶分組">
-					<a class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal">
+					<a class="btn btn-primary btn-sm" style="margin-top: -12px;" data-toggle="modal" data-target="#myModal">
 						選擇用戶
 					</a>
 				</div>
 				<div>
 					<label style="display: inline!important;" >郵件主題：</label>
 					<input id="emailTitle" style="width: 700px;" type="text" placeholder="请输入邮箱主题">
+				</div>
+				<div>
+					<label style="display: inline!important;" >VOC年份：</label>
+					<input id="emailYear" style="width: 700px;" type="text" placeholder="请输入VOC年份">
 				</div>
 				<div>
 					<label style="display: inline!important;">郵件内容：</label>

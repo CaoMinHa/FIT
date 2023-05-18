@@ -1,24 +1,15 @@
 package foxconn.fit.controller.bi;
 
-import com.monitorjbl.xlsx.StreamingReader;
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.bi.PoCurrentRevenue;
-import foxconn.fit.entity.investment.DepreExpenBudget;
-import foxconn.fit.service.bi.PlOfflineDataSupplementService;
 import foxconn.fit.service.bi.PoCurrentRevenueService;
-import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.util.ExceptionUtil;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.util.WebUtils;
@@ -27,12 +18,7 @@ import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 

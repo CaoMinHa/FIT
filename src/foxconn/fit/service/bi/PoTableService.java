@@ -57,7 +57,7 @@ public class PoTableService extends BaseService<PoTable> {
 
     @Autowired
     private InstrumentClassService instrumentClassService;
-    
+
     @Override
     public BaseDaoHibernate<PoTable> getDao() {
         return poTableDao;
@@ -111,7 +111,7 @@ public class PoTableService extends BaseService<PoTable> {
         List<String> roleCode = this.listBySql(roleSql);
         if (null != roleCode && roleCode.size() > 0) {
             String roles = roleCode.get(0) == null ? "" : roleCode.get(0);
-            if (roles.equalsIgnoreCase("MM")) {
+            if (roles.equalsIgnoreCase("MM")||roles.equalsIgnoreCase("specialSourcer")) {
                 userSql = "select SBU  from fit_user where username='" + userName + "' and sbu is not null " +
                         "union all " +
                         "select listagg(t.NEW_SBU_NAME, ',') within group(order by t.NEW_SBU_NAME) as sbu " +
@@ -193,6 +193,8 @@ public class PoTableService extends BaseService<PoTable> {
                     return result.getJson();
                 }
                 List<List<String>> dataList = new ArrayList<List<String>>();
+                UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+                List<BigDecimal> countList = (List<BigDecimal>)poTableDao.listBySql("select count(1) from  fit_user u inner join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id inner join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id WHERE r.code='specialSourcer' and u.username='"+loginUser.getUsername()+"'");
                 for (int j = 2; j < rowNum; j++) {
                     if (null == sheet.getRow(j)) {
                         continue;
@@ -248,7 +250,7 @@ public class PoTableService extends BaseService<PoTable> {
                                     result.put("msg", instrumentClassService.getLanguage(locale, "第" + (j + 1) + "行第" + (n + 1) + "列單元格sbu输入錯誤【" + value + "】", "The sbu of the cell in row " + (j + 1) + " column " + (n + 1) + " is error)"));
                                     return result.getJson();
                                 }
-                                if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
+                               if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)||countList.get(0).intValue()>0) {
                                     if (!dataRangeStr.contains(sbu)) {
                                         result.put("flag", "fail");
                                         result.put("msg", instrumentClassService.getLanguage(locale, "第" + (j + 1) + "行第" + (n + 1) + "列單元格sbu输入錯誤【" + value + "】,用户没有维护该sbu的权限", "The sbu of the cell in row " + (j + 1) + " column " + (n + 1) + " is error)"));
@@ -263,7 +265,7 @@ public class PoTableService extends BaseService<PoTable> {
                                     result.put("msg", instrumentClassService.getLanguage(locale, "第" + (j + 1) + "行第" + (n + 1) + "列單元格commodity输入錯誤【" + value + "】", "The commodity of the cell in row " + (j + 1) + " column " + (n + 1) + " is error)"));
                                     return result.getJson();
                                 }
-                                if (!"FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
+                                if (!"FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)&&countList.get(0).intValue()<1) {
                                     if (!dataRangeStr.contains(commodity)) {
                                         result.put("flag", "fail");
                                         result.put("msg", instrumentClassService.getLanguage(locale, "第" + (j + 1) + "行第" + (n + 1) + "列單元格commodity输入錯誤【" + value + "】,用户没有维护该commodity的权限", "The commodity of the cell in row " + (j + 1) + " column " + (n + 1) + " is error)"));
@@ -290,6 +292,9 @@ public class PoTableService extends BaseService<PoTable> {
                     dataList.add(data);
                 }
                 if (!dataList.isEmpty()) {
+                    if(countList.get(0).intValue()>0&&poTable.getTableName()!="FIT_PO_SBU_YEAR_CD_SUM"){
+                        return special(poTable,dataList,result,locale);
+                    }
                     return repetition(poTable,dataList,result,locale);
                 } else {
                     result.put("flag", "fail");
@@ -311,17 +316,15 @@ public class PoTableService extends BaseService<PoTable> {
         LocalDate localDate = LocalDate.now();
         String year=localDate.plus(60, ChronoUnit.DAYS).toString().substring(0,4);
         String period = localDate.minusMonths(1).toString().substring(5, 7);
-        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-        String userName=loginUser.getUsername();
         /**上传管控*/
         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(tableName)) {
             //測試後續放開
-            if (!this.updateState(userName)) {
+            if (!this.updateState(tableName,date)) {
                 Assert.isTrue(year.equals(date), instrumentClassService.getLanguage(locale, "錯誤的年份： " + date + "應為：" + year, "The year is error:" + date + "should be：" + year));
             }
         } else if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(tableName)) {
             //測試後續放開
-            if (!this.updateState(userName)) {
+            if (!this.updateState(tableName,date)) {
                 Assert.isTrue(year.equals(date), instrumentClassService.getLanguage(locale, "錯誤的年份： " + date + "應為：" + year, "The year is error:" + date + "should be：" + year));
             }
             if (!this.checkCPO(date)) {
@@ -330,7 +333,7 @@ public class PoTableService extends BaseService<PoTable> {
                 return result;
             }
         } else {
-            if (!this.updateState(userName)) {
+            if (!this.updateState(tableName,date)) {
                 year = localDate.minusMonths(1).toString().substring(0, 4);
                 if ("FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(tableName) || "FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(tableName)) {
                     if (Integer.parseInt(localDate.toString().substring(8, 10)) > 10) {
@@ -424,6 +427,78 @@ public class PoTableService extends BaseService<PoTable> {
                     result.put("flag", "fail");
                     result.put("msg", nameList.substring(0,nameList.length()-1)+"該維度的數據已存在，不能重複上傳");
                 }
+
+        }else{
+            result.put("flag", "fail");
+            result.put("msg", instrumentClassService.getLanguage(locale, "上傳失敗，有重複維度數據："+collect.toString(), "Upload failed, Duplicate dimension data："+collect.toString()));
+            return result.getJson();
+        }
+        return result.getJson();
+    }
+
+    /**采购特殊任务*/
+    public String special(PoTable poTable, List<List<String>> dataList, AjaxResult result,Locale locale) throws Exception {
+        List<String> listVal=new ArrayList<>();
+        Set<String> list=new HashSet<>();
+        for (int i=0;i<dataList.size();i++) {
+            switch (poTable.getTableName()){
+                case "FIT_PO_CD_MONTH_DTL"://採購CD目標by月展開表
+                    listVal.add(dataList.get(i).get(0)+"_"+dataList.get(i).get(1)+"_"+dataList.get(i).get(2)+"_"+dataList.get(i).get(3)+"_"+dataList.get(i).get(4));
+                    list.add(dataList.get(i).get(0)+"_"+dataList.get(i).get(3)+"_"+poTable.getComments().split("_")[1]);
+                    break;
+                default://採購CD手動匯總表 實際採購非價格CD匯總表
+                    listVal.add(dataList.get(i).get(0)+dataList.get(i).get(1)+"_"+dataList.get(i).get(3)+"_"+dataList.get(i).get(5)+"_"+dataList.get(i).get(6));
+                    list.add(dataList.get(i).get(0)+dataList.get(i).get(1)+"_"+dataList.get(i).get(5)+"_"+poTable.getComments().split("_")[1]);
+                    break;
+            }
+        }
+        List<String> collect = listVal.stream().filter(i -> i != "")               // list 对应的 Stream 并过滤""
+                .collect(Collectors.toMap(e -> e, e -> 1, Integer::sum)) // 获得元素出现频率的 Map，键为元素，值为元素出现的次数
+                .entrySet()
+                .stream()                       // 所有 entry 对应的 Stream
+                .filter(e -> e.getValue() > 1)         // 过滤出元素出现次数大于 1 (重复元素）的 entry
+                .map(Map.Entry::getKey)                // 获得 entry 的键（重复元素）对应的 Stream
+                .collect(Collectors.toList());
+        String nameList="";
+        String msg="";
+        if(collect.isEmpty()){
+            for (String str:list) {
+                result=this.checkDate(poTable.getTableName(),str.split("_")[0],locale,result);
+                if(result.getResult().get("flag").equals("fail")){
+                    return result.getJson();
+                }
+                List<List<String>> dataList1=new ArrayList<>();
+                for (List<String> data:dataList) {
+                    switch (poTable.getTableName()){
+                        case "FIT_PO_CD_MONTH_DTL"://採購CD目標by月展開表
+                            if(str.equals(data.get(0)+"_"+data.get(3)+"_"+poTable.getComments().split("_")[1])){
+                                dataList1.add(data);
+                            }
+                            break;
+                        default://採購CD手動匯總表 實際採購非價格CD匯總表
+                            if(str.equals(data.get(0)+data.get(1)+"_"+data.get(5)+"_"+poTable.getComments().split("_")[1])){
+                                dataList1.add(data);
+                            }
+                            break;
+                    }
+                }
+                String taskId = this.savePoData(poTable,dataList1,str);
+                if ("".equals(taskId)) {
+                    nameList+=str+",";
+                } else{
+                    if ("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(poTable.getTableName())&&!this.validateMonth(taskId).equals("Y")) {
+                        msg+= this.validateMonth(taskId)+",";
+                    }
+                }
+            }
+            if(!msg.isEmpty()){
+                result.put("flag", "fail");
+                result.put("msg", msg.substring(0,msg.length()-1) + "配置的CD比例過低,請重新維護上傳");
+            }
+            if(!nameList.isEmpty()){
+                result.put("flag", "fail");
+                result.put("msg", nameList.substring(0,nameList.length()-1)+"該維度的數據已存在，不能重複上傳");
+            }
 
         }else{
             result.put("flag", "fail");
@@ -602,6 +677,9 @@ public class PoTableService extends BaseService<PoTable> {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFWorkbook workBook = new XSSFWorkbook();
         XSSFCellStyle titleStyle = workBook.createCellStyle();
+        XSSFCellStyle a = workBook.createCellStyle();
+        XSSFDataFormat format=workBook.createDataFormat();
+        a.setDataFormat(format.getFormat("_ * #,##0.00_ ;_ * -#,##0.00_ ;_ * \"-\"??_ ;_ @_ "));
         titleStyle.setAlignment(HorizontalAlignment.CENTER);
         titleStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         titleStyle.setFillForegroundColor(IndexedColors.BLACK.index);
@@ -657,7 +735,8 @@ public class PoTableService extends BaseService<PoTable> {
                     Cell cell = contentRow.createCell(i);
                     String text = (objects[i] != null ? objects[i].toString() : "");
                     if (StringUtils.isNotEmpty(text) && numberList.contains(i)) {
-                        cell.setCellValue(DecimalFormat.getNumberInstance().format(Double.parseDouble(text)));
+                        cell.setCellStyle(a);
+                        cell.setCellValue(Double.parseDouble(text));
                     } else {
                         cell.setCellValue(text);
                     }
@@ -674,7 +753,8 @@ public class PoTableService extends BaseService<PoTable> {
                             Cell cell = contentRow.createCell(i);
                             String text = (objects[i] != null ? objects[i].toString() : "");
                             if (StringUtils.isNotEmpty(text) && numberList.contains(i)) {
-                                cell.setCellValue(DecimalFormat.getNumberInstance().format(Double.parseDouble(text)));
+                                cell.setCellStyle(a);
+                                cell.setCellValue(Double.parseDouble(text));
                             } else {
                                 cell.setCellValue(text);
                             }
@@ -1080,8 +1160,21 @@ public class PoTableService extends BaseService<PoTable> {
     /**
      * 判斷采購用戶是否有超過時間上傳的權限 數據上傳逾期處理
      */
-    public Boolean updateState(String user) {
-        String sql = "select count(1) from fit_user_po_upload_v v where v.state='Y' and v.USERNAME='" + user + "'";
+    public Boolean updateState(String tableName,String date) {
+        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+        String userName=loginUser.getUsername();
+        String sql="";
+        switch (tableName){
+            case "FIT_PO_SBU_YEAR_CD_SUM"://SBU年度CD目標匯總表
+                sql = "select count(1) from fit_user_po_upload_v v where v.state='Y' and instr(','||TABLE_CODE||',',',"+tableName+",')> 0 and substr(PERIOD_START,0,4)<='"+date+"' and substr(PERIOD_END,0,4)>='"+date+"' and v.USERNAME='" + userName + "' and ROLECODE='MM'";
+                break;
+            case "FIT_PO_CD_MONTH_DTL"://採購CD目標by月展開表
+                sql = "select count(1) from fit_user_po_upload_v v where v.state='Y' and instr(','||TABLE_CODE||',',',"+tableName+",')> 0 and substr(PERIOD_START,0,4)<='"+date+"' and substr(PERIOD_END,0,4)>='"+date+"' and v.USERNAME='" + userName + "' and ROLECODE in('specialSourcer','SOURCER')";
+                break;
+            default://採購CD手動匯總表 實際採購非價格CD匯總表
+                sql = "select count(1) from fit_user_po_upload_v v where v.state='Y' and instr(','||TABLE_CODE||',',',"+tableName+",')> 0 and Replace(PERIOD_START,'-','') <='"+date+"' and Replace(PERIOD_END,'-','') >='"+date+"' and v.USERNAME='" + userName + "' and ROLECODE in('specialSourcer','SOURCER')";
+                break;
+        }
         List<Map> maps = poTableDao.listMapBySql(sql);
         if (maps != null && !"0".equals(maps.get(0).get("COUNT(1)").toString())) {
             return true;

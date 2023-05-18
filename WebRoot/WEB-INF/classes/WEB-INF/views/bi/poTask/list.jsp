@@ -359,10 +359,10 @@ function cancelTask(index) {
 								<a href="javascript:void(0);" class="auditBtn" onclick="submitTask(${sort.index})">提交</a>
 								<a href="javascript:void(0);" class="auditBtn" onclick="cancelTask(${sort.index})">取消任務</a>
 							</c:when>
-						    <c:when test="${fn:contains(role, 'CLASS')||fn:contains(role, 'T_MANAGER')}">
+						    <c:when test="${fn:contains(role, 'CLASS')||fn:contains(role, 'specialClass')||fn:contains(role, 'T_MANAGER')}">
 						    <a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index})">初审</a>
 						    </c:when>
-						    <c:when test="${fn:contains(role, 'MANAGER')||fn:contains(role, 'CPO')}">
+						    <c:when test="${fn:contains(role, 'MANAGER')||fn:contains(role, 'specialManager')||fn:contains(role, 'CPO')}">
 						    <a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})">终审</a>
 						    </c:when>
 						    <c:when test="${fn:contains(role, 'KEYUSER')}">

@@ -24,6 +24,8 @@ public class PoEmailLog extends ImprovedNamingStrategy implements Serializable {
 	private String id;
 	@Column(name = "email_title") //EMAIL_TITLE
 	private String emailTitle;
+	@Column(name = "email_year") //Email_year
+	private String emailYear;
 	@Column(name = "email_content") //EMAIL_CONTENT
 	private String emailContent;
 	@Column(name = "email_team") //EMAIL_TEAM
@@ -147,5 +149,13 @@ public class PoEmailLog extends ImprovedNamingStrategy implements Serializable {
 
 	public String getEndDate() {
 		return endDate;
+	}
+
+	public String getEmailYear() {
+		return emailYear;
+	}
+
+	public void setEmailYear(String emailYear) {
+		this.emailYear = emailYear;
 	}
 }

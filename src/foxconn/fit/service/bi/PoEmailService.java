@@ -40,7 +40,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
      * @param content
      * @return
      */
-    public AjaxResult sendEmail(AjaxResult ajaxResult, String emailGroup, String title, String content, List<MultipartFile> list, HttpServletRequest request,String endDate) throws IOException {
+    public AjaxResult sendEmail(AjaxResult ajaxResult, String emailGroup, String title,String year,String content, List<MultipartFile> list, HttpServletRequest request,String endDate) throws IOException {
         if(endDate.length()==9){
             endDate=endDate.substring(0,4)+"-0"+endDate.substring(5,9);
         }
@@ -55,7 +55,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         for (int i=0;i<emailUser.length;i++){
             emailUserVal+="'"+emailUser[i]+"',";
         }
-        String sqlC="select distinct EMAIL_ADDRESS from EPMODS.CUX_PO_EMAIL_GROUP where USER_NAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+")";
+        String sqlC="select distinct EMAIL from EPMODS.fit_user where EMAIL is not null and (REALNAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+") or USERNAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+"))";
         List<String> emailListC=poTableService.listBySql(sqlC);
         emailListC=emailListC.stream().distinct().collect(Collectors.toList());
         if(emailListC.size()==0){
@@ -84,12 +84,12 @@ public class PoEmailService extends BaseService<PoEmailLog> {
             }
             content=content.replace("\n","</br>");
             content=content.replace(" ","&nbsp;");
-            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!",fileList);
+            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!",fileList);
             if(isSend){
                 content=content.replace("</br>","\n");
                 content=content.replace("&nbsp;"," ");
-                String sql="insert into CUX_PO_EMAIL(CREATED_BY,CREATED_NAME,EMAIL_TITLE,EMAIL_CONTENT,EMAIL_TEAM,FILE_ADDRESS,FILE_NAME,END_DATE) values('"+user
-                        +"','"+userName.get(0)+"','"+title+"','"+content+"','"+emailGroup+"','"+Id+File.separator+"','"+fileName.substring(0,fileName.length()-2)+"','"+endDate+"')";
+                String sql="insert into CUX_PO_EMAIL(CREATED_BY,CREATED_NAME,EMAIL_TITLE,EMAIL_YEAR,EMAIL_CONTENT,EMAIL_TEAM,FILE_ADDRESS,FILE_NAME,END_DATE) values('"+user
+                        +"','"+userName.get(0)+"','"+title+"','"+year+"','"+content+"','"+emailGroup+"','"+Id+File.separator+"','"+fileName.substring(0,fileName.length()-2)+"','"+endDate+"')";
                 poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
             }else{
                 //获取存储路径文件夹
@@ -110,7 +110,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         }
         return ajaxResult;
     }
-    public AjaxResult sendEmail(AjaxResult ajaxResult, String emailGroup, String title, String content,String endDate){
+    public AjaxResult sendEmail(AjaxResult ajaxResult, String emailGroup, String title,String year, String content,String endDate){
         if(endDate.length()==9){
             endDate=endDate.substring(0,4)+"-0"+endDate.substring(5,9);
         }
@@ -125,7 +125,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         for (int i=0;i<emailUser.length;i++){
             emailUserVal+="'"+emailUser[i]+"',";
         }
-        String sqlC="select distinct EMAIL_ADDRESS from EPMODS.CUX_PO_EMAIL_GROUP where USER_NAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+")";
+        String sqlC="select distinct EMAIL from EPMODS.fit_user where EMAIL is not null and (REALNAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+") or USERNAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+"))";
         List<String> emailListC=poTableService.listBySql(sqlC);
         emailListC=emailListC.stream().distinct().collect(Collectors.toList());
         if(emailListC.size()==0){
@@ -135,11 +135,11 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         }else {
             content=content.replace("\n","</br>");
             content=content.replace(" ","&nbsp;");
-            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
             if(isSend){
                content=content.replaceAll("'","''");
-                String sql="insert into CUX_PO_EMAIL(CREATED_BY,CREATED_NAME,EMAIL_TITLE,EMAIL_CONTENT,EMAIL_TEAM,END_DATE) values('"+user
-                        +"','"+userName.get(0)+"','"+title+"','"+content+"','"+emailGroup+"','"+endDate+"')";
+                String sql="insert into CUX_PO_EMAIL(CREATED_BY,CREATED_NAME,EMAIL_TITLE,EMAIL_YEAR,EMAIL_CONTENT,EMAIL_TEAM,END_DATE) values('"+user
+                        +"','"+userName.get(0)+"','"+title+"','"+year+"','"+content+"','"+emailGroup+"','"+endDate+"')";
                 poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
             }else{
                 ajaxResult.put("flag", "fail");
@@ -160,7 +160,8 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         for (int i=0;i<list.size();i++) {
             List<String> listValue=new ArrayList<>();
             listValue.add(list.get(i));
-            listValue.addAll(poTableService.listBySql("select USER_NAME from CUX_PO_EMAIL_GROUP where USER_GROUP='"+list.get(i)+"'"));
+            listValue.addAll(poTableService.listBySql("select distinct decode(REALNAME,null,USERNAME,REALNAME) from fit_user u inner join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id inner join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id  \n" +
+                    "and r.name='"+list.get(i)+"'"));
             groupV.add(listValue);
         }
         return groupV;
@@ -176,7 +177,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
             list.add(file);
             List<String> emailListC=poTableService.listBySql(sqlC);
             emailListC=emailListC.stream().distinct().collect(Collectors.toList());
-            EmailUtil.emailsMany(emailListC,title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!",list);
+            EmailUtil.emailsMany(emailListC,title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!",list);
         }
     }
     //定时任务发送邮件提醒CC
@@ -197,6 +198,6 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         for (String e:emailListCC) {
             emailValCC+=e+",";
         }
-        EmailUtil.emailsManyCC(emailVal.substring(0,emailVal.length()-1),emailValCC.substring(0,emailValCC.length()-1),title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!",list);
+        EmailUtil.emailsManyCC(emailVal.substring(0,emailVal.length()-1),emailValCC.substring(0,emailValCC.length()-1),title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!",list);
     }
 }

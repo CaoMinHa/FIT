@@ -50,6 +50,7 @@ $("a[name='update']").click(function(){
 		success: function(data){
 			layer.alert(data.msg);
 			$("#loading").hide();
+			toUser();
 	    },
 		error: function() {
 			$("#loading").hide();
@@ -78,6 +79,7 @@ function updateAll(){
 		success: function(data){
 			layer.alert(data.msg);
 			$("#loading").hide();
+			toUser();
 		},
 		error: function() {
 			$("#loading").hide();
@@ -85,7 +87,12 @@ function updateAll(){
 		}
 	});
 }
-
+function toUser(){
+	var id = $("#tId").val();
+	var role = $("#roleCode").val();
+	var statusType = $("#statusType").val();
+	$("#Content").load("${ctx}/bi/poTask/audit",{pageNo:"1",pageSize:"15",id:id,statusType:statusType,role:role},function(){$("#loading").fadeOut(1000);});
+}
 $(function () {
 	$("#taskDetails tbody").find("tr").each(function(){
 		var val=$(this).children('td:eq(2)').text();
@@ -486,6 +493,23 @@ function fileClick(e,val) {
 		});
 	}
 }
+
+function calculateCpo(m,e) {
+	var cd=$(m).val().replaceAll(",","");
+	if(Number(cd)==0){
+		return;
+	}
+	var tr=$(m).parent("td").parent("tr");
+	if(e=="Y"){
+		var r=tr.children('td').eq(7).text().replaceAll(",","");
+		r=Number(cd)/(Number(cd)+Number(r))*100;
+		tr.children('td').eq(10).children('input').val(r);
+	}else{
+		var r=tr.children('td').eq(3).text().replaceAll(",","");
+		r=Number(cd)/(Number(cd)+Number(r))*100;
+		tr.children('td').eq(6).children('input').val(r);
+	}
+}
 </script>
 </head>
 <body>
@@ -605,8 +629,14 @@ function fileClick(e,val) {
 							<c:when test="${status.index eq 0}">
 								<td style="white-space: nowrap;display:none;"><input name="ID" type="text" style="display:none;" value="${mapping[i]}"/></td>
 							</c:when>
+							<c:when test="${status.index==4 && mapping[2] != null}">
+								<td style="white-space: nowrap;"><input onBlur="calculateCpo(this,'N')" type="text" style="text-align: right;height:25px !important;width:100px;line-height: 15px !important;" value="${mapping[i]}"/></td>
+							</c:when>
 							<c:when test="${status.index==6 && mapping[2] != null}">
 								<td style="white-space: nowrap;"><input name="NO_CPO" type="text" style="text-align: right;height:25px !important;width:100px;line-height: 15px !important;" value="${mapping[i]}"/></td>
+							</c:when>
+							<c:when test="${status.index==8 && mapping[2] != null}">
+								<td style="white-space: nowrap;"><input onBlur="calculateCpo(this,'Y')" type="text" style="text-align: right;height:25px !important;width:100px;line-height: 15px !important;" value="${mapping[i]}"/></td>
 							</c:when>
 							<c:when test="${status.index==10 && mapping[2] != null}">
 								<td style="white-space: nowrap;"><input name="CPO" type="text" style="text-align: right;height:25px !important;width:100px;line-height: 15px !important;" value="${mapping[i]}"/></td>

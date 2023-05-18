@@ -127,6 +127,13 @@ public class PoTaskService extends BaseService<PoTask> {
                     " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                     " WHERE  r.code='CLASS' and u.type='BI'  and u.email is not null and instr(','||u.COMMODITY_MAJOR||',', (select ','||COMMODITY_MAJOR||',' from FIT_PO_TASK" +
                     " WHERE id='"+taskId+"')) > 0";
+            if(roleCode.equalsIgnoreCase("specialSourcer")){
+                sql = " select distinct u.email from  fit_user u \n" +
+                        " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+                        " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+                        " WHERE  r.code='"+replaceRole(roleCode,"1")+"' and u.type='BI'  and u.email is not null and instr(','||u.sbu||',', (select ','||COMMODITY_MAJOR||',' from FIT_PO_TASK" +
+                        " WHERE id='"+taskId+"')) > 0";
+            }
             List<String> classMaps = roRoleService.listBySql(sql);
             if (classMaps.size() == 0) {
                 sql = " select distinct u.email from  fit_user u \n" +
@@ -134,6 +141,13 @@ public class PoTaskService extends BaseService<PoTask> {
                         " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                         " WHERE  r.code='MANAGER' and u.type='BI'  and u.email is not null and instr(','||u.COMMODITY_MAJOR||',', " +
                         "(select ','||COMMODITY_MAJOR||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
+                if(roleCode.equalsIgnoreCase("specialSourcer")){
+                    sql = " select distinct u.email from  fit_user u \n" +
+                            " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+                            " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+                            " WHERE  r.code='specialManager' and u.type='BI'  and u.email is not null and instr(','||u.sbu||',', (select ','||COMMODITY_MAJOR||',' from FIT_PO_TASK" +
+                            " WHERE id='"+taskId+"')) > 0";
+                }
                 List<String> managers = roRoleService.listBySql(sql);
                 flag="2";
                 step="1";
@@ -176,7 +190,7 @@ public class PoTaskService extends BaseService<PoTask> {
             for (String e:emailList) {
                 emailVal=emailVal+e+",";
             }
-            Boolean isSend = EmailUtil.emailCC(emailVal.substring(0,emailVal.length()-1),loginUser.getEmail(), title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailCC(emailVal.substring(0,emailVal.length()-1),loginUser.getEmail(), title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
             if(isSend){
                 uploadTaskFlag(taskId,flag,type,remark,step,"T");
             }else{
@@ -194,7 +208,7 @@ public class PoTaskService extends BaseService<PoTask> {
      * @param taskId
      * @return
      */
-    public  AjaxResult checkCDObjectiveSummaryStatus(AjaxResult ajaxResult,String taskId) throws Exception {
+    public  AjaxResult checkCDObjectiveSummaryStatus(AjaxResult ajaxResult,String taskId){
         String sql="select * from FIT_PO_CD_MONTH_DOWN where TASK_ID='"+taskId+"'";
         List<PoCdMonthDown> list=poTableService.listBySql(sql,PoCdMonthDown.class);
         for(int i=0;i<list.size();i++){
@@ -233,7 +247,6 @@ public class PoTaskService extends BaseService<PoTask> {
         List<String> taskList = roRoleService.listBySql(taskName);
         String[] task= taskList.get(0).split("_");
         String title=task[1]+"_"+task[0]+"採購BI平臺簽核通知，請勿回復";
-
         String sql = "";
         String msg="";
         String flag="2";
@@ -254,6 +267,13 @@ public class PoTaskService extends BaseService<PoTask> {
                             " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                             " WHERE  r.code='MANAGER' and u.type='BI' and u.email is not null and instr(','||u.COMMODITY_MAJOR||',', " +
                             "(select ','||COMMODITY_MAJOR||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
+                    if(roleCode.equalsIgnoreCase("specialClass")){
+                        sql = " select distinct u.email from  fit_user u \n" +
+                                " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+                                " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+                                " WHERE  r.code='"+replaceRole(roleCode,"1")+"' and u.type='BI'  and u.email is not null and instr(','||u.sbu||',', " +
+                                "(select ','||COMMODITY_MAJOR||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
+                    }
                     msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD核准任務請審核!";
                 }
                 List<String> managers = roRoleService.listBySql(sql);
@@ -332,7 +352,7 @@ public class PoTaskService extends BaseService<PoTask> {
             for (String e:emailList) {
                 emailVal=emailVal+e+",";
             }
-            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
             if(isSend){
                 uploadTaskFlag(taskId,flag,type,reamrk,"","C");
             }else{
@@ -401,7 +421,7 @@ public class PoTaskService extends BaseService<PoTask> {
             for (String e:emailList) {
                 emailVal=emailVal+e+",";
             }
-            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
             if(isSend){
                 uploadTaskFlag(taskId,flag,type,reamrk,"","E");
             }else{
@@ -469,16 +489,16 @@ public class PoTaskService extends BaseService<PoTask> {
                     for (String e:emailListC) {
                         email=email+e+",";
                     }
-                    isSend = EmailUtil.emailCC(email,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+                    isSend = EmailUtil.emailCC(email,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
                 }else {
-                    isSend=EmailUtil.emailsMany(emailListC,title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+                    isSend=EmailUtil.emailsMany(emailListC,title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
                 }
                 if(isSend){
                     if("0".equals(status)){
                         uploadTaskFlag(taskId,"3",type,reamrk,"","Z");
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(type)) {
                             String sql = "select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id \n" +
-                                    "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','ADMIN','PLACECLASS1','MANAGER','PLACECLASS','T_MANAGER','TDC')  and COMMODITY_MAJOR is not null";
+                                    "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','specialClass','ADMIN','PLACECLASS1','MANAGER','specialManager','PLACECLASS','T_MANAGER','TDC')  and COMMODITY_MAJOR is not null";
                             List<String> emailList = roRoleService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
                             List<Map> maps = poFlowDao.listMapBySql("select * from(select REMARK from FIT_PO_TASK_LOG where TASK_NAME='"+taskList.get(0).get("NAME").toString()+"' and FLAG='-3' order by CREATE_TIME desc) where rownum=1 ");
@@ -487,7 +507,7 @@ public class PoTaskService extends BaseService<PoTask> {
                             }else {
                                 msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "已經完成" + task[0] + "_" + task[1] + "年度SBU CD目標數據，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
                             }
-                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0] + "_" + task[1] + " SBU年度VOC", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0] + "_" + task[1] + " SBU年度VOC", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
                             if (!isSends) {
                                 ajaxResult.put("flag", "fail");
                                 ajaxResult.put("msg", "審核通過郵件通知發送失敗 (Failed to send the audit notification by email)");
@@ -495,11 +515,11 @@ public class PoTaskService extends BaseService<PoTask> {
                             }
                         }else if ("FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(type)){
                             String sql = "select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id \n" +
-                                    "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','PLACECLASS1','PLACECLASS','T_MANAGER','TDC','ADMIN','MANAGER') ";
+                                    "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','specialClass','PLACECLASS1','PLACECLASS','T_MANAGER','TDC','ADMIN','MANAGER','specialManager') ";
                             List<String> emailList = roRoleService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
                             msg="尊敬的主管:</br> &nbsp;&nbsp;"+taskList.get(0).get("NAME").toString()+"已呈核准, 請知悉并在 BI 接口平臺并上傳By月目標, 以及具體AR的開展。";
-                            Boolean isSends = EmailUtil.emailsMany(emailList,task[0]+"年"+task[1]+"簽核通知，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+                            Boolean isSends = EmailUtil.emailsMany(emailList,task[0]+"年"+task[1]+"簽核通知，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
                             if(!isSends){
                                 ajaxResult.put("flag", "fail");
                                 ajaxResult.put("msg", "審核通過郵件通知發送失敗 (Failed to send the audit notification by email)");
@@ -600,7 +620,7 @@ public class PoTaskService extends BaseService<PoTask> {
                 ajaxResult.put("msg", "請聯係管理員維護對應崗位的郵箱(Task Type Fail)");
                 return ajaxResult;
             }else {
-                Boolean isSend = EmailUtil.emailsMany(emailListC, taskList.get(0).get("NAME").toString()+"採購BI平臺簽核通知，請勿回復","亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+id+"&statusType=0&roleCode="+replaceRole("",id)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+                Boolean isSend = EmailUtil.emailsMany(emailListC, taskList.get(0).get("NAME").toString()+"採購BI平臺簽核通知，請勿回復","亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+id+"&statusType=0&roleCode="+replaceRole("",id)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
                 if(!isSend){
                     ajaxResult.put("flag", "fail");
                     ajaxResult.put("msg", "郵件發送失敗 (Task Type Fail)");
@@ -608,11 +628,11 @@ public class PoTaskService extends BaseService<PoTask> {
                 }else {
                     if ("FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(type)) {
                         String userList = "select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id \n" +
-                                "and u.type='BI'and EMAIL is not null and r.code in ('PLACECLASS1','PLACECLASS','T_MANAGER','TDC','ADMIN','MANAGER') ";
+                                "and u.type='BI'and EMAIL is not null and r.code in ('PLACECLASS1','PLACECLASS','T_MANAGER','TDC','ADMIN','MANAGER','specialManager') ";
                         List<String> emailList = roRoleService.listBySql(userList);
                         emailList = emailList.stream().distinct().collect(Collectors.toList());
                         String msg = "尊敬的主管:</br> &nbsp;&nbsp;" + task[0]+"年"+ "SBU年度CD目標有更新, 需重新呈核, 請及時關注目標變更！";
-                        Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"年"+task[1] + "簽核通知，請勿回復", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!");
+                        Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"年"+task[1] + "簽核通知，請勿回復", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
                         if (!isSends) {
                             ajaxResult.put("flag", "fail");
                             ajaxResult.put("msg", "審核驳回郵件通知發送失敗 (Failed to send the audit notification by email)");
@@ -718,8 +738,14 @@ public class PoTaskService extends BaseService<PoTask> {
                 case "SOURCER":
                     roleCode = "CLASS";
                     break;
+                case "specialSourcer":
+                    roleCode = "specialClass";
+                    break;
                 case "CLASS":
                     roleCode = "MANAGER";
+                    break;
+                case "specialClass":
+                    roleCode = "specialManager";
                     break;
                 default:
                     roleCode = "";

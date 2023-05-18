@@ -88,7 +88,7 @@ public class RgpIntegrationService extends BaseService<PoTable> {
         if("CUX_RGP_SCRAPS_APPORTION".equalsIgnoreCase(poTable.getTableName()) || "IF_EBS_AR_REVENUE_DTL_SCRAP".equalsIgnoreCase(poTable.getTableName())){
             sql+=" and sbu in("+selectSBU()+")";
         }else{
-            sql+=" and BM_SBU in("+this.selectBMSBU()+")";
+            sql+=" and BM_SBU in("+this.selectPlUnit()+")";
         }
        return sql;
     }
@@ -114,7 +114,7 @@ public class RgpIntegrationService extends BaseService<PoTable> {
         }
         sbuSql+=p.substring(0,p.length()-1)+")";
         bmSbu= instrumentClassService.removeDuplicate(bmSbu);
-        String bmsbus=this.selectBMSBU();
+        String bmsbus=this.selectPlUnit();
         List<String> partNoCount= instrumentClassService.removeDuplicate(this.listBySql(sbuSql));
         String val="";
         for (int i=0;i<bmSbu.size();i++) {
@@ -127,8 +127,8 @@ public class RgpIntegrationService extends BaseService<PoTable> {
             msg.add("("+ instrumentClassService.getDiffrent(partNo,partNoCount)+")Item number is invalid in EBS.");
             return msg;
         } else if(null!=val&&!val.equals("")){
-            msg.add("("+val.substring(0,val.length()-1)+")SBU沒有權限，請維護。");
-            msg.add("("+val.substring(0,val.length()-1)+")SBU do not have permission,Please maintain.");
+            msg.add("("+val.substring(0,val.length()-1)+")損益單位沒有上傳權限，請聯係管理員維護對應的SBU權限。");
+            msg.add("("+val.substring(0,val.length()-1)+")PL Unit do not have permission,Please maintain.");
             return msg;
         }
         msg.add("成功");
@@ -184,6 +184,19 @@ public class RgpIntegrationService extends BaseService<PoTable> {
         }
     }
 
+    //根据SBU匹配到損益單位
+    public String selectPlUnit(){
+        String sbu =this.selectSBU();
+        String userSql="select distinct PL_UNIT_CODE from epmexp.cux_pbcs_fit_mapping where PL_UNIT_CODE is not null and SBU in("+sbu+")";
+        List<String> userSBU=this.listBySql(userSql);
+        if(null==userSBU||userSBU.size()<1){
+            return "'1'";
+        }else{
+            sbu= JSONObject.toJSONString(JSONArray.fromObject(userSBU)).replace('\"','\'');
+            return sbu.substring(1,sbu.length()-1);
+        }
+    }
+
     //获取用户配置的SBU权限
     public String selectSBU(){
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
@@ -216,7 +229,7 @@ public class RgpIntegrationService extends BaseService<PoTable> {
         if("CUX_RGP_SCRAPS_APPORTION".equalsIgnoreCase(tableNames) || "IF_EBS_AR_REVENUE_DTL_SCRAP".equalsIgnoreCase(tableNames)){
             special+=" and sbu in("+selectSBU()+")";
         }else{
-            special+=" and BM_SBU in("+this.selectBMSBU()+")";
+            special+=" and BM_SBU in("+this.selectPlUnit()+")";
         }
         //表头字样
         XSSFCellStyle titleStyle = workBook.createCellStyle();

@@ -47,7 +47,7 @@ public class PoTaskListController extends BaseController {
             String roleSql="select distinct r.code,r.grade,r.name  from  fit_user u \n" +
                     " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                     " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
-                    " WHERE  u.username="+"'"+userName+"'"+" order by r.grade";
+                    " WHERE  u.username="+"'"+userName+"' and r.type='PO' order by r.grade";
             List<Map> roleList = userService.listMapBySql(roleSql);
             pageRequest.setOrderBy("serial");
             pageRequest.setOrderDir("asc");

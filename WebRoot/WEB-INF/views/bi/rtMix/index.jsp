@@ -109,38 +109,7 @@ $(function() {
 		   	}
 		});
 	});
-	
-	$("#Refresh").click(function(){
-		$("#UploadTip").hide();
-		$("#MasterDataTip").hide();
-		var masterData=$("#MasterData").val();
-		if(!masterData){
-			$("#MasterDataTip").show();
-			return;
-		}
-		$("#loading").show();
-		$.ajax({
-			type:"POST",
-			url:"${ctx}/bi/rtMix/refresh",
-			async:true,
-			dataType:"json",
-			data:{masterData:masterData},
-			success: function(data){
-				$("#loading").hide();
-				console.log(data)
-				layer.alert(data.msg);
 
-				if(data.flag=="success"){
-					$("#Query").trigger("click");
-				}
-		   	},
-		   	error: function(XMLHttpRequest, textStatus, errorThrown) {
-		   		$("#loading").hide();
-		   		window.location.href="${ctx}/logout";
-		   	}
-		});
-	});
-	
 	$("#MasterData").change(function(){
 		$("#insertFrom input").val("");
 		$("#insertFrom").empty();
@@ -228,7 +197,7 @@ $(function() {
 					    	</div>
 							<div style="float: left;margin:0 10px 0 20px;">
 							    <div>
-							    	<select id="MasterData" name="masterData" class="input-xlarge" style="width:120px;color:#9f9a9a;font-weight:bold;">
+							    	<select id="MasterData" name="masterData" class="input-xlarge" style="width:200px;color:#9f9a9a;font-weight:bold;">
 										<option value="" style="color:#9f9a9a;font-weight:bold;"><spring:message code='rtMix'/></option>
 										<c:forEach items="${supplierList }" var="supplier">
 											<option value="${fn:split(supplier,'|')[0]}">${fn:split(supplier,'|')[1]}</option>
@@ -240,7 +209,6 @@ $(function() {
 								</div>
 					    	</div>
 							<div style="float:left;text-align: center;margin-bottom:30px;">
-								<button id="Refresh" style="margin:0 10px;" class="btn search-btn" type="button"><spring:message code='refresh'/></button>
 								<button id="FileUpload" style="margin:0 10px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 								<button id="Download" style="margin:0 10px;" class="btn search-btn" type="button"><spring:message code='download'/></button>
 							</div>

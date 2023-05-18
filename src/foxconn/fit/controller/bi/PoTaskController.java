@@ -56,14 +56,14 @@ public class PoTaskController extends BaseController {
 
 
     @RequestMapping(value = "index")
-    public String index(PageRequest pageRequest, Model model, HttpServletRequest request) {
+    public String index(PageRequest pageRequest, Model model) {
         try {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String userName=loginUser.getUsername();
             String roleSql="select distinct r.code,r.grade,r.name  from  fit_user u \n" +
                     " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                     " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
-                    " WHERE  u.username="+"'"+userName+"'"+" order by r.grade";
+                    " WHERE  u.username="+"'"+userName+"' and r.type='PO' order by r.grade";
             List<Map> roleList = userService.listMapBySql(roleSql);
             pageRequest.setOrderBy("serial");
             pageRequest.setOrderDir("asc");
@@ -78,7 +78,7 @@ public class PoTaskController extends BaseController {
     }
     @RequestMapping(value="/list")
     @Log(name = "採購任務-->查看列表")
-    public String list(Model model, PageRequest pageRequest,HttpServletRequest request,@Log(name = "任務名稱") String name,
+    public String list(Model model, PageRequest pageRequest,@Log(name = "任務名稱") String name,
                        @Log(name = "任務類型") String type,@Log(name = "任務時間") String date,@Log(name = "用戶角色") String roleCode) {
         try {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
@@ -110,7 +110,7 @@ public class PoTaskController extends BaseController {
             if("KEYUSER".equalsIgnoreCase(roleCode)){
                 sql="select  ID , TYPE ,NAME, FLAG ,remark,CREATE_USER_REAL, create_time, " +
                         " UPDATE_USER_REAL, UPDTAE_TIME from FIT_PO_TASK WHERE flag not in('-1','-3') ";
-            }else if("SOURCER".equalsIgnoreCase(roleCode)){
+            }else if("SOURCER".equalsIgnoreCase(roleCode)||"specialSourcer".equalsIgnoreCase(roleCode)){
                 sql+=" and CREATE_USER="+"'"+userName+"' and Type in ('FIT_PO_BUDGET_CD_DTL','FIT_ACTUAL_PO_NPRICECD_DTL','FIT_PO_CD_MONTH_DTL') ";
                 roleCode="BASE";
             }else if("MM".equalsIgnoreCase(roleCode)){
@@ -123,8 +123,12 @@ public class PoTaskController extends BaseController {
                 sql+= "  and type='FIT_PO_SBU_YEAR_CD_SUM' and instr(',"+sbu+",',','||SBU||',')>0 and (flag='1' or AUDIT_ONE='"+userName+"' )";
             }else if("CLASS".equalsIgnoreCase(roleCode)){
                 sql+= " and instr(',"+commodityMajor+",',','||COMMODITY_MAJOR||',')>0 and (flag='1' or AUDIT_ONE='"+userName+"') ";
+            }else if("specialClass".equalsIgnoreCase(roleCode)){
+                sql+= " and instr(',"+sbu+",',','||COMMODITY_MAJOR||',')>0 and (flag='1' or AUDIT_ONE='"+userName+"') ";
             }else if("MANAGER".equalsIgnoreCase(roleCode)){
                 sql+= " and instr(',"+commodityMajor+",',','||COMMODITY_MAJOR||',')>0 and (flag='2' or AUDIT_TWO='"+userName+"') ";
+            }else if("specialManager".equalsIgnoreCase(roleCode)){
+                sql+= " and instr(',"+sbu+",',','||COMMODITY_MAJOR||',')>0 and (flag='2' or AUDIT_TWO='"+userName+"') ";
             }else if("T_MANAGER".equalsIgnoreCase(roleCode)){
                 sql+= " and type='FIT_PO_Target_CPO_CD_DTL' and (flag='1' or AUDIT_CPO='"+userName+"') ";
             }else if("PLACECLASS".equalsIgnoreCase(roleCode)){
@@ -172,7 +176,7 @@ public class PoTaskController extends BaseController {
     @ResponseBody
     @Transactional
     @Log(name = "採購任務-->新增SBU年度CD目標核准表任務")
-    public String addRole(AjaxResult ajaxResult, HttpServletRequest request,@Log(name = "年份") String year) {
+    public String addRole(AjaxResult ajaxResult,@Log(name = "年份") String year) {
         try {
             ajaxResult=poTaskService.addCpoTask(ajaxResult,year);
         } catch (Exception e) {
@@ -212,11 +216,11 @@ public class PoTaskController extends BaseController {
                 model.addAttribute("taskName", maps.get(0).get("NAME").toString());
                 //根据角色判断当前明细所在那个节点
                 if(null!= role){
-                    if( "TDC".equalsIgnoreCase(role) || "BASE".equalsIgnoreCase(role)|| "SOURCER".equalsIgnoreCase(role)||"MM".equalsIgnoreCase(role)){
+                    if( "TDC".equalsIgnoreCase(role) || "BASE".equalsIgnoreCase(role)|| "SOURCER".equalsIgnoreCase(role)||"specialSourcer".equalsIgnoreCase(role)||"MM".equalsIgnoreCase(role)){
                         model.addAttribute("user", "N");
-                    }else if("CLASS".equalsIgnoreCase(role) || "T_MANAGER".equalsIgnoreCase(role)||"PD".equalsIgnoreCase(role)){
+                    }else if("CLASS".equalsIgnoreCase(role) ||"specialClass".equalsIgnoreCase(role)|| "T_MANAGER".equalsIgnoreCase(role)||"PD".equalsIgnoreCase(role)){
                         model.addAttribute("user", "C");
-                    }else if("CPO".equalsIgnoreCase(role) || "MANAGER".equalsIgnoreCase(role)){
+                    }else if("CPO".equalsIgnoreCase(role) || "MANAGER".equalsIgnoreCase(role)||"specialManager".equalsIgnoreCase(role)){
                         model.addAttribute("user", "Z");
                     }else if("KEYUSER".equalsIgnoreCase(role)){
                         model.addAttribute("user", "K");
@@ -386,8 +390,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/submitTask")
     @ResponseBody
     @Log(name = "採購任務-->提交")
-    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID")String id,String taskType,
-                             @Log(name="審批意見")String remark,String roleCode) {
+    public String submitTask(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String roleCode) {
         try {
             ajaxResult=poTaskService.submit(ajaxResult,taskType,id,roleCode,remark);
         } catch (Exception e) {
@@ -404,7 +407,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/submitOneAudit")
     @ResponseBody
     @Log(name = "採購任務-->初審")
-    public String submitOneAudit(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID") String id,String taskType,
+    public String submitOneAudit(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,
                                  @Log(name="審批意見")String remark,String status,String roleCode) {
         try {
             ajaxResult=poTaskService.submitOne(ajaxResult,taskType,id,status,remark,roleCode);
@@ -423,8 +426,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/CPOAudit")
     @ResponseBody
     @Log(name = "採購任務-->CPO目標核准初審")
-    public String CPOAudit(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID") String id,String taskType,
-                                 @Log(name="審批意見")String remark,String status,String roleCode) {
+    public String CPOAudit(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,@Log(name="審批意見") String remark,String status,String roleCode) {
         try {
             ajaxResult=poTaskService.CPOAudit(ajaxResult,taskType,id,status,remark,roleCode);
         } catch (Exception e) {
@@ -441,8 +443,7 @@ public class PoTaskController extends BaseController {
     @Log(name = "採購任務-->終審")
     @RequestMapping(value="/submitAudit")
     @ResponseBody
-    public String submitEndAudit(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="任務ID")String id,String taskType,
-                                 @Log(name="審批意見")String remark,String status) {
+    public String submitEndAudit(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String status) {
         try {
             ajaxResult=poTaskService.submitEnd(ajaxResult,taskType,id,status,remark);
         } catch (Exception e) {
@@ -459,7 +460,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/cancelAudit")
     @ResponseBody
     @Log(name = "採購任務-->管理員取消審批任務")
-    public String cancelAudit(AjaxResult ajaxResult, HttpServletRequest request,String id,String taskType,String remark) {
+    public String cancelAudit(AjaxResult ajaxResult,String id,String taskType,String remark) {
         try {
             ajaxResult=poTaskService.cancelAudit(ajaxResult,taskType,id,remark);
         } catch (Exception e) {
@@ -476,7 +477,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/cancelTask")
     @ResponseBody
     @Log(name = "採購任務-->提交人取消審批任務")
-    public String cancelTask(AjaxResult ajaxResult, HttpServletRequest request,String id) {
+    public String cancelTask(AjaxResult ajaxResult,String id) {
         try {
             ajaxResult=poTaskService.cancelTask(ajaxResult,id);
         } catch (Exception e) {
@@ -493,8 +494,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value = "deleteUrl")
     @ResponseBody
     @Log(name = "採購任務-->刪除任務附檔")
-    public String deleteUrl(HttpServletRequest request, HttpServletResponse response,
-                            AjaxResult result,@Log(name = "附檔ID") String fileId){
+    public String deleteUrl(HttpServletRequest request,AjaxResult result,@Log(name = "附檔ID") String fileId){
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "刪除成功", "Delete success"));
         try {
@@ -524,8 +524,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value = "upload")
     @ResponseBody
     @Log(name = "採購任務-->上传任务附档")
-    public String upload(HttpServletRequest request, HttpServletResponse response,
-                         AjaxResult result,@Log(name="任務ID") String taskId) {
+    public String upload(HttpServletRequest request,AjaxResult result,@Log(name="任務ID") String taskId) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
         File localFile = null;

@@ -39,9 +39,10 @@
             $("#QueryBtn").click(function(){
                 $("#QDateTip").hide();
                 var date=$("#QDate").val();
-                if(date.length!=4){
-                   layer.alert("請輸入正確年份！(please enter a proper year)");
-                   return;
+                var r = /^\+?[1-9][0-9]*$/;
+                if (date.length != 4 || !r.test(date)) {
+                    layer.alert("請填寫正確的年份(Please fill in the correct year)");
+                    return;
                 }
                 $("#PageNo").val(1);
                 $("#loading").show();

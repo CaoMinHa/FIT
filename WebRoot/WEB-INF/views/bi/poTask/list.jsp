@@ -81,6 +81,7 @@ function toUser(index){
 	var statusType = document.getElementsByName("statusType")[index].value;
 	var role = document.getElementsByName("role")[index].value;
 	$("ul input,select").hide();
+	$("#flag").show();
 	$("#Query").hide();
 	$("#audit").show();
 	$("#loading").show();
@@ -432,7 +433,7 @@ function cancelTask(index) {
 								<a href="javascript:void(0);" class="auditBtn auditBtn${mapping[3]}" onclick="cancelTask(${sort.index})">取消任務</a>
 								</c:if>
 							</c:when>
-						    <c:when test="${mapping[3] eq '1' && role eq 'CLASS' || mapping[3] eq '1' && role eq 'PD'}">
+						    <c:when test="${mapping[3] eq '1' && role eq 'CLASS' ||mapping[3] eq '1' && role eq 'specialClass' || mapping[3] eq '1' && role eq 'PD'}">
 						    <a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index},'初審','submitOneAudit')">
 								<spring:message code='praeiudicium'/>
 							</a>
@@ -445,7 +446,7 @@ function cancelTask(index) {
 						<c:when test="${mapping[3] eq '10' && role eq 'PLACECLASS'}">
 						<a href="javascript:void(0);" class="auditBtn" onclick="submitOneAudit(${sort.index},'審核','submitOneAudit')">審核</a>
 						</c:when>
-						    <c:when test="${mapping[3] eq '2' && role eq 'MANAGER' || mapping[3] eq '2' && role eq 'CPO'}">
+						    <c:when test="${mapping[3] eq '2' && role eq 'specialManager' || mapping[3] eq '2' && role eq 'MANAGER' || mapping[3] eq '2' && role eq 'CPO'}">
 						    <a href="javascript:void(0);" class="auditBtn" onclick="submitAudit(${sort.index})">終審</a>
 						    </c:when>
 						    <c:when test="${role eq 'KEYUSER'}">

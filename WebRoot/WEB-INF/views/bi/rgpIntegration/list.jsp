@@ -90,7 +90,7 @@
             <c:when test="${fn:length(columns) gt 30}">style="width:500%;" </c:when>
             <c:when test="${fn:length(columns) gt 25}">style="width:400%;" </c:when>
             <c:when test="${fn:length(columns) gt 20}">style="width:300%;" </c:when>
-            <c:otherwise>style="width:200%;"</c:otherwise>
+            <c:otherwise>style="width:100%;"</c:otherwise>
         </c:choose>>
     <table class="table table-condensed table-hover">
         <thead>

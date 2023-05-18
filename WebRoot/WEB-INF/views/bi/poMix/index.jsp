@@ -107,37 +107,6 @@ $(function() {
 		});
 	});
 	
-	$("#Refresh").click(function(){
-		$("#UploadTip").hide();
-		$("#MasterDataTip").hide();
-		var masterData=$("#MasterData").val();
-		if(!masterData){
-			$("#MasterDataTip").show();
-			return;
-		}
-		$("#loading").show();
-		$.ajax({
-			type:"POST",
-			url:"${ctx}/bi/poMix/refresh",
-			async:true,
-			dataType:"json",
-			data:{masterData:masterData},
-			success: function(data){
-				$("#loading").hide();
-				console.log(data)
-				layer.alert(data.msg);
-
-				if(data.flag=="success"){
-					$("#Query").trigger("click");
-				}
-		   	},
-		   	error: function(XMLHttpRequest, textStatus, errorThrown) {
-		   		$("#loading").hide();
-		   		window.location.href="${ctx}/logout";
-		   	}
-		});
-	});
-	
 	$("#MasterData").change(function(){
 		$("#QueryCondition").empty();
 		$("#Content").empty();
@@ -232,7 +201,6 @@ $(function() {
 								</div>
 					    	</div>
 							<div style="float:left;text-align: center;margin-bottom:30px;">
-								<button id="Refresh" style="margin:0 10px;" class="btn search-btn" type="button"><spring:message code='refresh'/></button>
 								<button id="FileUpload" style="margin:0 10px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 								<button id="Download" style="margin:0 10px;" class="btn search-btn" type="button"><spring:message code='download'/></button>
 							</div>

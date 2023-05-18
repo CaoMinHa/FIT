@@ -34,9 +34,9 @@ public class PoEmailController extends BaseController {
     private PoTableService poTableService;
 
     @RequestMapping(value = "index")
-    public String index(Model model, HttpServletRequest request) {
+    public String index(Model model) {
         try {
-            List<String> list=poTableService.listBySql("select distinct user_group from CUX_PO_EMAIL_GROUP order by user_group");
+            List<String> list=poTableService.listBySql("select distinct name from FIT_PO_AUDIT_ROLE where code in('PLACECLASS1','MANAGER','specialManager','PD','PLACECLASS','T_MANAGER','TDC','CPO','MM','SBUCompetent') order by name");
             List<List<String>> listGroup=poEmailService.selectGroup(list);
             model.addAttribute("EmailUserTeam",list);
             model.addAttribute("listGroup",listGroup);
@@ -50,10 +50,10 @@ public class PoEmailController extends BaseController {
     @RequestMapping(value="/sendEmail")
     @ResponseBody
     @Log(name = "SBU VOC 收集")
-    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="郵箱信息")String emailGroup,@Log(name="郵件主題")String title,@Log(name="郵件内容")String content,String type,@Log(name="截止時間")String endDate) {
+    public String submitTask(AjaxResult ajaxResult, HttpServletRequest request,@Log(name="郵箱信息")String emailGroup,@Log(name="郵件主題")String title,@Log(name="VOC 年份")String year,@Log(name="郵件内容")String content,String type,@Log(name="截止時間")String endDate) {
         try {
             if(type.equalsIgnoreCase("1")){
-                ajaxResult=poEmailService.sendEmail(ajaxResult,emailGroup,title,content,endDate);
+                ajaxResult=poEmailService.sendEmail(ajaxResult,emailGroup,title,year,content,endDate);
             }else {
                 Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
                 ajaxResult.put("msg", getLanguage(locale, "發送成功！", "Send success"));
@@ -74,7 +74,7 @@ public class PoEmailController extends BaseController {
                     }
 
                     if (list != null && list.size() > 0) {
-                        ajaxResult = poEmailService.sendEmail(ajaxResult, emailGroup, title, content, list,request,endDate);
+                        ajaxResult = poEmailService.sendEmail(ajaxResult, emailGroup, title, year,content, list,request,endDate);
                     }
                 }
             }
