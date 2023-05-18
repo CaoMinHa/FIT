@@ -3,7 +3,6 @@ package foxconn.fit.controller.bi;
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.service.base.MasterDataService;
 import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.service.bi.MappingDataService;
 import foxconn.fit.util.ExcelUtil;
@@ -41,21 +40,19 @@ import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/bi/poMix")
 @SuppressWarnings("unchecked")
 public class PoMappingController extends BaseController{
 	@Autowired
-	private MasterDataService masterDataService;
-	@Autowired
 	private MappingDataService mappingDataService;
-
 	@RequestMapping(value = "index")
 	public String index(HttpServletRequest request, Model model) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String language=getLanguage(locale,"CN","EN");
-		List<String> supplierList = masterDataService.listBySql("select t.lov_code||','||t.tab_name||'|'||t.lov_desc from CUX_MD_LOV_VALUES t where t.lov_type='PO_CATEGORY' and t.enabled_flag='Y' and t.language='"+language+"' ORDER BY to_number(COL_SEQ)");
+		List<String> supplierList = mappingDataService.listBySql("select t.lov_code||','||t.tab_name||'|'||t.lov_desc from CUX_MD_LOV_VALUES t where t.lov_type='PO_CATEGORY' and t.enabled_flag='Y' and t.language='"+language+"' ORDER BY to_number(COL_SEQ)");
 		model.addAttribute("supplierList", supplierList);
 		return "/bi/poMix/index";
 	}
@@ -68,7 +65,7 @@ public class PoMappingController extends BaseController{
 			Assert.hasText(masterData, getLanguage(locale,"採購映射表不能为空","Master data can not be null"));
 			String masterType=masterData.split(",")[0];
 			String language=getLanguage(locale,"CN","EN");
-			List<List<String>> queryList = masterDataService.listBySql("SELECT COL_NAME,COL_DESC FROM CUX_PO_MAP_DATA_COLS WHERE CATEGORY = '"+masterType+"' AND LANGUAGE = '"+language+"' AND IS_QUERY = 'Y' AND ENABLED_FLAG = 'Y' ORDER BY to_number(COL_SEQ)");
+			List<List<String>> queryList = mappingDataService.listBySql("SELECT COL_NAME,COL_DESC FROM CUX_PO_MAP_DATA_COLS WHERE CATEGORY = '"+masterType+"' AND LANGUAGE = '"+language+"' AND IS_QUERY = 'Y' AND ENABLED_FLAG = 'Y' ORDER BY to_number(COL_SEQ)");
 			result.put("queryList", queryList);
 		} catch (Exception e) {
 			logger.error("查询採購映射表信息失败", e);
@@ -79,28 +76,6 @@ public class PoMappingController extends BaseController{
 		return result.getJson();
 	}
 
-	@RequestMapping(value = "refresh")
-	@ResponseBody
-	public String refresh(HttpServletRequest request,HttpServletResponse response,AjaxResult result,@Log(name = "採購映射表") String masterData){
-		try {
-			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-			Assert.hasText(masterData, getLanguage(locale,"採購映射表不能为空","Master data can not be null"));
-			String masterType=masterData.split(",")[0];
-			result.put("msg", getLanguage(locale,"刷新成功","Refresh sucess"));
-			String message = masterDataService.refreshMasterData(masterType);
-			if (message!=null&&!"S".equals(message)) {
-				result.put("flag", "fail");
-				result.put("msg", message);
-				return result.getJson();
-			}
-		} catch (Exception e) {
-			logger.error("刷新採購映射表信息失败", e);
-			result.put("flag", "fail");
-			result.put("msg", ExceptionUtil.getRootCauseMessage(e));
-		}
-
-		return result.getJson();
-	}
 
 	@RequestMapping(value = "update")
 	@ResponseBody
@@ -145,7 +120,7 @@ public class PoMappingController extends BaseController{
 					updateSql=updateSql+" LAST_UPDATED_DATE=sysdate,LAST_UPDATED_BY='"+ SecurityUtils.getLoginUsername()+"'";
 					updateSql+=where;
 				}
-				masterDataService.updateMasterData(updateSql);
+				mappingDataService.updateMasterData(updateSql);
 			}
 		} catch (Exception e) {
 			logger.error("更新採購映射表信息失败", e);
@@ -176,7 +151,7 @@ public class PoMappingController extends BaseController{
 					}
 
 				deleteSql+=where;
-				masterDataService.updateMasterData(deleteSql);
+				mappingDataService.updateMasterData(deleteSql);
 			}
 		} catch (Exception e) {
 			logger.error("刪除採購映射表信息失败", e);
@@ -195,10 +170,10 @@ public class PoMappingController extends BaseController{
 			String masterType=masterData.split(",")[0];
 			String tableName=masterData.split(",")[1];
 			String language=getLanguage(locale,"CN","EN");
-			List<Object[]> titleList = masterDataService.listBySql("SELECT COL_NAME,COL_DESC,READ_WRITE,LOV,DATA_TYPE FROM CUX_PO_MAP_DATA_COLS WHERE CATEGORY = '"+masterType+"' AND LANGUAGE = '"+language+"' AND IS_DISPLAY = 'Y' AND ENABLED_FLAG = 'Y' ORDER BY to_number(COL_SEQ)");
+			List<Object[]> titleList = mappingDataService.listBySql("SELECT COL_NAME,COL_DESC,READ_WRITE,LOV,DATA_TYPE FROM CUX_PO_MAP_DATA_COLS WHERE CATEGORY = '"+masterType+"' AND LANGUAGE = '"+language+"' AND IS_DISPLAY = 'Y' AND ENABLED_FLAG = 'Y' ORDER BY to_number(COL_SEQ)");
 			model.addAttribute("titleList", titleList);
 
-			List<Object[]> optionList = masterDataService.listBySql("SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+
+			List<Object[]> optionList = mappingDataService.listBySql("SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+
 																	"WHERE c.CATEGORY = '"+masterType+"' AND c.LANGUAGE = '"+language+"' AND c.IS_DISPLAY = 'Y' AND c.ENABLED_FLAG = 'Y' and c.LOV is not null and c.lov=v.lov_type and v.language='"+language+"' and v.enabled_flag='Y' order by c.lov,v.lov_code desc");
 
 			Map<String,String> optionMap=new HashMap<String,String>();
@@ -263,7 +238,7 @@ public class PoMappingController extends BaseController{
 					sql+=" order by ID";
 				}
 			}
-			Page<Object[]> page = masterDataService.findPageBySql(pageRequest, sql);
+			Page<Object[]> page = mappingDataService.findPageBySql(pageRequest, sql);
 			int index=1;
 			if(pageRequest.getPageNo()>1){
 				index=2;
@@ -350,7 +325,7 @@ public class PoMappingController extends BaseController{
 						indexList.add(Integer.valueOf(i));
 					}
 				}
-				List<Object[]> optionList = masterDataService.listBySql("SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+
+				List<Object[]> optionList = mappingDataService.listBySql("SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+
 						"WHERE c.CATEGORY = '"+masterType+"' AND c.LANGUAGE = '"+language+"' AND c.IS_DISPLAY = 'Y' AND c.ENABLED_FLAG = 'Y' and c.LOV is not null and c.lov=v.lov_type and v.language='"+language+"' and v.enabled_flag='Y' order by c.lov,v.lov_code desc");
 				Map<String,String> optionMap=new HashMap<String,String>();
 				if (optionList!=null && optionList.size()>0) {
@@ -375,15 +350,13 @@ public class PoMappingController extends BaseController{
 								Assert.hasText(value, getLanguage(locale,"后台配置已更新，请重新下载","The background configuration has changed,please download again"));
 							}
 							value = value.replaceAll("'","''");
-							//if(!"".equals(value.trim())){
-								insertdata.add(value.trim());
-							//}
+							insertdata.add(value.trim());
 						}
                     if(!insertdata.isEmpty()&&!"".equals(insertdata.get(0))){
                         insertdataList.add(insertdata);
                     }
 				}
-				insertdataList=ifRepeat(insertdataList);
+				insertdataList = insertdataList.stream().distinct().collect(Collectors.toList());
 				if (!insertdataList.isEmpty()) {
 					mappingDataService.saveBatch(tableNAME,columnList,insertdataList);
 				}else{
@@ -417,8 +390,8 @@ public class PoMappingController extends BaseController{
 			}
 
 			String language=getLanguage(locale,"CN","EN");
-			//List<String> tableNames = masterDataService.listBySql("select tab_name from CUX_MD_LOV_VALUES  where lov_type='PO_CATEGORY' and enabled_flag='Y' and language='"+language+"'"+" and ");
-			List<Object[]> titleList = masterDataService.listBySql("SELECT COL_NAME,COL_DESC,READ_WRITE,LOV FROM CUX_PO_MAP_DATA_COLS WHERE CATEGORY = '"+masterType+"' AND LANGUAGE = '"+language+"' AND IS_DISPLAY = 'Y' AND ENABLED_FLAG = 'Y' ORDER BY to_number(COL_SEQ)");
+			//List<String> tableNames = mappingDataService.listBySql("select tab_name from CUX_MD_LOV_VALUES  where lov_type='PO_CATEGORY' and enabled_flag='Y' and language='"+language+"'"+" and ");
+			List<Object[]> titleList = mappingDataService.listBySql("SELECT COL_NAME,COL_DESC,READ_WRITE,LOV FROM CUX_PO_MAP_DATA_COLS WHERE CATEGORY = '"+masterType+"' AND LANGUAGE = '"+language+"' AND IS_DISPLAY = 'Y' AND ENABLED_FLAG = 'Y' ORDER BY to_number(COL_SEQ)");
 			Map<Integer,String> readMap=new HashMap<Integer, String>();
 			Map<Integer,String> lovMap=new HashMap<Integer, String>();
 			List<String> columnList=new ArrayList<String>();
@@ -471,7 +444,7 @@ public class PoMappingController extends BaseController{
 			}
 			String optionSql="SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+
 					"WHERE c.CATEGORY = '"+masterType+"' AND c.LANGUAGE = '"+language+"' AND c.IS_DISPLAY = 'Y' AND c.ENABLED_FLAG = 'Y' and c.LOV is not null and c.lov=v.lov_type and v.language='"+language+"' and v.enabled_flag='Y' order by c.lov,v.lov_code desc";
-			List<Object[]> optionList = masterDataService.listBySql(optionSql);
+			List<Object[]> optionList = mappingDataService.listBySql(optionSql);
 
 			Map<String,String> optionMap=new HashMap<String,String>();
 			Map<String,List<String>> selectMap=new HashMap<String, List<String>>();
@@ -490,11 +463,7 @@ public class PoMappingController extends BaseController{
 					selectMap.put(lov, lovDescList);
 				}
 			}
-
-//			List<BigDecimal> countList = (List<BigDecimal>)masterDataService.listBySql("select count(1) from ("+sql+")");
-//			int count = countList.get(0).intValue();
-
-			List<Object[]> dataList = masterDataService.listBySql(sql);
+			List<Object[]> dataList = mappingDataService.listBySql(sql);
 			if (dataList.isEmpty()) {
 				result.put("flag", "fail");
 				result.put("msg", getLanguage(locale,"没有查询到可下载的数据","No data found"));
@@ -528,8 +497,6 @@ public class PoMappingController extends BaseController{
 			sxssfWorkbook.setSheetName(0, sheetName);
 			Sheet sheet = sxssfWorkbook.getSheetAt(0);
 			sheet.setColumnHidden(0, true);
-			//sheet.protectSheet(new SimpleDateFormat("ddHHmmss").format(new Date()));
-
 			Row columnRow = sheet.createRow(0);
 			Cell columnCell = columnRow.createCell(0);
 			columnCell.setCellValue(language);
@@ -648,33 +615,5 @@ public class PoMappingController extends BaseController{
 
 		return result.getJson();
 	}
-	/**
-	  對同一批Excel數據編碼去重，
-	 */
-	public static List<List<String>> ifRepeat(List<List<String>> list){
-		List<List<String>> list1=new ArrayList<>();
-		for (int i=0;i<list.size();i++)
-		{
-			for (int j=i+1;j<list.size();j++)
-			{
-				if(!list.get(i).toString().equals(list.get(j).toString())){
-					list1.add(list.get(i));
-				}
-			}
-		}
-			return list;
-	}
 
-	public static void main(String[] args) {
-
-		List<List<String>> lists=new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
-			List<String> a=new ArrayList<>();
-			a.add("1");
-			a.add("12");
-			lists.add(a);
-		}
-
-		List<List<String>> lists1 = ifRepeat(lists);
-	}
 }
