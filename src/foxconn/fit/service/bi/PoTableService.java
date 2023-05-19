@@ -1079,61 +1079,6 @@ public class PoTableService extends BaseService<PoTable> {
     }
 
     /**
-     * 保存营收数据
-     */
-    @Transactional
-    public void saveRtData(Map<PoTable, List<List<String>>> dataMap, String year) {
-        int cnt = 1;
-        for (PoTable poTable : dataMap.keySet()) {
-            List<PoColumns> columns = poTable.getColumns();
-            String tableName = poTable.getTableName();
-            List<List<String>> dataList = dataMap.get(poTable);
-            for (List<String> data : dataList) {
-                String generateType = data.get(0);
-                String columnStr = "";
-                for (PoColumns column : columns) {
-                    columnStr += column.getColumnName() + ",";
-                }
-                columnStr = columnStr.substring(0, columnStr.length() - 1);
-                String valueStr = "'" + generateType + "',";
-                String deleteStr = " and year='" + data.get(0) + "'";
-                //这里减少创建人 创建时间 更新人 更新时间
-                for (int i = 1; i < data.size() - 2; i++) {
-                    if ("CUX_RT_SALES_TARGET".equalsIgnoreCase(tableName) && i < 14 && i != 1 && i != 2) {
-                        deleteStr += " and " + columns.get(i).getColumnName() + "='" + data.get(i) + "'";
-                    }
-                    if (columns.get(i).getDataType().equalsIgnoreCase("number")) {
-                        valueStr += "ROUND('" + data.get(i) + "',2),";
-                    } else if (columns.get(i).getDataType().equalsIgnoreCase("date")) {
-                        valueStr += "to_date('" + data.get(i) + "','dd/mm/yyyy'),";
-                    } else {
-                        valueStr += "'" + data.get(i) + "',";
-                    }
-                }
-                System.out.println(valueStr);
-                if ("CUX_RT_SALES_TARGET".equalsIgnoreCase(tableName)) {
-                    deleteStr = "delete " + poTable.getTableName() + " where 1=1 " + deleteStr;
-                    poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteStr).executeUpdate();
-                }
-                UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-                String userName = loginUser.getUsername();
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String signTimet = df.format(new Date());
-                valueStr += "'" + userName + "','" + signTimet + "'";
-                String insertSql = "insert into " + poTable.getTableName() + "(" + columnStr + ") values(" + valueStr + ")";
-                System.out.println(insertSql);
-                poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(insertSql).executeUpdate();
-                cnt++;
-                if (cnt % 1000 == 0) {
-                    poTableDao.getHibernateTemplate().flush();
-                    poTableDao.getHibernateTemplate().clear();
-                }
-            }
-        }
-    }
-
-
-    /**
      * 系统管理员可以删除数据
      * 每张表任务处于已提交后都不能删除
      * 特殊 sbu删除规则，当cpo当年度任务新建则不能删除

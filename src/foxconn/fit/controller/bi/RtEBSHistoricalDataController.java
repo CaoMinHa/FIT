@@ -19,7 +19,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -75,7 +74,7 @@ public class RtEBSHistoricalDataController extends BaseController {
     @RequestMapping(value = "download")
     @ResponseBody
     @Log(name = "EBS營收歷史數據表-->下载")
-    public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
+    public synchronized String download(HttpServletRequest request, PageRequest pageRequest, AjaxResult result,
             @Log(name = "查询条件") String queryCondition,String columns) {
         try {
             PoTable poTable = poTableService.get("if_ebs_ar_revenue_dtl");

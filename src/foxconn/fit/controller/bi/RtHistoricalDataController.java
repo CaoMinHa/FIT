@@ -24,7 +24,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -75,7 +74,7 @@ public class RtHistoricalDataController extends BaseController {
     @RequestMapping(value = "upload")
     @ResponseBody
     @Log(name = "手工版營收歷史數據表-->上传")
-    public String upload(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+    public String upload(HttpServletRequest request, AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
         String tableName = "IF_EBS_AR_REVENUE_DTL_MANUAL" ;
@@ -121,7 +120,7 @@ public class RtHistoricalDataController extends BaseController {
     @RequestMapping(value = "download")
     @ResponseBody
     @Log(name = "手工版營收歷史數據表-->下载")
-    public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
+    public synchronized String download(HttpServletRequest request, PageRequest pageRequest, AjaxResult result,
             @Log(name = "查询条件") String queryCondition) {
         try {
             PoTable poTable = poTableService.get("IF_EBS_AR_REVENUE_DTL_MANUAL");
@@ -142,7 +141,7 @@ public class RtHistoricalDataController extends BaseController {
      */
     @RequestMapping(value = "template")
     @ResponseBody
-    public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+    public synchronized String template(HttpServletRequest request,AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         try {
             XSSFWorkbook workBook = new XSSFWorkbook();
@@ -167,7 +166,7 @@ public class RtHistoricalDataController extends BaseController {
 
     @RequestMapping(value = "/delete")
     @ResponseBody
-    public String deleteAll(AjaxResult ajaxResult, HttpServletRequest request, String no) {
+    public String deleteAll(AjaxResult ajaxResult, String no) {
         ajaxResult= rtHistoricalDataService.deleteData(ajaxResult,no);
         return ajaxResult.getJson();
     }

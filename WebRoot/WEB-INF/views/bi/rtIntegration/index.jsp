@@ -17,45 +17,14 @@
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
     <style type="text/css">
         .search-btn {
-            height: 40px;
             margin-left: 10px;
             color: #ffffff;
             background-image: linear-gradient(to bottom, #fbb450, #f89406);
             background-color: #f89406 !important;
         }
-
-        .ui-datepicker select.ui-datepicker-month {
-            display: none;
-        }
-
-        .ui-datepicker-calendar, .ui-datepicker-current {
-            display: none;
-        }
-
-        .ui-datepicker-close {
-            float: none !important;
-        }
-
-        .ui-datepicker-buttonpane {
-            text-align: center;
-        }
-
-        .ui-datepicker-year {
-            width: 190px !important;
-        }
-
-        .ui-datepicker-next {
-            display: none
-        }
-
-        .ui-datepicker-prev {
-            display: none
-        }
-
         .table thead th {
             vertical-align: middle;
         }
-
         .table-condensed td {
             padding: 7px 10px;
         }
@@ -348,7 +317,6 @@
                 $("#QTableNameTip").show();
                 return;
             }
-            console.log(1111)
                 $.ajax({
                     type:"POST",
                     url:"${ctx}/bi/rtIntegration/queryCondition",
@@ -361,7 +329,7 @@
                             $.each(data.queryList, function(i, n){
                                 var COL_NAME=n[0];
                                 var COL_DESC=n[1];
-                                $("#QueryCondition").append("<input name='"+COL_NAME+"' class='m-l-md' style='width:150px;' placeholder='"+COL_DESC+"' type='text' value=''>");
+                                $("#QueryCondition").append("<input name='"+COL_NAME+"' class='m-l-md' style='width:150px;margin: auto;margin-right: 10px;' placeholder='"+COL_DESC+"' type='text' value=''>");
                             });
                             $("#QueryBtn").trigger("click");
                         }else{
@@ -454,33 +422,11 @@
                 </div>
             </div>
         </div>
-        <div class="m-l-md m-t-md m-r-md" style="clear:both;">
+        <div class="m-l-md m-t-md m-r-md" style="clear:both;margin-top: 10px;margin-bottom: 10px;">
             <div class="controls" style="display:inline-block;vertical-align:top;width:100%;">
                 <form id="QueryCondition" style="float:left;margin:0;"></form>
-                <button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;"
-                        type="submit"><spring:message code='query'/></button>
-                <button id="deleteBtn" class="btn search-btn btn-warning m-l-md" style="margin-left:20px;float:left;"
-                        type="submit"><spring:message code='delete'/></button>
-                <c:if test="${attribute eq 'group'}">
-                    <ul style="float:left;margin-left:20px;">
-                        <li>
-                            <select id="QType" class="input-large" style="width:160px;margin-bottom:0;">
-                                <option value=""><spring:message code='please_select'/><spring:message
-                                        code='type'/></option>
-                                <c:forEach items="${typeList}" var="type">
-                                    <option value="${type }">${type }</option>
-                                </c:forEach>
-                            </select>
-                        </li>
-                        <li style="height:30px;">
-                            <span id="QTypeTip" style="display:none;"
-                                  class="Validform_checktip Validform_wrong"><spring:message
-                                    code='please_select'/></span>
-                        </li>
-                    </ul>
-                    <button id="ConsolidationDataBtn" class="btn search-btn btn-warning m-l-md"
-                            style="margin-left:20px;" type="button"><spring:message code='consolidationData'/></button>
-                </c:if>
+                <button id="QueryBtn" class="btn search-btn" type="button"><spring:message code='query'/></button>
+                <button id="deleteBtn" class="btn search-btn" type="button"><spring:message code='delete'/></button>
             </div>
         </div>
         <div class="p-l-md p-r-md p-b-md" id="Content"></div>

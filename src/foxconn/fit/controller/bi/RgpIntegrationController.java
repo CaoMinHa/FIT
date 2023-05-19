@@ -223,12 +223,6 @@ public class RgpIntegrationController extends BaseController {
             for (short i = 0; i < columns.size();i++) {
                 sheet.setDefaultColumnStyle(i, unlockstyle);
             }
-            //根据字段锁定对应列
-            //外购原料输入表
-//            if ("CUX_RGP_OUTSOURCING_MATERIAL".equalsIgnoreCase(tableNames)) {
-//                sheet.setDefaultColumnStyle(7,lockStyle);
-//                sheet.setDefaultColumnStyle(8,lockStyle);
-//            }
             //獲取實際表名
             List<PoTable> list = rgpIntegrationService.listBySql("select * from fit_po_table", PoTable.class);
             for (int i = 0; i < list.size(); i++) {

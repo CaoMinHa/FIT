@@ -20,7 +20,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import java.util.Map;
 
@@ -38,13 +37,13 @@ public class PredictDetailRevenueController extends BaseController {
 	private ForecastDetailRevenueSrcService forecastDetailRevenueSrcService;
 
 	@RequestMapping(value = "index")
-	public String index(Model model,HttpServletRequest request) {
+	public String index(Model model) {
 		model=forecastRevenueService.index(model);
 		return "/bi/predictDetailRevenue/index";
 	}
 
 	@RequestMapping(value="/list")
-	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,String entity,String year,String version) {
+	public String list(Model model,PageRequest pageRequest,String entity,String year,String version) {
 		try {
 			String sql=forecastRevenueService.list(year,version,entity);
 			Page<Object[]> page = forecastRevenueService.findPageBySql(pageRequest, sql, PredictDetailRevenue.class);
@@ -58,7 +57,7 @@ public class PredictDetailRevenueController extends BaseController {
 
 	@RequestMapping(value="/delete")
 	@ResponseBody
-	public String delete(HttpServletRequest request,AjaxResult ajaxResult,Model model,String id){
+	public String delete(HttpServletRequest request,AjaxResult ajaxResult,String id){
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		ajaxResult.put("msg", getLanguage(locale, "删除成功", "Delete Success"));
 		try {
@@ -76,7 +75,7 @@ public class PredictDetailRevenueController extends BaseController {
 	@RequestMapping(value = "upload")
 	@ResponseBody
 	@Log(name = "營收銷貨收入預測表-->上传")
-	public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result) {
+	public String upload(HttpServletRequest request, AjaxResult result) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		result.put("msg", getLanguage(locale, "上传成功", "Upload Success"));
 		MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
@@ -87,7 +86,7 @@ public class PredictDetailRevenueController extends BaseController {
 	@RequestMapping(value = "download")
 	@ResponseBody
 	@Log(name = "營收銷貨收入預測表-->下载")
-	public synchronized String download(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
+	public synchronized String download(HttpServletRequest request,PageRequest pageRequest,AjaxResult result,
 			@Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version){
 		try {
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -114,7 +113,7 @@ public class PredictDetailRevenueController extends BaseController {
 	 */
 	@RequestMapping(value = "dimension")
 	@ResponseBody
-	public synchronized String dimension(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+	public synchronized String dimension(HttpServletRequest request, AjaxResult result) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		 Map<String,String> map=forecastDetailRevenueSrcService.dimension(request);
 			if(map.get("result")=="Y"){
@@ -132,7 +131,7 @@ public class PredictDetailRevenueController extends BaseController {
 	 */
 	@RequestMapping(value = "template")
 	@ResponseBody
-	public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+	public synchronized String template(HttpServletRequest request, AjaxResult result) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> map=forecastRevenueService.template(request);
 		if(map.get("result")=="Y"){
@@ -149,7 +148,7 @@ public class PredictDetailRevenueController extends BaseController {
 	 */
 	@RequestMapping(value = "version")
 	@ResponseBody
-	public synchronized String version(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+	public synchronized String version(HttpServletRequest request, AjaxResult result) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String version=forecastRevenueService.version();
 		if(version.indexOf("_")!=-1){

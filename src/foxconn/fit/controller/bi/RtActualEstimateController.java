@@ -16,7 +16,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +41,7 @@ public class RtActualEstimateController extends BaseController {
     }
 
     @RequestMapping(value = "/list")
-    public String list(Model model, PageRequest pageRequest, HttpServletRequest request,String queryCondition,String saleSorg) {
+    public String list(Model model, PageRequest pageRequest,String queryCondition,String saleSorg) {
         try {
             PoTable poTable = poTableService.get("bidev.cux_actual_target_rev_v");
             String sql = rtActualEstimateService.selectDataSql(queryCondition,poTable,model,saleSorg);
@@ -65,7 +64,7 @@ public class RtActualEstimateController extends BaseController {
     @RequestMapping(value = "download")
     @ResponseBody
     @Log(name = "實際+預估報表-->下载")
-    public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
+    public synchronized String download(HttpServletRequest request, PageRequest pageRequest, AjaxResult result,
             @Log(name = "查询条件") String queryCondition,String saleSorg) {
         try {
             PoTable poTable = poTableService.get("bidev.cux_actual_target_rev_v");
