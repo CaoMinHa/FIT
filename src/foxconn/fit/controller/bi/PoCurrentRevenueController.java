@@ -17,7 +17,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class PoCurrentRevenueController extends BaseController {
 
     @RequestMapping(value = "/list")
     @Log(name="非FIT體系當期收入表-->查詢")
-    public String list(Model model, PageRequest pageRequest, HttpServletRequest request,@Log(name = "條件") String queryCondition) {
+    public String list(Model model, PageRequest pageRequest,@Log(name = "條件") String queryCondition) {
         try {
             String sql = poCurrentRevenueService.selectDataSql(queryCondition);
             Page<Object[]> page = poCurrentRevenueService.findPageBySql(pageRequest, sql);
@@ -63,7 +62,7 @@ public class PoCurrentRevenueController extends BaseController {
     @RequestMapping(value = "upload")
     @ResponseBody
     @Log(name = "非FIT體系當期收入表-->上传")
-    public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result) {
+    public String upload(HttpServletRequest request, AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
         try {
@@ -81,7 +80,7 @@ public class PoCurrentRevenueController extends BaseController {
     @RequestMapping(value = "download")
     @ResponseBody
     @Log(name = "非FIT體系當期收入表-->下载")
-    public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
+    public synchronized String download(HttpServletRequest request,PageRequest pageRequest, AjaxResult result,
             @Log(name = "查询条件") String queryCondition) {
         try {
             String fileName=poCurrentRevenueService.downloadFile(queryCondition,request,pageRequest);
@@ -99,7 +98,7 @@ public class PoCurrentRevenueController extends BaseController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     @Log(name = "非FIT體系當期收入表-->刪除")
-    public String deleteAll(AjaxResult ajaxResult, HttpServletRequest request, @Log(name="刪除ID") String no) {
+    public String deleteAll(AjaxResult ajaxResult, @Log(name="刪除ID") String no) {
         ajaxResult= poCurrentRevenueService.deleteData(ajaxResult,no);
         return ajaxResult.getJson();
     }
@@ -107,7 +106,7 @@ public class PoCurrentRevenueController extends BaseController {
 
     @RequestMapping(value = "template")
     @ResponseBody
-    public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result,String tableName) {
+    public synchronized String template(HttpServletRequest request, AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         Map<String,String> map=poCurrentRevenueService.template(request);
         if(map.get("result").equals("Y")){

@@ -28,7 +28,7 @@ public class RtMappingController extends BaseController{
 	/**頁面初始加載**/
 	@RequestMapping(value = "index")
 	public String index(HttpServletRequest request, Model model) {
-		model.addAttribute("supplierList", mappingDataService.index(request));
+		model.addAttribute("supplierList", mappingDataService.index(request,"RT_ACCOUNT"));
 		return "/bi/rtMix/index";
 	}
 
@@ -43,7 +43,9 @@ public class RtMappingController extends BaseController{
 	@ResponseBody
 	public String queryMasterData(HttpServletRequest request,AjaxResult result,String masterData){
 		try {
-			result.put("queryList", mappingDataService.queryMasterData(request,masterData));
+			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+			Assert.hasText(masterData, getLanguage(locale,"營收映射表不能为空","Master data can not be null"));
+			result.put("queryList", mappingDataService.queryMasterData(locale,masterData));
 		} catch (Exception e) {
 			logger.error("查询營收映射表信息失败", e);
 			result.put("flag", "fail");

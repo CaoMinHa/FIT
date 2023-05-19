@@ -54,6 +54,16 @@ public class PoTaskService extends BaseService<PoTask> {
         poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
     }
 
+    public List<Map> index(){
+        UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+        String userName=loginUser.getUsername();
+        String roleSql="select distinct r.code,r.grade,r.name  from  fit_user u \n" +
+                " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+                " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+                " WHERE  u.username="+"'"+userName+"' and r.type='PO' order by r.grade";
+        List<Map> roleList = this.listMapBySql(roleSql);
+        return roleList;
+    }
 
     /**
      * CPO目标任务提交

@@ -40,21 +40,11 @@ public class PoTaskListController extends BaseController {
 
 
     @RequestMapping(value = "index")
-    public String index(PageRequest pageRequest, Model model, HttpServletRequest request) {
+    public String index(Model model) {
         try {
-            UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-            String userName=loginUser.getUsername();
-            String roleSql="select distinct r.code,r.grade,r.name  from  fit_user u \n" +
-                    " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
-                    " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
-                    " WHERE  u.username="+"'"+userName+"' and r.type='PO' order by r.grade";
-            List<Map> roleList = userService.listMapBySql(roleSql);
-            pageRequest.setOrderBy("serial");
-            pageRequest.setOrderDir("asc");
             User user = userService.getByUsername(SecurityUtils.getLoginUsername());
-            model.addAttribute("roles", roleList);
+            model.addAttribute("roles", poTaskService.index());
             model.addAttribute("attribute", user.getAttribute());
-
         } catch (Exception e) {
             logger.error("查询明细配置表列表信息失败", e);
         }

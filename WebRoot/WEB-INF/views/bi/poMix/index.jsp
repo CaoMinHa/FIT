@@ -10,9 +10,6 @@
 <meta http-equiv="description" content="This is my page">
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 <style type="text/css">
-.ui-datepicker-calendar,.ui-datepicker-current{display:none;}
-.ui-datepicker-close{float:none !important;}
-.ui-datepicker-buttonpane{text-align: center;}
 .table thead th{vertical-align: middle;}
 </style>
 <script type="text/javascript">
@@ -135,7 +132,7 @@ $(function() {
 						$.each(data.queryList, function(i, n){
 							var COL_NAME=n[0];
 							var COL_DESC=n[1];
-							$("#QueryCondition").append("<input name='"+COL_NAME+"' class='m-l-md' style='width:150px;' placeholder='"+COL_DESC+"' type='text' value=''>");
+							$("#QueryCondition").append("<input name='"+COL_NAME+"' class='m-l-md' style='width:150px;margin: auto;margin-right: 10px;' placeholder='"+COL_DESC+"' type='text' value=''>");
 						});
 						$("#Query").trigger("click");
 					}else{
@@ -201,8 +198,8 @@ $(function() {
 								</div>
 					    	</div>
 							<div style="float:left;text-align: center;margin-bottom:30px;">
-								<button id="FileUpload" style="margin:0 10px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
-								<button id="Download" style="margin:0 10px;" class="btn search-btn" type="button"><spring:message code='download'/></button>
+								<button id="FileUpload" style="margin:0 10px;" class="btn search-btn btn-warning m-l-md" type="button"><spring:message code='upload'/></button>
+								<button id="Download" style="margin:0 10px;" class="btn search-btn btn-warning m-l-md" type="button"><spring:message code='download'/></button>
 							</div>
 					    </div>
 					</form>

@@ -133,7 +133,7 @@ function deleteData(e){
 				<c:forEach items="${titleList }" var="title">
 					<th style="white-space: nowrap; border-right:1px solid #eee;text-align: center;">${title[1] }</th>
 				</c:forEach>
-				<c:if test="${!fn:contains(masterType,'SBU') && !fn:contains(masterType,'COMMODITY')}">
+				<c:if test="${!fn:contains(masterType,'SBU') && masterType!='COMMODITY'}">
 				<th style="white-space: nowrap; border-right:1px solid #eee;text-align: center;"><spring:message code='operation'/></th>
 				</c:if>
 			</tr>
@@ -153,7 +153,6 @@ function deleteData(e){
 											<c:when test="${fn:split(data,'|')[0] eq 'vendor_name'}">
 												<td style="white-space: nowrap; border-right:1px solid #eee;">
 													<input name="${fn:split(data,'|')[0]}" type="text"
-<%--														   style="height:25px !important;width:350px;"--%>
 														   style="height:25px !important;width:350px;line-height: 15px !important;"
 														   value="${fn:split(data,'|')[2] }"/>
 												</td>
@@ -161,7 +160,6 @@ function deleteData(e){
 											<c:otherwise>
 												<td style="white-space: nowrap; border-right:1px solid #eee;">
 													<input name="${fn:split(data,'|')[0]}" type="text"
-<%--														   style="height:25px !important;width:150px;" --%>
 														   style="height:25px !important;width:150px;line-height: 15px !important;"
 														   value="${fn:split(data,'|')[2] }"/>
 												</td>
@@ -171,7 +169,6 @@ function deleteData(e){
 									<c:when test="${fn:split(data,'|')[1] eq 'W'&& !fn:split(data,'|')[0] eq 'vendor_name'}">
 										<td style="white-space: nowrap; border-right:1px solid #eee;">
 											<input name="${fn:split(data,'|')[0]}" type="text"
-<%--												   style="height:25px !important;width:350px;" --%>
 												   style="height:25px !important;width:350px;line-height: 15px !important;"
 												   value="${fn:split(data,'|')[2] }"/>
 										</td>
@@ -194,7 +191,7 @@ function deleteData(e){
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
-					<c:if test="${!fn:contains(masterType,'SBU') && !fn:contains(masterType,'PO_COMMODITY')}">
+					<c:if test="${!fn:contains(masterType,'SBU') && masterType!='COMMODITY'}">
 						<td style="white-space: nowrap; border-right:1px solid #eee;">
 							<a href="javascript:void(0);" onclick="updateDate(this)"><spring:message code='update'/></a>
 							<a href="javascript:void(0);" onclick="deleteData(this)">刪除</a>

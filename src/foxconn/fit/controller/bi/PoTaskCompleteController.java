@@ -38,18 +38,9 @@ public class PoTaskCompleteController extends BaseController {
     private PoTableService poTableService;
 
     @RequestMapping(value = "index")
-    public String index(PageRequest pageRequest, Model model, HttpServletRequest request) {
+    public String index(Model model) {
         try {
-            UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-            String userName=loginUser.getUsername();
-            String roleSql="select distinct r.code,r.grade,r.name  from  fit_user u \n" +
-                    " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
-                    " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
-                    " WHERE  u.username="+"'"+userName+"' and r.type='PO' order by r.grade";
-            List<Map> roleList = userService.listMapBySql(roleSql);
-            pageRequest.setOrderBy("serial");
-            pageRequest.setOrderDir("asc");
-            model.addAttribute("roles", roleList);
+            model.addAttribute("roles", poTaskService.index());
         } catch (Exception e) {
             logger.error("查询明细配置表列表信息失败", e);
         }
@@ -58,7 +49,7 @@ public class PoTaskCompleteController extends BaseController {
 
     @RequestMapping(value="/list")
     @Log(name = "採購任務-->查看列表")
-    public String list(Model model, PageRequest pageRequest,HttpServletRequest request,@Log(name = "任務名稱") String name,
+    public String list(Model model, PageRequest pageRequest,@Log(name = "任務名稱") String name,
                        @Log(name = "任務類型") String type,@Log(name = "任務時間") String date,@Log(name = "用戶角色") String roleCode) {
         try {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
