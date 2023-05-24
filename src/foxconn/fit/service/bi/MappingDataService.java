@@ -1,9 +1,9 @@
 package foxconn.fit.service.bi;
 
 import foxconn.fit.dao.base.BaseDaoHibernate;
-import foxconn.fit.dao.ebs.ParameterDao;
+import foxconn.fit.dao.base.UserDao;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.ebs.Parameter;
+import foxconn.fit.entity.base.User;
 import foxconn.fit.service.base.BaseService;
 import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.util.ExcelUtil;
@@ -38,16 +38,16 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class MappingDataService extends BaseService<Parameter>{
+public class MappingDataService extends BaseService<User> {
 	public org.apache.commons.logging.Log logger = LogFactory.getLog(this.getClass());
 
 	@Autowired
-	private ParameterDao userDao;
+	private UserDao userDao;
 	@Autowired
 	private InstrumentClassService instrumentClassService;
 
 	@Override
-	public BaseDaoHibernate<Parameter> getDao() {
+	public BaseDaoHibernate<User> getDao() {
 		return userDao;
 	}
 
@@ -366,7 +366,7 @@ public class MappingDataService extends BaseService<Parameter>{
 	}
 
 	/**
-	 * 下载
+	 * 營收下载
 	 */
 	public AjaxResult download(String masterData,String queryCondition,HttpServletRequest request,AjaxResult result) throws IOException {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -570,7 +570,7 @@ public class MappingDataService extends BaseService<Parameter>{
 		return result;
 	}
 	/**
-	 * 下载
+	 * 采購下载
 	 */
 	public AjaxResult downloadPo(String masterData,String queryCondition,HttpServletRequest request,AjaxResult result) throws IOException{
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -821,6 +821,7 @@ public class MappingDataService extends BaseService<Parameter>{
 		userDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
 	}
 
+	/**采購映射表更新**/
 	public void updatePo(String masterData,String updateData){
 		String tableName=masterData.split(",")[1];
 		if (StringUtils.isNotEmpty(updateData)) {
