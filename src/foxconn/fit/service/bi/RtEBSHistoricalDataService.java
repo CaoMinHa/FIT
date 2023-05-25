@@ -37,6 +37,10 @@ public class RtEBSHistoricalDataService {
     @Autowired
     private PoTableDao poTableDao;
 
+    @Autowired
+    private InstrumentClassService instrumentClassService;
+
+    /**獲取查詢Sql**/
     public String selectDataSql(String queryCondition, String columns, Locale locale, Model model) {
         String sql = "select "+columns+" from if_ebs_ar_revenue_dtl where 1=1 ";
         List<String> columnsList=poColumnsList(locale,columns);
@@ -74,7 +78,7 @@ public class RtEBSHistoricalDataService {
         model.addAttribute("columns", columnsList);
         return sql;
     }
-
+    /**獲取字段**/
     private  List<String> poColumnsList(Locale locale,String columns){
         String[] c= columns.split(",");
         columns="";
@@ -84,10 +88,11 @@ public class RtEBSHistoricalDataService {
         List<PoColumns> columnsList= poTableDao.listBySql("select * from fit_po_table_columns where TABLE_NAME in ('if_ebs_ar_revenue_dtl') and COLUMN_NAME in("+columns.substring(0,columns.length()-1)+") order by serial ",PoColumns.class);
         List<String> list=new ArrayList<>();
         for (PoColumns poColumns : columnsList) {
-            list.add(getByLocale(locale, poColumns.getComments()));
+            list.add(instrumentClassService.getByLocale(locale, poColumns.getComments()));
         }
         return list;
     }
+    /**獲取高級查詢字段**/
     public List<Map> selectQuery(HttpServletRequest request){
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         String sql="SELECT COLUMN_NAME,COMMENTS FROM fit_po_table_columns WHERE  table_name='if_ebs_ar_revenue_dtl'  AND IS_QUERY = 'Y'  ORDER BY to_number(SERIAL)";
@@ -96,23 +101,12 @@ public class RtEBSHistoricalDataService {
         for (Map poColumns : list) {
             Map map=new HashMap();
             map.put("key",poColumns.get("COLUMN_NAME"));
-            map.put("val",getByLocale(locale,poColumns.get("COMMENTS").toString()));
+            map.put("val",instrumentClassService.getByLocale(locale,poColumns.get("COMMENTS").toString()));
             a.add(map);
         }
         return a;
     }
-
-    private String getByLocale(Locale locale,String value){
-        if (StringUtils.isNotEmpty(value) && value.indexOf("_")>0) {
-            if (locale!=null && "en_US".equals(locale.toString())) {
-                return value.substring(0,value.lastIndexOf("_"));
-            }else{
-                return value.substring(value.lastIndexOf("_")+1,value.length());
-            }
-        }
-        return value;
-    }
-
+    /**下載**/
     public String downloadFile(String queryCondition, PoTable poTable, HttpServletRequest request,PageRequest pageRequest,String columns) throws IOException {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFWorkbook workBook = new XSSFWorkbook();
@@ -134,13 +128,13 @@ public class RtEBSHistoricalDataService {
         List<PoColumns> columnsList= poTableDao.listBySql("select * from fit_po_table_columns where TABLE_NAME in ('if_ebs_ar_revenue_dtl') and COLUMN_NAME in("+columns.substring(0,columns.length()-1)+") order by serial ",PoColumns.class);
         List<Integer> lockSerialList = new ArrayList<Integer>();
         String sql = "select ";
-        Sheet sheet = sxssfWorkbook.createSheet(getByLocale(locale, poTable.getComments()));
+        Sheet sheet = sxssfWorkbook.createSheet(instrumentClassService.getByLocale(locale, poTable.getComments()));
         sheet.createFreezePane(0, 1, 0, 1);
         Row titleRow = sheet.createRow(0);
         for (int i = 0; i < columnsList.size(); i++) {
             PoColumns poColumn = columnsList.get(i);
             String columnName = poColumn.getColumnName();
-            String comments = getByLocale(locale,poColumn.getComments());
+            String comments = instrumentClassService.getByLocale(locale,poColumn.getComments());
             if (poColumn.getLocked()) {
                 lockSerialList.add(poColumn.getSerial());
             }
@@ -223,7 +217,7 @@ public class RtEBSHistoricalDataService {
                 }
             }
         }
-        String fileName = getByLocale(locale,poTable.getComments());
+        String fileName = instrumentClassService.getByLocale(locale,poTable.getComments());
         File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download" + File.separator + fileName + ".xlsx");
         OutputStream out = new FileOutputStream(outFile);
         sxssfWorkbook.write(out);

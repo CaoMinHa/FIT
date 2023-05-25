@@ -37,6 +37,10 @@ public class RtActualEstimateService {
     @Autowired
     private PoTableDao poTableDao;
 
+    @Autowired
+    private InstrumentClassService instrumentClassService;
+
+    /**獲取查詢Sql**/
     public String selectDataSql(String queryCondition, PoTable poTable, Model model,String saleSorg) {
         List<PoColumns> columns = poTable.getColumns();
         List<PoColumns> columnsList=new ArrayList<>();
@@ -103,8 +107,8 @@ public class RtActualEstimateService {
         model.addAttribute("columns", columnsList);
         return sql;
     }
-
-    public List<Map> selectQuery(HttpServletRequest request){
+    /**獲取高級查詢字段**/
+    public List<Map> selectQuery(){
         String sql="SELECT COLUMN_NAME,COMMENTS FROM fit_po_table_columns WHERE  table_name='bidev.cux_actual_target_rev_v'  AND IS_QUERY = 'Y'  ORDER BY to_number(SERIAL)";
         List<Map> list = poTableDao.listMapBySql(sql);
         List<Map> a=new ArrayList<>();
@@ -116,18 +120,7 @@ public class RtActualEstimateService {
         }
         return a;
     }
-
-    private String getByLocale(Locale locale,String value){
-        if (StringUtils.isNotEmpty(value) && value.indexOf("_")>0) {
-            if (locale!=null && "en_US".equals(locale.toString())) {
-                return value.substring(0,value.lastIndexOf("_"));
-            }else{
-                return value.substring(value.lastIndexOf("_")+1,value.length());
-            }
-        }
-        return value;
-    }
-
+    /**下載**/
     public String downloadFile(String queryCondition, PoTable poTable, HttpServletRequest request,PageRequest pageRequest,String saleSorg) throws IOException {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFWorkbook workBook = new XSSFWorkbook();
@@ -145,7 +138,7 @@ public class RtActualEstimateService {
         List<PoColumns> columns = poTable.getColumns();
         List<Integer> lockSerialList = new ArrayList<Integer>();
         String sql = "select ";
-        Sheet sheet = sxssfWorkbook.createSheet(getByLocale(locale, poTable.getComments()));
+        Sheet sheet = sxssfWorkbook.createSheet(instrumentClassService.getByLocale(locale, poTable.getComments()));
         sheet.createFreezePane(0, 1, 0, 1);
         Row titleRow = sheet.createRow(0);
         List<Integer> numberList = new ArrayList<Integer>();
@@ -260,7 +253,7 @@ public class RtActualEstimateService {
                 }
             }
         }
-        String fileName = getByLocale(locale,poTable.getComments());
+        String fileName = instrumentClassService.getByLocale(locale,poTable.getComments());
         File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download" + File.separator + fileName + ".xlsx");
         OutputStream out = new FileOutputStream(outFile);
         sxssfWorkbook.write(out);
