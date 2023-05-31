@@ -63,7 +63,7 @@ public class PlOfflineDataSupplementController extends BaseController {
     public String list(Model model, PageRequest pageRequest, HttpServletRequest request,String queryCondition,String type) {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-            offlineDataSupplementService.selectDataSql(pageRequest,queryCondition,locale,model,type);
+            offlineDataSupplementService.list(pageRequest,queryCondition,locale,model,type);
         } catch (Exception e) {
             logger.error("查詢數據失敗(Failed to query data)", e);
         }

@@ -47,7 +47,7 @@ public class PlOfflineDataSupplementService {
     @Autowired
     private InstrumentClassService instrumentClassService;
     /**獲取查詢結果**/
-    public void selectDataSql(PageRequest pageRequest,String queryCondition, Locale locale, Model model,String type) {
+    public void list(PageRequest pageRequest,String queryCondition, Locale locale, Model model,String type) {
         List<Map> map=poTableDao.listMapBySql("select COLUMN_NAME,COMMENTS from fit_po_table_columns where table_name='"+type+"' ORDER BY to_number(SERIAL)");
         List<String> column=new ArrayList<>();
         String sql = "select PL_ID,";

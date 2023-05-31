@@ -19,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.util.WebUtils;
+import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,8 +38,11 @@ public class PlMappingService {
 
     @Autowired
     private PoTableDao poTableDao;
+    @Autowired
+    private InstrumentClassService instrumentClassService;
 
-    public String selectDataSql(String queryCondition, Locale locale, Model model,String type) {
+    /**獲取查詢sql**/
+    public void list(PageRequest pageRequest,String queryCondition, Locale locale, Model model,String type) {
         List<Map> map=poTableDao.listMapBySql("select COLUMN_NAME,COMMENTS from fit_po_table_columns where table_name='"+type+"' ORDER BY to_number(SERIAL)");
         List<String> column=new ArrayList<>();
         String sql = "select ";
@@ -49,7 +53,7 @@ public class PlMappingService {
         }
         for (Map m : map) {
             sql+=m.get("COLUMN_NAME").toString()+",";
-            column.add(getByLocale(locale, m.get("COMMENTS").toString()));
+            column.add(instrumentClassService.getByLocale(locale, m.get("COMMENTS").toString()));
         }
         sql=sql.substring(0,sql.length()-1)+" from "+type+" where 1=1 ";
         if (StringUtils.isNotEmpty(queryCondition)) {
@@ -64,29 +68,27 @@ public class PlMappingService {
         }
         sql+="order by code";
         model.addAttribute("columns", column);
-        return sql;
+        Page<Object[]> page = poTableDao.findPageBySql(pageRequest, sql);
+        int index = 1;
+        if (pageRequest.getPageNo() > 1) {
+            index = 2;
+        }
+        model.addAttribute("index", index);
+        model.addAttribute("page", page);
+        model.addAttribute("tableType", type);
     }
 
-    public List<Map> selectQuery(String type,Locale locale ){
+    /**獲取高級查詢字段**/
+    public List<Map> query(String type,Locale locale ){
         String sql="SELECT COLUMN_NAME,COMMENTS FROM fit_po_table_columns WHERE  table_name='"+type+"' AND IS_QUERY = 'Y'  ORDER BY to_number(SERIAL)";
         List<Map> list = poTableDao.listMapBySql(sql);
         for (Map map : list) {
-            map.put("COMMENTS",getByLocale(locale,map.get("COMMENTS").toString()));
+            map.put("COMMENTS",instrumentClassService.getByLocale(locale,map.get("COMMENTS").toString()));
         }
         return list;
     }
 
-    private String getByLocale(Locale locale,String value){
-        if (StringUtils.isNotEmpty(value) && value.indexOf("_")>0) {
-            if (locale!=null && "en_US".equals(locale.toString())) {
-                return value.substring(0,value.lastIndexOf("_"));
-            }else{
-                return value.substring(value.lastIndexOf("_")+1,value.length());
-            }
-        }
-        return value;
-    }
-
+    /**獲取上傳模板**/
     public AjaxResult template(AjaxResult result,HttpServletRequest request ,String tableName) throws IOException {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFWorkbook workBook = new XSSFWorkbook();
@@ -101,17 +103,17 @@ public class PlMappingService {
         List<PoColumns> columns = poTableDao.listBySql("select * from fit_po_table_columns where table_name='"+tableName+"' ORDER BY to_number(SERIAL)",PoColumns.class);
         Sheet sheet;
         if(tableName.equals("epmebs.CUX_BI_COMPANY_CODE")){
-            sheet = workBook.createSheet(getByLocale(locale,"Entity Code (FIT system)_Entity編碼（FIT體系）"));
+            sheet = workBook.createSheet(instrumentClassService.getByLocale(locale,"Entity Code (FIT system)_Entity編碼（FIT體系）"));
         }else {
             //if(tableName.equals("epmebs.CUX_FIT_SBU_CODE"))
-            sheet = workBook.createSheet(getByLocale(locale, "SBU Code_SBU代碼"));
+            sheet = workBook.createSheet(instrumentClassService.getByLocale(locale, "SBU Code_SBU代碼"));
         }
         Row titleRow = sheet.createRow(0);
         for (int i = 0; i < columns.size(); i++) {
             PoColumns poColumn = columns.get(i);
             String comments = poColumn.getComments();
             Cell cell = titleRow.createCell(i);
-            cell.setCellValue(getByLocale(locale,comments));
+            cell.setCellValue(instrumentClassService.getByLocale(locale,comments));
             cell.setCellStyle(titleStyle);
             sheet.setColumnWidth(i, comments.getBytes("GBK").length * 256 + 400);
         }
@@ -125,7 +127,8 @@ public class PlMappingService {
         return result;
     }
 
-    public String uploadFile(Sheet sheet,AjaxResult result, Locale locale,String tableName) throws Exception {
+    /**上傳文件校驗及保存數據**/
+    public String upload(Sheet sheet,AjaxResult result, Locale locale,String tableName) throws Exception {
         System.out.print("开始处理数据-------》");
         List<PoColumns> columns = poTableDao.listBySql("select * from fit_po_table_columns where table_name='"+tableName+"' ORDER BY to_number(SERIAL)",PoColumns.class);
         int COLUMN_NUM = columns.size();
@@ -134,22 +137,21 @@ public class PlMappingService {
         int n;
         for (Row row : sheet) {
             if (row.getRowNum() < 1) {
-                Assert.notNull(row, getByLocale(locale, "Please use the downloaded template to import data_請使用所下載的模板導入數據！"));
+                Assert.notNull(row, instrumentClassService.getByLocale(locale, "Please use the downloaded template to import data_請使用所下載的模板導入數據！"));
                 int columnNum = row.getPhysicalNumberOfCells();
                 if(tableName.equals("epmebs.CUX_BI_COMPANY_CODE")){
                     if (columnNum < 4) {
                         result.put("flag", "fail");
-                        result.put("msg", getByLocale(locale, "The number of columns cannot be less than 4_列數不能小於4"));
+                        result.put("msg", instrumentClassService.getByLocale(locale, "The number of columns cannot be less than 4_列數不能小於4"));
                         return result.getJson();
                     }
                 }else if(tableName.equals("epmebs.CUX_FIT_SBU_CODE")){
                     if (columnNum < 2) {
                         result.put("flag", "fail");
-                        result.put("msg", getByLocale(locale, "The number of columns cannot be less than 2_列數不能小於2"));
+                        result.put("msg", instrumentClassService.getByLocale(locale, "The number of columns cannot be less than 2_列數不能小於2"));
                         return result.getJson();
                     }
                 }
-
                 continue;
             }
                 n = 0;
@@ -183,17 +185,18 @@ public class PlMappingService {
                 return result.getJson();
             }else{
                 result.put("flag", "fail");
-                result.put("msg", getByLocale(locale,s));
+                result.put("msg", instrumentClassService.getByLocale(locale,s));
                 return result.getJson();
             }
         }catch (Exception e){
             e.printStackTrace();
             result.put("flag", "fail");
-            result.put("msg", getByLocale(locale,"fail to upload"+ExceptionUtil.getRootCauseMessage(e)+"_上傳失敗"+ExceptionUtil.getRootCauseMessage(e)));
+            result.put("msg", instrumentClassService.getByLocale(locale,"fail to upload"+ExceptionUtil.getRootCauseMessage(e)+"_上傳失敗"+ExceptionUtil.getRootCauseMessage(e)));
             return result.getJson();
         }
     }
 
+    /**保存數據**/
     private String saveRtData(List<List<String>> list ,List<PoColumns> columns,String tableName){
         System.out.print("处理数据插入表中");
         String message="S";
@@ -216,7 +219,7 @@ public class PlMappingService {
         return message;
     }
 
-
+    /**刪除歷史數據**/
     private void dataCheck(String tableName,String code){
             System.out.print("表："+tableName+"代碼："+code);
             String  deleteStr="delete from "+tableName+" where ";
@@ -229,7 +232,8 @@ public class PlMappingService {
             poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteStr).executeUpdate();
     }
 
-    public String downloadFile(String queryCondition, String  tableName, HttpServletRequest request,PageRequest pageRequest) throws IOException {
+    /**加載數據下載文件**/
+    public String download(String queryCondition, String  tableName, HttpServletRequest request,PageRequest pageRequest) throws IOException {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFWorkbook workBook = new XSSFWorkbook();
         XSSFCellStyle titleStyle = workBook.createCellStyle();
@@ -251,7 +255,7 @@ public class PlMappingService {
         for (int i = 0; i < columns.size(); i++) {
             PoColumns poColumn = columns.get(i);
             String columnName = poColumn.getColumnName();
-            String comments = getByLocale(locale,poColumn.getComments());
+            String comments = instrumentClassService.getByLocale(locale,poColumn.getComments());
             if (poColumn.getDataType().equalsIgnoreCase("number")) {
                 sql += "regexp_replace(to_char(" + columnName + ",'FM99999999999999.999999999'),'\\.$',''),";
                 numberList.add(i);
@@ -335,7 +339,8 @@ public class PlMappingService {
         return outFile.getName();
     }
 
-    public AjaxResult deleteData(AjaxResult ajaxResult,String no,String tableName) {
+    /**頁面刪除**/
+    public AjaxResult delete(AjaxResult ajaxResult,String no,String tableName) {
         try {
             String[] ids = no.split(",");
             String deleteSql = " delete from "+tableName+" where";
@@ -355,6 +360,4 @@ public class PlMappingService {
         }
     return ajaxResult;
     }
-
-
 }
