@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.util.WebUtils;
+import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,13 +44,16 @@ public class PlOfflineDataSupplementService {
     @Autowired
     private PoTableDao poTableDao;
 
-    public String selectDataSql(String queryCondition, Locale locale, Model model,String type) {
+    @Autowired
+    private InstrumentClassService instrumentClassService;
+    /**獲取查詢結果**/
+    public void selectDataSql(PageRequest pageRequest,String queryCondition, Locale locale, Model model,String type) {
         List<Map> map=poTableDao.listMapBySql("select COLUMN_NAME,COMMENTS from fit_po_table_columns where table_name='"+type+"' ORDER BY to_number(SERIAL)");
         List<String> column=new ArrayList<>();
         String sql = "select PL_ID,";
         for (Map m : map) {
             sql+=m.get("COLUMN_NAME").toString()+",";
-            column.add(getByLocale(locale, m.get("COMMENTS").toString()));
+            column.add(instrumentClassService.getByLocale(locale, m.get("COMMENTS").toString()));
         }
         sql=sql.substring(0,sql.length()-1)+" from epmebs."+type+" where 1=1 ";
         if (StringUtils.isNotEmpty(queryCondition)) {
@@ -74,29 +78,27 @@ public class PlOfflineDataSupplementService {
         }
         sql += "and PERIOD>'2021-12' order by PL_ID desc";
         model.addAttribute("columns", column);
-        return sql;
+        Page<Object[]> page = poTableDao.findPageBySql(pageRequest, sql);
+        int index = 1;
+        if (pageRequest.getPageNo() > 1) {
+            index = 2;
+        }
+        model.addAttribute("index", index);
+        model.addAttribute("page", page);
+        model.addAttribute("tableType", type);
     }
 
+    /**獲取查詢字段**/
     public List<Map> selectQuery(String type,Locale locale ){
         String sql="SELECT COLUMN_NAME,COMMENTS FROM fit_po_table_columns WHERE  table_name='"+type+"' AND IS_QUERY = 'Y'  ORDER BY to_number(SERIAL)";
         List<Map> list = poTableDao.listMapBySql(sql);
         for (Map map : list) {
-            map.put("COMMENTS",getByLocale(locale,map.get("COMMENTS").toString()));
+            map.put("COMMENTS",instrumentClassService.getByLocale(locale,map.get("COMMENTS").toString()));
         }
         return list;
     }
 
-    private String getByLocale(Locale locale,String value){
-        if (StringUtils.isNotEmpty(value) && value.indexOf("_")>0) {
-            if (locale!=null && "en_US".equals(locale.toString())) {
-                return value.substring(0,value.lastIndexOf("_"));
-            }else{
-                return value.substring(value.lastIndexOf("_")+1,value.length());
-            }
-        }
-        return value;
-    }
-
+    /**獲取下載模板**/
     public File template(XSSFWorkbook workBook,HttpServletRequest request,Locale locale) {
         Sheet sheet = workBook.getSheetAt(1);
         String sql="SELECT ATTRIBUTE1,ATTRIBUTE2,COMPANY_CODE,COMPANY_NAME_CN,COMPANY_NAME_EN FROM epmebs.CUX_EBS_COMPANY_V";
@@ -104,11 +106,11 @@ public class PlOfflineDataSupplementService {
         int number=1;
         for(Map map:listCompany){
             Row row = sheet.createRow(number);
-            row.createCell(0).setCellValue(mapValString(map.get("ATTRIBUTE1")));
-            row.createCell(1).setCellValue(mapValString(map.get("ATTRIBUTE2")));
-            row.createCell(2).setCellValue(mapValString(map.get("COMPANY_CODE")));
-            row.createCell(3).setCellValue(mapValString(map.get("COMPANY_NAME_CN")));
-            row.createCell(4).setCellValue(mapValString(map.get("COMPANY_NAME_EN")));
+            row.createCell(0).setCellValue(instrumentClassService.mapValString(map.get("ATTRIBUTE1")));
+            row.createCell(1).setCellValue(instrumentClassService.mapValString(map.get("ATTRIBUTE2")));
+            row.createCell(2).setCellValue(instrumentClassService.mapValString(map.get("COMPANY_CODE")));
+            row.createCell(3).setCellValue(instrumentClassService.mapValString(map.get("COMPANY_NAME_CN")));
+            row.createCell(4).setCellValue(instrumentClassService.mapValString(map.get("COMPANY_NAME_EN")));
             number++;
         }
         Sheet sheet1 = workBook.getSheetAt(2);
@@ -117,21 +119,15 @@ public class PlOfflineDataSupplementService {
         number=1;
         for(Map map:listSbu){
             Row row = sheet1.createRow(number);
-            row.createCell(0).setCellValue(mapValString(map.get("SBU_CODE")));
-            row.createCell(1).setCellValue(mapValString(map.get("SBU")));
+            row.createCell(0).setCellValue(instrumentClassService.mapValString(map.get("SBU_CODE")));
+            row.createCell(1).setCellValue(instrumentClassService.mapValString(map.get("SBU")));
             number++;
         }
-        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download"+File.separator+getByLocale(locale,"Template-Offline profit and loss and internal transaction supplement.xlsx_綫下損益表内交模板.xlsx"));
+        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download"+File.separator+instrumentClassService.getByLocale(locale,"Template-Offline profit and loss and internal transaction supplement.xlsx_綫下損益表内交模板.xlsx"));
         return outFile;
     }
-    public static String mapValString(Object o){
-        if(null == o || o.toString().length()==0){
-            return "";
-        }
-        return o.toString();
-    }
 
-
+    /**数据上传**/
     public String uploadFile(Sheet sheet,AjaxResult result, Locale locale,String tableName) throws Exception {
         System.out.print("开始处理数据-------》");
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
@@ -150,11 +146,11 @@ public class PlOfflineDataSupplementService {
         String period="";
         for (Row row : sheet) {
             if (row.getRowNum() < 4) {
-                Assert.notNull(row, getByLocale(locale, "Please use the downloaded template to import data_請使用所下載的模板導入數據！"));
+                Assert.notNull(row, instrumentClassService.getByLocale(locale, "Please use the downloaded template to import data_請使用所下載的模板導入數據！"));
                 int columnNum = row.getPhysicalNumberOfCells();
                 if (columnNum < 16) {
                     result.put("flag", "fail");
-                    result.put("msg", getByLocale(locale, "The number of columns cannot be less than 16_列數不能小於16,請檢查上傳模板是否正確！"));
+                    result.put("msg", instrumentClassService.getByLocale(locale, "The number of columns cannot be less than 16_列數不能小於16,請檢查上傳模板是否正確！"));
                     return result.getJson();
                 }
                 continue;
@@ -162,7 +158,7 @@ public class PlOfflineDataSupplementService {
                 period = ExcelUtil.getCellStringValue(row.getCell(0),4);
                 if(period.length()<7&&period.indexOf("-")!=4){
                     result.put("flag", "fail");
-                    result.put("msg", getByLocale(locale, "Please fill in the correct period data such as: 2022-01_請填寫正確期間數據如：2022-01！"));
+                    result.put("msg", instrumentClassService.getByLocale(locale, "Please fill in the correct period data such as: 2022-01_請填寫正確期間數據如：2022-01！"));
                     return result.getJson();
                 }
                 if (count<1){
@@ -170,13 +166,13 @@ public class PlOfflineDataSupplementService {
                     count = countList.get(0).intValue();
                     if(count>0){
                         result.put("flag", "fail");
-                        result.put("msg", getByLocale(locale, "Published income statement data does not allow updates_已發佈的損益表數據不允許更新。"));
+                        result.put("msg", instrumentClassService.getByLocale(locale, "Published income statement data does not allow updates_已發佈的損益表數據不允許更新。"));
                         return result.getJson();
                     }
                 }
                 if(Integer.parseInt(period.substring(0,4))<2022){
                     result.put("flag", "fail");
-                    result.put("msg", getByLocale(locale, "Only supports uploading data greater than or equal to 2022_僅支持上傳大於等於2022年的數據"));
+                    result.put("msg", instrumentClassService.getByLocale(locale, "Only supports uploading data greater than or equal to 2022_僅支持上傳大於等於2022年的數據"));
                     return result.getJson();
                 }
             }
@@ -185,7 +181,7 @@ public class PlOfflineDataSupplementService {
                 while (n < COLUMN_NUM) {
                     if(n==0&&!period.equals(ExcelUtil.getCellStringValue(row.getCell(n),row.getRowNum()))){
                         result.put("flag", "fail");
-                        result.put("msg", getByLocale(locale, "Please upload the data of the same period_請上傳同期間的數據"));
+                        result.put("msg", instrumentClassService.getByLocale(locale, "Please upload the data of the same period_請上傳同期間的數據"));
                         return result.getJson();
                     }
                     if(null==row.getCell(n)){
@@ -226,17 +222,18 @@ public class PlOfflineDataSupplementService {
                 return result.getJson();
             }else{
                 result.put("flag", "fail");
-                result.put("msg", getByLocale(locale,s));
+                result.put("msg", instrumentClassService.getByLocale(locale,s));
                 return result.getJson();
             }
         }catch (Exception e){
             e.printStackTrace();
             result.put("flag", "fail");
-            result.put("msg", getByLocale(locale,"fail to upload"+ExceptionUtil.getRootCauseMessage(e)+"_上傳失敗"+ExceptionUtil.getRootCauseMessage(e)));
+            result.put("msg", instrumentClassService.getByLocale(locale,"fail to upload"+ExceptionUtil.getRootCauseMessage(e)+"_上傳失敗"+ExceptionUtil.getRootCauseMessage(e)));
             return result.getJson();
         }
     }
 
+    /**保存数据**/
     @Transactional(rollbackFor = Exception.class)
     private String saveRtData(List<List<String>> list ,List<PoColumns> columns,String tableName){
         System.out.print("处理数据插入表中");
@@ -266,7 +263,7 @@ public class PlOfflineDataSupplementService {
         return message;
     }
 
-
+    /**删除历史数据**/
     private void dataCheck(String tableName,String period,String legalPersonCode){
             System.out.print("表："+tableName+"期間："+period+"法人代碼："+legalPersonCode);
             String  deleteStr="delete from epmebs."+tableName+" where PERIOD='"+period+"' and LEGAL_PERSON_CODE in("+legalPersonCode.substring(0, legalPersonCode.length()-1)+")";
@@ -274,6 +271,7 @@ public class PlOfflineDataSupplementService {
             poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteStr).executeUpdate();
     }
 
+    /**下载数据**/
     public String downloadFile(String queryCondition, String  tableName, HttpServletRequest request,PageRequest pageRequest) throws IOException {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFWorkbook workBook = new XSSFWorkbook();
@@ -296,7 +294,7 @@ public class PlOfflineDataSupplementService {
         for (int i = 0; i < columns.size(); i++) {
             PoColumns poColumn = columns.get(i);
             String columnName = poColumn.getColumnName();
-            String comments = getByLocale(locale,poColumn.getComments());
+            String comments = instrumentClassService.getByLocale(locale,poColumn.getComments());
             if (poColumn.getDataType().equalsIgnoreCase("number")) {
                 sql += "regexp_replace(to_char(" + columnName + ",'FM99999999999999.999999999'),'\\.$',''),";
                 numberList.add(i);
@@ -373,7 +371,7 @@ public class PlOfflineDataSupplementService {
                 }
             }
         }
-        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download" + File.separator+getByLocale(locale,"Template-Offline profit and loss and internal transaction supplement.xlsx_綫下損益表内交模板.xlsx"));
+        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download" + File.separator+instrumentClassService.getByLocale(locale,"Template-Offline profit and loss and internal transaction supplement.xlsx_綫下損益表内交模板.xlsx"));
         OutputStream out = new FileOutputStream(outFile);
         sxssfWorkbook.write(out);
         sxssfWorkbook.close();
@@ -382,6 +380,7 @@ public class PlOfflineDataSupplementService {
         return outFile.getName();
     }
 
+    /**删除数据**/
     public AjaxResult deleteData(AjaxResult ajaxResult,String no,String tableName) {
         try {
             String[] ids = no.split(",");

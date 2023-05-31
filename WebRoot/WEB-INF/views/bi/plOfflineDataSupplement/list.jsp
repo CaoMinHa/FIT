@@ -44,18 +44,6 @@
                     clickPage(Page.getPage());
                 }
             });
-            $(".table tbody tr").each(function(e){
-                if(e%2!=0){
-                    $(this).css("background-color","#eceaea");
-                }
-                $(this).children('td').each(function(){
-                    var txt = $(this).text();
-                    if (/^\-?[0-9]+(.[0-9]+)?$/.test(txt)){
-                        $(this).css("text-align", "right");
-                    }
-                });
-            })
-
             $("#checkboxQX").click(function () {
                 if($("#checkboxQX").is(':checked')){
                     $("input[name='checkboxID']").prop("checked",true);
