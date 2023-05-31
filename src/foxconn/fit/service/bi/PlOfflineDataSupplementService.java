@@ -128,7 +128,7 @@ public class PlOfflineDataSupplementService {
     }
 
     /**数据上传**/
-    public String uploadFile(Sheet sheet,AjaxResult result, Locale locale,String tableName) throws Exception {
+    public String upload(Sheet sheet,AjaxResult result, Locale locale,String tableName) throws Exception {
         System.out.print("开始处理数据-------》");
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
         String roleSql="select count(1) from  fit_user u \n" +
@@ -272,7 +272,7 @@ public class PlOfflineDataSupplementService {
     }
 
     /**下载数据**/
-    public String downloadFile(String queryCondition, String  tableName, HttpServletRequest request,PageRequest pageRequest) throws IOException {
+    public String download(String queryCondition, String  tableName, HttpServletRequest request,PageRequest pageRequest) throws IOException {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFWorkbook workBook = new XSSFWorkbook();
         XSSFCellStyle titleStyle = workBook.createCellStyle();
@@ -381,7 +381,7 @@ public class PlOfflineDataSupplementService {
     }
 
     /**删除数据**/
-    public AjaxResult deleteData(AjaxResult ajaxResult,String no,String tableName) {
+    public AjaxResult delete(AjaxResult ajaxResult,String no,String tableName) {
         try {
             String[] ids = no.split(",");
             String deleteSql = " delete from epmebs."+tableName+" where PL_ID in (";

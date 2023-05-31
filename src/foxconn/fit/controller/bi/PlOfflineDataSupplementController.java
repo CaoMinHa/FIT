@@ -98,7 +98,7 @@ public class PlOfflineDataSupplementController extends BaseController {
                         .bufferSize(4096)
                         .open(file.getInputStream());
                 Sheet sheet = wk.getSheetAt(0);
-                String str =offlineDataSupplementService.uploadFile(sheet,result,locale,tableName);
+                String str =offlineDataSupplementService.upload(sheet,result,locale,tableName);
                 return str;
             } else {
                 result.put("flag", "fail");
@@ -120,7 +120,7 @@ public class PlOfflineDataSupplementController extends BaseController {
     public synchronized String download(HttpServletRequest request,PageRequest pageRequest, AjaxResult result,
             @Log(name = "查询条件") String queryCondition,@Log(name = "表")String tableName) {
         try {
-            String fileName=offlineDataSupplementService.downloadFile(queryCondition,tableName,request,pageRequest);
+            String fileName=offlineDataSupplementService.download(queryCondition,tableName,request,pageRequest);
             result.put("fileName",fileName);
             System.gc();
         } catch (Exception e) {
@@ -160,8 +160,8 @@ public class PlOfflineDataSupplementController extends BaseController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     @Log(name = "三表補錄-->删除")
-    public String deleteAll(AjaxResult ajaxResult, @Log(name = "ID") String no,@Log(name = "表")String tableName) {
-        ajaxResult= offlineDataSupplementService.deleteData(ajaxResult,no,tableName);
+    public String delete(AjaxResult ajaxResult, @Log(name = "ID") String no,@Log(name = "表")String tableName) {
+        ajaxResult= offlineDataSupplementService.delete(ajaxResult,no,tableName);
         return ajaxResult.getJson();
     }
 }
