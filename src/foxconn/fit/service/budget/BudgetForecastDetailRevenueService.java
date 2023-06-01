@@ -56,6 +56,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	@Autowired
 	private ForecastDetailRevenueService forecastDetailRevenueService;
 
+	@Autowired
+	private ForecastDetailRevenueSrcService forecastDetailRevenueSrcService;
 
 	@Override
 	public BaseDaoHibernate<BudgetDetailRevenue> getDao() {
@@ -1081,5 +1083,11 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			sql+=" and ("+sbuVal.substring(0,sbuVal.length()-2)+")";
 		}
 		budgetDetailRevenueDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
+	}
+
+	/**获取维度表**/
+	public Map<String,String> dimension(HttpServletRequest request) {
+		Map<String,String> map=forecastDetailRevenueSrcService.dimension(request);
+		return map;
 	}
 }

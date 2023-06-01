@@ -6,7 +6,6 @@ import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.budget.BudgetDetailRevenue;
 import foxconn.fit.entity.budget.ForecastSalesRevenueV;
 import foxconn.fit.service.budget.BudgetForecastDetailRevenueService;
-import foxconn.fit.service.budget.ForecastDetailRevenueSrcService;
 import foxconn.fit.util.ExceptionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,7 +20,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import java.util.Map;
 
@@ -35,18 +33,16 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@Autowired
 	private BudgetForecastDetailRevenueService budgetForecastDetailRevenueService;
 
-	@Autowired
-	private ForecastDetailRevenueSrcService forecastDetailRevenueSrcService;
 
 	@RequestMapping(value = "index")
-	public String index(Model model,HttpServletRequest request) {
+	public String index(Model model) {
 		model=budgetForecastDetailRevenueService.index(model);
 		return "/bi/budgetForecastDetailRevenue/index";
 	}
 
 	@RequestMapping(value="/list")
 	@Log(name = "銷售收入-->查詢")
-	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,@Log(name="場景") String scenarios,@Log(name ="SBU") String entitys,
+	public String list(Model model,PageRequest pageRequest,@Log(name="場景") String scenarios,@Log(name ="SBU") String entitys,
 					   @Log(name="年份") String year,@Log(name="版本") String version) {
 		try {
 			if(scenarios.equals("budget")){
@@ -69,7 +65,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value="/delete")
 	@ResponseBody
 	@Log(name = "銷售收入-->單條數據刪除")
-	public String delete(HttpServletRequest request,AjaxResult ajaxResult,Model model,@Log(name="ID") String id,@Log(name = "場景")String scenarios){
+	public String delete(HttpServletRequest request,AjaxResult ajaxResult,@Log(name="ID") String id,@Log(name = "場景")String scenarios){
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		ajaxResult.put("msg", getLanguage(locale, "删除成功", "Delete Success"));
 		try {
@@ -91,7 +87,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "upload")
 	@ResponseBody
 	@Log(name = "銷售收入-->上传")
-	public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result,@Log(name="場景") String scenarios,@Log(name="重複校驗") String doubleCheck) {
+	public String upload(HttpServletRequest request, AjaxResult result,@Log(name="場景") String scenarios,@Log(name="重複校驗") String doubleCheck) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		result.put("msg", getLanguage(locale, "上传成功", "Upload Success"));
 		MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
@@ -110,7 +106,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "download")
 	@ResponseBody
 	@Log(name = "銷售收入-->下载")
-	public synchronized String download(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
+	public synchronized String download(HttpServletRequest request,PageRequest pageRequest,AjaxResult result,
 			@Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version,@Log(name="場景")String scenarios){
 		try {
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -143,9 +139,9 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "dimension")
 	@ResponseBody
 	@Log(name = "銷售收入下載維度表")
-	public synchronized String dimension(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+	public synchronized String dimension(HttpServletRequest request, AjaxResult result) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		 Map<String,String> map=forecastDetailRevenueSrcService.dimension(request);
+		 Map<String,String> map=budgetForecastDetailRevenueService.dimension(request);
 			if(map.get("result")=="Y"){
 				result.put("fileName", map.get("str"));
 			}else{
@@ -162,7 +158,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "template")
 	@ResponseBody
 	@Log(name = "銷售收入下載模板")
-	public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result,@Log(name = "場景") String type) {
+	public synchronized String template(HttpServletRequest request, AjaxResult result,@Log(name = "場景") String type) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> map=budgetForecastDetailRevenueService.template(request,type);
 		if(map.get("result").equals("Y")){
@@ -180,7 +176,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "version")
 	@ResponseBody
 	@Log(name = "銷售收入-->存儲版本")
-	public synchronized String version(HttpServletRequest request, HttpServletResponse response, AjaxResult result,@Log(name = "場景") String scenarios) {
+	public synchronized String version(HttpServletRequest request, AjaxResult result,@Log(name = "場景") String scenarios) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String version="";
 		if("forecast".equals(scenarios)){
@@ -206,7 +202,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value="/deleteMany")
 	@ResponseBody
 	@Log(name = "銷售收入-->按條件刪除")
-	public synchronized String deleteMany(HttpServletRequest request,PageRequest pageRequest,AjaxResult result,
+	public synchronized String deleteMany(HttpServletRequest request,AjaxResult result,
 										  @Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version,@Log(name="場景")String scenarios){
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		try {
