@@ -6,7 +6,6 @@ import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.bi.PmrCommonService;
 import foxconn.fit.service.bi.PmrPeerUpdatesService;
-import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.util.ExceptionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,7 +18,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -30,9 +28,6 @@ import java.util.Map;
 @Controller
 @RequestMapping("/bi/pmrPeerUpdates")
 public class PmrPeerUpdatesController extends BaseController {
-
-    @Autowired
-    private PoTableService poTableService;
 
     @Autowired
     private PmrCommonService pmrCommonService;
@@ -57,10 +52,10 @@ public class PmrPeerUpdatesController extends BaseController {
     public String list(Model model, PageRequest pageRequest, HttpServletRequest request,String queryCondition) {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-            PoTable poTable = poTableService.get(tableName);
+            PoTable poTable = pmrCommonService.get(tableName);
             String sql = pmrPeerUpdatesService.selectDataSql(queryCondition,locale,model,poTable);
             pageRequest.setPageSize(5);
-            Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
+            Page<Object[]> page = pmrCommonService.findPageBySql(pageRequest, sql);
             int index = 1;
             if (pageRequest.getPageNo() > 1) {
                 index = 2;
@@ -76,11 +71,11 @@ public class PmrPeerUpdatesController extends BaseController {
     @RequestMapping(value = "/add")
     @ResponseBody
     @Log(name = "Peer Updates-->添加")
-    public String list(HttpServletRequest request,HttpServletResponse response, AjaxResult result,String dateAdd,String peerUpdates) {
+    public String add(AjaxResult result,String dateAdd,String peerUpdates) {
         try {
             result=pmrPeerUpdatesService.add(result,dateAdd,peerUpdates);
         } catch (Exception e) {
-            logger.error("查詢數據失敗(Failed to query data)", e);
+            logger.error("添加數據失敗(Failed to add data)", e);
         }
         return result.getJson();
     }
@@ -88,10 +83,10 @@ public class PmrPeerUpdatesController extends BaseController {
     @RequestMapping(value = "download")
     @ResponseBody
     @Log(name = "Peer Updates-->下载")
-    public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
+    public synchronized String download(HttpServletRequest request, PageRequest pageRequest, AjaxResult result,
             @Log(name = "下載條件") String queryCondition) {
         try {
-            PoTable poTable = poTableService.get(tableName);
+            PoTable poTable = pmrCommonService.get(tableName);
             String fileName=pmrCommonService.downloadFile(queryCondition,poTable,request,pageRequest);
             result.put("fileName",fileName);
             System.gc();
@@ -107,7 +102,7 @@ public class PmrPeerUpdatesController extends BaseController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     @Log(name = "Peer Updates-->刪除")
-    public String deleteAll(AjaxResult ajaxResult, String no) {
+    public String delete(AjaxResult ajaxResult, String no) {
         ajaxResult= pmrPeerUpdatesService.deleteData(ajaxResult,no);
         return ajaxResult.getJson();
     }

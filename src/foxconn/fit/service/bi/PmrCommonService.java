@@ -1,10 +1,12 @@
 package foxconn.fit.service.bi;
 
 import com.monitorjbl.xlsx.StreamingReader;
+import foxconn.fit.dao.base.BaseDaoHibernate;
 import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
+import foxconn.fit.service.base.BaseService;
 import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.util.ExcelUtil;
 import foxconn.fit.util.ExceptionUtil;
@@ -35,9 +37,16 @@ import java.util.*;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class PmrCommonService {
+public class PmrCommonService extends BaseService<PoTable> {
     @Autowired
     private PoTableDao poTableDao;
+    @Autowired
+    private InstrumentClassService instrumentClassService;
+    
+    @Override
+    public BaseDaoHibernate<PoTable> getDao() {
+        return poTableDao;
+    }
     /**
     根據條件拼裝sql語句
      **/
@@ -46,7 +55,7 @@ public class PmrCommonService {
         List<String> list = new ArrayList<>();
         String sql = "select ";
         for (PoColumns poColumns : columns) {
-           list.add(getByLocale(locale, poColumns.getComments()));
+           list.add(instrumentClassService.getByLocale(locale, poColumns.getComments()));
             if(poColumns.getDataType().equalsIgnoreCase("DATE")){
                 sql+="to_char("+poColumns.getColumnName()+",'yyyy/mm/dd hh24:mi:ss'),";
             }else{
@@ -87,7 +96,7 @@ public class PmrCommonService {
         for (Map poColumns : list) {
             Map map=new HashMap();
             map.put("key",poColumns.get("COLUMN_NAME"));
-            map.put("val",getByLocale(locale, poColumns.get("COMMENTS").toString()));
+            map.put("val",instrumentClassService.getByLocale(locale, poColumns.get("COMMENTS").toString()));
             listMap.add(map);
         }
         return listMap;
@@ -107,7 +116,7 @@ public class PmrCommonService {
         font.setBold(true);
         titleStyle.setFont(font);
         List<PoColumns> columns = poTable.getColumns();
-        Sheet sheet = workBook.createSheet(getByLocale(locale, poTable.getComments()));
+        Sheet sheet = workBook.createSheet(instrumentClassService.getByLocale(locale, poTable.getComments()));
         sheet.createFreezePane(0, 3, 0, 3);
         int rowIndex = 0;
         Row row = sheet.createRow(rowIndex++);
@@ -127,7 +136,7 @@ public class PmrCommonService {
             cell2.setCellStyle(titleStyle);
             sheet.setColumnWidth(i, comments.getBytes("GBK").length * 256 + 800);
         }
-        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download/"+getByLocale(locale,poTable.getComments())+".xlsx");
+        File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download/"+instrumentClassService.getByLocale(locale,poTable.getComments())+".xlsx");
         return outFile;
     }
 
@@ -145,7 +154,7 @@ public class PmrCommonService {
             }
             if (!"xls".equals(suffix) && !"xlsx".equals(suffix)) {
                 result.put("flag", "fail");
-                result.put("msg", getByLocale(locale, "請上傳正確格式的Excel文件_The format of excel is error"));
+                result.put("msg", instrumentClassService.getByLocale(locale, "請上傳正確格式的Excel文件_The format of excel is error"));
                 return result.getJson();
             }
             Workbook wk = StreamingReader.builder()
@@ -162,11 +171,11 @@ public class PmrCommonService {
             int n;
             for (Row row : sheet) {
                 if (row.getRowNum() < 3) {
-                    Assert.notNull(row, getByLocale(locale, "Please use the downloaded template to import data_請使用所下載的模板導入數據！"));
+                    Assert.notNull(row, instrumentClassService.getByLocale(locale, "Please use the downloaded template to import data_請使用所下載的模板導入數據！"));
                     int columnNum = row.getPhysicalNumberOfCells();
                     if (columnNum < COLUMN_NUM) {
                         result.put("flag", "fail");
-                        result.put("msg", getByLocale(locale, "The number of columns cannot be less than " + COLUMN_NUM+"_列數不能小於"+ COLUMN_NUM));
+                        result.put("msg", instrumentClassService.getByLocale(locale, "The number of columns cannot be less than " + COLUMN_NUM+"_列數不能小於"+ COLUMN_NUM));
                         return result.getJson();
                     }
                     continue;
@@ -246,20 +255,7 @@ public class PmrCommonService {
         }
         return message;
     }
-
-    /**
-     * 切分中英文
-     */
-    private String getByLocale(Locale locale,String value){
-        if (StringUtils.isNotEmpty(value) && value.indexOf("_")>0) {
-            if (locale!=null && "en_US".equals(locale.toString())) {
-                return value.substring(0,value.lastIndexOf("_"));
-            }else{
-                return value.substring(value.lastIndexOf("_")+1,value.length());
-            }
-        }
-        return value;
-    }
+    
 
     /**
      *下載
@@ -280,7 +276,7 @@ public class PmrCommonService {
         List<PoColumns> columns = poTable.getColumns();
         List<Integer> lockSerialList = new ArrayList<Integer>();
         String sql = "select ";
-        Sheet sheet = sxssfWorkbook.createSheet(getByLocale(locale, poTable.getComments()));
+        Sheet sheet = sxssfWorkbook.createSheet(instrumentClassService.getByLocale(locale, poTable.getComments()));
         sheet.createFreezePane(0, 1, 0, 1);
         Row titleRow = sheet.createRow(0);
         List<Integer> numberList = new ArrayList<Integer>();
@@ -365,7 +361,7 @@ public class PmrCommonService {
                 }
             }
         }
-        String fileName = getByLocale(locale,poTable.getComments());
+        String fileName = instrumentClassService.getByLocale(locale,poTable.getComments());
         File outFile = new File(request.getRealPath("") + File.separator + "static" + File.separator + "download" + File.separator + fileName + ".xlsx");
         OutputStream out = new FileOutputStream(outFile);
         sxssfWorkbook.write(out);
