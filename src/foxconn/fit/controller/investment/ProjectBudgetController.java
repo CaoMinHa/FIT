@@ -94,7 +94,7 @@ public class ProjectBudgetController extends BaseController {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		result.put("msg", getLanguage(locale, "上传成功", "Upload Success"));
 		MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
-		return projectBudgetService.uploadBudget(result, locale, multipartHttpServletRequest,scenarios);
+		return projectBudgetService.upload(result, locale, multipartHttpServletRequest,scenarios);
 	}
 
 
@@ -108,7 +108,7 @@ public class ProjectBudgetController extends BaseController {
 			Assert.hasText(scenarios, getLanguage(locale, "場景不能为空", "The scene cannot be empty"));
 			Assert.hasText(year, getLanguage(locale, "年不能为空", "Year can not be null"));
 			Assert.hasText(entitys, getLanguage(locale, "SBU不能为空", "SBU can not be null"));
-			Map<String,String> map=projectBudgetService.downloadBudget(entitys,year,version,request,pageRequest,scenarios);
+			Map<String,String> map=projectBudgetService.download(entitys,year,version,request,pageRequest,scenarios);
 			if(map.get("result").equals("Y")){
 				result.put("fileName", map.get("file"));
 			}else{
@@ -171,9 +171,9 @@ public class ProjectBudgetController extends BaseController {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String version="";
 		if("forecast".equals(scenarios)){
-			version=projectBudgetService.versionBudget(forecastTabel);
+			version=projectBudgetService.version(forecastTabel);
 		}else{
-			version=projectBudgetService.versionBudget(budgetTable);
+			version=projectBudgetService.version(budgetTable);
 		}
 		if(version.contains("_")){
 			result.put("flag", "fail");
