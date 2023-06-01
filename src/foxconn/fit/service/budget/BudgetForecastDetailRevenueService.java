@@ -1059,6 +1059,13 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		return result;
 	}
 
+	/**
+	 * 批量刪除數據
+	 * @param entitys SBU
+	 * @param year 年
+	 * @param version 版本
+	 * @param scenarios 場景
+	 */
 	public void deleteMany(String entitys,String year,String version,String scenarios){
 		String sql="";
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
