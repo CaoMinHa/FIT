@@ -12,11 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -155,7 +158,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         return null;
     }
 
-    public List<List<String>> selectGroup(List<String> list){
+    private List<List<String>> selectGroup(List<String> list){
         List<List<String>> groupV=new ArrayList();
         for (int i=0;i<list.size();i++) {
             List<String> listValue=new ArrayList<>();
@@ -167,6 +170,15 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         return groupV;
     }
 
+    public void index(Model model){
+        List<String> list=poTableService.listBySql("select distinct name from FIT_PO_AUDIT_ROLE where code in('PLACECLASS1','MANAGER','specialManager','PD','PLACECLASS','T_MANAGER','TDC','CPO','MM','SBUCompetent') order by name");
+        List<String> yearList=poTableService.listBySql("select distinct ID_YEAR from BIDEV.DM_D_TIME_YEAR order by ID_YEAR");
+        List<List<String>> listGroup=this.selectGroup(list);
+        model.addAttribute("EmailUserTeam",list);
+        model.addAttribute("yearList",yearList);
+        model.addAttribute("yearDate", Calendar.getInstance().get(Calendar.YEAR));
+        model.addAttribute("listGroup",listGroup);
+    }
 
     //定时任务发送邮件提醒
     public void sendEmailTiming(String username,String content,String title){

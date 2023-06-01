@@ -123,13 +123,20 @@ function refresh(){
 
 $("#affirmBut").click(function () {
 	$("#loading").show();
+	var updateData="";
+	$("#insertFrom input").each(function(i){
+		var columnName=$(this).attr("name");
+		var value=$(this).val();
+		updateData+=columnName+"="+value+"￥";
+	});
+	updateData=updateData.substring(0,updateData.length-1);
 		$.ajax({
 			type:"POST",
 			url:"${ctx}/bi/rtMix/insertData",
 			async:true,
 			dataType:"json",
 			data:{
-				formVal:$("#insertFrom").serialize(),
+				formVal:updateData,
 				type:$("#MasterData").val()},
 			success: function(data){
 				$("#loading").hide();

@@ -76,6 +76,14 @@ public class RtMappingController extends BaseController{
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 			Assert.hasText(masterData, getLanguage(locale,"營收映射表不能为空","Master data can not be null"));
 			result.put("msg", getLanguage(locale,"更新成功","Update data success"));
+			if(masterData.contains("CUX_RT_SALES_ACCOUNT_MAPPING")){
+				String r=mappingDataService.checkOne(updateData);
+				if(!r.isEmpty()){
+					result.put("flag", "fail");
+					result.put("msg", "銷售銷售區域、銷售主管未存在Account Mgr主數據表表中，請查驗修改數據。</br>"+r);
+					return result.getJson();
+				}
+			}
 			mappingDataService.update(masterData,updateData);
 		} catch (Exception e) {
 			logger.error("更新營收映射表信息失败", e);
@@ -142,6 +150,14 @@ public class RtMappingController extends BaseController{
 	@Log(name = "營收映射表-->單條新增")
 	public String insert(AjaxResult result,@Log(name = "營收映射表数据單個新增") String formVal,String type){
 		try {
+			if(type.contains("CUX_RT_SALES_ACCOUNT_MAPPING")) {
+				String r = mappingDataService.checkOne(formVal);
+				if (!r.isEmpty()) {
+					result.put("flag", "fail");
+					result.put("msg", "銷售銷售區域、銷售主管未存在Account Mgr主數據表表中，請查驗新增數據。</br>" + r);
+					return result.getJson();
+				}
+			}
 			mappingDataService.insert(formVal,type);
 		} catch (Exception e) {
 			logger.error("單個新增營收映射表信息失败", e);

@@ -4,7 +4,6 @@ import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.service.bi.PoEmailService;
-import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.util.ExceptionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,17 +29,11 @@ import java.util.Locale;
 public class PoEmailController extends BaseController {
     @Autowired
     private PoEmailService poEmailService;
-    @Autowired
-    private PoTableService poTableService;
 
     @RequestMapping(value = "index")
     public String index(Model model) {
         try {
-            List<String> list=poTableService.listBySql("select distinct name from FIT_PO_AUDIT_ROLE where code in('PLACECLASS1','MANAGER','specialManager','PD','PLACECLASS','T_MANAGER','TDC','CPO','MM','SBUCompetent') order by name");
-            List<List<String>> listGroup=poEmailService.selectGroup(list);
-            model.addAttribute("EmailUserTeam",list);
-            model.addAttribute("listGroup",listGroup);
-
+            poEmailService.index(model);
         } catch (Exception e) {
             logger.error("查詢郵件分組失敗！", e);
         }

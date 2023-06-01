@@ -32,6 +32,7 @@ import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -218,7 +219,6 @@ public class MappingDataService extends BaseService<User> {
 
 	/**營收數據上傳**/
 	public String upload(AjaxResult result, String masterData, HttpServletRequest request, Locale locale) throws Exception {
-		String masterType=masterData.split(",")[0];
 		String tableName=masterData.split(",")[1];
 		MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
 		Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
@@ -257,41 +257,18 @@ public class MappingDataService extends BaseService<User> {
 			}
 			Row columnRow = sheet.getRow(0);
 			Row readRow = sheet.getRow(1);
-			Row lovRow = sheet.getRow(2);
 			int columnNum = readRow.getPhysicalNumberOfCells()-2;
-			String language = columnRow.getCell(0).getStringCellValue();
 			String tableNAME = readRow.getCell(0).getStringCellValue();
 			Assert.isTrue(tableName.equals(tableNAME), instrumentClassService.getLanguage(locale,"映射表選擇錯誤","Incorrect mapping table selection"));
 
 			List<Integer> indexList=new ArrayList<Integer>();
 			List<String> columnList=new ArrayList<String>();
-			Map<Integer,String> readMap=new HashMap<Integer, String>();
-			Map<Integer,String> lovMap=new HashMap<Integer, String>();
 			for (int i = 1; i < columnNum; i++) {
 				String read = readRow.getCell(i).getStringCellValue();
 				if ("W".equals(read)) {
 					String column = columnRow.getCell(i).getStringCellValue();
 					columnList.add(column);
-					String lov = lovRow.getCell(i).getStringCellValue();
-					if (StringUtils.isNotEmpty(lov)) {
-						readMap.put(Integer.valueOf(i), "WS");
-						lovMap.put(Integer.valueOf(i), lov);
-					}else{
-						readMap.put(Integer.valueOf(i), "W");
-					}
 					indexList.add(Integer.valueOf(i));
-				}
-			}
-
-			List<Object[]> optionList = this.listBySql("SELECT c.lov,v.lov_code,v.lov_desc FROM CUX_PO_MAP_DATA_COLS c,CUX_MD_LOV_VALUES v "+
-					"WHERE c.CATEGORY = '"+masterType+"' AND c.LANGUAGE = '"+language+"' AND c.IS_DISPLAY = 'Y' AND c.ENABLED_FLAG = 'Y' and c.LOV is not null and c.lov=v.lov_type and v.language='"+language+"' and v.enabled_flag='Y' order by c.lov,v.lov_code desc");
-			Map<String,String> optionMap=new HashMap<String,String>();
-			if (optionList!=null && optionList.size()>0) {
-				for (Object[] objects : optionList) {
-					String lov=(String) objects[0];
-					String lovCode=(String) objects[1];
-					String lovDesc=(String) objects[2];
-					optionMap.put(lov+"&"+lovDesc, lovCode);
 				}
 			}
 			List<List<String>> insertdataList=new ArrayList<List<String>>();
@@ -303,10 +280,6 @@ public class MappingDataService extends BaseService<User> {
 				List<String> insertdata=new ArrayList<String>();
 				for (Integer index : indexList) {
 					String value = ExcelUtil.getCellStringValue(row.getCell(index),i);
-					if ("WS".equals(readMap.get(index)) && StringUtils.isNotEmpty(value)) {
-						value=optionMap.get(lovMap.get(index)+"&"+value);
-						Assert.hasText(value, instrumentClassService.getLanguage(locale,"後臺配置已更新，請重新下載","The background configuration has changed,please download again"));
-					}
 					value = value.replaceAll("'","''");
 					insertdata.add(value.trim());
 				}
@@ -316,6 +289,14 @@ public class MappingDataService extends BaseService<User> {
 			}
 			insertdataList = insertdataList.stream().distinct().collect(Collectors.toList());
 			if (!insertdataList.isEmpty()) {
+				if(tableNAME.equalsIgnoreCase("CUX_RT_SALES_ACCOUNT_MAPPING")){
+					String r=this.check(insertdataList);
+					if(!r.isEmpty()){
+						result.put("flag", "fail");
+						result.put("msg", "以下銷售銷售區域及銷售主管未存在Account Mgr主數據表表中，請查驗上傳數據。</br>"+r.substring(0,r.length()-1));
+						return result.getJson();
+					}
+				}
 				this.saveBatch(tableNAME,columnList,insertdataList);
 			}else{
 				result.put("flag", "fail");
@@ -328,13 +309,43 @@ public class MappingDataService extends BaseService<User> {
 		return result.getJson();
 	}
 
+	/**接口平台Sales對應Account org表 校验销售组织+銷售區域主管是否存在Account Mgr主數據表表中**/
+	private String check(List<List<String>> insertDataList){
+		String result="";
+		for (List<String> list : insertDataList) {
+			List<BigDecimal> countList = (List<BigDecimal>)userDao.listBySql("select count(1) from CUX_RT_ACCOUNT_MAPPING where SALES_ORG='"+list.get(4)+"' and ACCOUNT_MGR='"+list.get(5)+"'");
+			if(countList.get(0).intValue()<1){
+				result+=list.get(4)+","+list.get(5)+";";
+			}
+		}
+		return result;
+	}
+	/**接口平台Sales對應Account org表 校验销售组织+銷售區域主管是否存在Account Mgr主數據表表中**/
+	public String checkOne(String formVal){
+		String[] params = formVal.split("￥");
+		String result="";
+		String salesOrg="";
+		String accountMgr="";
+		salesOrg = params[5].substring(params[5].indexOf("=")+1).trim();
+		accountMgr = params[6].substring(params[6].indexOf("=")+1).trim();
+		if(params.length==7){
+			salesOrg = params[4].substring(params[4].indexOf("=")+1).trim();
+			accountMgr = params[5].substring(params[5].indexOf("=")+1).trim();
+		}
+		List<BigDecimal> countList = (List<BigDecimal>)userDao.listBySql("select count(1) from CUX_RT_ACCOUNT_MAPPING where SALES_ORG='"+salesOrg+"' and ACCOUNT_MGR='"+accountMgr+"'");
+		if(countList.get(0).intValue()<1){
+			result+=salesOrg+","+accountMgr;
+		}
+		return result;
+	}
+
 	/**單個新增營收映射表信息**/
 	public void insert(String formVal,String type){
 		String sql="insert into ";
 		String val="";
 		if("Account,CUX_RT_ACCOUNT_MAPPING".equals(type)){
 			sql+=" CUX_RT_ACCOUNT_MAPPING(";
-			String[] params = formVal.split("&");
+			String[] params = formVal.split("￥");
 			for (String param : params) {
 				String columnName = param.substring(0,param.indexOf("="));
 				String columnValue = param.substring(param.indexOf("=")+1).trim();
@@ -349,7 +360,7 @@ public class MappingDataService extends BaseService<User> {
 			userDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
 		}else if("Sales_Account,CUX_RT_SALES_ACCOUNT_MAPPING".equals(type)){
 			sql+=" CUX_RT_SALES_ACCOUNT_MAPPING(";
-			String[] params = formVal.split("&");
+			String[] params = formVal.split("￥");
 			for (String param : params) {
 				String columnName = param.substring(0,param.indexOf("="));
 				String columnValue = param.substring(param.indexOf("=")+1).trim();

@@ -232,15 +232,20 @@ $(document).ready(function(){
 					<label style="display: inline!important;" >郵件主題：</label>
 					<input id="emailTitle" style="width: 700px;" type="text" placeholder="请输入邮箱主题">
 				</div>
-				<div>
+				<div style="margin-right: 22%;">
 					<label style="display: inline!important;" >VOC年份：</label>
-					<input id="emailYear" style="width: 700px;" type="text" placeholder="请输入VOC年份">
+					<select id="emailYear" class="input-large" style="width:200px;">
+						<c:forEach items="${yearList}" var="scenarios">
+							<option value="${scenarios}" <c:if test="${scenarios eq yearDate}">selected="selected"</c:if> >${scenarios}</option>
+						</c:forEach>
+					</select>
+					<font style="font-size: smaller" color="red">VOC年份，用於提醒該年份未上傳數據的用戶</font>
 				</div>
 				<div>
 					<label style="display: inline!important;">郵件内容：</label>
 					<textarea style="width: 700px" id="emailContent" rows="10"></textarea>
 				</div>
-				<div style="margin-right: 210px;">
+				<div style="margin-right: 18%;">
 					<label style="display: inline!important;">截止时间：</label>
 					<input id="endDate" style="z-index: 9999;background-color: #ffffff;
                                width: 200px;text-align:center;"
