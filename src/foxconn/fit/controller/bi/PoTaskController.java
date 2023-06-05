@@ -2,12 +2,10 @@ package foxconn.fit.controller.bi;
 
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
-import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.UserDetailImpl;
-import foxconn.fit.service.base.UserService;
 import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.service.bi.PoTaskService;
 import foxconn.fit.util.ExceptionUtil;
@@ -44,13 +42,9 @@ import java.util.Map;
 public class PoTaskController extends BaseController {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private PoTaskService poTaskService;
     @Autowired
     private PoTableService poTableService;
-    @Autowired
-    private PoTableDao poTableDao;
 
     @RequestMapping(value = "index")
     public String index(Model model) {
@@ -69,7 +63,7 @@ public class PoTaskController extends BaseController {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String userName=loginUser.getUsername();
             String userSql=" select sbu,email,COMMODITY_MAJOR from fit_user where username="+"'"+userName+"'";
-            List<Map> maps = userService.listMapBySql(userSql);
+            List<Map> maps = poTableService.listMapBySql(userSql);
             String sbu="";
             String email="";
             String commodityMajor="";
@@ -496,7 +490,7 @@ public class PoTaskController extends BaseController {
                 }
                 outFile.delete();
                 String deleteSql="delete from fit_po_task_file where FILEID='"+fileId+"'";
-                poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
+                poTableService.updateSql(deleteSql);
             }else {
                 result.put("msg", getLanguage(locale, "刪除失敗，未找到文件路徑。", "Failed to delete the file because the file path was not found."));
             }
@@ -543,7 +537,7 @@ public class PoTaskController extends BaseController {
                     String insertSql="insert into FIT_PO_TASK_FILE(CREATE_USER,TASKID,FILEURL,FILENAME,FILEID) " +
                             "values ('"+user+"','"+taskId+"','"+Id+File.separator +file.getOriginalFilename()+"','"+
                             file.getOriginalFilename()+"','"+Id+"')";
-                    poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(insertSql).executeUpdate();
+                    poTableService.updateSql(insertSql);
                     result.put("fileName",file.getOriginalFilename());
                     result.put("fileId",Id);
                 }

@@ -35,7 +35,7 @@ public class PoFlowService extends BaseService<PoFlow> {
         return poFlowDao;
     }
 
-
+    /**頁面修改單條數據**/
     public void updateData(String updateData,String tableName) {
         if (StringUtils.isNotEmpty(updateData)) {
             String updateSql = "update " + tableName + " set ";
@@ -63,6 +63,7 @@ public class PoFlowService extends BaseService<PoFlow> {
         }
     }
 
+    /**頁面修改數據**/
     public void updateDataAll(String updateData,String tableName) {
         if (StringUtils.isNotEmpty(updateData)) {
             String[] str=updateData.split(";");
@@ -92,7 +93,7 @@ public class PoFlowService extends BaseService<PoFlow> {
         }
     }
 
-    public void executeCpo(String year){
+    private void executeCpo(String year){
         try{
             Connection c = SessionFactoryUtils.getDataSource(poFlowDao.getSessionFactory()).getConnection();
             CallableStatement cs = c.prepareCall("{call fit_po_target_cpo_cd_pkg.main(?)}");
@@ -105,6 +106,7 @@ public class PoFlowService extends BaseService<PoFlow> {
         }
     }
 
+    /**頁面查詢**/
     public Model list(Model model, String tableName, String  date, PageRequest pageRequest){
         String flagSql="select distinct flag from "+tableName+ " where year='"+date+"'  and flag is null";
         List<String> flags= this.listBySql(flagSql);
