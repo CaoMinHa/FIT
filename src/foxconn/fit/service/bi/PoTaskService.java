@@ -38,8 +38,6 @@ public class PoTaskService extends BaseService<PoTask> {
     @Autowired
     private PoTaskDao poTaskDao;
     @Autowired
-    private PoRoleService roRoleService;
-    @Autowired
     private PoTableService poTableService;
     @Autowired
     private InstrumentClassService instrumentClassService;
@@ -113,7 +111,7 @@ public class PoTaskService extends BaseService<PoTask> {
 
     public AjaxResult submit(AjaxResult ajaxResult,String type,String taskId,String roleCode,String remark) throws Exception {
         String taskName = "select NAME from fit_po_task where id='" + taskId + "'";
-        List<String> taskList = roRoleService.listBySql(taskName);
+        List<String> taskList = poTableService.listBySql(taskName);
         String[] task= taskList.get(0).split("_");
         String title=task[1]+"_"+task[0]+"採購BI平臺簽核通知，請勿回復";
 
@@ -148,7 +146,7 @@ public class PoTaskService extends BaseService<PoTask> {
                         " WHERE  r.code='"+replaceRole(roleCode,"1")+"' and u.type='BI'  and u.email is not null and instr(','||u.sbu||',', (select ','||COMMODITY_MAJOR||',' from FIT_PO_TASK" +
                         " WHERE id='"+taskId+"')) > 0";
             }
-            List<String> classMaps = roRoleService.listBySql(sql);
+            List<String> classMaps = poTableService.listBySql(sql);
             if (classMaps.size() == 0) {
                 sql = " select distinct u.email from  fit_user u \n" +
                         " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
@@ -162,7 +160,7 @@ public class PoTaskService extends BaseService<PoTask> {
                             " WHERE  r.code='specialManager' and u.type='BI'  and u.email is not null and instr(','||u.sbu||',', (select ','||COMMODITY_MAJOR||',' from FIT_PO_TASK" +
                             " WHERE id='"+taskId+"')) > 0";
                 }
-                List<String> managers = roRoleService.listBySql(sql);
+                List<String> managers = poTableService.listBySql(sql);
                 flag="2";
                 step="1";
                 emailList=managers.stream().distinct().collect(Collectors.toList());
@@ -177,7 +175,7 @@ public class PoTaskService extends BaseService<PoTask> {
                     " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                     " WHERE  r.code='PD' and u.type='BI' and u.email is not null and instr(','||u.SBU||',', " +
                     "(select ','||SBU||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
-            List<String> keyUser = roRoleService.listBySql(sql);
+            List<String> keyUser = poTableService.listBySql(sql);
             emailList=keyUser.stream().distinct().collect(Collectors.toList());
             msg="尊敬的主管:</br>&nbsp;&nbsp;"+username+"已在接口平臺提交"+task[1]+"_"+task[0]+" SBU採購CD目標，請及時完成初審!";
             title=task[1]+"_"+task[0]+"採購CD目標待簽核，請勿回復";
@@ -186,7 +184,7 @@ public class PoTaskService extends BaseService<PoTask> {
                     " left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                     " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                     " WHERE  r.code='T_MANAGER' and u.type='BI' and u.email is not null";
-            List<String> tManager = roRoleService.listBySql(sql);
+            List<String> tManager = poTableService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());
             msg="尊敬的主管:</br>&nbsp;&nbsp;SBU年度CD目標核准表請審核!";
             title=task[0]+"年"+task[1]+"採購BI平臺簽核通知，請勿回復";
@@ -258,7 +256,7 @@ public class PoTaskService extends BaseService<PoTask> {
      */
     public AjaxResult submitOne(AjaxResult ajaxResult,String type,String taskId,String status,String reamrk,String roleCode) {
         String taskName = "select NAME from fit_po_task where id='" + taskId + "'";
-        List<String> taskList = roRoleService.listBySql(taskName);
+        List<String> taskList = poTableService.listBySql(taskName);
         String[] task= taskList.get(0).split("_");
         String title=task[1]+"_"+task[0]+"採購BI平臺簽核通知，請勿回復";
         String sql = "";
@@ -267,7 +265,7 @@ public class PoTaskService extends BaseService<PoTask> {
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
         List<String> emailList=new ArrayList<>();
         String sqlC="select distinct email from fit_user where username=(select CREATE_USER from FIT_PO_TASK WHERE id='"+taskId+"') and type='BI' and email is not null";
-        List<String> emailListC=roRoleService.listBySql(sqlC);
+        List<String> emailListC=poTableService.listBySql(sqlC);
         String emailCC=emailListC.get(0);
         if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(type)|| "FIT_ACTUAL_PO_NPRICECD_DTL".equalsIgnoreCase(type)|| "FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)) {
                 if(!"0".equals(status)){
@@ -290,7 +288,7 @@ public class PoTaskService extends BaseService<PoTask> {
                     }
                     msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD核准任務請審核!";
                 }
-                List<String> managers = roRoleService.listBySql(sql);
+                List<String> managers = poTableService.listBySql(sql);
                 emailList=managers.stream().distinct().collect(Collectors.toList());
         } else if ("FIT_PO_Target_CPO_CD_DTL".equals(type)) {
             String user = loginUser.getUsername();
@@ -316,7 +314,7 @@ public class PoTaskService extends BaseService<PoTask> {
                         " WHERE  r.code='CPO' and u.type='BI' and u.email is not null";
                 msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD 目標CPO核准任務請審核!";
             }
-            List<String> tManager = roRoleService.listBySql(sql);
+            List<String> tManager = poTableService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());
             title=task[0]+"年"+task[1]+"採購BI平臺簽核通知，請勿回復";
         }else if ("FIT_PO_SBU_YEAR_CD_SUM".equals(type)) {
@@ -336,7 +334,7 @@ public class PoTaskService extends BaseService<PoTask> {
                         " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                         " WHERE  r.code in('SBUCompetent') and u.type='BI' and u.email is not null and instr(','||u.SBU||',', " +
                         "(select ','||SBU||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
-                List<String> tManager = roRoleService.listBySql(sqlSbu);
+                List<String> tManager = poTableService.listBySql(sqlSbu);
                 emailCC=emailCC+",";
                 for (String e:tManager) {
                     emailCC=emailCC+e+",";
@@ -344,7 +342,7 @@ public class PoTaskService extends BaseService<PoTask> {
                 String username=loginUser.getRealname()==null?loginUser.getUsername():loginUser.getRealname();
                 msg="尊敬的主管:</br>&nbsp;&nbsp;"+username+"已在接口平臺完成"+task[1]+"_"+task[0]+" SBU採購CD目標初級審批，請及時完成終審!";
             }
-            List<String> tManager = roRoleService.listBySql(sql);
+            List<String> tManager = poTableService.listBySql(sql);
             emailList=tManager.stream().distinct().collect(Collectors.toList());
             title=task[1]+"_"+task[0]+"採購CD目標待簽核，請勿回復";
         }else{
@@ -383,13 +381,13 @@ public class PoTaskService extends BaseService<PoTask> {
      */
     public AjaxResult CPOAudit(AjaxResult ajaxResult,String type,String taskId,String status,String reamrk,String roleCode) {
         String taskName = "select NAME from fit_po_task where id='" + taskId + "'";
-        List<String> taskList = roRoleService.listBySql(taskName);
+        List<String> taskList = poTableService.listBySql(taskName);
         String title=taskList.get(0)+"採購BI平臺簽核通知，請勿回復";
 
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
         List<String> emailList=new ArrayList<>();
         String sqlC="select distinct email from fit_user where username=(select CREATE_USER from FIT_PO_TASK WHERE id='"+taskId+"') and type='BI' and email is not null";
-        List<String> emailListC=roRoleService.listBySql(sqlC);
+        List<String> emailListC=poTableService.listBySql(sqlC);
         String emailCC=loginUser.getEmail()+","+emailListC.get(0);
 
             String user = loginUser.getUsername();
@@ -418,7 +416,7 @@ public class PoTaskService extends BaseService<PoTask> {
                         " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                         " WHERE  r.code='PLACECLASS' and u.type='BI' and u.email is not null";
                 msg="尊敬的主管:</br>&nbsp;&nbsp;採購CD 目標CPO核准任務請審核!";
-                List<String> tManager = roRoleService.listBySql(sql);
+                List<String> tManager = poTableService.listBySql(sql);
                 emailList=tManager.stream().distinct().collect(Collectors.toList());
             }
         if(emailList.size()==0&&emailListC.size()==0){
@@ -457,10 +455,10 @@ public class PoTaskService extends BaseService<PoTask> {
         String msg="亲爱的同事:</br>&nbsp;&nbsp;";
         String flag="3";
         String sqlC="select distinct email from fit_user where username=(select CREATE_USER from FIT_PO_TASK WHERE id='"+taskId+"')  and type='BI' and email is not null";
-        List<String> emailListC=roRoleService.listBySql(sqlC);
+        List<String> emailListC=poTableService.listBySql(sqlC);
         emailListC=emailListC.stream().distinct().collect(Collectors.toList());
         String taskName = "select NAME,CREATE_USER_REAL from fit_po_task where id='" + taskId + "'";
-        List<Map> taskList = roRoleService.listMapBySql(taskName);
+        List<Map> taskList = poTableService.listMapBySql(taskName);
         String[] task= taskList.get(0).get("NAME").toString().split("_");
         msg+=task[0]+"_"+task[1]+" ";
         if ("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(type)){
@@ -494,7 +492,7 @@ public class PoTaskService extends BaseService<PoTask> {
                             " left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                             " WHERE  r.code in('SBUCompetent') and u.type='BI' and u.email is not null and instr(','||u.SBU||',', " +
                             "(select ','||SBU||',' from FIT_PO_TASK WHERE id='"+taskId+"')) > 0";
-                    List<String> tManager = roRoleService.listBySql(sqlSbu);
+                    List<String> tManager = poTableService.listBySql(sqlSbu);
                     String emailCC="";
                     for (String e:tManager) {
                         emailCC=emailCC+e+",";
@@ -513,7 +511,7 @@ public class PoTaskService extends BaseService<PoTask> {
                         if ("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(type)) {
                             String sql = "select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id \n" +
                                     "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','specialClass','ADMIN','PLACECLASS1','MANAGER','specialManager','PLACECLASS','T_MANAGER','TDC')  and COMMODITY_MAJOR is not null";
-                            List<String> emailList = roRoleService.listBySql(sql);
+                            List<String> emailList = poTableService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
                             List<Map> maps = poTaskDao.listMapBySql("select * from(select REMARK from FIT_PO_TASK_LOG where TASK_NAME='"+taskList.get(0).get("NAME").toString()+"' and FLAG='-3' order by CREATE_TIME desc) where rownum=1 ");
                             if (maps != null && maps.size()>0 && null!=maps.get(0).get("REMARK")) {
@@ -530,7 +528,7 @@ public class PoTaskService extends BaseService<PoTask> {
                         }else if ("FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(type)){
                             String sql = "select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id \n" +
                                     "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','specialClass','PLACECLASS1','PLACECLASS','T_MANAGER','TDC','ADMIN','MANAGER','specialManager') ";
-                            List<String> emailList = roRoleService.listBySql(sql);
+                            List<String> emailList = poTableService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
                             msg="尊敬的主管:</br> &nbsp;&nbsp;"+taskList.get(0).get("NAME").toString()+"已呈核准, 請知悉并在 BI 接口平臺并上傳By月目標, 以及具體AR的開展。";
                             Boolean isSends = EmailUtil.emailsMany(emailList,task[0]+"年"+task[1]+"簽核通知，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
@@ -607,7 +605,7 @@ public class PoTaskService extends BaseService<PoTask> {
             if("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)){
                 type="FIT_PO_CD_MONTH_DOWN";
             }
-            List<Map> taskList = roRoleService.listMapBySql("select NAME,CREATE_USER_REAL from fit_po_task where id='" + id + "'");
+            List<Map> taskList = poTableService.listMapBySql("select NAME,CREATE_USER_REAL from fit_po_task where id='" + id + "'");
             String[] task= taskList.get(0).get("NAME").toString().split("_");
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String user = loginUser.getUsername();
@@ -626,7 +624,7 @@ public class PoTaskService extends BaseService<PoTask> {
             }
             taskSql+="where id='"+id+"'";
             String sqlC="select distinct email from fit_user where username=(select CREATE_USER from FIT_PO_TASK WHERE id='"+id+"') and type='BI' and email is not null";
-            List<String> emailListC=roRoleService.listBySql(sqlC);
+            List<String> emailListC=poTableService.listBySql(sqlC);
             emailListC=emailListC.stream().distinct().collect(Collectors.toList());
 
             if(emailListC.size()==0){
@@ -643,7 +641,7 @@ public class PoTaskService extends BaseService<PoTask> {
                     if ("FIT_PO_Target_CPO_CD_DTL".equalsIgnoreCase(type)) {
                         String userList = "select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur where u.id=ur.user_id and r.id=ur.role_id \n" +
                                 "and u.type='BI'and EMAIL is not null and r.code in ('PLACECLASS1','PLACECLASS','T_MANAGER','TDC','ADMIN','MANAGER','specialManager') ";
-                        List<String> emailList = roRoleService.listBySql(userList);
+                        List<String> emailList = poTableService.listBySql(userList);
                         emailList = emailList.stream().distinct().collect(Collectors.toList());
                         String msg = "尊敬的主管:</br> &nbsp;&nbsp;" + task[0]+"年"+ "SBU年度CD目標有更新, 需重新呈核, 請及時關注目標變更！";
                         Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"年"+task[1] + "簽核通知，請勿回復", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
@@ -728,7 +726,7 @@ public class PoTaskService extends BaseService<PoTask> {
                     "  left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
                     "  left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
                     "  where username=(select CREATE_USER from FIT_PO_TASK WHERE id='"+taskId+"')  and u.type='BI' and r.grade='1'";
-            List<String> list=roRoleService.listBySql(roleCodeSql);
+            List<String> list=poTableService.listBySql(roleCodeSql);
             if(null!=list&&list.size()>0){
                 return list.get(0);
             }
@@ -769,8 +767,10 @@ public class PoTaskService extends BaseService<PoTask> {
         return roleCode;
     }
 
-    //查找任务
-    public Model selectPoTask(Model model, String tableName, Locale locale, PageRequest pageRequest, String id) throws Exception {
+    /**
+     * 頁面list數據加載
+     */
+    public Model selectPoTask(Model model,String tableName, Locale locale,PageRequest pageRequest,String id) throws Exception {
         PoTable poTable = poTableService.get(tableName);
         List<PoColumns> columns = poTable.getColumns();
         for (PoColumns poColumns : columns) {
@@ -834,6 +834,15 @@ public class PoTaskService extends BaseService<PoTask> {
                     switch (columnName) {
                         case "YEAR_CD":
                             sqlSum += " case when sum(YEAR_CD_AMOUNT) = 0 then 0 else sum(YEAR_CD_AMOUNT)/(sum(YEAR_CD_AMOUNT)+sum(PO_AMOUNT))*100 end YEAR_CD ,";
+                            break;
+                        default:
+                            sqlSum += "sum(" + columnName + "),";
+                            break;
+                    }
+                }else if("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(poTable.getTableName())){
+                    switch (columnName) {
+                        case "CD_RATIO":
+                            sqlSum += " sum(CD_AMOUNT)/(sum(PO_AMOUNT)+sum(CD_AMOUNT))*100 CD_RATIO ,";
                             break;
                         default:
                             sqlSum += "sum(" + columnName + "),";
