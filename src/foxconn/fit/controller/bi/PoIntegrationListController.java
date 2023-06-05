@@ -1,5 +1,6 @@
 package foxconn.fit.controller.bi;
 
+import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.service.base.UserDetailImpl;
@@ -77,7 +78,8 @@ public class PoIntegrationListController extends BaseController {
 
     @RequestMapping(value = "/delete")
     @ResponseBody
-    public String deleteAll(AjaxResult ajaxResult, HttpServletRequest request, String id, String tableName) {
+    @Log(name = "採購-->数据删除")
+    public String delete(AjaxResult ajaxResult, @Log(name = "Id") String id, @Log(name = "表名") String tableName) {
         try {
             if (StringUtils.isNotEmpty(id)) {
                 String[] ids = id.split(",");
@@ -125,7 +127,7 @@ public class PoIntegrationListController extends BaseController {
 
     @RequestMapping(value = "/selectCommdity")
     @ResponseBody
-    public Map<String,List> selectCommdity(HttpServletRequest request, String functionName){
+    public Map<String,List> selectCommdity(String functionName){
         if(functionName.isEmpty()){
             return  poTableService.selectCommodity();
         }
