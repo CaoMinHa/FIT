@@ -6,6 +6,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springside.modules.orm.Page;
+import org.springside.modules.orm.PageRequest;
 
 import java.util.*;
 
@@ -21,6 +23,11 @@ public class PoUploadOverdueService {
     @Autowired
     private InstrumentClassService instrumentClassService;
 
+    /**
+     * 單個分配
+     * @param userId 用戶ID
+     * @param type 取消/分配
+     */
     public void updateState(String userId,String type){
         String[] ids = userId.split(",");
         String sql="";
@@ -37,6 +44,10 @@ public class PoUploadOverdueService {
         }
     }
 
+    /**
+     * 多個分配
+     * @param updateData
+     */
     public void updateState(String updateData){
         String[] params = updateData.split("&");
         String sql="";
@@ -60,6 +71,11 @@ public class PoUploadOverdueService {
         }
     }
 
+    /**
+     * 角色
+     * @param model
+     * @return
+     */
     public Model roleList(Model model){
         String sql="select distinct r.code,r.name,r.grade from FIT_PO_AUDIT_ROLE r where \n" +
                 "r.code in('CPO','SBUCompetent','PD','MM','SOURCER','specialSourcer','KEYUSER','PLACECLASS1','PLACECLASS','TDC','T_MANAGER','CLASS','specialClass','MANAGER','specialManager','ADMIN') order by r.grade";
@@ -67,7 +83,8 @@ public class PoUploadOverdueService {
         model.addAttribute("roles",list);
         return model;
     }
-    public String selectSql(String query){
+    /**獲取查詢列表**/
+    public Model list(Model model, PageRequest pageRequest,String query){
         String sql="select distinct id,username,realname,sbu,commodity_major,table_name,table_code,period_start,period_end,state from FIT_USER_PO_UPLOAD_V where 1=1";
         if (StringUtils.isNotEmpty(query)) {
             String[] params = query.split("&");
@@ -85,7 +102,15 @@ public class PoUploadOverdueService {
                 }
             }
         }
-        return sql;
+        pageRequest.setOrderBy("ID");
+        Page<Object[]> page = poTableDao.findPageBySql(pageRequest,sql);
+        int index=1;
+        if(pageRequest.getPageNo()>1){
+            index=2;
+        }
+        model.addAttribute("index", index);
+        model.addAttribute("page", page);
+        return model;
     }
 
     /**
