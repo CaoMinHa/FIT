@@ -1,7 +1,6 @@
 package foxconn.fit.controller.bi;
 
 import foxconn.fit.controller.BaseController;
-import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.service.bi.PoTaskService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +26,6 @@ public class PoTaskListController extends BaseController {
 
     @Autowired
     private PoTaskService poTaskService;
-    @Autowired
-    private PoTableService poTableService;
 
 
     @RequestMapping(value = "index")
@@ -93,7 +90,7 @@ public class PoTaskListController extends BaseController {
             model.addAttribute("statusType", statusType);
             //查询当前任务明细所有的附件
             String fileId="select FILEID,FILENAME from fit_po_task_file where TASKID='"+id+"'";
-            List<Map> fileList=poTableService.listMapBySql(fileId);
+            List<Map> fileList=poTaskService.listMapBySql(fileId);
             model.addAttribute("fileList",fileList);
 
             String taskSql=" select type,name from FIT_PO_TASK WHERE ID="+"'"+id+"'";
@@ -118,8 +115,8 @@ public class PoTaskListController extends BaseController {
                             "from FIT_PO_TARGET_CPO_CD_DTL_V where task_id="+"'"+id+"'";
                     System.out.println(sql);
                     String sql1="select ID from FIT_PO_TARGET_CPO_CD_DTL_V where task_id="+"'"+id+"'";
-                    pageRequest.setPageSize(poTableService.listBySql(sql1).size());
-                    Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
+                    pageRequest.setPageSize(poTaskService.listBySql(sql1).size());
+                    Page<Object[]> page = poTaskService.findPageBySql(pageRequest, sql);
                     model.addAttribute("page", page);
                     int index=1;
                     if(pageRequest.getPageNo()>1){
@@ -140,6 +137,4 @@ public class PoTaskListController extends BaseController {
         }
         return "/bi/poTaskList/audit";
     }
-
-
 }
