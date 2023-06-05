@@ -50,7 +50,7 @@ public class PoMappingController extends BaseController{
 
 	@RequestMapping(value = "update")
 	@ResponseBody
-	@Log(name = "更新採購映射表")
+	@Log(name = "採購映射表-->更新採購映射表")
 	public String update(HttpServletRequest request,AjaxResult result,@Log(name = "採購映射表数据") String masterData,@Log(name = "更新条件") String updateData){
 		try {
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);

@@ -1,6 +1,6 @@
 package foxconn.fit.service.bi;
 
-import foxconn.fit.dao.bi.PoTaskDao;
+import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.base.AjaxResult;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +24,11 @@ import java.util.Map;
 public class PoUserService{
 
     @Autowired
-    private PoTaskDao poTaskDao;
+    private PoTableDao poTableDao;
 
 
     public void updateData(String updateSql) {
-        poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
+        poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
     }
 
 
@@ -45,7 +45,7 @@ public class PoUserService{
         }
         sql+=" order by REALNAME";
         System.out.println(sql);
-        Page<Object[]> page = poTaskDao.findPageBySql(pageRequest, sql);
+        Page<Object[]> page = poTableDao.findPageBySql(pageRequest, sql);
         int index=1;
         if(pageRequest.getPageNo()>1){
             index=2;
@@ -58,9 +58,9 @@ public class PoUserService{
     /**獲取大類及SBU維度值**/
     public AjaxResult userHasCommodityMajor(AjaxResult ajaxResult, HttpServletRequest request, String userId){
         String userSql=" select Commodity_Major,SBU,REALNAME,email from FIT_user where id="+"'"+userId+"'";
-        List<Map> map= poTaskDao.listMapBySql(userSql);
-        List<String> commodityList = poTaskDao.listBySql("select distinct tie.COMMODITY_NAME from CUX_FUNCTION_COMMODITY_MAPPING tie order by tie.COMMODITY_NAME");
-        List<String> sbuList = poTaskDao.listBySql("select distinct SBU from(\n" +
+        List<Map> map= poTableDao.listMapBySql(userSql);
+        List<String> commodityList = poTableDao.listBySql("select distinct tie.COMMODITY_NAME from CUX_FUNCTION_COMMODITY_MAPPING tie order by tie.COMMODITY_NAME");
+        List<String> sbuList = poTableDao.listBySql("select distinct SBU from(\n" +
                 "select distinct NEW_SBU_NAME sbu from BIDEV.v_if_sbu_mapping \n" +
                 "union all\n" +
                 "select distinct SBU from epmexp.cux_pbcs_fit_mapping\n" +

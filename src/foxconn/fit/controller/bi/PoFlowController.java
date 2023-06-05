@@ -3,11 +3,8 @@ package foxconn.fit.controller.bi;
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.base.User;
-import foxconn.fit.service.base.UserService;
 import foxconn.fit.service.bi.PoFlowService;
 import foxconn.fit.util.ExceptionUtil;
-import foxconn.fit.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,22 +29,11 @@ import java.util.Locale;
 public class PoFlowController extends BaseController {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private PoFlowService poFlowService;
 
 
     @RequestMapping(value = "index")
-    public String index(PageRequest pageRequest, Model model) {
-        try {
-            pageRequest.setOrderBy("serial");
-            pageRequest.setOrderDir("asc");
-            User user = userService.getByUsername(SecurityUtils.getLoginUsername());
-            model.addAttribute("attribute", user.getAttribute());
-
-        } catch (Exception e) {
-            logger.error("查询信息失败", e);
-        }
+    public String index() {
         return "/bi/poFlow/index";
     }
     @RequestMapping(value="/list")

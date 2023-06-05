@@ -356,7 +356,7 @@ public class PoTableService extends BaseService<PoTable> {
      * dataList 之前的数据
      * data 本次数据
      */
-    public String repetition(PoTable poTable, List<List<String>> dataList, AjaxResult result,Locale locale) throws Exception {
+    private String repetition(PoTable poTable, List<List<String>> dataList, AjaxResult result,Locale locale) throws Exception {
         List<String> listVal=new ArrayList<>();
         Set<String> list=new HashSet<>();
         for (int i=0;i<dataList.size();i++) {
@@ -437,7 +437,7 @@ public class PoTableService extends BaseService<PoTable> {
     }
 
     /**采购特殊任务*/
-    public String special(PoTable poTable, List<List<String>> dataList, AjaxResult result,Locale locale) throws Exception {
+    private String special(PoTable poTable, List<List<String>> dataList, AjaxResult result,Locale locale) throws Exception {
         List<String> listVal=new ArrayList<>();
         Set<String> list=new HashSet<>();
         for (int i=0;i<dataList.size();i++) {
@@ -964,7 +964,7 @@ public class PoTableService extends BaseService<PoTable> {
      * 保存采购数据
      */
     @Transactional
-    public String savePoData(PoTable poTable,List<List<String>> dataList,String name) {
+    private String savePoData(PoTable poTable,List<List<String>> dataList,String name) {
         int cnt = 1;
         String id = UUID.randomUUID().toString();
         String count = " select count(id) from fit_po_task where name='" + name + "' and flag not in('0','-1','-3')";
@@ -1171,6 +1171,12 @@ public class PoTableService extends BaseService<PoTable> {
     }
 
 
+    /**
+     *獲取SBU年度CD目標核准表任務的詳細信息
+     * @param date
+     * @param pageRequest
+     * @return
+     */
     public  Page<Object[]> cpo(String date,PageRequest pageRequest){
         String sql="select PO_CENTER,COMMODITY_MAJOR ,NO_PO_TOTAL,NO_CD_AMOUNT,NO_CPO,PO_TOTAL ,CD_AMOUNT,CPO from FIT_PO_TARGET_CPO_CD_DTL_V1 where YEAR='"+date+"'";
         System.out.println(sql);
@@ -1181,6 +1187,7 @@ public class PoTableService extends BaseService<PoTable> {
         return page;
     }
 
+    /**獲取查詢結果**/
     public Model list(Model model, PageRequest pageRequest, Locale locale, String dateYear,
                       String date, String dateEnd, String tableName,String flag,
                       String poCenter, String sbuVal, String priceControl,String commodity,String founderVal) throws Exception {

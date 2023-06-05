@@ -3,11 +3,9 @@ package foxconn.fit.controller.bi;
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.base.User;
 import foxconn.fit.service.base.UserService;
 import foxconn.fit.service.bi.PoUploadOverdueService;
 import foxconn.fit.util.ExceptionUtil;
-import foxconn.fit.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,13 +29,9 @@ public class PoUploadOverdueController extends BaseController {
     private PoUploadOverdueService poUploadOverdueService;
 
     @RequestMapping(value = "index")
-    public String index(PageRequest pageRequest, Model model, HttpServletRequest request) {
+    public String index(Model model) {
         try {
-            pageRequest.setOrderBy("serial");
-            pageRequest.setOrderDir("asc");
-            User user = userService.getByUsername(SecurityUtils.getLoginUsername());
             model=poUploadOverdueService.roleList(model);
-            model.addAttribute("attribute", user.getAttribute());
         } catch (Exception e) {
             logger.error("查询明细配置表列表信息失败", e);
         }

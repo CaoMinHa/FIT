@@ -1,10 +1,11 @@
 package foxconn.fit.service.bi;
 
 import foxconn.fit.dao.base.BaseDaoHibernate;
-import foxconn.fit.dao.bi.PoFlowDao;
 import foxconn.fit.dao.bi.PoTaskDao;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoCdMonthDown;
+import foxconn.fit.entity.bi.PoColumns;
+import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.entity.bi.PoTask;
 import foxconn.fit.service.base.BaseService;
 import foxconn.fit.service.base.UserDetailImpl;
@@ -16,6 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springside.modules.orm.Page;
+import org.springside.modules.orm.PageRequest;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -34,11 +38,11 @@ public class PoTaskService extends BaseService<PoTask> {
     @Autowired
     private PoTaskDao poTaskDao;
     @Autowired
-    private PoFlowDao poFlowDao;
-    @Autowired
     private PoRoleService roRoleService;
     @Autowired
     private PoTableService poTableService;
+    @Autowired
+    private InstrumentClassService instrumentClassService;
 
     @Value("${accessUrl}")
     String accessUrl;
@@ -84,7 +88,7 @@ public class PoTaskService extends BaseService<PoTask> {
             String updateSql = "update epmods.FIT_PO_TARGET_CPO_CD_DTL set flag='0',TASK_ID='" + taskId + "'," +
                     " FLOW_USER='" + user + "', FLOW_TIME='" + signTimet + "',USERNAME='"+userName.get(0)+"' WHERE YEAR='"+ year+"' ";
             String like = year + "%";
-            poFlowDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
+            poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
             String deleteSql = " delete from FIT_PO_TASK where name like " + "'" + like + "'" + " and type='FIT_PO_Target_CPO_CD_DTL'";
             poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
             String name = year + "_SBU年度CD目標核准表";
@@ -125,7 +129,7 @@ public class PoTaskService extends BaseService<PoTask> {
             if("FIT_PO_CD_MONTH_DTL".equalsIgnoreCase(type)){
                 String update="update FIT_PO_CD_MONTH_DTL set flag='0' where TASK_ID='"+taskId+"'";
                 //修改数据库触发down表数据重新产生
-                roRoleService.updateData(update);
+                this.updateData(update);
                 ajaxResult=this.checkCDObjectiveSummaryStatus(ajaxResult,taskId);
                 Map<Object, Object> map=ajaxResult.getResult();
                 if(map.get("flag").equals("fail")){
@@ -200,7 +204,7 @@ public class PoTaskService extends BaseService<PoTask> {
             for (String e:emailList) {
                 emailVal=emailVal+e+",";
             }
-            Boolean isSend = EmailUtil.emailCC(emailVal.substring(0,emailVal.length()-1),loginUser.getEmail(), title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailCC(emailVal.substring(0,emailVal.length()-1),loginUser.getEmail(), title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
             if(isSend){
                 uploadTaskFlag(taskId,flag,type,remark,step,"T");
             }else{
@@ -299,7 +303,7 @@ public class PoTaskService extends BaseService<PoTask> {
             String updateSql = " update FIT_PO_Target_CPO_CD_DTL set" +
                     " FLOW_USER=" + "'" + user + "'," + " FLOW_TIME=" + "'" + signTimet + "'" +", USERNAME='"+userName.get(0)+"'"+
                     " WHERE task_id= '" + taskId+"'";
-            poFlowDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
+            poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
             if(!"0".equals(status)){
                 //退回
                 sql=sqlC;
@@ -362,7 +366,7 @@ public class PoTaskService extends BaseService<PoTask> {
             for (String e:emailList) {
                 emailVal=emailVal+e+",";
             }
-            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
             if(isSend){
                 uploadTaskFlag(taskId,flag,type,reamrk,"","C");
             }else{
@@ -399,7 +403,7 @@ public class PoTaskService extends BaseService<PoTask> {
             String updateSql = " update FIT_PO_Target_CPO_CD_DTL set" +
                     " FLOW_USER=" + "'" + user + "'," + " FLOW_TIME=" + "'" + signTimet + "'" +", USERNAME='"+userName.get(0)+"'"+
                     " WHERE task_id= '" + taskId+"'";
-            poFlowDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
+            poTaskDao.getSessionFactory().getCurrentSession().createSQLQuery(updateSql).executeUpdate();
             String sql="";
             String flag="";
             String msg="";
@@ -431,7 +435,7 @@ public class PoTaskService extends BaseService<PoTask> {
             for (String e:emailList) {
                 emailVal=emailVal+e+",";
             }
-            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
             if(isSend){
                 uploadTaskFlag(taskId,flag,type,reamrk,"","E");
             }else{
@@ -499,9 +503,9 @@ public class PoTaskService extends BaseService<PoTask> {
                     for (String e:emailListC) {
                         email=email+e+",";
                     }
-                    isSend = EmailUtil.emailCC(email,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                    isSend = EmailUtil.emailCC(email,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                 }else {
-                    isSend=EmailUtil.emailsMany(emailListC,title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                    isSend=EmailUtil.emailsMany(emailListC,title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                 }
                 if(isSend){
                     if("0".equals(status)){
@@ -511,13 +515,13 @@ public class PoTaskService extends BaseService<PoTask> {
                                     "and u.type='BI'and EMAIL is not null and r.code in ('CLASS','specialClass','ADMIN','PLACECLASS1','MANAGER','specialManager','PLACECLASS','T_MANAGER','TDC')  and COMMODITY_MAJOR is not null";
                             List<String> emailList = roRoleService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
-                            List<Map> maps = poFlowDao.listMapBySql("select * from(select REMARK from FIT_PO_TASK_LOG where TASK_NAME='"+taskList.get(0).get("NAME").toString()+"' and FLAG='-3' order by CREATE_TIME desc) where rownum=1 ");
+                            List<Map> maps = poTaskDao.listMapBySql("select * from(select REMARK from FIT_PO_TASK_LOG where TASK_NAME='"+taskList.get(0).get("NAME").toString()+"' and FLAG='-3' order by CREATE_TIME desc) where rownum=1 ");
                             if (maps != null && maps.size()>0 && null!=maps.get(0).get("REMARK")) {
                                 msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "對" + task[0] + "_" + task[1] + "年度SBU CD目標數據有作更新："+maps.get(0).get("REMARK").toString()+"，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
                             }else {
                                 msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "已經完成" + task[0] + "_" + task[1] + "年度SBU CD目標數據，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
                             }
-                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0] + "_" + task[1] + " SBU年度VOC", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0] + "_" + task[1] + " SBU年度VOC", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                             if (!isSends) {
                                 ajaxResult.put("flag", "fail");
                                 ajaxResult.put("msg", "審核通過郵件通知發送失敗 (Failed to send the audit notification by email)");
@@ -529,7 +533,7 @@ public class PoTaskService extends BaseService<PoTask> {
                             List<String> emailList = roRoleService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
                             msg="尊敬的主管:</br> &nbsp;&nbsp;"+taskList.get(0).get("NAME").toString()+"已呈核准, 請知悉并在 BI 接口平臺并上傳By月目標, 以及具體AR的開展。";
-                            Boolean isSends = EmailUtil.emailsMany(emailList,task[0]+"年"+task[1]+"簽核通知，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                            Boolean isSends = EmailUtil.emailsMany(emailList,task[0]+"年"+task[1]+"簽核通知，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                             if(!isSends){
                                 ajaxResult.put("flag", "fail");
                                 ajaxResult.put("msg", "審核通過郵件通知發送失敗 (Failed to send the audit notification by email)");
@@ -630,7 +634,7 @@ public class PoTaskService extends BaseService<PoTask> {
                 ajaxResult.put("msg", "請聯係管理員維護對應崗位的郵箱(Task Type Fail)");
                 return ajaxResult;
             }else {
-                Boolean isSend = EmailUtil.emailsMany(emailListC, taskList.get(0).get("NAME").toString()+"採購BI平臺簽核通知，請勿回復","亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+id+"&statusType=0&roleCode="+replaceRole("",id)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                Boolean isSend = EmailUtil.emailsMany(emailListC, taskList.get(0).get("NAME").toString()+"採購BI平臺簽核通知，請勿回復","亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+id+"&statusType=0&roleCode="+replaceRole("",id)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                 if(!isSend){
                     ajaxResult.put("flag", "fail");
                     ajaxResult.put("msg", "郵件發送失敗 (Task Type Fail)");
@@ -642,7 +646,7 @@ public class PoTaskService extends BaseService<PoTask> {
                         List<String> emailList = roRoleService.listBySql(userList);
                         emailList = emailList.stream().distinct().collect(Collectors.toList());
                         String msg = "尊敬的主管:</br> &nbsp;&nbsp;" + task[0]+"年"+ "SBU年度CD目標有更新, 需重新呈核, 請及時關注目標變更！";
-                        Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"年"+task[1] + "簽核通知，請勿回復", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                        Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"年"+task[1] + "簽核通知，請勿回復", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                         if (!isSends) {
                             ajaxResult.put("flag", "fail");
                             ajaxResult.put("msg", "審核驳回郵件通知發送失敗 (Failed to send the audit notification by email)");
@@ -764,4 +768,110 @@ public class PoTaskService extends BaseService<PoTask> {
         }
         return roleCode;
     }
+
+    //查找任务
+    public Model selectPoTask(Model model, String tableName, Locale locale, PageRequest pageRequest, String id) throws Exception {
+        PoTable poTable = poTableService.get(tableName);
+        List<PoColumns> columns = poTable.getColumns();
+        for (PoColumns poColumns : columns) {
+            poColumns.setComments(instrumentClassService.getByLocale(locale, poColumns.getComments()));
+        }
+        String sql="select ";
+        String sqlSum="select ";
+        for (PoColumns column : columns) {
+            String columnName = column.getColumnName();
+            if (column.getDataType().equalsIgnoreCase("number")) {
+                sql+=columnName+",";
+                if("FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
+                    switch (columnName) {
+                        case "PO_TARGET_CPO":
+                            sqlSum += "to_char(decode((sum(YEAR_TOTAL)+sum(PO_TARGET_CD)),0,null,sum(PO_TARGET_CD)/(sum(YEAR_TOTAL)+sum(PO_TARGET_CD))*100),9999999999.9999) PO_TARGET_CPO,";
+                            break;
+                        case "ONE_CPO":
+                            sqlSum += "to_char(decode((sum(ONE_PO_MONEY)+sum(ONE_CD)),0,null,sum(ONE_CD)/(sum(ONE_PO_MONEY)+sum(ONE_CD))*100),9999999999.9999) ONE_CPO,";
+                            break;
+                        case "TWO_CPO":
+                            sqlSum += "to_char(decode((sum(TWO_PO_MONEY)+sum(TWO_CD)),0,null,sum(TWO_CD)/(sum(TWO_PO_MONEY)+sum(TWO_CD))*100),9999999999.9999) TWO_CPO,";
+                            break;
+                        case "THREE_CPO":
+                            sqlSum += "to_char(decode((sum(THREE_PO_MONEY)+sum(THREE_CD)),0,null,sum(THREE_CD)/(sum(THREE_PO_MONEY)+sum(THREE_CD))*100),9999999999.9999) THREE_CPO,";
+                            break;
+                        case "FOUR_CPO":
+                            sqlSum += "to_char(decode((sum(FOUR_PO_MONEY)+sum(FOUR_CD)),0,null,sum(FOUR_CD)/(sum(FOUR_PO_MONEY)+sum(FOUR_CD))*100),9999999999.9999) FOUR_CPO,";
+                            break;
+                        case "FIVE_CPO":
+                            sqlSum += "to_char(decode((sum(FIVE_PO_MONEY)+sum(FIVE_CD)),0,null,sum(FIVE_CD)/(sum(FIVE_PO_MONEY)+sum(FIVE_CD))*100),9999999999.9999) FIVE_CPO,";
+                            break;
+                        case "SIX_CPO":
+                            sqlSum += "to_char(decode((sum(SIX_PO_MONEY)+sum(SIX_CD)),0,null,sum(SIX_CD)/(sum(SIX_PO_MONEY)+sum(SIX_CD))*100),9999999999.9999) SIX_CPO,";
+                            break;
+                        case "SEVEN_CPO":
+                            sqlSum += "to_char(decode((sum(SEVEN_PO_MONEY)+sum(SEVEN_CD)),0,null,sum(SEVEN_CD)/(sum(SEVEN_PO_MONEY)+sum(SEVEN_CD))*100),9999999999.9999) SEVEN_CPO,";
+                            break;
+                        case "EIGHT_CPO":
+                            sqlSum += "to_char(decode((sum(EIGHT_PO_MONEY)+sum(EIGHT_CD)),0,null,sum(EIGHT_CD)/(sum(EIGHT_PO_MONEY)+sum(EIGHT_CD))*100),9999999999.9999) EIGHT_CPO,";
+                            break;
+                        case "NINE_CPO":
+                            sqlSum += "to_char(decode((sum(NINE_PO_MONEY)+sum(NINE_CD)),0,null,sum(NINE_CD)/(sum(NINE_PO_MONEY)+sum(NINE_CD))*100),9999999999.9999) NINE_CPO,";
+                            break;
+                        case "TEN_CPO":
+                            sqlSum += "to_char(decode((sum(TEN_PO_MONEY)+sum(TEN_CD)),0,null,sum(TEN_CD)/(sum(TEN_PO_MONEY)+sum(TEN_CD))*100),9999999999.9999) TEN_CPO,";
+                            break;
+                        case "ELEVEN_CPO":
+                            sqlSum += "to_char(decode((sum(ELEVEN_PO_MONEY)+sum(ELEVEN_CD)),0,null,sum(ELEVEN_CD)/(sum(ELEVEN_PO_MONEY)+sum(ELEVEN_CD))*100),9999999999.9999) ELEVEN_CPO,";
+                            break;
+                        case "TWELVE_CPO":
+                            sqlSum += "to_char(decode((sum(TWELVE_PO_MONEY)+sum(TWELVE_CD)),0,null,sum(TWELVE_CD)/(sum(TWELVE_PO_MONEY)+sum(TWELVE_CD))*100),9999999999.9999) TWELVE_CPO,";
+                            break;
+                        case "PO_CPO":
+                            sqlSum += "to_char(decode((sum(PO_TOTAL)+sum(PO_CD)),0,null,sum(PO_CD)/(sum(PO_TOTAL)+sum(PO_CD))*100),9999999999.9999) PO_CPO,";
+                            break;
+                        default:
+                            sqlSum += "sum(" + columnName + "),";
+                            break;
+                    }
+                }else if("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())){
+                    switch (columnName) {
+                        case "YEAR_CD":
+                            sqlSum += " case when sum(YEAR_CD_AMOUNT) = 0 then 0 else sum(YEAR_CD_AMOUNT)/(sum(YEAR_CD_AMOUNT)+sum(PO_AMOUNT))*100 end YEAR_CD ,";
+                            break;
+                        default:
+                            sqlSum += "sum(" + columnName + "),";
+                            break;
+                    }
+                }else{
+                    sqlSum += "sum(" + columnName + "),";
+                }
+            }else if (column.getDataType().equalsIgnoreCase("date")) {
+                sql+="to_char("+columnName+",'dd/mm/yyyy'),";
+                sqlSum+="'' " + columnName + ",";
+            }else{
+                sql+=columnName+",";
+                sqlSum+="'' " + columnName + ",";
+            }
+        }
+        sql=sql.substring(0,sql.length()-1);
+        sql+=" from "+poTable.getTableName()+" where 1=1 and task_id="+"'"+id+"'";
+        sqlSum =sqlSum.substring(0, sqlSum.length() - 1);
+        sqlSum +=" from "+poTable.getTableName()+" where 1=1 and task_id="+"'"+id+"'";
+        pageRequest.setOrderBy(columns.get(3).getColumnName()+","+columns.get(1).getColumnName()+","+columns.get(2).getColumnName()+","+columns.get(0).getColumnName());
+        pageRequest.setOrderDir("asc,asc,asc,asc");
+        Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
+        PageRequest pageRequest1=new PageRequest();
+        pageRequest1.setPageNo(1);
+        pageRequest1.setPageSize(1);
+        Page<Object[]> pages = poTableService.findPageBySql(pageRequest1, sqlSum);
+        page.getResult().addAll(pages.getResult());
+        //查找任务对于的附档
+        model.addAttribute("tableName", poTable.getTableName());
+        model.addAttribute("page", page);
+        model.addAttribute("columns", columns);
+        int index=1;
+        if(pageRequest.getPageNo()>1){
+            index=2;
+        }
+        model.addAttribute("index", index);
+        return model;
+    }
+
 }

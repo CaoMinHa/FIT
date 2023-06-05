@@ -4,7 +4,6 @@ import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.base.User;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.UserDetailImpl;
@@ -56,9 +55,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value = "index")
     public String index(Model model) {
         try {
-            User user = userService.getByUsername(SecurityUtils.getLoginUsername());
             model.addAttribute("roles", poTaskService.index());
-            model.addAttribute("attribute", user.getAttribute());
         } catch (Exception e) {
             logger.error("查询明细配置表列表信息失败", e);
         }

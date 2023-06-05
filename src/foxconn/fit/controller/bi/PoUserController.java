@@ -38,7 +38,7 @@ public class PoUserController extends BaseController {
         try {
             poUserService.list(model, pageRequest, name, username);
         } catch (Exception e) {
-            logger.error("查询明细配置表列表失败:", e);
+            logger.error("查询列表失败:", e);
         }
         return "/bi/poUser/list";
     }
