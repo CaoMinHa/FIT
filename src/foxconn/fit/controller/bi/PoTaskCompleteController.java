@@ -2,12 +2,7 @@ package foxconn.fit.controller.bi;
 
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
-import foxconn.fit.entity.base.User;
-import foxconn.fit.entity.bi.PoColumns;
-import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.UserDetailImpl;
-import foxconn.fit.service.base.UserService;
-import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.service.bi.PoTaskService;
 import foxconn.fit.util.SecurityUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,11 +26,7 @@ import java.util.Map;
 public class PoTaskCompleteController extends BaseController {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private PoTaskService poTaskService;
-    @Autowired
-    private PoTableService poTableService;
 
     @RequestMapping(value = "index")
     public String index(Model model) {
@@ -55,7 +46,7 @@ public class PoTaskCompleteController extends BaseController {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String userName=loginUser.getUsername();
             String userSql=" select sbu,COMMODITY_MAJOR from fit_user where username="+"'"+userName+"'";
-            List<Map> maps = userService.listMapBySql(userSql);
+            List<Map> maps = poTaskService.listMapBySql(userSql);
             String sbu="";
             String commodityMajor="";
             if(maps!=null&&maps.size()==1){
@@ -136,7 +127,7 @@ public class PoTaskCompleteController extends BaseController {
             model.addAttribute("role", role);
             //查询当前任务明细所有的附件
             String fileId="select FILEID,FILENAME from fit_po_task_file where TASKID='"+id+"'";
-            List<Map> fileList=poTableService.listMapBySql(fileId);
+            List<Map> fileList=poTaskService.listMapBySql(fileId);
             model.addAttribute("fileList",fileList);
 
             String taskSql=" select type,name from FIT_PO_TASK WHERE ID="+"'"+id+"'";
@@ -177,8 +168,8 @@ public class PoTaskCompleteController extends BaseController {
                             "from FIT_PO_TARGET_CPO_CD_DTL_V where task_id="+"'"+id+"'";
                     System.out.println(sql);
                     String sql1="select ID from FIT_PO_TARGET_CPO_CD_DTL_V where task_id="+"'"+id+"'";
-                    pageRequest.setPageSize(poTableService.listBySql(sql1).size());
-                    Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
+                    pageRequest.setPageSize(poTaskService.listBySql(sql1).size());
+                    Page<Object[]> page = poTaskService.findPageBySql(pageRequest, sql);
                     model.addAttribute("page", page);
                     int index=1;
                     if(pageRequest.getPageNo()>1){
@@ -188,7 +179,7 @@ public class PoTaskCompleteController extends BaseController {
                     return "/bi/poTaskComplete/cpo";
                 }else{
                     //查询任务明细及增加汇总数
-                    model=this.selectPoTask(model,tableName,locale,pageRequest,id);
+                    model=poTaskService.selectPoTask(model,tableName,locale,pageRequest,id);
                     return "/bi/poTaskComplete/audit";
                 }
             }else{
@@ -199,121 +190,4 @@ public class PoTaskCompleteController extends BaseController {
         }
         return "/bi/poTaskComplete/audit";
     }
-
-    /**
-     * 頁面list數據加載
-     */
-    public Model selectPoTask(Model model,String tableName, Locale locale,PageRequest pageRequest,String id) throws Exception {
-        PoTable poTable = poTableService.get(tableName);
-        List<PoColumns> columns = poTable.getColumns();
-        for (PoColumns poColumns : columns) {
-            poColumns.setComments(getByLocale(locale, poColumns.getComments()));
-        }
-        String sql="select ";
-        String sqlSum="select ";
-        for (PoColumns column : columns) {
-            String columnName = column.getColumnName();
-            if (column.getDataType().equalsIgnoreCase("number")) {
-                sql+=columnName+",";
-                if("FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-                    switch (columnName) {
-                        case "PO_TARGET_CPO":
-                            sqlSum += "to_char(decode((sum(YEAR_TOTAL)+sum(PO_TARGET_CD)),0,null,sum(PO_TARGET_CD)/(sum(YEAR_TOTAL)+sum(PO_TARGET_CD))*100),9999999999.9999) PO_TARGET_CPO,";
-                            break;
-                        case "ONE_CPO":
-                            sqlSum += "to_char(decode((sum(ONE_PO_MONEY)+sum(ONE_CD)),0,null,sum(ONE_CD)/(sum(ONE_PO_MONEY)+sum(ONE_CD))*100),9999999999.9999) ONE_CPO,";
-                            break;
-                        case "TWO_CPO":
-                            sqlSum += "to_char(decode((sum(TWO_PO_MONEY)+sum(TWO_CD)),0,null,sum(TWO_CD)/(sum(TWO_PO_MONEY)+sum(TWO_CD))*100),9999999999.9999) TWO_CPO,";
-                            break;
-                        case "THREE_CPO":
-                            sqlSum += "to_char(decode((sum(THREE_PO_MONEY)+sum(THREE_CD)),0,null,sum(THREE_CD)/(sum(THREE_PO_MONEY)+sum(THREE_CD))*100),9999999999.9999) THREE_CPO,";
-                            break;
-                        case "FOUR_CPO":
-                            sqlSum += "to_char(decode((sum(FOUR_PO_MONEY)+sum(FOUR_CD)),0,null,sum(FOUR_CD)/(sum(FOUR_PO_MONEY)+sum(FOUR_CD))*100),9999999999.9999) FOUR_CPO,";
-                            break;
-                        case "FIVE_CPO":
-                            sqlSum += "to_char(decode((sum(FIVE_PO_MONEY)+sum(FIVE_CD)),0,null,sum(FIVE_CD)/(sum(FIVE_PO_MONEY)+sum(FIVE_CD))*100),9999999999.9999) FIVE_CPO,";
-                            break;
-                        case "SIX_CPO":
-                            sqlSum += "to_char(decode((sum(SIX_PO_MONEY)+sum(SIX_CD)),0,null,sum(SIX_CD)/(sum(SIX_PO_MONEY)+sum(SIX_CD))*100),9999999999.9999) SIX_CPO,";
-                            break;
-                        case "SEVEN_CPO":
-                            sqlSum += "to_char(decode((sum(SEVEN_PO_MONEY)+sum(SEVEN_CD)),0,null,sum(SEVEN_CD)/(sum(SEVEN_PO_MONEY)+sum(SEVEN_CD))*100),9999999999.9999) SEVEN_CPO,";
-                            break;
-                        case "EIGHT_CPO":
-                            sqlSum += "to_char(decode((sum(EIGHT_PO_MONEY)+sum(EIGHT_CD)),0,null,sum(EIGHT_CD)/(sum(EIGHT_PO_MONEY)+sum(EIGHT_CD))*100),9999999999.9999) EIGHT_CPO,";
-                            break;
-                        case "NINE_CPO":
-                            sqlSum += "to_char(decode((sum(NINE_PO_MONEY)+sum(NINE_CD)),0,null,sum(NINE_CD)/(sum(NINE_PO_MONEY)+sum(NINE_CD))*100),9999999999.9999) NINE_CPO,";
-                            break;
-                        case "TEN_CPO":
-                            sqlSum += "to_char(decode((sum(TEN_PO_MONEY)+sum(TEN_CD)),0,null,sum(TEN_CD)/(sum(TEN_PO_MONEY)+sum(TEN_CD))*100),9999999999.9999) TEN_CPO,";
-                            break;
-                        case "ELEVEN_CPO":
-                            sqlSum += "to_char(decode((sum(ELEVEN_PO_MONEY)+sum(ELEVEN_CD)),0,null,sum(ELEVEN_CD)/(sum(ELEVEN_PO_MONEY)+sum(ELEVEN_CD))*100),9999999999.9999) ELEVEN_CPO,";
-                            break;
-                        case "TWELVE_CPO":
-                            sqlSum += "to_char(decode((sum(TWELVE_PO_MONEY)+sum(TWELVE_CD)),0,null,sum(TWELVE_CD)/(sum(TWELVE_PO_MONEY)+sum(TWELVE_CD))*100),9999999999.9999) TWELVE_CPO,";
-                            break;
-                        case "PO_CPO":
-                            sqlSum += "to_char(decode((sum(PO_TOTAL)+sum(PO_CD)),0,null,sum(PO_CD)/(sum(PO_TOTAL)+sum(PO_CD))*100),9999999999.9999) PO_CPO,";
-                            break;
-                        default:
-                            sqlSum += "sum(" + columnName + "),";
-                            break;
-                    }
-                }else if("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())){
-                    switch (columnName) {
-                        case "YEAR_CD":
-                            sqlSum += " case when sum(YEAR_CD_AMOUNT) = 0 then 0 else sum(YEAR_CD_AMOUNT)/(sum(YEAR_CD_AMOUNT)+sum(PO_AMOUNT))*100 end YEAR_CD ,";
-                            break;
-                        default:
-                            sqlSum += "sum(" + columnName + "),";
-                            break;
-                    }
-                }else if("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(poTable.getTableName())){
-                    switch (columnName) {
-                        case "CD_RATIO":
-                            sqlSum += " sum(CD_AMOUNT)/(sum(PO_AMOUNT)+sum(CD_AMOUNT))*100 CD_RATIO ,";
-                            break;
-                        default:
-                            sqlSum += "sum(" + columnName + "),";
-                            break;
-                    }
-                }else{
-                    sqlSum += "sum(" + columnName + "),";
-                }
-            }else if (column.getDataType().equalsIgnoreCase("date")) {
-                sql+="to_char("+columnName+",'dd/mm/yyyy'),";
-                sqlSum+="'' " + columnName + ",";
-            }else{
-                sql+=columnName+",";
-                sqlSum+="'' " + columnName + ",";
-            }
-        }
-        sql=sql.substring(0,sql.length()-1);
-        sql+=" from "+poTable.getTableName()+" where 1=1 and task_id="+"'"+id+"'";
-        sqlSum =sqlSum.substring(0, sqlSum.length() - 1);
-        sqlSum +=" from "+poTable.getTableName()+" where 1=1 and task_id="+"'"+id+"'";
-        pageRequest.setOrderBy(columns.get(3).getColumnName()+","+columns.get(1).getColumnName()+","+columns.get(2).getColumnName()+","+columns.get(0).getColumnName());
-        pageRequest.setOrderDir("asc,asc,asc,asc");
-        Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
-        PageRequest pageRequest1=new PageRequest();
-        pageRequest1.setPageNo(1);
-        pageRequest1.setPageSize(1);
-        Page<Object[]> pages = poTableService.findPageBySql(pageRequest1, sqlSum);
-        page.getResult().addAll(pages.getResult());
-        //查找任务对于的附档
-        model.addAttribute("tableName", poTable.getTableName());
-        model.addAttribute("page", page);
-        model.addAttribute("columns", columns);
-        int index=1;
-        if(pageRequest.getPageNo()>1){
-            index=2;
-        }
-        model.addAttribute("index", index);
-        return model;
-    }
-
 }
