@@ -150,7 +150,7 @@ public class PoTaskController extends BaseController {
     @ResponseBody
     @Transactional
     @Log(name = "採購任務-->新增SBU年度CD目標核准表任務")
-    public String addRole(AjaxResult ajaxResult,@Log(name = "年份") String year) {
+    public String addCpoTask(AjaxResult ajaxResult,@Log(name = "年份") String year) {
         try {
             ajaxResult=poTaskService.addCpoTask(ajaxResult,year);
         } catch (Exception e) {
@@ -247,7 +247,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/submitTask")
     @ResponseBody
     @Log(name = "採購任務-->提交")
-    public String submitTask(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String roleCode) {
+    public String submit(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String roleCode) {
         try {
             ajaxResult=poTaskService.submit(ajaxResult,taskType,id,roleCode,remark);
         } catch (Exception e) {
@@ -264,7 +264,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/submitOneAudit")
     @ResponseBody
     @Log(name = "採購任務-->初審")
-    public String submitOneAudit(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,
+    public String submitOne(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,
                                  @Log(name="審批意見")String remark,String status,String roleCode) {
         try {
             ajaxResult=poTaskService.submitOne(ajaxResult,taskType,id,status,remark,roleCode);
@@ -300,7 +300,7 @@ public class PoTaskController extends BaseController {
     @Log(name = "採購任務-->終審")
     @RequestMapping(value="/submitAudit")
     @ResponseBody
-    public String submitEndAudit(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String status) {
+    public String submitEnd(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String status) {
         try {
             ajaxResult=poTaskService.submitEnd(ajaxResult,taskType,id,status,remark);
         } catch (Exception e) {
