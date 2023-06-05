@@ -15,18 +15,12 @@ import org.springside.modules.orm.PageRequest;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author Yang DaiSheng
- * @program fit
- * @description
- * @create 2021-04-21 14:27
- **/
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class PoEmailLogService extends BaseService<PoEmailLog> {
     @Autowired
     private PoTableDao poTableDao;
-    /**
+    /**列表
      * @param pageRequest
      * @param title
      * @param name
@@ -55,6 +49,7 @@ public class PoEmailLogService extends BaseService<PoEmailLog> {
         return  page;
     }
 
+    /**郵件日志詳情**/
     public void selectDetails(Model model, String id){
         String sql="select * from CUX_PO_EMAIL where ID='"+id+"'";
         List<PoEmailLog> list=poTableDao.listBySql(sql,PoEmailLog.class);
