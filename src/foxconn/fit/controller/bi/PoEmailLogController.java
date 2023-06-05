@@ -1,18 +1,13 @@
 package foxconn.fit.controller.bi;
 
 import foxconn.fit.controller.BaseController;
-import foxconn.fit.entity.bi.PoEmailLog;
 import foxconn.fit.service.bi.PoEmailLogService;
-import foxconn.fit.service.bi.PoTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 郵件通知
@@ -22,9 +17,6 @@ import java.util.List;
 public class PoEmailLogController extends BaseController {
     @Autowired
     private PoEmailLogService poEmailLogService;
-
-    @Autowired
-    private PoTableService poTableService;
 
     @RequestMapping(value = "index")
     public String index() {
@@ -45,15 +37,7 @@ public class PoEmailLogController extends BaseController {
     @RequestMapping(value = "/details")
     public String details(Model model,String id){
         try {
-            String sql="select * from CUX_PO_EMAIL where ID='"+id+"'";
-            List<PoEmailLog> list=poTableService.listBySql(sql,PoEmailLog.class);
-            if(null!=list.get(0) && list.size()>0){
-                if(null!=list.get(0).getFileName() && !list.get(0).getFileName().isEmpty()){
-                    List<String> fileList=Arrays.asList(list.get(0).getFileName().split("\\*\\*"));
-                    model.addAttribute("fileList", fileList);
-                }
-                model.addAttribute("poEmailLog", list.get(0));
-            }
+            poEmailLogService.selectDetails(model,id);
         } catch (Exception e) {
             logger.error("查詢郵件日志詳情失敗：", e);
         }

@@ -30,8 +30,6 @@ public class PoEmailService extends BaseService<PoEmailLog> {
 
     @Autowired
     private PoTaskDao poTaskDao;
-    @Autowired
-    private PoTableService poTableService;
 
     @Value("${accessUrl}")
     String accessUrl;
@@ -49,7 +47,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         }
         String realPath = request.getRealPath("");
         String user = SecurityUtils.getLoginUser().getUsername();
-        List<String> userName= poTableService.listBySql("select realname from FIT_USER where username='"+user+"'");
+        List<String> userName= poTaskDao.listBySql("select realname from FIT_USER where username='"+user+"'");
         if(null==userName.get(0)){
             userName.set(0,user);
         }
@@ -59,7 +57,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
             emailUserVal+="'"+emailUser[i]+"',";
         }
         String sqlC="select distinct EMAIL from EPMODS.fit_user where EMAIL is not null and (REALNAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+") or USERNAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+"))";
-        List<String> emailListC=poTableService.listBySql(sqlC);
+        List<String> emailListC=poTaskDao.listBySql(sqlC);
         emailListC=emailListC.stream().distinct().collect(Collectors.toList());
         if(emailListC.size()==0){
             ajaxResult.put("flag", "fail");
@@ -119,7 +117,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         }
         UserDetailImpl loginUser = SecurityUtils.getLoginUser();
         String user = loginUser.getUsername();
-        List<String> userName= poTableService.listBySql("select realname from FIT_USER where username='"+user+"'");
+        List<String> userName= poTaskDao.listBySql("select realname from FIT_USER where username='"+user+"'");
         if(null==userName.get(0)){
             userName.set(0,user);
         }
@@ -129,7 +127,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
             emailUserVal+="'"+emailUser[i]+"',";
         }
         String sqlC="select distinct EMAIL from EPMODS.fit_user where EMAIL is not null and (REALNAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+") or USERNAME in ("+emailUserVal.substring(0,emailUserVal.length()-1)+"))";
-        List<String> emailListC=poTableService.listBySql(sqlC);
+        List<String> emailListC=poTaskDao.listBySql(sqlC);
         emailListC=emailListC.stream().distinct().collect(Collectors.toList());
         if(emailListC.size()==0){
             ajaxResult.put("flag", "fail");
@@ -163,7 +161,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         for (int i=0;i<list.size();i++) {
             List<String> listValue=new ArrayList<>();
             listValue.add(list.get(i));
-            listValue.addAll(poTableService.listBySql("select distinct decode(REALNAME,null,USERNAME,REALNAME) from fit_user u inner join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id inner join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id  \n" +
+            listValue.addAll(poTaskDao.listBySql("select distinct decode(REALNAME,null,USERNAME,REALNAME) from fit_user u inner join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id inner join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id  \n" +
                     "and r.name='"+list.get(i)+"'"));
             groupV.add(listValue);
         }
@@ -171,8 +169,8 @@ public class PoEmailService extends BaseService<PoEmailLog> {
     }
 
     public void index(Model model){
-        List<String> list=poTableService.listBySql("select distinct name from FIT_PO_AUDIT_ROLE where code in('PLACECLASS1','MANAGER','specialManager','PD','PLACECLASS','T_MANAGER','TDC','CPO','MM','SBUCompetent') order by name");
-        List<String> yearList=poTableService.listBySql("select distinct ID_YEAR from BIDEV.DM_D_TIME_YEAR order by ID_YEAR");
+        List<String> list=poTaskDao.listBySql("select distinct name from FIT_PO_AUDIT_ROLE where code in('PLACECLASS1','MANAGER','specialManager','PD','PLACECLASS','T_MANAGER','TDC','CPO','MM','SBUCompetent') order by name");
+        List<String> yearList=poTaskDao.listBySql("select distinct ID_YEAR from BIDEV.DM_D_TIME_YEAR order by ID_YEAR");
         List<List<String>> listGroup=this.selectGroup(list);
         model.addAttribute("EmailUserTeam",list);
         model.addAttribute("yearList",yearList);
@@ -187,7 +185,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
             List<File> list=new ArrayList<>();
             File file = new File("D:"+File.separator+"JAVA"+File.separator+"apache-tomcat-8.0.50"+File.separator+"webapps"+File.separator+"fit"+File.separator+"static"+File.separator+"template"+File.separator+"po"+File.separator+"FIT_VOC_年度目標CD審批流程_v1.0.pdf");
             list.add(file);
-            List<String> emailListC=poTableService.listBySql(sqlC);
+            List<String> emailListC=poTaskDao.listBySql(sqlC);
             emailListC=emailListC.stream().distinct().collect(Collectors.toList());
             EmailUtil.emailsMany(emailListC,title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!",list);
         }
@@ -198,10 +196,10 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         List<File> list=new ArrayList<>();
         File file = new File("D:"+File.separator+"JAVA"+File.separator+"apache-tomcat-8.0.50"+File.separator+"webapps"+File.separator+"fit"+File.separator+"static"+File.separator+"template"+File.separator+"po"+File.separator+"FIT_VOC_年度目標CD審批流程_v1.0.pdf");
         list.add(file);
-        List<String> emailList=poTableService.listBySql(sql);
+        List<String> emailList=poTaskDao.listBySql(sql);
         emailList=emailList.stream().distinct().collect(Collectors.toList());
         sql="select distinct EMAIL from EPMODS.fit_user where USERNAME in ("+ccUserName+") and type='BI' and EMAIL is not null";
-        List<String> emailListCC=poTableService.listBySql(sql);
+        List<String> emailListCC=poTaskDao.listBySql(sql);
         String emailVal="";
         for (String e:emailList) {
             emailVal+=e+",";
