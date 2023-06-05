@@ -176,7 +176,7 @@ public class TaskJob {
     /**
      * 每天推送 營收實際+預測Summary 發佈數據
      **/
-//    @Scheduled(cron = "0 0 10 29 5 MON-SAT")
+    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void bocklog() {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
@@ -186,8 +186,8 @@ public class TaskJob {
         String title = "FIT 營收實際+預測Summary(截止日:" + dateString + ")";
         String content = "";
         //獲取bocklog表單有權限的用戶
-//        String userList = "select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||BI_GROUP||';',';RT_Backlog;')> 0";
-        String userList="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||BI_GROUP||';',';RT_Backlog;')> 0 and BI_USER in('admin')";
+        String userList = "select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||BI_GROUP||';',';RT_Backlog;')> 0";
+//        String userList="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||BI_GROUP||';',';RT_Backlog;')> 0 and BI_USER in('admin')";
         List<Map> userMap = poTableService.listMapBySql(userList);
         if (null != userMap && userMap.size() > 0) {
             for (Map map : userMap) {
@@ -237,7 +237,7 @@ public class TaskJob {
                         }
                     }
                 }
-                content += "營收，請點擊以下鏈接登錄BI平臺進行查看，謝謝。</div><br></br>" + text + "<div style=\"font-size:15px;\"><b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: #000000;\">FIT_Revenue_and_Backlog_Summary</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn<br></br>Best Regards!</div>";
+                content += "營收，請點擊以下鏈接登錄BI平臺進行查看，謝謝。</div><br></br>" + text + "<div style=\"font-size:15px;\"><b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: #000000;\">FIT_Revenue_and_Backlog_Summary</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系郵箱：ambcai@deloitte.com.cn<br></br>Best Regards!</div>";
                 EmailUtil.emailsMany(map.get("EMAIL").toString(), title, content);
             }
         }
@@ -302,7 +302,7 @@ public class TaskJob {
         } else {
             content = "尊敬的用戶:<br></br>&nbsp;&nbsp;<font style=\"color: red;\">【您已超时！10號將關閉" + content + "上月數據的上傳】</font>請立即采取行動！";
         }
-        content += "<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\"" + accessUrl + "\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!";
+        content += "<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\"" + accessUrl + "\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!";
         if (Integer.valueOf(date[2]) <= 8) {
             sql = "select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur\n" +
                     "where u.id=ur.user_id and r.id=ur.role_id and r.code in('SOURCER','specialSourcer') and u.type='BI' and u.COMMODITY_MAJOR is not null\n" +
