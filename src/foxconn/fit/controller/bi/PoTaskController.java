@@ -283,9 +283,9 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/CPOAudit")
     @ResponseBody
     @Log(name = "採購任務-->CPO目標核准初審")
-    public String CPOAudit(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,@Log(name="審批意見") String remark,String status,String roleCode) {
+    public String cpoAudit(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,@Log(name="審批意見") String remark,String status,String roleCode) {
         try {
-            ajaxResult=poTaskService.CPOAudit(ajaxResult,taskType,id,status,remark,roleCode);
+            ajaxResult=poTaskService.cpoAudit(ajaxResult,taskType,id,status,remark,roleCode);
         } catch (Exception e) {
             logger.error("初审任务失败", e);
             ajaxResult.put("flag", "fail");

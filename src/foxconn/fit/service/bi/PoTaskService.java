@@ -379,7 +379,7 @@ public class PoTaskService extends BaseService<PoTask> {
     /**
      * CPO目标任务初級審批
      */
-    public AjaxResult CPOAudit(AjaxResult ajaxResult,String type,String taskId,String status,String reamrk,String roleCode) {
+    public AjaxResult cpoAudit(AjaxResult ajaxResult,String type,String taskId,String status,String reamrk,String roleCode) {
         String taskName = "select NAME from fit_po_task where id='" + taskId + "'";
         List<String> taskList = poTableService.listBySql(taskName);
         String title=taskList.get(0)+"採購BI平臺簽核通知，請勿回復";
