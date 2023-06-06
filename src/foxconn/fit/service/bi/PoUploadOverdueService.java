@@ -23,10 +23,11 @@ public class PoUploadOverdueService {
     @Autowired
     private InstrumentClassService instrumentClassService;
 
-    /**
-     * 單個分配
+
+    /***
+     * 多個
      * @param userId 用戶ID
-     * @param type 取消/分配
+     * @param type
      */
     public void updateState(String userId,String type){
         String[] ids = userId.split(",");
@@ -45,7 +46,7 @@ public class PoUploadOverdueService {
     }
 
     /**
-     * 多個分配
+     * 單個分配及取消
      * @param updateData
      */
     public void updateState(String updateData){
