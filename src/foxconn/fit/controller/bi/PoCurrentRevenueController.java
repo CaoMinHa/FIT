@@ -98,7 +98,7 @@ public class PoCurrentRevenueController extends BaseController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     @Log(name = "非FIT體系當期收入表-->刪除")
-    public String deleteAll(AjaxResult ajaxResult, @Log(name="刪除ID") String no) {
+    public String delete(AjaxResult ajaxResult, @Log(name="刪除ID") String no) {
         ajaxResult= poCurrentRevenueService.deleteData(ajaxResult,no);
         return ajaxResult.getJson();
     }
