@@ -86,10 +86,10 @@ public class DataDisseminationEmailService {
                     String message=this.message(yearMonth.replace("-",""),map.get("BI_USER").toString().trim(),type);
                     if(null==rtUserEmailAuthorities||rtUserEmailAuthorities.size()==0){
                             title=date+"FIT"+typeVal;
-                            content+=date+"FIT"+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+"FIT"+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT"+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：natalie.sy.tseng@fit-foxconn.com<br></br><br>Best Regards!";
                     }else{
                             title=date+rtUserEmailAuthorities.toString()+typeVal;
-                            content+=date+rtUserEmailAuthorities.toString()+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                            content+=date+rtUserEmailAuthorities.toString()+typeVal+"已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。"+message+"<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">"+rtUserEmailAuthorities.toString()+typeVal+"</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：natalie.sy.tseng@fit-foxconn.com<br></br><br>Best Regards!";
                     }
                     System.out.print("发送邮件："+map.get("EMAIL").toString()+"****主题："+title+"****内容："+content);
                         if(type.equals("menu_plUnit")){
@@ -162,7 +162,7 @@ public class DataDisseminationEmailService {
                 }else{
                     yearMonth=yearMonth.substring(0,4)+"年"+yearMonth.substring(5,7)+"月份";
                 }
-                String content =yearMonth+"损益Rawdata数据已發佈，請點擊以下鏈接登錄BI平臺進行檢查，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">损益Rawdata</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，系統登錄、數據核對如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：ambcai@deloitte.com.cn。<br></br><br>Best Regards!";
+                String content =yearMonth+"损益Rawdata数据已發佈，請點擊以下鏈接登錄BI平臺進行檢查，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">损益Rawdata</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，系統登錄、數據核對如有問題，請聯系顧問 , 分機 5070-32202 , 郵箱：natalie.sy.tseng@fit-foxconn.com。<br></br><br>Best Regards!";
                 this.updateSql("update BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/PL/PL_BasicData/D.損益表基础數據' where BI_USER in('F0606248','FIT0447','HAH0016109','F3748959','J5027812','F0541693','Maggie','Arrisa','Amber')");
                 this.updateSql("update epmebs.ecux_expense_pl_all set attribute8='N' where attribute8 IS NULL and PERIOD_YYYYMM='"+date+"'");
                 for (Map map : emailListC) {
@@ -225,14 +225,14 @@ public class DataDisseminationEmailService {
                         this.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表-不含Total' where instr(';'||BI_GROUP||';',';PL_BU1;') > 0 ");
                         this.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/BS/D.BU資產負債表-特殊' where instr(';'||BI_GROUP||';',';PL_BU2;') > 0 ");
                         title = date + "BU資產負債表";
-                        content += date + "BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU資產負債表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                        content += date + "BU資產負債表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU資產負債表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：natalie.sy.tseng@fit-foxconn.com<br></br><br>Best Regards!";
                     } else if ("CF".equals(type)) {
                         this.updateSql("update epmexp.cux_cf_default_bi set send_email_flag='N' where send_email_flag='Y' and YEARS||'-'||period='"+yearMonth+"'");
                         this.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/CF/D.BU現金流量表' where instr(';'||BI_GROUP||';',';PL_BU;') > 0 ");
                         this.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/CF/D.BU現金流量表-不含Total' where instr(';'||BI_GROUP||';',';PL_BU1;') > 0 ");
                         this.updateSql("update  BIDEV.Bi_user_list  set BI_PORTALPATH='/shared/FIT-BI Platform v2/01.分析/CF/D.BU現金流量表-特殊' where instr(';'||BI_GROUP||';',';PL_BU2;') > 0 ");
                         title = date + "BU现金流量表";
-                        content += date + "BU现金流量表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU现金流量表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：ambcai@deloitte.com.cn<br></br><br>Best Regards!";
+                        content += date + "BU现金流量表已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">BU现金流量表</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：natalie.sy.tseng@fit-foxconn.com<br></br><br>Best Regards!";
                     }
 
                     for (Map map : emailListC) {

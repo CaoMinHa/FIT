@@ -237,7 +237,7 @@ public class TaskJob {
                         }
                     }
                 }
-                content += "營收，請點擊以下鏈接登錄BI平臺進行查看，謝謝。</div><br></br>" + text + "<div style=\"font-size:15px;\"><b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: #000000;\">FIT_Revenue_and_Backlog_Summary</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系郵箱：ambcai@deloitte.com.cn<br></br>Best Regards!</div>";
+                content += "營收，請點擊以下鏈接登錄BI平臺進行查看，謝謝。</div><br></br>" + text + "<div style=\"font-size:15px;\"><b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: #000000;\">FIT_Revenue_and_Backlog_Summary</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系郵箱：natalie.sy.tseng@fit-foxconn.com<br></br>Best Regards!</div>";
                 EmailUtil.emailsMany(map.get("EMAIL").toString(), title, content);
             }
         }
