@@ -138,7 +138,8 @@ public class RtRevenueGrossProfitService{
     /**数据保存*/
     public void save(List<String> list,List<String> listSql){
         list=instrumentClassService.removeDuplicate(list);
-        String sql="delete BIDEV.if_rev_dtl_manual where YEAR_MONTH in('"+list.toString().substring(1,list.toString().length()-1).replaceAll(",","','")+"')";
+        String sql="delete BIDEV.if_rev_dtl_manual where YEAR_MONTH in('"+StringUtils.deleteWhitespace(list.toString().substring(1,list.toString().length()-1).replaceAll(",","','"))+"')";
+        System.out.println("sql语句"+sql);
         poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
         for (String s:listSql) {
             poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(s).executeUpdate();
