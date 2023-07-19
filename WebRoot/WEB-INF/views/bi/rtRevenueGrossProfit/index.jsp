@@ -73,6 +73,31 @@
                 $(".input-file").trigger("click");
             });
 
+            $("#submit").click(function () {
+                if(!$("#Date").val()){
+                    layer.alert("提交日期不能爲空！");
+                    return;
+                }
+                $("#loading").show();
+                $.ajax({
+                    type: "POST",
+                    url: "${ctx}/bi/rtRevenueGrossProfit/diff",
+                    async: true,
+                    dataType: "json",
+                    data: {yearMonth:$("#Date").val()},
+                    success: function (data) {
+                        if (data.flag == "success") {
+                        $("#loading").hide();
+                        layer.alert("提交成功，當日提交成功的手工版數據請次日到BI系統查看！");
+                        }
+                    },
+                    error: function () {
+                        $("#loading").hide();
+                        layer.alert("<spring:message code='connect_fail'/>");
+                    }
+                });
+            });
+
             $("#Download").click(function () {
                 $("#UploadTip").hide();
                 var queryCondition=$("#QueryCondition").serialize();
@@ -218,6 +243,8 @@
                     <div style="margin-left:20px;float:right;">
                         <button id="QueryBtn" class="btn search-btn btn-warning m-l-md"
                                 type="button"><spring:message code='query'/></button>
+                        <button id="submit" style="float:left;margin-left: 10px;" class="btn search-btn" type="button">
+                            <spring:message code='submit'/></button>
                     </div>
                 </form>
             </div>
