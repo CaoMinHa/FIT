@@ -35,6 +35,7 @@ import org.springside.modules.orm.PageRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.math.BigDecimal;
+import java.time.Year;
 import java.util.*;
 
 /**
@@ -67,8 +68,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		List<String> yearsList = budgetDetailRevenueDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
 		//預算應爲測試需要先把年份校驗放開
-//		int year=calendar.get(Calendar.YEAR)+1;
-		int year=calendar.get(Calendar.YEAR);
+		int year=calendar.get(Calendar.YEAR)+1;
+//		int year=calendar.get(Calendar.YEAR);
 		//查看當前用戶是否只有查看下載數據權限
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String roleSql="select count(1) from  fit_user u \n" +
@@ -93,7 +94,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	}
 
 	/**預算頁面查詢*/
-	public String budgetList(String year,String version,String entity){
+	public String budgetList(Locale locale,String year,String version,String entity){
+		String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS");
 		String sql="select * from FIT_BUDGET_DETAIL_REVENUE_V where 1=1";
 		if (null!=year&&StringUtils.isNotEmpty(year)) {
 			sql+=" and YEAR='"+year+"'";
@@ -102,7 +104,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			sql+=" and version='"+version+"'";
 		}
 		String tarList=instrumentClassService.getBudgetSBUStr();
-		String sbu="select distinct substr(ALIAS,0,instr(ALIAS,'_')-1) ALIAS,','||PARENT||',' PARENT from fit_dimension where substr(ALIAS,0,instr(ALIAS,'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+tarList+")";
+		String sbu="select distinct substr("+language+",0,instr("+language+",'_')-1) ALIAS,','||PARENT||',' PARENT from fit_dimension where substr("+language+",0,instr("+language+",'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+tarList+")";
 		List<Map> sbuMap=budgetDetailRevenueDao.listMapBySql(sbu);
 		sql+=instrumentClassService.querySbuSql(entity,sbuMap);
 		sql+=" order by year,entity,make_entity,ID";
@@ -131,6 +133,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	public String uploadBudget(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest) {
 		try {
 			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+			String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS");
 //			獲取當前用戶的SBU權限
 			List<String> tarList = instrumentClassService.getBudgetSBU();
 			Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
@@ -202,7 +205,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					if(row == null||entity.length()<1||"".equals(entity)){
 						continue;
 					}
-					String sql="select distinct PARENT from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and ALIAS='"+entity+"'";
+					String sql="select distinct PARENT from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and "+language+"='"+entity+"'";
 					List<String> listSbu=budgetDetailRevenueDao.listBySql(sql);
 					sbuList.addAll(listSbu);
 					check = instrumentClassService.getDiffrent(listSbu, tarList);
@@ -287,7 +290,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				}
 				if (!list.isEmpty()) {
 					entityMakeList.addAll(entityList);
-					result=this.checkMainData(result,entityMakeList,industryList,mainBusinessList,threeList,productSeriesList,productNoList,
+					result=this.checkMainData(locale,language,result,entityMakeList,industryList,mainBusinessList,threeList,productSeriesList,productNoList,
 							loanCustomerList,endCustomerList,tradeTypeList,currencyList);
 					if ("fail".equals(result.getResult().get("flag"))){
 						return result.getJson();
@@ -320,6 +323,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	/**預測數據上傳*/
 	public String uploadForecast(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest) {
 		try {
+			String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS");
 			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 //			獲取當前用戶的SBU權限
 			List<String> tarList = instrumentClassService.getBudgetSBU();
@@ -352,9 +356,9 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				String v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(13), 0);
 				Assert.hasText(v_year, instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
-				Calendar calendar = Calendar.getInstance();
-				String year = Integer.toString(calendar.get(Calendar.YEAR));
-				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳當前年份的預測數據！", "Only the forecast data of the current year can be uploaded"));
+//				Calendar calendar = Calendar.getInstance();
+//				String year = Integer.toString(calendar.get(Calendar.YEAR));
+//				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳當前年份的預測數據！", "Only the forecast data of the current year can be uploaded"));
 				int column = sheet.getRow(2).getLastCellNum();
 				if (column != COLUMN_NUM) {
 					result.put("flag", "fail");
@@ -390,7 +394,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					if(row == null||entity.length()<1||"".equals(entity)){
 						continue;
 					}
-					String sql="select distinct PARENT from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and ALIAS='"+entity+"'";
+					String sql="select distinct PARENT from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and "+language+"='"+entity+"'";
 					List<String> listSbu=budgetDetailRevenueDao.listBySql(sql);
 					sbuList.addAll(listSbu);
 					check = instrumentClassService.getDiffrent(listSbu, tarList);
@@ -458,7 +462,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				}
 				if (!list.isEmpty()) {
 					entityMakeList.addAll(entityList);
-					result=this.checkMainData(result,entityMakeList,industryList,mainBusinessList,threeList,productSeriesList,productNoList,
+					result=this.checkMainData(locale,language,result,entityMakeList,industryList,mainBusinessList,threeList,productSeriesList,productNoList,
 							loanCustomerList,endCustomerList,tradeTypeList,currencyList);
 					if ("fail".equals(result.getResult().get("flag"))){
 						return result.getJson();
@@ -485,94 +489,94 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		return result.getJson();
 	}
 
-	private AjaxResult checkMainData(AjaxResult result,List<String> entityMakeList,List<String> industryList,List<String> mainBusinessList,
+	private AjaxResult checkMainData(Locale locale,String language,AjaxResult result,List<String> entityMakeList,List<String> industryList,List<String> mainBusinessList,
 	List<String> threeList,List<String> productSeriesList,List<String> productNoList,List<String> loanCustomerList,List<String> endCustomerList,
-									 List<String> tradeTypeList,List<String> currencyList	 ) throws Exception {
+									 List<String> tradeTypeList,List<String> currencyList) throws Exception {
 		String check="";
 		/**SBU_法人校驗*/
-		String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and DIMENSION not in('ABS_A084002')";
+		String sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and DIMENSION not in('ABS_A084002')";
 		check=this.check(entityMakeList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【SBU_銷售法人】或【SBU_製造法人】在【維度表】没有找到---> " + check);
+			result.put("msg", instrumentClassService.getLanguage(locale,"以下【SBU_銷售法人】或【SBU_製造法人】在【維度表】没有找到---> ","The following [SBU_ sales legal person] or [SBU_ manufacturing legal person] is not found in the [Dimension table]-->") + check);
 			return result;
 		}
 		/**次產業校驗*/
-		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'  or DIMENSION='S00' ";
+		sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'  or DIMENSION='S00' ";
 		check=this.check(industryList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【次產業】在【維度表】没有找到---> "+check);
+			result.put("msg", instrumentClassService.getLanguage(locale,"以下【次產業】在【維度表】没有找到---> ","The following [sub-industries] is not found in the [Dimension table]-->")+check);
 			return result;
 		}
 		/**3+3*/
 		/**5GAIOT\EV\AUDIO\Type C\Existing*/
-		sql="select distinct trim(alias) from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')";
+		sql="select distinct trim("+language+") from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')";
 		check=this.check(mainBusinessList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【3+3】在【維度表】没有找到---> "+check);
+			result.put("msg", instrumentClassService.getLanguage(locale,"以下【3+3】在【維度表】没有找到---> ","The following [3+3] is not found in the [Dimension table]-->") + check);
 			return result;
 		}
 		/**三大技術**/
-		sql="select distinct trim(alias) from fit_dimension where type='Project'  and PARENT='P_FIT3+3'";
+		sql="select distinct trim("+language+") from fit_dimension where type='Project'  and PARENT='P_FIT3+3'";
 		check=this.check(threeList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【三大技術】在【維度表】没有找到---> "+check);
+			result.put("msg", instrumentClassService.getLanguage(locale,"以下【三大技術】在【維度表】没有找到---> ","The following [Three major technologies] is not found in the [Dimension table]-->")+check);
 			return result;
 		}
 		/**產品系列**/
-		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
+		sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
 		check=this.check(productSeriesList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【產品系列】在【維度表】没有找到---> "+check);
+			result.put("msg", instrumentClassService.getLanguage(locale,"以下【產品系列】在【維度表】没有找到---> ","The following [Product series] is not found in the [Dimension table]-->")+check);
 			return result;
 		}
 		/**賬款客戶**/
-		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
+		sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
 		check=this.check(loanCustomerList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【賬款客戶】在【維度表】没有找到---> "+check);
+			result.put("msg", instrumentClassService.getLanguage(locale,"以下【賬款客戶】在【維度表】没有找到---> ","The following [Billing customer] is not found in the [Dimension table]-->")+check);
 			return result;
 		}
 		/**最終客戶**/
-		sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Combine.getCode() +"' and PARENT in('C_End Customer') ";
+		sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Combine.getCode() +"' and PARENT in('C_End Customer') ";
 		check=this.check(endCustomerList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【最終客戶】在【維度表】没有找到---> "+check);
+			result.put("msg",instrumentClassService.getLanguage(locale,"以下【最終客戶】在【維度表】没有找到---> ","The following [End customer] is not found in the [Dimension table]-->")+check);
 			return result;
 		}
 		/**交易類型**/
-		sql="select distinct trim(alias) from fit_dimension where type='View' and PARENT in('Int000') and DIMENSION not in('Int005','Int006')";
+		sql="select distinct trim("+language+") from fit_dimension where type='View' and PARENT in('Int000') and DIMENSION not in('Int005','Int006')";
 		check=this.check(tradeTypeList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
+			result.put("msg", instrumentClassService.getLanguage(locale,"以下【交易類型】在【維度表】没有找到---> ","The following [Trading Type] is not found in the [Dimension table]-->")+check);
 			return result;
 		}
 		/**報告幣種**/
-		sql="select distinct trim(alias) from fit_dimension where type='Currency' and PARENT ='O_Currency'";
+		sql="select distinct trim("+language+") from fit_dimension where type='Currency' and PARENT ='O_Currency'";
 		check=this.check(currencyList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
-			result.put("msg", "以下【報告幣種】在【維度表】没有找到---> "+check);
+			result.put("msg", instrumentClassService.getLanguage(locale,"以下【報告幣種】在【維度表】没有找到---> ","The following [Reporting currency] is not found in the [Dimension table]-->")+check);
 			return result;
 		}
 		/**產品料號*/
 		productNoList = instrumentClassService.removeDuplicate(productNoList);
 		forecastDetailRevenueService.saveCheckExist(productNoList);
 		List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
-				"select distinct trim(alias) as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx')  \n" +
+				"select distinct trim("+language+") as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx')  \n" +
 				"union all\n" +
 				"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv\n" +
 				") b where b.product=c.value)");
 		if (!partNoList.isEmpty()) {
 			result.put("flag", "fail");
-			result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
+			result.put("msg", instrumentClassService.getLanguage(locale,"以下【產品料號】在【產品BCG映射表】没有找到---------> ","The following [product part number] is not found in the [Product BCG mapping table]--->")+Arrays.toString(partNoList.toArray()));
 			return result;
 		}
 		return result;
@@ -613,22 +617,23 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	}
 
 	/**下載模板*/
-	public Map<String,String>  template(HttpServletRequest request,String type) {
+	public Map<String,String>  template(HttpServletRequest request,String type,String yearSelect) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> mapResult=new HashMap<>();
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
 			if(type.equals("budget")){
-				String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表","銷售收入預算表")+".xlsx";
-				InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表","銷售收入預算表")+".xlsx");
+				String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表","Sales revenue budget")+".xlsx";
+				InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表","Sales revenue budget")+".xlsx");
 				XSSFWorkbook workBook = new XSSFWorkbook(ins);
 				Sheet sheet = workBook.getSheetAt(0);
 				Calendar calendar = Calendar.getInstance();
 				Row row =sheet.getRow(0);
 				//預算應爲測試需要先把年份校驗放開
+				int year=Integer.valueOf("20"+yearSelect.replace("FY",""))-1;
 //				int year=calendar.get(Calendar.YEAR);
-				int year=calendar.get(Calendar.YEAR)-1;
+//				int year=calendar.get(Calendar.YEAR)-1;
 				row.getCell(13).setCellValue("FY"+ String.valueOf(year+2).substring(2));
 				row.getCell(14).setCellValue("FY"+ String.valueOf(year+3).substring(2));
 				row.getCell(15).setCellValue("FY"+ String.valueOf(year+4).substring(2));
@@ -676,11 +681,12 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	public Map<String,String>  downloadBudget(String entitys,String y,String version,HttpServletRequest request,PageRequest pageRequest){
 		Map<String,String> mapResult=new HashMap<>();
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS");
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表","銷售收入預算表")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表_下载","銷售收入預算表_下载")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表","Sales revenue budget")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預算表_下载","Sales revenue budget(Download)")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
 			Row row =sheet.getRow(0);
@@ -706,7 +712,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			//獲取當前用戶的SBU權限
 			String sbuVal="";
 			String sbuStr = instrumentClassService.getBudgetSBUStr();
-			String sbusql="select distinct substr(ALIAS,0,instr(ALIAS,'_')-1) ALIAS, ','||PARENT||',' PARENT from fit_dimension where substr(ALIAS,0,instr(ALIAS,'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+sbuStr+")";
+			String sbusql="select distinct substr("+language+",0,instr("+language+",'_')-1) ALIAS, ','||PARENT||',' PARENT from fit_dimension where substr("+language+",0,instr("+language+",'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+sbuStr+")";
 			List<Map> sbuMap=budgetDetailRevenueDao.listMapBySql(sbusql);
 			String entityStr=","+entitys+",";
 			for (Map map:sbuMap){
@@ -781,6 +787,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 	public Map<String,String>  downloadForecast(String entitys,String y,String version,HttpServletRequest request,PageRequest pageRequest){
 		Map<String,String> mapResult=new HashMap<>();
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS");
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
@@ -797,7 +804,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			//獲取當前用戶的SBU權限
 			String sbuVal="";
 			String sbuStr = instrumentClassService.getBudgetSBUStr();
-			String sbusql="select distinct substr(ALIAS,0,instr(ALIAS,'_')-1) ALIAS, ','||PARENT||',' PARENT from fit_dimension where substr(ALIAS,0,instr(ALIAS,'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+sbuStr+")";
+			String sbusql="select distinct substr("+language+",0,instr("+language+",'_')-1) ALIAS, ','||PARENT||',' PARENT from fit_dimension where substr("+language+",0,instr("+language+",'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+sbuStr+")";
 			List<Map> sbuMap=forecastSalesRevenueDao.listMapBySql(sbusql);
 			String entityStr=","+entitys+",";
 			for (Map map:sbuMap){
@@ -1057,13 +1064,14 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		return result;
 	}
 
-	public void deleteMany(String entitys,String year,String version,String scenarios){
+	public void deleteMany(Locale locale,String entitys,String year,String version,String scenarios){
+		String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS");
 		String sql="";
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		//獲取當前用戶的SBU權限
 		String sbuVal="";
 		String sbuStr = instrumentClassService.getBudgetSBUStr();
-		String sbusql="select distinct substr(ALIAS,0,instr(ALIAS,'_')-1) ALIAS, ','||PARENT||',' PARENT from fit_dimension where substr(ALIAS,0,instr(ALIAS,'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+sbuStr+")";
+		String sbusql="select distinct substr("+language+",0,instr("+language+",'_')-1) ALIAS, ','||PARENT||',' PARENT from fit_dimension where substr("+language+",0,instr("+language+",'_')-1) is not null and type='" + EnumDimensionType.Entity.getCode() +"' and PARENT in("+sbuStr+")";
 		List<Map> sbuMap=budgetDetailRevenueDao.listMapBySql(sbusql);
 		String entityStr=","+entitys+",";
 		for (Map map:sbuMap){

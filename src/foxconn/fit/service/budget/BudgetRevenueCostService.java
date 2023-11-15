@@ -45,8 +45,8 @@ public class BudgetRevenueCostService {
 		List yearsList = budgetDetailRevenueDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
 		//預算應爲測試需要先把年份校驗放開
-//		int year=calendar.get(Calendar.YEAR)+1;
-		int year=calendar.get(Calendar.YEAR);
+		int year=calendar.get(Calendar.YEAR)+1;
+//		int year=calendar.get(Calendar.YEAR);
 		model.addAttribute("yearVal", "FY"+String.valueOf(year).substring(2));
 		model.addAttribute("yearsList", yearsList);
 		model.addAttribute("versionList", this.versionVal());
@@ -56,8 +56,8 @@ public class BudgetRevenueCostService {
 	public List<String> versionVal(){
 		Calendar calendar=Calendar.getInstance();
 		//預算應爲測試需要先把年份校驗放開
-//		int year=calendar.get(Calendar.YEAR)+1;
-		int year=calendar.get(Calendar.YEAR);
+		int year=calendar.get(Calendar.YEAR)+1;
+//		int year=calendar.get(Calendar.YEAR);
 		String sqlVersion="select distinct version from (select distinct version from fit_budget_revenue_cost_v " +
 				" where Year='FY"+String.valueOf(year).substring(2)+"' and version<>'V00' union all  " +
 				"select distinct version from fit_forecast_revenue_cost_v " +

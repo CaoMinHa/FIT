@@ -1,6 +1,5 @@
 package foxconn.fit.controller.admin;
 
-import com.csvreader.CsvWriter;
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
@@ -17,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.web.util.WebUtils;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +26,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Controller
@@ -39,6 +41,8 @@ public class BudgetController extends BaseController {
 	@Log(name = "提交銷售預算/預測")
 	public synchronized String download(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
 			@Log(name = "SBU") String sbu,@Log(name = "年") String year,@Log(name="場景")String scenarios){
+		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		result.put("msg", getLanguage(locale, "提交成功", "Submit successfully"));
 		try {
 			List<Map> list =new ArrayList<>();
 			if (sbu.endsWith(",")) {
@@ -52,7 +56,7 @@ public class BudgetController extends BaseController {
 			List<Map> lists;
 			String message = budgetService.generatePlanning(entity,year,scenarios);
 			if (StringUtils.isNotEmpty(message)) {
-				throw new RuntimeException("计算Budget数据出错 : "+message);
+				throw new RuntimeException(getLanguage(locale, "计算Budget数据出错 : ","There was an error calculating the Budget data:")+message);
 			}
 			if(scenarios.equals("budget")){
 				String sql="select ACCOUNT,JAN,FEB, MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW,DATA_LOAD_CUBE_NAME from CUX_FIT_PLANNING_V order by POINT_OF_VIEW";
@@ -146,7 +150,7 @@ public class BudgetController extends BaseController {
 				}
 			}else {
 				result.put("flag", "fail");
-				result.put("msg", "没有查询到可下载的数据(No data can be downloaded)");
+				result.put("msg", getLanguage(locale,"没有查询到可下载的数据","No downloadable data was queried"));
 			}
 		} catch (Exception e) {
 			logger.error("下载Excel失败", e);
@@ -160,10 +164,12 @@ public class BudgetController extends BaseController {
 	@RequestMapping(value = "create")
 	@ResponseBody
 	@Log(name = "專案 投資 折舊預算/預測")
-	public synchronized String create(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
+	public synchronized String create(HttpServletRequest request,AjaxResult result,
 										@Log(name = "SBU") String sbu,@Log(name = "年") String year,@Log(name="場景")String scenarios,
 									    @Log(name = "類型") String type){
 		try {
+			Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+			result.put("msg", getLanguage(locale, "提交成功", "Submit successfully"));
 //			List<Map> list =new ArrayList<>();
 			if (sbu.endsWith(",")) {
 				sbu=sbu.substring(0,sbu.length()-1);
@@ -176,7 +182,7 @@ public class BudgetController extends BaseController {
 //			List<Map> lists;
 			String message = budgetService.generatePlanning(entity,year,scenarios,type);
 			if (StringUtils.isNotEmpty(message)) {
-				throw new RuntimeException("计算Budget数据出错 : "+message);
+				throw new RuntimeException(getLanguage(locale, "计算Budget数据出错 : ","There was an error calculating the Budget data:")+message);
 			}
 //			String tableName="";
 //			if(scenarios.equals("budget")){

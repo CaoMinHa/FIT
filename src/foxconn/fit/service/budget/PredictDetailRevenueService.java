@@ -147,9 +147,9 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 				String v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(21), 0);
 				Assert.hasText(v_year, instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
-				Calendar calendar = Calendar.getInstance();
-				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
-				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
+//				Calendar calendar = Calendar.getInstance();
+//				String year = Integer.toString(calendar.get(Calendar.YEAR) + 1);
+//				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳明年的預算數據！", "Only next year's budget data can be uploaded"));
 				int column = sheet.getRow(2).getLastCellNum();
 				if (column != COLUMN_NUM) {
 					result.put("flag", "fail");
@@ -266,14 +266,14 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 					check=this.check(entityMakeList,EnumDimensionType.Entity.getCode());
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
-						result.put("msg", "以下【SBU_銷售法人】或[SBU_製造法人]在【維度表】没有找到---> " + check);
+						result.put("msg", instrumentClassService.getLanguage(locale,"以下【SBU_銷售法人】或[SBU_製造法人]在【維度表】没有找到---> ","The following [SBU_ sales legal person] or [SBU_ manufacturing legal person] is not found in the [Dimension table] -->") + check);
 						return result.getJson();
 					}
 					/**次產業校驗*/
 					check=this.check(industryList,EnumDimensionType.Segment.getCode());
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
-						result.put("msg", "以下【次產業】在【維度表】没有找到---> "+check);
+						result.put("msg", instrumentClassService.getLanguage(locale,"以下【次產業】在【維度表】没有找到---> ","The following [sub-industries] is not found in the [Dimension table]-->")+check);
 						return result.getJson();
 					}
 					/**主營業務*/
@@ -281,49 +281,49 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 					check=this.check(mainBusinessList,EnumDimensionType.Bak2.getCode());
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
-						result.put("msg", "以下【Main Business】在【維度表】没有找到---> "+check);
+						result.put("msg",instrumentClassService.getLanguage(locale,"以下【Main Business】在【維度表】没有找到---> ","The following [Main Business] is not found in the [Dimension table]-->")+check);
 						return result.getJson();
 					}
 					/**3+3**/
 					check=this.check(threeList,EnumDimensionType.Project.getCode());
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
-						result.put("msg", "以下【3+3】在【維度表】没有找到---> "+check);
+						result.put("msg", instrumentClassService.getLanguage(locale,"以下【3+3】在【維度表】没有找到---> ","The following [3+3] is not found in the [Dimension table]-->") + check);
 						return result.getJson();
 					}
 					/**產品系列**/
 					check=this.check(productSeriesList,EnumDimensionType.Product.getCode());
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
-						result.put("msg", "以下【產品系列】在【維度表】没有找到---> "+check);
+						result.put("msg", instrumentClassService.getLanguage(locale,"以下【產品系列】在【維度表】没有找到---> ","The following [Product series] is not found in the [Dimension table]-->")+check);
 						return result.getJson();
 					}
 					/**賬款客戶**/
 					check=this.check(loanCustomerList,EnumDimensionType.Customer.getCode());
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
-						result.put("msg", "以下【賬款客戶】在【維度表】没有找到---> "+check);
+						result.put("msg", instrumentClassService.getLanguage(locale,"以下【賬款客戶】在【維度表】没有找到---> ","The following [Billing customer] is not found in the [Dimension table]-->")+check);
 						return result.getJson();
 					}
 					/**最終客戶**/
 					check=this.check(endCustomerList,EnumDimensionType.Combine.getCode());
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
-						result.put("msg", "以下【最終客戶】在【維度表】没有找到---> "+check);
+						result.put("msg", instrumentClassService.getLanguage(locale,"以下【最終客戶】在【維度表】没有找到---> ","The following [End customer] is not found in the [Dimension table]-->")+check);
 						return result.getJson();
 					}
 					/**交易類型**/
 					check=this.check(tradeTypeList,EnumDimensionType.View.getCode());
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
-						result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
+						result.put("msg", instrumentClassService.getLanguage(locale,"以下【交易類型】在【維度表】没有找到---> ","The following [Trading Type] is not found in the [Dimension table]-->")+check);
 						return result.getJson();
 					}
 					/**報告幣種**/
 					check=this.check(currencyList,EnumDimensionType.Currency.getCode());
 					if (!check.equals("") && check.length() > 0){
 						result.put("flag", "fail");
-						result.put("msg", "以下【報告幣種】在【維度表】没有找到---> "+check);
+						result.put("msg",instrumentClassService.getLanguage(locale,"以下【報告幣種】在【維度表】没有找到---> ","The following [Reporting currency] is not found in the [Dimension table]-->")+check);
 						return result.getJson();
 					}
 					/**產品料號*/
@@ -336,7 +336,7 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 							") b where b.product=c.value)");
 					if (!partNoList.isEmpty()) {
 						result.put("flag", "fail");
-						result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
+						result.put("msg", instrumentClassService.getLanguage(locale,"以下【產品料號】在【產品BCG映射表】没有找到---------> ","The following [product part number] is not found in the [Product BCG mapping table]--->")+Arrays.toString(partNoList.toArray()));
 						return result.getJson();
 					}
 					this.saveBatch(list,v_year,instrumentClassService.removeDuplicate(entityList));
@@ -391,7 +391,7 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 	}
 
 	/**下載模板*/
-	public Map<String,String>  template(HttpServletRequest request) {
+	public Map<String,String>  template(HttpServletRequest request,String yearSelect) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> mapResult=new HashMap<>();
 		mapResult.put("result","Y");
@@ -401,9 +401,10 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售收入預測表_backlog","銷售收入預測表_backlog")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
-			Calendar calendar = Calendar.getInstance();
+//			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
-			int year=calendar.get(Calendar.YEAR);
+			int year=Integer.valueOf("20"+yearSelect.replace("FY",""))-1;
+//			int year=calendar.get(Calendar.YEAR);
 			row.getCell(13).setCellValue("FY"+ String.valueOf(year+2).substring(2));
 			row.getCell(14).setCellValue("FY"+ String.valueOf(year+3).substring(2));
 			row.getCell(15).setCellValue("FY"+ String.valueOf(year+4).substring(2));

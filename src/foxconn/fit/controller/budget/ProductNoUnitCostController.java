@@ -282,7 +282,7 @@ public class ProductNoUnitCostController extends BaseController {
 						}
 						if (!notExistList.isEmpty()) {
 							result.put("flag", "fail");
-							result.put("msg", "以下【SBU_法人】在【維度表】没有找到---------> "+Arrays.toString(notExistList.toArray()));
+							result.put("msg", getLanguage(locale, "以下【SBU_法人】在【維度表】没有找到---> ","The following [SBU_Legal Entity] is not found in the [Dimension table]-->")+Arrays.toString(notExistList.toArray()));
 							return result.getJson();
 						}
 						
@@ -296,7 +296,7 @@ public class ProductNoUnitCostController extends BaseController {
 								") b where b.product=c.value)");
 						if (!partNoList.isEmpty()) {
 							result.put("flag", "fail");
-							result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
+							result.put("msg", getLanguage(locale, "以下【產品料號】在【產品BCG映射表】没有找到---------> ","The following [product part number] is not found in the [Product BCG mapping table]--->")+Arrays.toString(partNoList.toArray()));
 							return result.getJson();
 						}
 						productNoUnitCostService.saveActual(list,yr,period,sbu);
@@ -457,7 +457,7 @@ public class ProductNoUnitCostController extends BaseController {
 								") b where b.product=c.value)");
 						if (!partNoList.isEmpty()) {
 							result.put("flag", "fail");
-							result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
+							result.put("msg", getLanguage(locale, "以下【產品料號】在【產品BCG映射表】没有找到---------> ","The following [product part number] is not found in the [Product BCG mapping table]--->")+Arrays.toString(partNoList.toArray()));
 							return result.getJson();
 						}
 						entityString=entityString.substring(0,entityString.length()-1);
@@ -794,7 +794,7 @@ public class ProductNoUnitCostController extends BaseController {
 								") b where b.product=c.value)");
 						if (!partNoList.isEmpty()) {
 							result.put("flag", "fail");
-							result.put("msg", "以下【產品料號】在【產品BCG映射表】没有找到---------> "+Arrays.toString(partNoList.toArray()));
+							result.put("msg", getLanguage(locale, "以下【產品料號】在【產品BCG映射表】没有找到---------> ","The following [product part number] is not found in the [Product BCG mapping table]--->")+Arrays.toString(partNoList.toArray()));
 							return result.getJson();
 						}
 						

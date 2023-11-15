@@ -65,8 +65,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		List<String> yearsList = budgetProductNoUnitCostDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
 		//預算應爲測試需要先把年份校驗放開
-//		int year=calendar.get(Calendar.YEAR)+1;
-		int year=calendar.get(Calendar.YEAR);
+		int year=calendar.get(Calendar.YEAR)+1;
+//		int year=calendar.get(Calendar.YEAR);
 		//查看當前用戶是否只有查看下載數據權限
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String roleSql="select count(1) from  fit_user u \n" +
@@ -84,8 +84,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	public List<String> versionVal(){
 		Calendar calendar=Calendar.getInstance();
 		//預算應爲測試需要先把年份校驗放開
-//		int year=calendar.get(Calendar.YEAR)+1;
-		int year=calendar.get(Calendar.YEAR);
+		int year=calendar.get(Calendar.YEAR)+1;
+//		int year=calendar.get(Calendar.YEAR);
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String sqlVersion="select distinct version  from FIT_BUDGET_PRODUCT_UNIT_COST where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"' and version<>'V00' order by version ";
 		List<String> versionList=budgetProductNoUnitCostDao.listBySql(sqlVersion);
@@ -113,6 +113,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	public String uploadBudget(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest) {
 		try {
 //			獲取當前用戶的SBU權限
+			String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS");
 			List<String> tarList =instrumentClassService.getBudgetSBU();
 			Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
 			if (mutipartFiles != null && mutipartFiles.size() > 0) {
@@ -141,10 +142,10 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				Sheet sheet = wb.getSheetAt(0);
 				int COLUMN_NUM =0;
 				String v_year ="";
-				if(sheet.getSheetName().equals("銷售成本預算表")){
+				if(sheet.getSheetName().equals("銷售成本預算表")||sheet.getSheetName().equals("Cost of sales budget")){
 					COLUMN_NUM =227;
 					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(11), 0);
-				}else if(sheet.getSheetName().equals("簡易版銷售成本預算表")){
+				}else if(sheet.getSheetName().equals("簡易版銷售成本預算表")||sheet.getSheetName().equals("Cost of sales(Simple ver)")){
 					COLUMN_NUM =70;
 					v_year = ExcelUtil.getCellStringValue(sheet.getRow(0).getCell(2), 0);
 				}else {
@@ -187,7 +188,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						continue;
 					}
 					//跳過沒有SBU權限的數據
-					String sql="select distinct PARENT from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and ALIAS='"+entity+"'";
+					String sql="select distinct PARENT from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and "+language+"='"+entity+"'";
 					List<String> listSbu=budgetProductNoUnitCostDao.listBySql(sql);
 					sbuList.addAll(listSbu);
 					check = instrumentClassService.getDiffrent(listSbu, tarList);
@@ -411,26 +412,26 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				if (!list.isEmpty()) {
 				     if(COLUMN_NUM==70){
 						 /**SBU_法人校驗*/
-						 String sql="select distinct trim(alias) from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and DIMENSION not in('ABS_A084002')";
+						 String sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and DIMENSION not in('ABS_A084002')";
 						 check=this.check(entityList,sql);
 						 if (!check.equals("") && check.length() > 0){
 							 result.put("flag", "fail");
-							 result.put("msg", "以下【SBU_法人】在【維度表】没有找到---> " + check);
+							 result.put("msg",instrumentClassService.getLanguage(locale,"以下【SBU_法人】在【維度表】没有找到---> ","The following [SBU_Legal Entity] is not found in the [Dimension table]-->") + check);
 							 return result.getJson();
 						 }
 						 /**交易類型**/
-						 sql="select distinct trim(alias) from fit_dimension where type='"+EnumDimensionType.View.getCode()+ "' and PARENT in('Int000') ";
+						 sql="select distinct trim("+language+") from fit_dimension where type='"+EnumDimensionType.View.getCode()+ "' and PARENT in('Int000') ";
 						 check=this.check(tradeTypeList,sql);
 						 if (!check.equals("") && check.length() > 0){
 							 result.put("flag", "fail");
-							 result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
+							 result.put("msg", instrumentClassService.getLanguage(locale,"以下【交易類型】在【維度表】没有找到---> ","The following [Trading Type] is not found in the [Dimension table]-->")+check);
 							 return result.getJson();
 						 }
 				     }else{
 						  String msg=this.checkMsgBudget(list,loginUser.getUsername());
 						  if(!msg.isEmpty()){
 							  result.put("flag", "fail");
-							  result.put("msg", "上傳失敗！以下維度數據未在營收明細上傳---> "+msg);
+							  result.put("msg", instrumentClassService.getLanguage(locale,"上傳失敗！以下維度數據未在營收明細上傳---> ","Upload failed! The following dimensions are not uploaded in the revenue details-->")+msg);
 							  return result.getJson();
 						  }
 					 }
@@ -548,9 +549,9 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 				}
 				Assert.hasText(v_year, instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
 				Assert.isTrue("FY".equals(v_year.substring(0, 2)), instrumentClassService.getLanguage(locale, "請下載模板上傳數據！", "Please use the template to upload data"));
-				Calendar calendar = Calendar.getInstance();
-				String year = Integer.toString(calendar.get(Calendar.YEAR));
-				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳當前年的預測數據！", "Only forecast data for the current year can be uploaded"));
+//				Calendar calendar = Calendar.getInstance();
+//				String year = Integer.toString(calendar.get(Calendar.YEAR));
+//				Assert.isTrue(year.substring(2).equals(v_year.substring(2)), instrumentClassService.getLanguage(locale, "僅可上傳當前年的預測數據！", "Only forecast data for the current year can be uploaded"));
 				int column = sheet.getRow(2).getLastCellNum();
 				if (column != COLUMN_NUM) {
 					result.put("flag", "fail");
@@ -773,7 +774,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						check=this.check(entityList,sql);
 						if (!check.equals("") && check.length() > 0){
 							result.put("flag", "fail");
-							result.put("msg", "以下【SBU_法人】在【維度表】没有找到---> " + check);
+							result.put("msg", instrumentClassService.getLanguage(locale,"以下【SBU_法人】在【維度表】没有找到---> ","The following [SBU_Legal Entity] is not found in the [Dimension table]-->") + check);
 							return result.getJson();
 						}
 						/**交易類型**/
@@ -781,14 +782,14 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 						check=this.check(tradeTypeList,sql);
 						if (!check.equals("") && check.length() > 0){
 							result.put("flag", "fail");
-							result.put("msg", "以下【交易類型】在【維度表】没有找到---> "+check);
+							result.put("msg",instrumentClassService.getLanguage(locale,"以下【交易類型】在【維度表】没有找到---> ","The following [Trading Type] is not found in the [Dimension table]-->")+check);
 							return result.getJson();
 						}
 					}else{
 						String msg=this.checkMsgForecast(list,loginUser.getUsername());
 						if(!msg.isEmpty()){
 							result.put("flag", "fail");
-							result.put("msg", "上傳失敗！以下維度數據未在營收明細上傳---> "+msg);
+							result.put("msg", instrumentClassService.getLanguage(locale,"上傳失敗！以下維度數據未在營收明細上傳---> ","Upload failed! The following dimensions are not uploaded in the revenue details-->")+msg);
 							return result.getJson();
 						}
 					}
@@ -877,21 +878,22 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	}
 
 	/**預算下載模板*/
-	public Map<String,String> templateBudget(HttpServletRequest request) {
+	public Map<String,String> templateBudget(HttpServletRequest request,String yearSelect) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> mapResult=new HashMap<>();
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表","銷售成本預算表")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表","銷售成本預算表")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表","Cost of sales budget")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表","Cost of sales budget")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
-			Calendar calendar = Calendar.getInstance();
+//			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
 			//預算應爲測試需要先把年份校驗放開
+			int year=Integer.valueOf("20"+yearSelect.replace("FY",""))-1;
 //			int year=calendar.get(Calendar.YEAR);
-			int year=calendar.get(Calendar.YEAR)-1;
+//			int year=calendar.get(Calendar.YEAR)-1;
 			row.getCell(11).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			row.getCell(191).setCellValue("FY"+ String.valueOf(year+2).substring(2));
 			row.getCell(200).setCellValue("FY"+ String.valueOf(year+3).substring(2));
@@ -1120,7 +1122,7 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	}
 
 	/**預測下載模板*/
-	public Map<String,String> templateForecast(HttpServletRequest request) {
+	public Map<String,String> templateForecast(HttpServletRequest request,String yearSelect) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> mapResult=new HashMap<>();
 		mapResult.put("result","Y");
@@ -1130,9 +1132,10 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預測表","銷售成本預測表")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
-			Calendar calendar = Calendar.getInstance();
+//			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
-			int year=calendar.get(Calendar.YEAR);
+			int year=Integer.valueOf("20"+yearSelect.replace("FY",""))-1;
+//			int year=calendar.get(Calendar.YEAR);
 			row.getCell(11).setCellValue("FY"+ String.valueOf(year).substring(2));
 			String sql=this.templateVal("FY"+ String.valueOf(year).substring(2),"FIT_FORECAST_REVENUE") ;
 			List<Map> list=budgetProductNoUnitCostDao.listMapBySql(sql);
@@ -1411,15 +1414,15 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表_簡易模版","銷售成本預算表_簡易模版")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表_簡易模版","銷售成本預算表_簡易模版")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表_簡易模版","Cost of sales(Simple ver)")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表_簡易模版","Cost of sales(Simple ver)")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
 			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
 			//預算應爲測試需要先把年份校驗放開
-//			int year=calendar.get(Calendar.YEAR);
-			int year=calendar.get(Calendar.YEAR)-1;
+			int year=calendar.get(Calendar.YEAR);
+//			int year=calendar.get(Calendar.YEAR)-1;
 			row.getCell(2).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			row.getCell(50).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			row.getCell(54).setCellValue("FY"+ String.valueOf(year+2).substring(2));
@@ -1483,8 +1486,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表","銷售成本預算表")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表_下载","銷售成本預算表_下载")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表","Cost of sales budget")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"銷售成本預算表_下载","Cost of sales budget(Download)")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 
 			Sheet sheet = workBook.getSheetAt(0);
@@ -1679,8 +1682,8 @@ public class BudgetProductNoUnitCostService extends BaseService<BudgetProductNoU
 	public String versionBudget(){
 		Calendar calendar=Calendar.getInstance();
 		//預算應爲測試需要先把年份校驗放開
-//		int year=calendar.get(Calendar.YEAR)+1;
-		int year=calendar.get(Calendar.YEAR);
+		int year=calendar.get(Calendar.YEAR)+1;
+//		int year=calendar.get(Calendar.YEAR);
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String sqlVersion="select Max(to_number(substr(version,2))) version  from FIT_BUDGET_PRODUCT_UNIT_COST where Year='FY"+String.valueOf(year).substring(2)+"' and  CREATE_NAME='"+loginUser.getUsername()+"'";
 		List<Map> maps = budgetProductNoUnitCostDao.listMapBySql(sqlVersion);

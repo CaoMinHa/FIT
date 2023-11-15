@@ -96,7 +96,7 @@ $(function() {
 			return;
 		}
 		if($("input[name=entitys]:checked").length==0){
-			layer.alert("請選擇SBU");
+			layer.alert("請選擇SBU(Please select SBU)");
 			return;
 		}
 		var entitys="";
@@ -132,7 +132,7 @@ $(function() {
 			return;
 		}
 		if($("input[name=entitys]:checked").length==0){
-			layer.alert("請選擇SBU");
+			layer.alert("請選擇SBU(Please select SBU)");
 			return;
 		}
 		var entitys="";
@@ -234,7 +234,7 @@ $(function() {
 			return;
 		}
 		if($("input[name=entitys]:checked").length==0){
-			layer.alert("請選擇SBU");
+			layer.alert("請選擇SBU(Please select SBU)");
 			return;
 		}
 		var sbu="";
@@ -271,12 +271,16 @@ $(function() {
 
 function downloadTemplate(type){
 	$("#loading").show();
+	if(!$("#QYear").val()){
+		layer.alert("请选择年份(Please select year)");
+		return;
+	}
 	$.ajax({
 		type: "POST",
 		url: "${ctx}/bi/budgetProductNoUnitCost/template",
 		async: true,
 		dataType: "json",
-		data: {type:type},
+		data: {type:type,year:$("#QYear").val()},
 		success: function (data) {
 			$("#loading").hide();
 			if (data.flag == "success") {
@@ -353,10 +357,16 @@ function simplifyTemplate(type){
 								</div>
 							</div>
 							<div style="float:left;margin-left:10px;">
-								<button id="FileUpload" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
+								<button id="FileUpload" style="margin:0 0 0 10px;width: 100px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 							</div>
 							<div style="text-align: right">
-								<div color="red" style="display:inline-block;font-size:18px;color: red;height: 40px;margin-top: 7px;"> 重要提示：幣別單位-美金(USD)</div>
+								<div color="red" style="display:inline-block;font-size:18px;color: red;height: 40px;margin-top: 7px;">
+									<c:if test="${languageS eq 'zh_CN'}">
+										重要提示：幣別單位-美金(USD)
+									</c:if>
+									<c:if test="${languageS eq 'en_US'}">
+										Tips：Currency-USD
+									</c:if></div>
 								<button onclick="downloadTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
 									<spring:message code='budgetTemplate'/></button>
 								<button onclick="simplifyTemplate('budget')" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button">
@@ -409,10 +419,10 @@ function simplifyTemplate(type){
 					</li>
 				</ul>
 	        	<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="margin:0 0 0 10px;width: 80px" type="submit"><spring:message code='query'/></button>
-				<button id="Download" style="margin:0 0 0 10px;width: 80px;" class="btn search-btn" type="button"><spring:message code='download'/></button>
-				<button id="Version" class="btn search-btn" style="margin:0 0 0 10px;width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" type="button"><spring:message code='version'/></button>
-				<button id="DownloadPlanning" style="margin:0 0 0 10px;width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='submit'/></button>
-				<button id="Delete" style="margin:0 0 0 10px;width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='delete'/></button>
+				<button id="Download" style="margin:0 0 0 10px;width: 100px;" class="btn search-btn" type="button"><spring:message code='download'/></button>
+				<button id="Version" class="btn search-btn" style="margin:0 0 0 10px;width: 100px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" type="button"><spring:message code='version'/></button>
+				<button id="DownloadPlanning" style="margin:0 0 0 10px;width: 100px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='submit'/></button>
+				<button id="Delete" style="margin:0 0 0 10px;width: 100px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='delete'/></button>
 			</div>
 		</div>		
 		<div class="p-l-md p-r-md p-b-md" id="Content"></div>

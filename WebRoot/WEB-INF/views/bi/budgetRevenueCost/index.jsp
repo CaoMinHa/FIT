@@ -35,12 +35,12 @@
 					return;
 				}
 				if(!$("#QYear").val()){
-					layer.alert("请选择年份");
+					layer.alert("请选择年份(Please select year)");
 					return;
 				}
 				var entitys="";
 				if(!$("input[name=entitys]:checked")){
-					layer.alert("请选择SBU");
+					layer.alert("请选择SBU(Please select SBU)");
 					return;
 				}else{
 					$("input[name=entitys]:checked").each(function(i,dom){
@@ -77,8 +77,8 @@
 				if($(this).val()){
 					var date=new Date;
 					//預算應爲測試需要先把年份校驗放開
-					// var year=date.getFullYear()
-					var year=date.getFullYear()-1;
+					var year=date.getFullYear()
+					// var year=date.getFullYear()-1;
 					if($(this).val()=="forecast"){
 						$("#QYear").val("FY"+year.toString().substring(2));
 					}else{
@@ -137,8 +137,8 @@
 						</ul>
 					</li>
 				</ul>
-				<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="width: 80px;" type="submit"><spring:message code='query'/></button>
-				<button id="Download" class="btn search-btn" style="width: 80px;" type="button"><spring:message code='download'/></button>
+				<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="width: 100px;" type="submit"><spring:message code='query'/></button>
+				<button id="Download" class="btn search-btn" style="width: 100px;" type="button"><spring:message code='download'/></button>
 			</div>
 		</div>
 		<div class="p-l-md p-r-md p-b-md" id="Content"></div>

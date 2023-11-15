@@ -17,10 +17,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * 郵件通知
@@ -37,10 +34,12 @@ public class PoEmailController extends BaseController {
     public String index(Model model) {
         try {
             List<String> list=poTableService.listBySql("select distinct name from FIT_PO_AUDIT_ROLE where code in('PLACECLASS1','MANAGER','specialManager','PD','PLACECLASS','T_MANAGER','TDC','CPO','MM','SBUCompetent') order by name");
+            model.addAttribute("yearList", poTableService.listBySql("SELECT flv.lookup_code FROM CUX_LOOKUP_VALUES flv WHERE flv.lookup_type = 'YEAR' AND flv.enabled = 'Y' ORDER BY 1"));
             List<List<String>> listGroup=poEmailService.selectGroup(list);
             model.addAttribute("EmailUserTeam",list);
             model.addAttribute("listGroup",listGroup);
-
+            Calendar calendar = Calendar.getInstance();
+            model.addAttribute("yearDate",calendar.get(Calendar.YEAR));
         } catch (Exception e) {
             logger.error("查詢郵件分組失敗！", e);
         }

@@ -179,41 +179,80 @@ function refresh(){
 		</c:when>
 		<c:when test="${scenarios eq 'budget'}">
 			<table class="table table-condensed table-hover">
-				<thead class="theadCss">
-				<tr>
-					<th class="onlyQuery" rowspan="2"><spring:message code='operation'/></th>
-					<th colspan="4">基礎數據</th>
-					<th colspan="16">FY${year}</th>
-					<th colspan="2">FY${year+1}</th>
-					<th colspan="2">FY${year+2}</th>
-				</tr>
-				<tr>
-					<th>專案編號</th>
-					<th>SBU_法人</th>
-					<th>提出部門</th>
-					<th>產業</th>
-					<th>產品系列</th>
-					<th>專案名稱</th>
-					<th>專案説明</th>
-					<th>投資對象(設備)名稱</th>
-					<th>三大技術（下拉選擇）</th>
-					<th>Segment（下拉選擇）</th>
-					<th>3+3（下拉選擇）</th>
-					<th>產品生命週期-年（用於購置設備）</th>
-					<th>預計開始年份</th>
-					<th>預計開始月度</th>
-					<th>預計結束年份</th>
-					<th>預計結束月度</th>
-					<th>預計費用支出(含人力)(本位幣)</th>
-					<th>預計資本性支出(本位幣)</th>
-					<th>預估收益-營收(本位幣)</th>
-					<th>預估收益-淨利(本位幣)</th>
-					<th>預估收益-營收(本位幣)</th>
-					<th>預估收益-淨利(本位幣)</th>
-					<th>預估收益-營收(本位幣)</th>
-					<th>預估收益-淨利(本位幣)</th>
-				</tr>
-				</thead>
+				<c:if test="${languageS eq 'en_US'}">
+					<thead class="theadCss">
+					<tr>
+						<th class="onlyQuery" rowspan="2"><spring:message code='operation'/></th>
+						<th colspan="4">Basic Info</th>
+						<th colspan="16">FY${year}</th>
+						<th colspan="2">FY${year+1}</th>
+						<th colspan="2">FY${year+2}</th>
+					</tr>
+					<tr>
+						<th>Project number</th>
+						<th>SBU_Legal Entity</th>
+						<th>Proposing department</th>
+						<th>Industry</th>
+						<th>Product series</th>
+						<th>Project name</th>
+						<th>Project description</th>
+						<th>Name of the investment object (equipment)</th>
+						<th>Three major technologies</th>
+						<th>Segment</th>
+						<th>3+3</th>
+						<th>Product life cycle - years (for purchasing equipment)</th>
+						<th>Estimated year of commencement</th>
+						<th>Estimated month of commencement</th>
+						<th>Estimated year of end</th>
+						<th>Estimated month of end</th>
+						<th>Estimated expenditure (including labour cost) (standard currency)</th>
+						<th>Estimated capital expenditure (standard currency)</th>
+						<th>Estimated Sales Revenue (standard currency)</th>
+						<th>Estimated Sales Revenue - net profit (standard currency)</th>
+						<th>Estimated Sales Revenue (standard currency)</th>
+						<th>Estimated Sales Revenue - net profit (standard currency)</th>
+						<th>Estimated Sales Revenue (standard currency)</th>
+						<th>Estimated Sales Revenue - net profit (standard currency)</th>
+					</tr>
+					</thead>
+				</c:if>
+				<c:if test="${languageS eq 'zh_CN'}">
+					<thead class="theadCss">
+					<tr>
+						<th class="onlyQuery" rowspan="2"><spring:message code='operation'/></th>
+						<th colspan="4">基礎數據</th>
+						<th colspan="16">FY${year}</th>
+						<th colspan="2">FY${year+1}</th>
+						<th colspan="2">FY${year+2}</th>
+					</tr>
+					<tr>
+						<th>專案編號</th>
+						<th>SBU_法人</th>
+						<th>提出部門</th>
+						<th>產業</th>
+						<th>產品系列</th>
+						<th>專案名稱</th>
+						<th>專案説明</th>
+						<th>投資對象(設備)名稱</th>
+						<th>三大技術（下拉選擇）</th>
+						<th>Segment（下拉選擇）</th>
+						<th>3+3（下拉選擇）</th>
+						<th>產品生命週期-年（用於購置設備）</th>
+						<th>預計開始年份</th>
+						<th>預計開始月度</th>
+						<th>預計結束年份</th>
+						<th>預計結束月度</th>
+						<th>預計費用支出(含人力)(本位幣)</th>
+						<th>預計資本性支出(本位幣)</th>
+						<th>預估收益-營收(本位幣)</th>
+						<th>預估收益-淨利(本位幣)</th>
+						<th>預估收益-營收(本位幣)</th>
+						<th>預估收益-淨利(本位幣)</th>
+						<th>預估收益-營收(本位幣)</th>
+						<th>預估收益-淨利(本位幣)</th>
+					</tr>
+					</thead>
+				</c:if>
 				<tbody>
 				<c:forEach items="${page.result}" var="mapping">
 					<tr>

@@ -36,7 +36,7 @@ public class BudgetProductNoUnitCostController extends BaseController {
 
 
 	@RequestMapping(value = "index")
-	public String index(Model model,HttpServletRequest request) {
+	public String index(Model model) {
 		model=budgetProductNoUnitCostService.index(model);
 		return "/bi/budgetProductNoUnitCost/index";
 	}
@@ -44,7 +44,7 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	/**頁面查詢*/
 	@RequestMapping(value="/list")
 	@Log(name = "銷售成本-->查詢")
-	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,@Log(name="版本") String scenarios,@Log(name ="SBU") String entitys,
+	public String list(Model model,PageRequest pageRequest,@Log(name="版本") String scenarios,@Log(name ="SBU") String entitys,
 					   @Log(name="年份") String year,@Log(name="版本") String version) {
 		try {
 			if(null!=scenarios){
@@ -70,7 +70,7 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	@RequestMapping(value="/delete")
 	@ResponseBody
 	@Log(name = "銷售成本-->單條數據刪除")
-	public String delete(HttpServletRequest request,AjaxResult ajaxResult,Model model,@Log(name="ID")String id,@Log(name = "場景") String scenarios){
+	public String delete(HttpServletRequest request,AjaxResult ajaxResult,@Log(name="ID")String id,@Log(name = "場景") String scenarios){
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		ajaxResult.put("msg", getLanguage(locale, "删除成功", "Delete Success"));
 		try {
@@ -92,7 +92,8 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	@RequestMapping(value = "upload")
 	@ResponseBody
 	@Log(name = "銷售成本-->上传")
-	public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result,@Log(name="場景") String scenarios) {
+	public String upload(HttpServletRequest request, AjaxResult result,
+						 @Log(name="場景") String scenarios) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		result.put("msg", getLanguage(locale, "上传成功", "Upload Success"));
 		MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
@@ -107,7 +108,7 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	@RequestMapping(value = "download")
 	@ResponseBody
 	@Log(name = "销售成本-->下载")
-	public synchronized String download(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
+	public synchronized String download(HttpServletRequest request,PageRequest pageRequest,AjaxResult result,
 			@Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version,@Log(name="場景")String scenarios){
 		try {
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -139,13 +140,14 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	@RequestMapping(value = "template")
 	@ResponseBody
 	@Log(name = "銷售成本-->下載上傳模板")
-	public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result,@Log(name="場景") String type) {
+	public synchronized String template(HttpServletRequest request, AjaxResult result,
+										@Log(name="場景") String type,@Log(name ="年份")String year) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> map=null;
 		if("budget".equals(type)){
-			map=budgetProductNoUnitCostService.templateBudget(request);
+			map=budgetProductNoUnitCostService.templateBudget(request,year);
 		}else{
-			map=budgetProductNoUnitCostService.templateForecast(request);
+			map=budgetProductNoUnitCostService.templateForecast(request,year);
 		}
 		if("Y".equals(map.get("result"))){
 			result.put("fileName", map.get("file"));
@@ -162,7 +164,7 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	@RequestMapping(value = "simplifyTemplate")
 	@ResponseBody
 	@Log(name = "銷售成本預測-->下載簡易版上傳模板")
-	public synchronized String simplifyTemplate(HttpServletRequest request, HttpServletResponse response, AjaxResult result,@Log(name="場景") String type) {
+	public synchronized String simplifyTemplate(HttpServletRequest request, AjaxResult result,@Log(name="場景") String type) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> map=null;
 		if("budget".equals(type)){
@@ -185,7 +187,7 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	@RequestMapping(value = "version")
 	@ResponseBody
 	@Log(name = "銷售成本-->存儲版本")
-	public synchronized String version(HttpServletRequest request, HttpServletResponse response, AjaxResult result,@Log(name = "場景") String scenarios) {
+	public synchronized String version(HttpServletRequest request, AjaxResult result,@Log(name = "場景") String scenarios) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String version="";
 		if("forecast".equals(scenarios)){
@@ -211,7 +213,7 @@ public class BudgetProductNoUnitCostController extends BaseController {
 	@RequestMapping(value="/deleteMany")
 	@ResponseBody
 	@Log(name = "銷售成本-->按條件刪除")
-	public synchronized String deleteMany(HttpServletRequest request,PageRequest pageRequest,AjaxResult result,
+	public synchronized String deleteMany(HttpServletRequest request,AjaxResult result,
 										@Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version,@Log(name="場景")String scenarios){
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		try {

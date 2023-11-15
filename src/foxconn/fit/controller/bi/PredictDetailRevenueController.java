@@ -131,9 +131,9 @@ public class PredictDetailRevenueController extends BaseController {
 	 */
 	@RequestMapping(value = "template")
 	@ResponseBody
-	public synchronized String template(HttpServletRequest request, AjaxResult result) {
+	public synchronized String template(HttpServletRequest request, AjaxResult result,@Log(name ="年份")String year) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		Map<String,String> map=forecastRevenueService.template(request);
+		Map<String,String> map=forecastRevenueService.template(request,year);
 		if(map.get("result")=="Y"){
 			result.put("fileName", map.get("file"));
 		}else{

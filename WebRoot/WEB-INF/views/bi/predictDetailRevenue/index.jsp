@@ -85,11 +85,11 @@
 				$("#UploadTip").hide();
 				var year=$("#QYear").val();
 				if(year.length==0){
-					layer.msg("请选择年份");
+					layer.msg("请选择年份(Please select year)");
 					return;
 				}
 				if($("input[name=entitys]:checked").length==0){
-					layer.msg("请选择SBU");
+					layer.msg("请选择SBU(Please select SBU)");
 					return;
 				}
 				$("#loading").show();
@@ -143,11 +143,16 @@
 
 			$("#DownloadTemplate").click(function(){
 				$("#loading").show();
+				if(!$("#QYear").val()){
+					layer.alert("请选择年份(Please select year)");
+					return;
+				}
 				$.ajax({
 					type: "POST",
 					url: "${ctx}/bi/predictDetailRevenue/template",
 					async: true,
 					dataType: "json",
+					data: {year:$("#QYear").val()},
 					success: function (data) {
 						$("#loading").hide();
 						if (data.flag == "success") {
@@ -236,7 +241,7 @@
 								</div>
 							</div>
 							<div style="float:left;margin-left:10px;display:inline-block;">
-								<button id="FileUpload" style="float:left;width: 80px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
+								<button id="FileUpload" style="float:left;width: 100px;" class="btn search-btn" type="button"><spring:message code='upload'/></button>
 							</div>
 							<div style="text-align: right">
 								<button id="DownloadTemplate" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='budgetTemplate'/></button>
@@ -279,9 +284,9 @@
 						</ul>
 					</li>
 				</ul>
-				<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="width: 80px;" type="submit"><spring:message code='query'/></button>
-				<button id="Download" class="btn search-btn" style="width: 80px;" type="button"><spring:message code='download'/></button>
-				<button id="Version" class="btn search-btn" style="width: 80px;" type="button"><spring:message code='version'/></button>
+				<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="width: 100px;" type="submit"><spring:message code='query'/></button>
+				<button id="Download" class="btn search-btn" style="width: 100px;" type="button"><spring:message code='download'/></button>
+				<button id="Version" class="btn search-btn" style="width: 100px;" type="button"><spring:message code='version'/></button>
 			</div>
 		</div>
 		<div class="p-l-md p-r-md p-b-md" id="Content"></div>

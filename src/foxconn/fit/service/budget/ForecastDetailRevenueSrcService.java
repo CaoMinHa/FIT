@@ -5,6 +5,7 @@ import foxconn.fit.dao.budget.ForecastDetailRevenueSrcDao;
 import foxconn.fit.entity.base.EnumDimensionType;
 import foxconn.fit.entity.budget.ForecastDetailRevenueSrc;
 import foxconn.fit.service.base.BaseService;
+import foxconn.fit.service.bi.InstrumentClassService;
 import foxconn.fit.util.ExceptionUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -15,12 +16,15 @@ import org.hibernate.classic.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.web.util.WebUtils;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -29,6 +33,9 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 	@Autowired
 	private ForecastDetailRevenueSrcDao forecastDetailRevenueSrcDao;
+
+	@Autowired
+	private InstrumentClassService instrumentClassService;
 	
 	@Override
 	public BaseDaoHibernate<ForecastDetailRevenueSrc> getDao() {
@@ -47,47 +54,49 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 	}
 
 	public Map<String,String> dimension(HttpServletRequest request) {
+		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS as ALIAS");
 		Map<String,String> mapResult=new HashMap<>();
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
 			String filePath=realPath+"static"+File.separator+"download"+File.separator+"FIT_Hyperion Dimension table.xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+"FIT_Hyperion Dimension table.xlsx");
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"budget"+File.separator+instrumentClassService.getLanguage(locale,"FIT_Hyperion Dimension table","FIT_Hyperion Dimension table_For Sales Budget")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 
 			/**組織维度表*/
 			Sheet sheet = workBook.getSheetAt(1);
-			String sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Entity.getCode()+"' and PARENT <> 'FOET' and DIMENSION not in('ABS_A084002')";
+			String sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Entity.getCode()+"' and PARENT <> 'FOET' and DIMENSION not in('ABS_A084002')";
 			this.selectDimension(sql,sheet);
 
 			/**Entity-for FOIT*/
 			sheet = workBook.getSheetAt(2);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Entity.getCode()+"' and PARENT = 'FOET' and DIMENSION not in('ABS_A084002')";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Entity.getCode()+"' and PARENT = 'FOET' and DIMENSION not in('ABS_A084002')";
 			this.selectDimension(sql,sheet);
 
 			/**次產業*/
 			sheet = workBook.getSheetAt(3);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Segment.getCode()+"' and PARENT like 'SE_%' or DIMENSION='S00' ";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Segment.getCode()+"' and PARENT like 'SE_%' or DIMENSION='S00' ";
 			this.selectDimension(sql,sheet);
 
 			/**3+3*/
 			sheet = workBook.getSheetAt(4);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')";
 			this.selectDimension(sql,sheet);
 
 			/**三大技術*/
 			sheet = workBook.getSheetAt(5);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Project' and PARENT='P_FIT3+3'";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='Project' and PARENT='P_FIT3+3'";
 			this.selectDimension(sql,sheet);
 
 			/**產品系列*/
 			sheet = workBook.getSheetAt(6);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
 			this.selectDimension(sql,sheet);
 
 			/**Product series for FOIT*/
 			sheet = workBook.getSheetAt(7);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and PARENT in('7EB','7EE','7ED','7EA','7EG','7ER','7RD','7RE','7RA','7RC','7RF','7RB','7SB','7SC','7SA','7PF','7PC','7PB','7PG','7PD','7PA','7EU','7RG','7ET')";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and PARENT in('7EB','7EE','7ED','7EA','7EG','7ER','7RD','7RE','7RA','7RC','7RF','7RB','7SB','7SC','7SA','7PF','7PC','7PB','7PG','7PD','7PA','7EU','7RG','7ET')";
 			this.selectDimension(sql,sheet);
 
 			/**產品料号维度表*/
@@ -102,22 +111,22 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**最終客戶*/
 			sheet = workBook.getSheetAt(10);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Combine.getCode()+"' and PARENT in('C_End Customer') ";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Combine.getCode()+"' and PARENT in('C_End Customer') ";
 			this.selectDimension(sql,sheet);
 
 			/**賬款客戶*/
 			sheet = workBook.getSheetAt(11);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
 			this.selectDimension(sql,sheet);
 
 			/**交易類型*/
 			sheet = workBook.getSheetAt(12);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='View' and PARENT in('Int000') and DIMENSION not in('Int005','Int006')";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='View' and PARENT in('Int000') and DIMENSION not in('Int005','Int006')";
 			this.selectDimension(sql,sheet);
 
 			/**交易貨幣*/
 			sheet = workBook.getSheetAt(13);
-			sql="select distinct DIMENSION,ALIAS from fit_dimension where type='Currency' and PARENT ='O_Currency'";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='Currency' and PARENT ='O_Currency'";
 			this.selectDimension(sql,sheet);
 
 			File outFile = new File(filePath);
@@ -135,6 +144,7 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 		}
 		return mapResult;
 	}
+
 	public static String mapValString(Object o){
 		if(null == o || o.toString().length()==0){
 			return "";

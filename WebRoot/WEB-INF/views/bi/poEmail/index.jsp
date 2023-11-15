@@ -3,123 +3,36 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="expires" content="0">
-<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
-<meta http-equiv="description" content="This is my page">
-<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-<style type="text/css">
-	.modal-backdrop {
-		position: initial!important;
-	}
-	.modal-header{
-		background-color: #f5f5f5!important;
-	}
-	.ui-datepicker-buttonpane{display:none;}
-</style>
-<script type="text/javascript">
-$(document).ready(function(){
-	$("#ui-datepicker-div").remove();
-	$("#endDate").datepicker({
-		dateFormat: 'yy-m-dd',
-		showButtonPanel: true,
-		changeYear:true,
-		changeMonth:true
-	});
-
-	var array=new Array();
-
-
-	$("#FileUpload").click(function(){
-		$("#loading").show();
-		var r = /^\+?[1-9][0-9]*$/;
-		if($("input[type='checkbox']:checked").length===0){
-			layer.msg("請選擇用戶分組！");
-		}else if(!$("#emailTitle").val()){
-			layer.msg("請填寫郵件主題！");
-		}else if(!$("#emailYear").val()||$("#emailYear").val().length != 4 || !r.test($("#emailYear").val())){
-			layer.msg("請檢查VOC年份！");
-		}else if(!$("#emailContent").val()){
-			layer.msg("郵件内容不能爲空！");
-		}else{
-			$.ajax({
-				type:"POST",
-				url:"${ctx}/bi/poEmail/sendEmail",
-				async:true,
-				dataType:"json",
-				data:{
-					emailGroup:$("#groupUserText").val(),
-					title:$("#emailTitle").val(),
-					year:$("#emailYear").val(),
-					content:$("#emailContent").val(),
-					endDate:$("#endDate").val(),
-					type:"1"
-				},
-				success: function(data){
-					if(data.flag=="success"){
-						layer.alert("郵件發送成功！");
-						$("#loading").hide();
-					}else{
-						layer.alert(data.msg);
-						$("#loading").hide();
-					}
-				},
-				error: function(XMLHttpRequest, textStatus, errorThrown) {
-					layer.alert("發送失敗！");
-					$("#loading").hide();
-				}
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<style type="text/css">
+		.modal-backdrop {
+			position: initial!important;
+		}
+		.modal-header{
+			background-color: #f5f5f5!important;
+		}
+		.ui-datepicker-buttonpane{display:none;}
+	</style>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#ui-datepicker-div").remove();
+			$("#endDate").datepicker({
+				dateFormat: 'yy-m-dd',
+				showButtonPanel: true,
+				changeYear:true,
+				changeMonth:true
 			});
-		}
-		$("#loading").hide();
-	});
 
-	$(".groupUser").change(function(e) {
-		var name=$(this).attr("name");
-		if(this.checked){
-			$("input[name='"+name+"']").prop("checked",this.checked);
-		}else{
-			$("input[name='"+name+"']").prop("checked",false);
-		}
-	});
-	$("#affirmBut").click(function () {
-		var valueUser='';
-		$(".userGroupVal:checked").each(function () {
-			valueUser+=$(this).val()+",";
-		})
-		$("#groupUserText").val(valueUser.substring(0,valueUser.length-1));
-	})
-	$("#closeBut").click(function () {
-			$("input[type='checkbox']").prop("checked",false);
-	})
-	$("#resetBtn").click(function () {
-		$("input[type='checkbox']").prop("checked",false);
-		$("form input").val("");
-		$("#emailContent").val("");
-		$(".tip").text("請選擇文件");
-		$(".upload-tip").attr("title", "請選擇文件");
-		$("#excelVal span").remove();
-		array=new Array();
-	});
+			var array=new Array();
 
-	$("#poEmailA").fileupload({
-		dataType: "json",
-		url: "${ctx}/bi/poEmail/sendEmail",
-		singleFileUploads: false,
-		add: function (e, data) {
-			array[array.length]=data.files[0];
-			$("#FileUpload").unbind();
-			var filename = data.originalFiles[0]['name'];
-			if (data.originalFiles[0]['size'] > 1024 * 1024 * 30) {
-				layer.alert("<spring:message code='not_exceed_30M'/>");
-				return;
-			}
-			$("#excelVal").append("<span name='"+data.originalFiles[0].lastModified+"'>"+filename+"<button id='"+data.originalFiles[0].lastModified+"' name='deleteBtn' type='button' style='color: red;background-color: white;border: #f3f3f3;'>&times;</button></br></span>");
-			data.originalFiles=array;
-			data.files=array;
-			$("#FileUpload").click(function () {
-				data.originalFiles=array;
-				data.files=array;
+
+			$("#FileUpload").click(function(){
+				$("#loading").show();
 				var r = /^\+?[1-9][0-9]*$/;
 				if($("input[type='checkbox']:checked").length===0){
 					layer.msg("請選擇用戶分組！");
@@ -130,83 +43,170 @@ $(document).ready(function(){
 				}else if(!$("#emailContent").val()){
 					layer.msg("郵件内容不能爲空！");
 				}else{
-					$("#loading").show();
-					if(array.length==0){
-						$.ajax({
-							type:"POST",
-							url:"${ctx}/bi/poEmail/sendEmail",
-							async:true,
-							dataType:"json",
-							data:{
-								emailGroup:$("#groupUserText").val(),
-								title:$("#emailTitle").val(),
-								year:$("#emailYear").val(),
-								content:$("#emailContent").val(),
-								endDate:$("#endDate").val(),
-								type:"1"
-							},
-							success: function(data){
-								if(data.flag=="success"){
-									layer.alert("郵件發送成功！");
-									$("#loading").hide();
-								}else{
-									layer.alert(data.msg);
-									$("#loading").hide();
-								}
-							},
-							error: function(XMLHttpRequest, textStatus, errorThrown) {
-								layer.alert("發送失敗！");
+					$.ajax({
+						type:"POST",
+						url:"${ctx}/bi/poEmail/sendEmail",
+						async:true,
+						dataType:"json",
+						data:{
+							emailGroup:$("#groupUserText").val(),
+							title:$("#emailTitle").val(),
+							year:$("#emailYear").val(),
+							content:$("#emailContent").val(),
+							endDate:$("#endDate").val(),
+							type:"1"
+						},
+						success: function(data){
+							if(data.flag=="success"){
+								layer.alert("郵件發送成功！");
+								$("#loading").hide();
+							}else{
+								layer.alert(data.msg);
 								$("#loading").hide();
 							}
-						});
-					}else{
-						data.submit();
-					}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown) {
+							layer.alert("發送失敗！");
+							$("#loading").hide();
+						}
+					});
+				}
+				$("#loading").hide();
+			});
+
+			$(".groupUser").change(function(e) {
+				var name=$(this).attr("name");
+				if(this.checked){
+					$("input[name='"+name+"']").prop("checked",this.checked);
+				}else{
+					$("input[name='"+name+"']").prop("checked",false);
 				}
 			});
-			$("button[name='deleteBtn']").click(function () {
-				debugger;
-				var a=$(this).attr("id");
-				for(var i=0;i<array.length;i++){
-					if(array[i].lastModified==a){
-						array.splice(i,1);
-						$("span[name='"+a+"']").remove();
-						break;
-					}
-				}
+			$("#affirmBut").click(function () {
+				var valueUser='';
+				$(".userGroupVal:checked").each(function () {
+					valueUser+=$(this).val()+",";
+				})
+				$("#groupUserText").val(valueUser.substring(0,valueUser.length-1));
 			})
-		},
-		done: function (e, data) {
-			$("#loading").delay(1000).hide();
-			layer.alert(data.result.msg);
-			$.each(data.result.files, function (index, file) {
-				$('<p/>').text(file.name).appendTo(document.body);
+			$("#closeBut").click(function () {
+				$("input[type='checkbox']").prop("checked",false);
+			})
+			$("#resetBtn").click(function () {
+				$("input[type='checkbox']").prop("checked",false);
+				$("form input").val("");
+				$("#emailContent").val("");
+				$(".tip").text("請選擇文件");
+				$(".upload-tip").attr("title", "請選擇文件");
+				$("#excelVal span").remove();
+				array=new Array();
 			});
-		},
-		fail: function (e, data) {
-			$("#loading").delay(1000).hide();
-			layer.alert("郵件發送成功！");
-		},
-		processfail: function (e, data) {
-			$("#loading").delay(1000).hide();
-			layer.alert("<spring:message code='upload'/><spring:message code='fail'/>");
-		}
-	});
-	$(".upload-tip").click(function () {
-		$(".input-file").trigger("click");
-	});
-	$('#poEmailA').bind('fileuploadsubmit', function (e, data) {
-		data.formData={
-			emailGroup:$("#groupUserText").val(),
+
+			$("#poEmailA").fileupload({
+				dataType: "json",
+				url: "${ctx}/bi/poEmail/sendEmail",
+				singleFileUploads: false,
+				add: function (e, data) {
+					array[array.length]=data.files[0];
+					$("#FileUpload").unbind();
+					var filename = data.originalFiles[0]['name'];
+					if (data.originalFiles[0]['size'] > 1024 * 1024 * 30) {
+						layer.alert("<spring:message code='not_exceed_30M'/>");
+						return;
+					}
+					$("#excelVal").append("<span name='"+data.originalFiles[0].lastModified+"'>"+filename+"<button id='"+data.originalFiles[0].lastModified+"' name='deleteBtn' type='button' style='color: red;background-color: white;border: #f3f3f3;'>&times;</button></br></span>");
+					data.originalFiles=array;
+					data.files=array;
+					$("#FileUpload").click(function () {
+						data.originalFiles=array;
+						data.files=array;
+						var r = /^\+?[1-9][0-9]*$/;
+						if($("input[type='checkbox']:checked").length===0){
+							layer.msg("請選擇用戶分組！");
+						}else if(!$("#emailTitle").val()){
+							layer.msg("請填寫郵件主題！");
+						}else if(!$("#emailYear").val()||$("#emailYear").val().length != 4 || !r.test($("#emailYear").val())){
+							layer.msg("請檢查VOC年份！");
+						}else if(!$("#emailContent").val()){
+							layer.msg("郵件内容不能爲空！");
+						}else{
+							$("#loading").show();
+							if(array.length==0){
+								$.ajax({
+									type:"POST",
+									url:"${ctx}/bi/poEmail/sendEmail",
+									async:true,
+									dataType:"json",
+									data:{
+										emailGroup:$("#groupUserText").val(),
+										title:$("#emailTitle").val(),
+										year:$("#emailYear").val(),
+										content:$("#emailContent").val(),
+										endDate:$("#endDate").val(),
+										type:"1"
+									},
+									success: function(data){
+										if(data.flag=="success"){
+											layer.alert("郵件發送成功！");
+											$("#loading").hide();
+										}else{
+											layer.alert(data.msg);
+											$("#loading").hide();
+										}
+									},
+									error: function(XMLHttpRequest, textStatus, errorThrown) {
+										layer.alert("發送失敗！");
+										$("#loading").hide();
+									}
+								});
+							}else{
+								data.submit();
+							}
+						}
+					});
+					$("button[name='deleteBtn']").click(function () {
+						debugger;
+						var a=$(this).attr("id");
+						for(var i=0;i<array.length;i++){
+							if(array[i].lastModified==a){
+								array.splice(i,1);
+								$("span[name='"+a+"']").remove();
+								break;
+							}
+						}
+					})
+				},
+				done: function (e, data) {
+					$("#loading").delay(1000).hide();
+					layer.alert(data.result.msg);
+					$.each(data.result.files, function (index, file) {
+						$('<p/>').text(file.name).appendTo(document.body);
+					});
+				},
+				fail: function (e, data) {
+					$("#loading").delay(1000).hide();
+					layer.alert("郵件發送成功！");
+				},
+				processfail: function (e, data) {
+					$("#loading").delay(1000).hide();
+					layer.alert("<spring:message code='upload'/><spring:message code='fail'/>");
+				}
+			});
+			$(".upload-tip").click(function () {
+				$(".input-file").trigger("click");
+			});
+			$('#poEmailA').bind('fileuploadsubmit', function (e, data) {
+				data.formData={
+					emailGroup:$("#groupUserText").val(),
 					title:$("#emailTitle").val(),
 					year:$("#emailYear").val(),
 					content:$("#emailContent").val(),
 					endDate:$("#endDate").val(),
-			type:"2"
-		};
-	});
-})
-</script>
+					type:"2"
+				};
+			});
+		})
+	</script>
 
 </head>
 <body>
@@ -232,15 +232,20 @@ $(document).ready(function(){
 					<label style="display: inline!important;" >郵件主題：</label>
 					<input id="emailTitle" style="width: 700px;" type="text" placeholder="请输入邮箱主题">
 				</div>
-				<div>
+				<div style="margin-right: 22%;">
 					<label style="display: inline!important;" >VOC年份：</label>
-					<input id="emailYear" style="width: 700px;" type="text" placeholder="请输入VOC年份">
+					<select id="emailYear" class="input-large" style="width:200px;">
+						<c:forEach items="${yearList}" var="scenarios">
+							<option value="${scenarios}" <c:if test="${scenarios eq yearDate}">selected="selected"</c:if> >${scenarios}</option>
+						</c:forEach>
+					</select>
+					<font style="font-size: smaller" color="red">VOC年份，用於提醒該年份未上傳數據的用戶</font>
 				</div>
 				<div>
 					<label style="display: inline!important;">郵件内容：</label>
 					<textarea style="width: 700px" id="emailContent" rows="10"></textarea>
 				</div>
-				<div style="margin-right: 210px;">
+				<div style="margin-right: 18%;">
 					<label style="display: inline!important;">截止时间：</label>
 					<input id="endDate" style="z-index: 9999;background-color: #ffffff;
                                width: 200px;text-align:center;"
@@ -282,27 +287,27 @@ $(document).ready(function(){
 			</div>
 			<div class="modal-body">
 				<table  border="0" cellpadding="0" cellspacing="1">
-						<c:forEach items="${listGroup}" var="columnV" varStatus="statusV">
-							<c:forEach items="${columnV}" var="columnVV" varStatus="statusVV">
-								<c:if test="${statusVV.index %4 eq 0}">
-									<tr>
-								</c:if>
-								<c:choose>
-									<c:when test="${statusVV.index eq 0}">
-											<td>
-												<input type="checkbox" class="groupUser" name="${statusV.count}" value="${columnVV}">
-												<font color="blue" style="font-weight: bold">${columnVV}:</font>
-											</td>
-									</c:when>
-									<c:otherwise>
-											<td  height="25px" width="140px">
-												<input type="checkbox" class="userGroupVal" name="${statusV.count}" value="${columnVV}">${columnVV}
-											</td>
-									</c:otherwise>
-								</c:choose>
-							</c:forEach>
-							<tr><td colspan="4">&nbsp;</td></tr>
+					<c:forEach items="${listGroup}" var="columnV" varStatus="statusV">
+						<c:forEach items="${columnV}" var="columnVV" varStatus="statusVV">
+							<c:if test="${statusVV.index %4 eq 0}">
+								<tr>
+							</c:if>
+							<c:choose>
+								<c:when test="${statusVV.index eq 0}">
+									<td>
+										<input type="checkbox" class="groupUser" name="${statusV.count}" value="${columnVV}">
+										<font color="blue" style="font-weight: bold">${columnVV}:</font>
+									</td>
+								</c:when>
+								<c:otherwise>
+									<td  height="25px" width="140px">
+										<input type="checkbox" class="userGroupVal" name="${statusV.count}" value="${columnVV}">${columnVV}
+									</td>
+								</c:otherwise>
+							</c:choose>
 						</c:forEach>
+						<tr><td colspan="4">&nbsp;</td></tr>
+					</c:forEach>
 				</table>
 			</div>
 			<div class="modal-footer">

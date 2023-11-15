@@ -21,7 +21,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	private ForecastDetailRevenueSrcService forecastDetailRevenueSrcService;
 
 	@RequestMapping(value = "index")
-	public String index(Model model,HttpServletRequest request) {
+	public String index(Model model) {
 		model=budgetForecastDetailRevenueService.index(model);
 		return "/bi/budgetForecastDetailRevenue/index";
 	}
@@ -49,13 +48,14 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	public String list(Model model,HttpServletRequest request,PageRequest pageRequest,@Log(name="場景") String scenarios,@Log(name ="SBU") String entitys,
 					   @Log(name="年份") String year,@Log(name="版本") String version) {
 		try {
-			if(scenarios.equals("budget")){
-				String sql=budgetForecastDetailRevenueService.budgetList(year,version,entitys);
-				Page<Object[]> page = budgetForecastDetailRevenueService.findPageBySql(pageRequest, sql, BudgetDetailRevenue.class);
-				model.addAttribute("page", page);
-			}else{
+			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+			if(scenarios.equals("forecast")){
 				String sql=budgetForecastDetailRevenueService.forecastList(year,version,entitys);
 				Page<Object[]> page = budgetForecastDetailRevenueService.findPageBySql(pageRequest, sql, ForecastSalesRevenueV.class);
+				model.addAttribute("page", page);
+			}else{
+				String sql=budgetForecastDetailRevenueService.budgetList(locale,year,version,entitys);
+				Page<Object[]> page = budgetForecastDetailRevenueService.findPageBySql(pageRequest, sql, BudgetDetailRevenue.class);
 				model.addAttribute("page", page);
 			}
 			model.addAttribute("year", year.substring(2));
@@ -69,7 +69,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value="/delete")
 	@ResponseBody
 	@Log(name = "銷售收入-->單條數據刪除")
-	public String delete(HttpServletRequest request,AjaxResult ajaxResult,Model model,@Log(name="ID") String id,@Log(name = "場景")String scenarios){
+	public String delete(HttpServletRequest request,AjaxResult ajaxResult,@Log(name="ID") String id,@Log(name = "場景")String scenarios){
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		ajaxResult.put("msg", getLanguage(locale, "删除成功", "Delete Success"));
 		try {
@@ -91,7 +91,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "upload")
 	@ResponseBody
 	@Log(name = "銷售收入-->上传")
-	public String upload(HttpServletRequest request,HttpServletResponse response, AjaxResult result,@Log(name="場景") String scenarios,@Log(name="重複校驗") String doubleCheck) {
+	public String upload(HttpServletRequest request,AjaxResult result,@Log(name="場景") String scenarios,@Log(name="重複校驗") String doubleCheck) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		result.put("msg", getLanguage(locale, "上传成功", "Upload Success"));
 		MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
@@ -110,7 +110,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "download")
 	@ResponseBody
 	@Log(name = "銷售收入-->下载")
-	public synchronized String download(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
+	public synchronized String download(HttpServletRequest request,PageRequest pageRequest,AjaxResult result,
 			@Log(name = "SBU") String entitys,@Log(name = "年") String year,@Log(name = "版本") String version,@Log(name="場景")String scenarios){
 		try {
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -143,7 +143,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "dimension")
 	@ResponseBody
 	@Log(name = "銷售收入下載維度表")
-	public synchronized String dimension(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+	public synchronized String dimension(HttpServletRequest request, AjaxResult result) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		 Map<String,String> map=forecastDetailRevenueSrcService.dimension(request);
 			if(map.get("result")=="Y"){
@@ -162,9 +162,10 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "template")
 	@ResponseBody
 	@Log(name = "銷售收入下載模板")
-	public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result,@Log(name = "場景") String type) {
+	public synchronized String template(HttpServletRequest request, AjaxResult result,
+										@Log(name = "場景") String type,@Log(name ="年份")String year) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		Map<String,String> map=budgetForecastDetailRevenueService.template(request,type);
+		Map<String,String> map=budgetForecastDetailRevenueService.template(request,type,year);
 		if(map.get("result").equals("Y")){
 			result.put("fileName", map.get("file"));
 		}else{
@@ -180,7 +181,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 	@RequestMapping(value = "version")
 	@ResponseBody
 	@Log(name = "銷售收入-->存儲版本")
-	public synchronized String version(HttpServletRequest request, HttpServletResponse response, AjaxResult result,@Log(name = "場景") String scenarios) {
+	public synchronized String version(HttpServletRequest request,AjaxResult result,@Log(name = "場景") String scenarios) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String version="";
 		if("forecast".equals(scenarios)){
@@ -214,7 +215,7 @@ public class BudgetForecastDetailRevenueController extends BaseController {
 			Assert.hasText(year, getLanguage(locale, "年不能为空", "Year can not be null"));
 			Assert.hasText(entitys, getLanguage(locale, "SBU不能为空", "SBU can not be null"));
 			result.put("msg", getLanguage(locale, "删除成功", "Delete Success"));
-			budgetForecastDetailRevenueService.deleteMany(entitys, year, version, scenarios);
+			budgetForecastDetailRevenueService.deleteMany(locale,entitys, year, version, scenarios);
 		} catch (Exception e) {
 			logger.error("删除失败:", e);
 			result.put("flag", "fail");

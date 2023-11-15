@@ -106,117 +106,232 @@ function refresh(){
 	<c:choose>
 		<c:when test="${scenarios eq 'forecast'}">
 			<table class="table table-condensed table-hover">
-				<thead class="tableCss">
+				<c:if test="${languageS eq 'en_US'}">
+					<thead class="tableCss">
 				<tr>
 					<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
-					<th rowspan="3">SBU_銷售法人</th>
-					<th rowspan="3">SBU_製造法人</th>
+					<th rowspan="3">SBU_Sales Legal Entity</th>
+					<th rowspan="3">SBU_MFG Legal Entity</th>
 					<th rowspan="3">Segment</th>
-					<th rowspan="3">次產業</th>
+					<th rowspan="3">Subindustry</th>
 					<th rowspan="3">3+3</th>
-					<th rowspan="3">三大技術</th>
-					<th rowspan="3">產品系列</th>
-					<th rowspan="3">產品料號</th>
-					<th rowspan="3">賬款客戶</th>
-					<th rowspan="3">最終客戶</th>
-					<th rowspan="3">機種</th>
-					<th rowspan="3">交易類型</th>
+					<th rowspan="3">Three major technologies</th>
+					<th rowspan="3">Product series</th>
+					<th rowspan="3">PART NO</th>
+					<th rowspan="3">Billing customer</th>
+					<th rowspan="3">End customer</th>
+					<th rowspan="3">Common name for  product part in market</th>
+					<th rowspan="3">Trading Type</th>
 					<th colspan="60">FY${year}</th>
 					<th rowspan="2" colspan="4">FY${year}</th>
 				</tr>
 				<tr>
-					<th colspan="5">1月</th>
-					<th colspan="5">2月</th>
-					<th colspan="5">3月</th>
-					<th colspan="5">4月</th>
-					<th colspan="5">5月</th>
-					<th colspan="5">6月</th>
-					<th colspan="5">7月</th>
-					<th colspan="5">8月</th>
-					<th colspan="5">9月</th>
-					<th colspan="5">10月</th>
-					<th colspan="5">11月</th>
-					<th colspan="5">12月</th>
+					<th colspan="5">Jan</th>
+					<th colspan="5">Feb</th>
+					<th colspan="5">Mar</th>
+					<th colspan="5">Apr</th>
+					<th colspan="5">May</th>
+					<th colspan="5">Jun</th>
+					<th colspan="5">Jul</th>
+					<th colspan="5">Aug</th>
+					<th colspan="5">Sep</th>
+					<th colspan="5">Oct</th>
+					<th colspan="5">Nov</th>
+					<th colspan="5">Dec</th>
 				</tr>
 				<tr>
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Sales volume</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+					<th>Material cost</th>
+					<th>Labor cost</th>
+					<th>Manufacturing overhead</th>
+					<th>Cost of goods sold</th>
 				</tr>
 				</thead>
+				</c:if>
+				<c:if test="${languageS eq 'zh_CN'}">
+					<thead class="tableCss">
+					<tr>
+						<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
+						<th rowspan="3">aaaaaSBU_銷售法人</th>
+						<th rowspan="3">SBU_製造法人</th>
+						<th rowspan="3">Segment</th>
+						<th rowspan="3">次產業</th>
+						<th rowspan="3">3+3</th>
+						<th rowspan="3">三大技術</th>
+						<th rowspan="3">產品系列</th>
+						<th rowspan="3">產品料號</th>
+						<th rowspan="3">賬款客戶</th>
+						<th rowspan="3">最終客戶</th>
+						<th rowspan="3">機種</th>
+						<th rowspan="3">交易類型</th>
+						<th colspan="60">FY${year}</th>
+						<th rowspan="2" colspan="4">FY${year}</th>
+					</tr>
+					<tr>
+						<th colspan="5">1月</th>
+						<th colspan="5">2月</th>
+						<th colspan="5">3月</th>
+						<th colspan="5">4月</th>
+						<th colspan="5">5月</th>
+						<th colspan="5">6月</th>
+						<th colspan="5">7月</th>
+						<th colspan="5">8月</th>
+						<th colspan="5">9月</th>
+						<th colspan="5">10月</th>
+						<th colspan="5">11月</th>
+						<th colspan="5">12月</th>
+					</tr>
+					<tr>
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+					</tr>
+					</thead>
+				</c:if>
 				<tbody>
 				<c:forEach items="${page.result}" var="mapping">
 					<tr>
@@ -320,141 +435,280 @@ function refresh(){
 		</c:when>
 		<c:when test="${scenarios eq 'budget'}">
 			<table class="table table-condensed table-hover">
-				<thead class="tableCss">
-				<tr>
-					<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
-					<th rowspan="3">SBU_銷售法人</th>
-					<th rowspan="3">SBU_製造法人</th>
-					<th rowspan="3">Segment</th>
-					<th rowspan="3">次產業</th>
-					<th rowspan="3">3+3</th>
-					<th rowspan="3">三大技術</th>
-					<th rowspan="3">產品系列</th>
-					<th rowspan="3">產品料號</th>
-					<th rowspan="3">賬款客戶</th>
-					<th rowspan="3">最終客戶</th>
-					<th rowspan="3">機種</th>
-					<th rowspan="3">交易類型</th>
-					<th colspan="60">FY${year}</th>
-					<th rowspan="2" colspan="4">FY${year}</th>
-					<th rowspan="2" colspan="4">FY${year+1}</th>
-					<th rowspan="2" colspan="4">FY${year+2}</th>
-					<th rowspan="2" colspan="4">FY${year+3}</th>
-					<th rowspan="2" colspan="4">FY${year+4}</th>
-				</tr>
-				<tr>
-					<th colspan="5">1月</th>
-					<th colspan="5">2月</th>
-					<th colspan="5">3月</th>
-					<th colspan="5">4月</th>
-					<th colspan="5">5月</th>
-					<th colspan="5">6月</th>
-					<th colspan="5">7月</th>
-					<th colspan="5">8月</th>
-					<th colspan="5">9月</th>
-					<th colspan="5">10月</th>
-					<th colspan="5">11月</th>
-					<th colspan="5">12月</th>
-				</tr>
-				<tr>
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+				<c:if test="${languageS eq 'en_US'}">
+					<thead class="tableCss">
+					<tr>
+						<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
+						<th rowspan="3">SBU_Sales Legal Entity</th>
+						<th rowspan="3">SBU_MFG Legal Entity</th>
+						<th rowspan="3">Segment</th>
+						<th rowspan="3">Subindustry</th>
+						<th rowspan="3">3+3</th>
+						<th rowspan="3">Three major technologies</th>
+						<th rowspan="3">Product series</th>
+						<th rowspan="3">PART NO</th>
+						<th rowspan="3">Billing customer</th>
+						<th rowspan="3">End customer</th>
+						<th rowspan="3">Common name for  product part in market</th>
+						<th rowspan="3">Trading Type</th>
+						<th colspan="60">FY${year}</th>
+						<th rowspan="2" colspan="4">FY${year}</th>
+						<th rowspan="2" colspan="4">FY${year+1}</th>
+						<th rowspan="2" colspan="4">FY${year+2}</th>
+						<th rowspan="2" colspan="4">FY${year+3}</th>
+						<th rowspan="2" colspan="4">FY${year+4}</th>
+					</tr>
+					<tr>
+						<th colspan="5">1月</th>
+						<th colspan="5">2月</th>
+						<th colspan="5">3月</th>
+						<th colspan="5">4月</th>
+						<th colspan="5">5月</th>
+						<th colspan="5">6月</th>
+						<th colspan="5">7月</th>
+						<th colspan="5">8月</th>
+						<th colspan="5">9月</th>
+						<th colspan="5">10月</th>
+						<th colspan="5">11月</th>
+						<th colspan="5">12月</th>
+					</tr>
+					<tr>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>銷售數量</th>
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Sales volume</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
 
-					<th>材料成本</th>
-					<th>人工成本</th>
-					<th>製造費用</th>
-					<th>銷貨成本</th>
-				</tr>
-				</thead>
+						<th>Material cost</th>
+						<th>Labor cost</th>
+						<th>Manufacturing  overhead</th>
+						<th>Cost of goods sold</th>
+					</tr>
+					</thead>
+				</c:if>
+				<c:if test="${languageS eq 'zh_CN'}">
+					<thead class="tableCss">
+					<tr>
+						<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
+						<th rowspan="3">SBU_銷售法人</th>
+						<th rowspan="3">SBU_製造法人</th>
+						<th rowspan="3">Segment</th>
+						<th rowspan="3">次產業</th>
+						<th rowspan="3">3+3</th>
+						<th rowspan="3">三大技術</th>
+						<th rowspan="3">產品系列</th>
+						<th rowspan="3">產品料號</th>
+						<th rowspan="3">賬款客戶</th>
+						<th rowspan="3">最終客戶</th>
+						<th rowspan="3">機種</th>
+						<th rowspan="3">交易類型</th>
+						<th colspan="60">FY${year}</th>
+						<th rowspan="2" colspan="4">FY${year}</th>
+						<th rowspan="2" colspan="4">FY${year+1}</th>
+						<th rowspan="2" colspan="4">FY${year+2}</th>
+						<th rowspan="2" colspan="4">FY${year+3}</th>
+						<th rowspan="2" colspan="4">FY${year+4}</th>
+					</tr>
+					<tr>
+						<th colspan="5">1月</th>
+						<th colspan="5">2月</th>
+						<th colspan="5">3月</th>
+						<th colspan="5">4月</th>
+						<th colspan="5">5月</th>
+						<th colspan="5">6月</th>
+						<th colspan="5">7月</th>
+						<th colspan="5">8月</th>
+						<th colspan="5">9月</th>
+						<th colspan="5">10月</th>
+						<th colspan="5">11月</th>
+						<th colspan="5">12月</th>
+					</tr>
+					<tr>
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>銷售數量</th>
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+
+						<th>材料成本</th>
+						<th>人工成本</th>
+						<th>製造費用</th>
+						<th>銷貨成本</th>
+					</tr>
+					</thead>
+				</c:if>
 				<tbody>
 				<c:forEach items="${page.result}" var="mapping">
 					<tr>

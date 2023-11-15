@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,12 +34,12 @@ public class TaskJob {
      * 任務截止日當天及前一天上午8點檢查
      * @Scheduled(cron = "0 0 8 * * MON-SAT")
      */
-//    @Scheduled(cron = "0 0 8 * * MON-SAT")
+    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void job(){
         try{
             System.out.print("任務截止日當天及前一天上午8點檢查。");
             //查找有截止任务的最新一条邮件记录
-            String sql="select * from CUX_PO_EMAIL where CREATION_DATE=(select max(CREATION_DATE) from CUX_PO_EMAIL where end_date is not null)";
+            String sql="select * from CUX_PO_EMAIL where CREATION_DATE=(select max(CREATION_DATE) from CUX_PO_EMAIL where end_date is not null and EMAIL_YEAR is not null)";
             List<PoEmailLog> list=poTableService.listBySql(sql,PoEmailLog.class);
             if(null!=list&&list.size()>0){
                 PoEmailLog poEmailLog=list.get(0);
@@ -57,8 +56,9 @@ public class TaskJob {
                 //满足截止时间及截止时间前一天与当前申请相等 触发检验
                 if(dateString.equals(predate)||dateString.equals(poEmailLog.getEndDate())||dateString.equals(predateTwo)||date.getTime()>date1.getTime()){
                     String username="";
-                    LocalDate localDate=LocalDate.now();
-                    int integer=Integer.parseInt(localDate.minusDays(60).toString().substring(0,4))+1;
+                    int integer=Integer.parseInt(poEmailLog.getEmailYear());
+//                    LocalDate localDate=LocalDate.now();
+//                    int integer=Integer.parseInt(localDate.minusDays(60).toString().substring(0,4))+1;
 //                    int integer=Integer.parseInt(dateString.substring(0,4))+1;
                     //查找未提交的SBU
                     sql="select distinct SBU_NAME from BIDEV.DM_D_ENTITY_SBU where flag='1' " +
@@ -145,16 +145,15 @@ public class TaskJob {
      * 检查有没有产品信息未在维度表维护
      * @Scheduled(cron = "0 0 1 * * MON-SAT")
      */
-//    @Scheduled(cron = "0 0 8 * * MON-SAT")
+    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void checkProductDimension(){
         try{
-            String sql="SELECT distinct PRODUCT_SERIES_code FROM epmods.cux_inv_sbu_item_info_mv where PRODUCT_SERIES_DESC not in (select DIMENSION from FIT_DIMENSION where type='Product')";
+            String sql="SELECT distinct PRODUCT_SERIES_code FROM epmods.cux_inv_sbu_item_info_mv where PRODUCT_SERIES_DESC not in (select DIMENSION from FIT_DIMENSION where type='Product') and PRODUCT_SERIES_CODE not in('EWAA','3CAB','EVAE','5CD')";
             List<String> product=poTableService.listBySql(sql);
             if(null!=product&&product.size()>0){
                 String content="Dear 系統管理員：</br>&nbsp;&nbsp;以下維度值還未維護，請儘快行動。<br></br>&nbsp;&nbsp;"+product.toString().substring(1,product.toString().length()-1)+"<br></br>Best Regards!";
-//                EmailUtil.emailsMany("it-ks-mfg@fit-foxconn.com","預算系統 Product Series 維護",content);
-                EmailUtil.emailsMany("emji@deloitte.com.cn","預算系統 Product Series 維護",content);
-                EmailUtil.emailsMany("antai@deloitte.com.cn","預算系統 Product Series 維護",content);
+                EmailUtil.emailsMany("it-ks-mfg@fit-foxconn.com","預算系統 Product Series 維護",content);
+                EmailUtil.emailsMany("ambcai@deloitte.com.cn","預算系統 Product Series 維護",content);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -169,13 +168,13 @@ public class TaskJob {
      * 採購CD手動匯總表:FIT_PO_BUDGET_CD_DTL
      * @Scheduled(cron = "30 18 * * * *")
      */
-//    @Scheduled(cron = "0 0 9 * * MON-SAT")
+    @Scheduled(cron = "0 0 9 * * MON-SAT")
     public void poSendTaskEamil(){
         poEamil("FIT_ACTUAL_PO_NPRICECD_DTL");
         poEamil("FIT_PO_BUDGET_CD_DTL");
     }
 
-    /**每天推送 營收實際+預測Summary 發佈數據**/
+    /**每天推送 +預測S營收實際ummary 發佈數據**/
 //    @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void bocklog(){
         Date date=new Date();
@@ -186,7 +185,8 @@ public class TaskJob {
         String title="FIT 營收實際+預測Summary(截止日:"+dateString+")";
         String content="";
         //獲取bocklog表單有權限的用戶
-        String userList="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||BI_GROUP||';',';RT_Backlog;')> 0";
+//        String userList="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||BI_GROUP||';',';RT_Backlog;')> 0";
+        String userList="select BI_USER,BI_USERNAME,EMAIL,BI_GROUP,BI_PORTALPATH from BIDEV.Bi_user_list u where u.EMAIL is not null and instr(';'||BI_GROUP||';',';RT_Backlog;')> 0 and BI_USER in('admin')";
         List<Map> userMap=poTableService.listMapBySql(userList);
         if(null!=userMap&&userMap.size()>0){
             for (Map map:userMap) {
@@ -336,7 +336,7 @@ public class TaskJob {
         content+="<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!";
         if(Integer.valueOf(date[2])<=8){
             sql="select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur\n" +
-                    "where u.id=ur.user_id and r.id=ur.role_id and r.code='SOURCER' and type='BI' and u.COMMODITY_MAJOR is not null\n" +
+                    "where u.id=ur.user_id and r.id=ur.role_id and r.code='SOURCER' and r.type='BI' and u.COMMODITY_MAJOR is not null\n" +
                     "and u.username not in \n" +
                     "(select t.create_user from fit_po_task t where t.type ='"+type+"' and substr(t.name,0,6)='"+dateStr+"'\n" +
                     "and  instr(','||u.COMMODITY_MAJOR||',',','||commodity_major||',') > 0 ) and u.email is not null ";

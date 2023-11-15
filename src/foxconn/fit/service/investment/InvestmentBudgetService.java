@@ -63,8 +63,8 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		List<String> yearsList = investmentBudgetDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
 		//預算應爲測試需要先把年份校驗放開
-//		int year=calendar.get(Calendar.YEAR)+1;
-		int year=calendar.get(Calendar.YEAR);
+		int year=calendar.get(Calendar.YEAR)+1;
+//		int year=calendar.get(Calendar.YEAR);
 		//查看當前用戶是否只有查看下載數據權限
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String roleSql="select count(1) from  fit_user u \n" +
@@ -263,7 +263,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 				}
 				if (!list.isEmpty()) {
 					if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
-						checkMianData(projectList,combineList,entityList,departmentList,departmentList1,bakList,mainBusinessList,segmentList,currencyList,loginUser.getUsername());
+						checkMianData(locale,projectList,combineList,entityList,departmentList,departmentList1,bakList,mainBusinessList,segmentList,currencyList,loginUser.getUsername());
 						if(type.equals("budget")){
 							this.saveBatch(list,v_year,loginUser.getUsername());
 						}else {
@@ -344,38 +344,39 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		return investmentForecast;
 	}
 	/**上傳保存數據校驗主數據是否正確*/
-	private void checkMianData(List<String> projectList,List<String> combineList,List<String> entityList,List<String> departmentList,List<String> departmentList1,
+	private void checkMianData(Locale locale,List<String> projectList,List<String> combineList,List<String> entityList,List<String> departmentList,List<String> departmentList1,
 							   List<String> bakList,List<String> mainBusinessList, List<String> segmentList,List<String> currencyList,String userName){
+		String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS");
 		String check="";
 		/**投資編號*/
-		check=this.check(projectList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Project' and DIMENSION not like 'P_CE%'");
-		Assert.isTrue("".equals(check),"以下【投資編號】在【維度表】没有找到---> " + check);
+		check=this.check(projectList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_Project' and DIMENSION not like 'P_CE%'");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【投資編號】在【維度表】没有找到---> ","The following [Investment number] is not found in the [Dimension table]-->") + check);
 		/**設備類別*/
-		check=this.check(combineList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Combine'");
-		Assert.isTrue("".equals(check),"以下【設備類別】在【維度表】没有找到---> " + check);
+		check=this.check(combineList,"select distinct trim("+language+")from FIT_ZR_DIMENSION where type='ZR_Combine'");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【設備類別】在【維度表】没有找到---> ","The following [Equipment category] is not found in the [Dimension table]-->") + check);
 		/**SBU_法人*/
-		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')");
-		Assert.isTrue("".equals(check),"以下【SBU_法人】在【維度表】没有找到---> " + check);
+		check=this.check(entityList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【SBU_法人】在【維度表】没有找到---> ","The following [SBU_Legal Entity] is not found in the [Dimension table]-->") + check);
 		/**提出部門*/
 		List<BigDecimal> countList = (List<BigDecimal>)investmentBudgetDao.listBySql("select count(1) from FIT_USER_DEPARTMENT_MAPPING where USER_CODE='"+userName+"' ");
 		if(countList.get(0).intValue()>0){
-			check=this.check(departmentList1,"select distinct trim(m.alias) from FIT_USER_DEPARTMENT_MAPPING,FIT_ZR_DIMENSION m where DEPARTMENT_CODE=m.parent and USER_CODE='"+userName+"'");
-			Assert.isTrue("".equals(check),"以下【提出部門】沒有上傳權限---> " + check);
+			check=this.check(departmentList1,"select distinct trim(m."+language+") from FIT_USER_DEPARTMENT_MAPPING,FIT_ZR_DIMENSION m where DEPARTMENT_CODE=m.parent and USER_CODE='"+userName+"'");
+			Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【提出部門】沒有上傳權限---> ","The following [Proposing department] does not have upload permission-->") + check);
 		}
-		check=this.check(departmentList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Department'");
-		Assert.isTrue("".equals(check),"以下【部門】在【維度表】没有找到---> " + check);
+		check=this.check(departmentList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_Department'");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【部門】在【維度表】没有找到---> ","The following [Department] is not found in the [Dimension table]-->") + check);
 		/**Segment*/
-		check=this.check(bakList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_bak1'");
-		Assert.isTrue("".equals(check),"以下【Segment】在【維度表】没有找到---> " + check);
+		check=this.check(bakList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_bak1'");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【Segment】在【維度表】没有找到---> ","The following [Segment] is not found in the [Dimension table]-->") + check);
 		/**3+3*/
-		check=this.check(mainBusinessList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')");
-		Assert.isTrue("".equals(check),"以下【3+3】在【維度表】没有找到---> " + check);
+		check=this.check(mainBusinessList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【3+3】在【維度表】没有找到---> ","The following [3+3] is not found in the [Dimension table]-->") + check);
 		/**產業*/
-		check=this.check(segmentList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Segment'");
-		Assert.isTrue("".equals(check),"以下【產業】在【維度表】没有找到---> " + check);
+		check=this.check(segmentList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_Segment'");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【產業】在【維度表】没有找到---> ","The following [Industry] is not found in the [Dimension table]-->") + check);
 		/**投資類型*/
-		check=this.check(currencyList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Currency'");
-		Assert.isTrue("".equals(check),"以下【投資類型】在【維度表】没有找到---> " + check);
+		check=this.check(currencyList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_Currency'");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【投資類型】在【維度表】没有找到---> ","The following [Type of investment] is not found in the [Dimension table]-->") + check);
 	}
 	/**匹配用戶上傳的主數據list是否在維度表中能找到*/
 	public String check(List<String> list,String sql){
@@ -409,25 +410,26 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		}
 	}
 	/**下載模板*/
-	public Map<String,String>  template(HttpServletRequest request,String type) {
+	public Map<String,String>  template(HttpServletRequest request,String type,String yearSelect) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> mapResult=new HashMap<>();
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"投資預算模板","投資預算模板")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"投資預算模板","投資預算模板")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"投資預算模板","Investment budget")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"投資預算模板","Investment budget")+".xlsx");
 			if(type.equals("forecast")){
 				filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"投資預測模板","投資預測模板")+".xlsx";
 				ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"投資預測模板","投資預測模板")+".xlsx");
 			}
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			Sheet sheet = workBook.getSheetAt(0);
-			Calendar calendar = Calendar.getInstance();
+//			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
 			//預算應爲測試需要先把年份校驗放開
+			int year=Integer.valueOf("20"+yearSelect.replace("FY",""))-1;
 //			int year=calendar.get(Calendar.YEAR);
-			int year=calendar.get(Calendar.YEAR)-1;
+//			int year=calendar.get(Calendar.YEAR)-1;
 			row.getCell(9).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			row.getCell(21).setCellValue("FY"+ String.valueOf(year+2).substring(2));
 			row.getCell(23).setCellValue("FY"+ String.valueOf(year+3).substring(2));
@@ -454,8 +456,8 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"投資預算表","投資預算表")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"投資預算模板","投資預算模板")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"投資預算表","Investment budget")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"投資預算模板","Investment budget")+".xlsx");
 			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 			String sql="select * from FIT_INVESTMENT_BUDGET_V where YEAR='"+y+"' ";
 			if(type.equals("forecast")){
@@ -597,27 +599,31 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 	/**維度表下載*/
 	public Map<String,String> dimension(HttpServletRequest request) {
 		Map<String,String> mapResult=new HashMap<>();
+		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS as ALIAS");
 		mapResult.put("result","Y");
 		try {
-			String filePath=request.getRealPath("")+"static"+File.separator+"download"+File.separator+"投資預算維度表.xlsx";
-			InputStream ins = new FileInputStream(request.getRealPath("")+"static"+File.separator+"template"+File.separator+"investment"+File.separator+"投資預算維度表.xlsx");
+			String filePath=request.getRealPath("")+"static"+File.separator+"download"+File.separator+
+					instrumentClassService.getLanguage(locale,"投資預算維度表","FIT_Hyperion Dimension table_For Investment Budget")+".xlsx";
+			InputStream ins = new FileInputStream(request.getRealPath("")+"static"+File.separator+"template"+File.separator+"investment"+File.separator+
+					instrumentClassService.getLanguage(locale,"投資預算維度表","FIT_Hyperion Dimension table_For Investment Budget")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			/**投資編號*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Project' and DIMENSION not like 'P_CE%'",workBook.getSheetAt(0));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_Project' and DIMENSION not like 'P_CE%'",workBook.getSheetAt(0));
 			/**設備類別*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Combine'",workBook.getSheetAt(1));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_Combine'",workBook.getSheetAt(1));
 			/**SBU_法人*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')",workBook.getSheetAt(2));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')",workBook.getSheetAt(2));
 			/**提出部門/使用部門*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Department'",workBook.getSheetAt(3));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_Department'",workBook.getSheetAt(3));
 			/**Segment*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_bak1'",workBook.getSheetAt(4));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_bak1'",workBook.getSheetAt(4));
 			/**3+3*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')",workBook.getSheetAt(5));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')",workBook.getSheetAt(5));
 			/**產業*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Segment'",workBook.getSheetAt(6));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_Segment'",workBook.getSheetAt(6));
 			/**投資類型*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Currency'",workBook.getSheetAt(7));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_Currency'",workBook.getSheetAt(7));
 			File outFile = new File(filePath);
 			OutputStream out = new FileOutputStream(outFile);
 			workBook.write(out);

@@ -161,33 +161,64 @@ function refresh(){
 		</c:when>
 		<c:when test="${scenarios eq 'budget'}">
 			<table class="table table-condensed table-hover">
-				<thead class="theadCss">
-				<tr>
-					<th class="onlyQuery" rowspan="3"><spring:message code='operation'/></th>
-					<th rowspan="2" colspan="3">基礎數據</th>
-					<th colspan="12">FY${year}</th>
-				</tr>
-				<tr>
-					<th colspan="12">折舊費用（在製）(本位幣)</th>
-				</tr>
-				<tr>
-					<th>SBU_法人</th>
-					<th>提出部門</th>
-					<th>設備類別</th>
-					<th>1月</th>
-					<th>2月</th>
-					<th>3月</th>
-					<th>4月</th>
-					<th>5月</th>
-					<th>6月</th>
-					<th>7月</th>
-					<th>8月</th>
-					<th>9月</th>
-					<th>10月</th>
-					<th>11月</th>
-					<th>12月</th>
-				</tr>
-				</thead>
+				<c:if test="${languageS eq 'en_US'}">
+					<thead class="theadCss">
+					<tr>
+						<th class="onlyQuery" rowspan="3"><spring:message code='operation'/></th>
+						<th rowspan="2" colspan="3">Basic Info</th>
+						<th colspan="12">FY${year}</th>
+					</tr>
+					<tr>
+						<th colspan="12">Depreciation expense (in process) (standard currency)</th>
+					</tr>
+					<tr>
+						<th>SBU_Legal Entity</th>
+						<th>Proposing department</th>
+						<th>Equipment category</th>
+						<th>Jan</th>
+						<th>Feb</th>
+						<th>Mar</th>
+						<th>Apr</th>
+						<th>May</th>
+						<th>Jun</th>
+						<th>Jul</th>
+						<th>Aug</th>
+						<th>Sep</th>
+						<th>Oct</th>
+						<th>Nov</th>
+						<th>Dec</th>
+					</tr>
+					</thead>
+				</c:if>
+				<c:if test="${languageS eq 'zh_CN'}">
+					<thead class="theadCss">
+					<tr>
+						<th class="onlyQuery" rowspan="3"><spring:message code='operation'/></th>
+						<th rowspan="2" colspan="3">基礎數據</th>
+						<th colspan="12">FY${year}</th>
+					</tr>
+					<tr>
+						<th colspan="12">折舊費用（在製）(本位幣)</th>
+					</tr>
+					<tr>
+						<th>SBU_法人</th>
+						<th>提出部門</th>
+						<th>設備類別</th>
+						<th>1月</th>
+						<th>2月</th>
+						<th>3月</th>
+						<th>4月</th>
+						<th>5月</th>
+						<th>6月</th>
+						<th>7月</th>
+						<th>8月</th>
+						<th>9月</th>
+						<th>10月</th>
+						<th>11月</th>
+						<th>12月</th>
+					</tr>
+					</thead>
+				</c:if>
 				<tbody>
 				<c:forEach items="${page.result}" var="mapping">
 					<tr>

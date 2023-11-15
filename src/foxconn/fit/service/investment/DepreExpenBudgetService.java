@@ -62,8 +62,8 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 		List<String> yearsList = depreExpenBudgetDao.listBySql("select distinct dimension from FIT_DIMENSION where type='"+EnumDimensionType.Years.getCode()+"' order by dimension");
 		Calendar calendar=Calendar.getInstance();
 		//預算應爲測試需要先把年份校驗放開
-//		int year=calendar.get(Calendar.YEAR)+1;
-		int year=calendar.get(Calendar.YEAR);
+		int year=calendar.get(Calendar.YEAR)+1;
+//		int year=calendar.get(Calendar.YEAR);
 		//查看當前用戶是否只有查看下載數據權限
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 		String roleSql="select count(1) from  fit_user u \n" +
@@ -212,7 +212,7 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 				}
 				if (!list.isEmpty()) {
 					if (!instrumentClassService.removeDuplicate(entityList).isEmpty()) {
-						checkMianData(entityList, departmentList, combineList, loginUser.getUsername());
+						checkMianData(locale,entityList, departmentList, combineList, loginUser.getUsername());
 						if (type.equals("budget")) {
 							this.saveBatch(list, v_year, loginUser.getUsername());
 						} else {
@@ -283,22 +283,23 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 		return depreExpenForecast;
 	}
 	/**上傳保存數據校驗主數據是否正確*/
-	private void checkMianData(List<String> entityList,List<String> departmentList,List<String> combineList,String userName){
+	private void checkMianData(Locale locale,List<String> entityList,List<String> departmentList,List<String> combineList,String userName){
 		String check="";
+		String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS");
 		/**SBU_法人*/
-		check=this.check(entityList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')");
-		Assert.isTrue("".equals(check),"以下【SBU_法人】在【維度表】没有找到---> " + check);
+		check=this.check(entityList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【SBU_法人】在【維度表】没有找到---> ","The following [SBU_Legal Entity] is not found in the [Dimension table]-->") + check);
 		/**提出部門*/
 		List<BigDecimal> countList = (List<BigDecimal>)depreExpenForecastDao.listBySql("select count(1) from FIT_USER_DEPARTMENT_MAPPING where USER_CODE='"+userName+"' ");
 		if(countList.get(0).intValue()>0){
-			check=this.check(departmentList,"select distinct trim(m.alias) from FIT_USER_DEPARTMENT_MAPPING,FIT_ZR_DIMENSION m where DEPARTMENT_CODE=m.parent and USER_CODE='"+userName+"'");
-			Assert.isTrue("".equals(check),"以下【提出部門】沒有上傳權限---> " + check);
+			check=this.check(departmentList,"select distinct trim(m."+language+") from FIT_USER_DEPARTMENT_MAPPING,FIT_ZR_DIMENSION m where DEPARTMENT_CODE=m.parent and USER_CODE='"+userName+"'");
+			Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【提出部門】沒有上傳權限---> ","The following [Proposing department] does not have upload permission-->") + check);
 		}
-		check=this.check(departmentList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Department'");
-		Assert.isTrue("".equals(check),"以下【提出部門】在【維度表】没有找到---> " + check);
+		check=this.check(departmentList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_Department'");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【提出部門】在【維度表】没有找到---> " ,"The following [Proposing department] is not found in the [Dimension table]-->") + check);
 		/**設備類別*/
-		check=this.check(combineList,"select distinct trim(alias) from FIT_ZR_DIMENSION where type='ZR_Combine'");
-		Assert.isTrue("".equals(check),"以下【設備類別】在【維度表】没有找到---> " + check);
+		check=this.check(combineList,"select distinct trim("+language+") from FIT_ZR_DIMENSION where type='ZR_Combine'");
+		Assert.isTrue("".equals(check),instrumentClassService.getLanguage(locale,"以下【設備類別】在【維度表】没有找到---> ","The following [Equipment category] is not found in the [Dimension table]-->") + check);
 	}
 	/**匹配用戶上傳的主數據list是否在維度表中能找到*/
 	public String check(List<String> list,String sql){
@@ -335,14 +336,14 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 	}
 
 	/**下載模板*/
-	public Map<String,String>  template(HttpServletRequest request,String type) {
+	public Map<String,String>  template(HttpServletRequest request,String type,String yearSelect) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		Map<String,String> mapResult=new HashMap<>();
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)表","折舊費用預算(在製)表")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)模板","折舊費用預算(在製)模板")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)表","Depre expen budget(in process)")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)模板","Depre expen budget(in process)")+".xlsx");
 			if(type.equals("forecast")){
 				filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用预测(在製)表","折舊費用预测(在製)表")+".xlsx";
 				ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用预测(在製)模板","折舊費用预测(在製)模板")+".xlsx");
@@ -352,8 +353,9 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 			Calendar calendar = Calendar.getInstance();
 			Row row =sheet.getRow(0);
 			//預算應爲測試需要先把年份校驗放開
+			int year=Integer.valueOf("20"+yearSelect.replace("FY",""))-1;
 //			int year=calendar.get(Calendar.YEAR);
-			int year=calendar.get(Calendar.YEAR)-1;
+//			int year=calendar.get(Calendar.YEAR)-1;
 			row.getCell(3).setCellValue("FY"+ String.valueOf(year+1).substring(2));
 			File outFile = new File(filePath);
 			OutputStream out = new FileOutputStream(outFile);
@@ -378,8 +380,8 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)表","折舊費用預算(在製)表")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)模板","折舊費用預算(在製)模板")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)表","Depre expen budget(in process)")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)模板","Depre expen budget(in process)")+".xlsx");
 			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 			String sql="select * from  FIT_DEPRE_EXPEN_BUDGET_V where YEAR='"+y+"' ";
 			if(type.equals("forecast")){
@@ -507,18 +509,22 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 	}
 	/**維度表下載*/
 	public Map<String,String> dimension(HttpServletRequest request) {
+		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		String language=instrumentClassService.getLanguage(locale, "ALIAS", "ENGLISH_ALIAS as ALIAS");
 		Map<String,String> mapResult=new HashMap<>();
 		mapResult.put("result","Y");
 		try {
-			String filePath=request.getRealPath("")+"static"+File.separator+"download"+File.separator+"折舊費用預算(在製)維度表.xlsx";
-			InputStream ins = new FileInputStream(request.getRealPath("")+"static"+File.separator+"template"+File.separator+"investment"+File.separator+"折舊費用預算(在製)維度表.xlsx");
+			String filePath=request.getRealPath("")+"static"+File.separator+"download"+File.separator+
+					instrumentClassService.getLanguage(locale,"折舊費用預算(在製)維度表","FIT_Hyperion Dimension table_For Depre expense Budget (in process)")+".xlsx";
+			InputStream ins = new FileInputStream(request.getRealPath("")+"static"+File.separator+"template"+File.separator+"investment"+ File.separator+
+					instrumentClassService.getLanguage(locale,"折舊費用預算(在製)維度表","FIT_Hyperion Dimension table_For Depre expense Budget (in process)")+".xlsx");
 			XSSFWorkbook workBook = new XSSFWorkbook(ins);
 			/**SBU_法人*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')",workBook.getSheetAt(0));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_Entity' and DIMENSION not in('ABS_A084002')",workBook.getSheetAt(0));
 			/**提出部門*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Department'",workBook.getSheetAt(1));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_Department'",workBook.getSheetAt(1));
 			/**設備類別*/
-			this.selectDimension("select distinct DIMENSION,ALIAS from FIT_ZR_DIMENSION where type='ZR_Combine'",workBook.getSheetAt(2));
+			this.selectDimension("select distinct DIMENSION,"+language+" from FIT_ZR_DIMENSION where type='ZR_Combine'",workBook.getSheetAt(2));
 			File outFile = new File(filePath);
 			OutputStream out = new FileOutputStream(outFile);
 			workBook.write(out);

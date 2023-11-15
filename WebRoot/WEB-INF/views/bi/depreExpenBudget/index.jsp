@@ -88,12 +88,12 @@
 					return;
 				}
 				if(!$("#QYear").val()){
-					layer.alert("请选择年份");
+					layer.alert("请选择年份(Please select year)");
 					return;
 				}
 				var entitys="";
 				if(!$("input[name=entitys]:checked")){
-					layer.alert("请选择SBU");
+					layer.alert("请选择SBU(Please select SBU)");
 					return;
 				}else{
 					$("input[name=entitys]:checked").each(function(i,dom){
@@ -228,7 +228,7 @@
 					return;
 				}
 				if($("input[name=entitys]:checked").length==0){
-					layer.alert("請選擇SBU");
+					layer.alert("請選擇SBU(Please select SBU)");
 					return;
 				}
 				var sbu="";
@@ -264,12 +264,16 @@
 
 		function DownloadTemplate(type){
 			$("#loading").show();
+			if(!$("#QYear").val()){
+				layer.alert("请选择年份(Please select year)");
+				return;
+			}
 			$.ajax({
 				type: "POST",
 				url: "${ctx}/bi/depreExpenBudget/template",
 				async: true,
 				dataType: "json",
-				data: {type:type},
+				data: {type:type,year:$("#QYear").val()},
 				success: function (data) {
 					$("#loading").hide();
 					if (data.flag == "success") {
@@ -373,9 +377,9 @@
 						</ul>
 					</li>
 				</ul>
-				<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="width: 80px;" type="submit"><spring:message code='query'/></button>
-				<button id="Download" class="btn search-btn" style="width: 80px;" type="button"><spring:message code='download'/></button>
-				<button id="Version" class="btn search-btn" style="width: 80px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" type="button"><spring:message code='version'/></button>
+				<button id="QueryBtn" class="btn search-btn btn-warning m-l-md" style="width: 100px;" type="submit"><spring:message code='query'/></button>
+				<button id="Download" class="btn search-btn" style="width: 100px;" type="button"><spring:message code='download'/></button>
+				<button id="Version" class="btn search-btn" style="width: 100px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" type="button"><spring:message code='version'/></button>
 				<button id="DownloadPlanning" style="margin:0 0 0 10px;<c:if test="${onlyQuery  eq 'Y'}">display: none;</c:if>" class="btn search-btn" type="button"><spring:message code='submit'/></button>
                 <c:if test="${onlyQuery  eq 'Y'}"><button id="DimensionTable" class="btn btn-link" style="vertical-align: top;height: 40px;font-size: 20px;text-decoration: underline;" type="button"><spring:message code='dimension'/></button></c:if>
 			</div>

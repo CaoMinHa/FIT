@@ -181,43 +181,84 @@
 		</c:when>
 		<c:when test="${scenarios eq 'budget'}">
 			<table class="table table-condensed table-hover">
-				<thead class="theadCss">
-				<tr>
-					<th class="onlyQuery" rowspan="2"><spring:message code='operation'/></th>
+				<c:if test="${languageS eq 'en_US'}">
+					<thead class="theadCss">
+					<tr>
+						<th class="onlyQuery" rowspan="2"><spring:message code='operation'/></th>
 
-					<th colspan="9">基礎數據</th>
-					<th colspan="12">FY${year}</th>
-					<th colspan="2">FY${year+1}</th>
-					<th colspan="2">FY${year+2}</th>
-				</tr>
-				<tr>
-					<th>投資編號</th>
-					<th>設備類別</th>
-					<th>SBU_法人</th>
-					<th>提出部門</th>
-					<th>Segment</th>
-					<th>3+3</th>
-					<th>產業</th>
-					<th>使用部門</th>
-					<th>投資類型</th>
-					<th>專案名稱.</th>
-					<th>投資對象(設備)名稱</th>
-					<th>產品系列</th>
-					<th>需求數量(或場地面積)</th>
-					<th>產品生命周期-年(用於購置設備)</th>
-					<th>請購單或模治具執行單年月</th>
-					<th>驗收單年月(轉固定資產月份)</th>
-					<th>結報年月或模治具執行單結案年月</th>
-					<th>投資金額(本位幣)</th>
-					<th>投資説明</th>
-					<th>預估收益-營收(本位幣)</th>
-					<th>預估收益-淨利(本位幣)</th>
-					<th>預估收益-營收(本位幣)</th>
-					<th>預估收益-淨利(本位幣)</th>
-					<th>預估收益-營收(本位幣)</th>
-					<th>預估收益-淨利(本位幣)</th>
-				</tr>
-				</thead>
+						<th colspan="9">Basic Info</th>
+						<th colspan="12">FY${year}</th>
+						<th colspan="2">FY${year+1}</th>
+						<th colspan="2">FY${year+2}</th>
+					</tr>
+					<tr>
+						<th>Investment NO</th>
+						<th>Equipment category</th>
+						<th>SBU_Legal Entity</th>
+						<th>Proposing department</th>
+						<th>Segment</th>
+						<th>3+3</th>
+						<th>Industry</th>
+						<th>User department</th>
+						<th>Type of investment</th>
+						<th>Project name.</th>
+						<th>Name of the investment item (equipment)</th>
+						<th>Product series</th>
+						<th>Quantity required (or site area)</th>
+						<th>Product life cycle - years (for purchasing equipment)</th>
+						<th>Purchase requisition or tooling execution period</th>
+						<th>Receipt date (month tranferred to fixed assets)</th>
+						<th>The closing date or the reporting or the tooling execution</th>
+						<th>Investment amount (standard currency)</th>
+						<th>Investment description</th>
+						<th>Estimated Sales Revenue (standard currency)</th>
+						<th>Estimated Sales Revenue - net profit (standard currency)</th>
+						<th>Estimated Sales Revenue (standard currency)</th>
+						<th>Estimated Sales Revenue - net profit (standard currency)</th>
+						<th>Estimated Sales Revenue (standard currency)</th>
+						<th>Estimated Sales Revenue - net profit (standard currency)</th>
+					</tr>
+					</thead>
+				</c:if>
+				<c:if test="${languageS eq 'zh_CN'}">
+					<thead class="theadCss">
+					<tr>
+						<th class="onlyQuery" rowspan="2"><spring:message code='operation'/></th>
+
+						<th colspan="9">基礎數據</th>
+						<th colspan="12">FY${year}</th>
+						<th colspan="2">FY${year+1}</th>
+						<th colspan="2">FY${year+2}</th>
+					</tr>
+					<tr>
+						<th>投資編號</th>
+						<th>設備類別</th>
+						<th>SBU_法人</th>
+						<th>提出部門</th>
+						<th>Segment</th>
+						<th>3+3</th>
+						<th>產業</th>
+						<th>使用部門</th>
+						<th>投資類型</th>
+						<th>專案名稱.</th>
+						<th>投資對象(設備)名稱</th>
+						<th>產品系列</th>
+						<th>需求數量(或場地面積)</th>
+						<th>產品生命周期-年(用於購置設備)</th>
+						<th>請購單或模治具執行單年月</th>
+						<th>驗收單年月(轉固定資產月份)</th>
+						<th>結報年月或模治具執行單結案年月</th>
+						<th>投資金額(本位幣)</th>
+						<th>投資説明</th>
+						<th>預估收益-營收(本位幣)</th>
+						<th>預估收益-淨利(本位幣)</th>
+						<th>預估收益-營收(本位幣)</th>
+						<th>預估收益-淨利(本位幣)</th>
+						<th>預估收益-營收(本位幣)</th>
+						<th>預估收益-淨利(本位幣)</th>
+					</tr>
+					</thead>
+				</c:if>
 				<tbody>
 				<c:forEach items="${page.result}" var="mapping">
 					<tr>
