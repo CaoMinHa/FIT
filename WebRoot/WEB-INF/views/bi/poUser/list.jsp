@@ -235,7 +235,7 @@ function addDept(index) {
 						</c:when>
 						<c:when test="${status.index eq 4 ||status.index eq 5}">
 							<td style="white-space: nowrap;border-right:1px solid #eee;">
-								<textarea style="width: 95%;" rows="1">${mapping[i]}</textarea>
+								<textarea style="width: 95%;" disabled rows="1">${mapping[i]}</textarea>
 							</td>
 						</c:when>
 						<c:otherwise>

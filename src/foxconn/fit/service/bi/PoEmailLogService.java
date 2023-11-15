@@ -1,27 +1,26 @@
 package foxconn.fit.service.bi;
 
 import foxconn.fit.dao.base.BaseDaoHibernate;
+import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.bi.PoEmailLog;
 import foxconn.fit.service.base.BaseService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
-/**
- * @author Yang DaiSheng
- * @program fit
- * @description
- * @create 2021-04-21 14:27
- **/
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class PoEmailLogService extends BaseService<PoEmailLog> {
     @Autowired
-    private PoTableService poTableService;
-    /**
+    private PoTableDao poTableDao;
+    /**列表
      * @param pageRequest
      * @param title
      * @param name
@@ -46,13 +45,21 @@ public class PoEmailLogService extends BaseService<PoEmailLog> {
         }
         sql+=" order by id desc ";
         System.out.println(sql);
-        Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
+        Page<Object[]> page = poTableDao.findPageBySql(pageRequest, sql);
         return  page;
     }
 
-    public PoEmailLog selectDetails(String Id){
-        PoEmailLog poEmailLog=this.selectDetails(Id);
-        return poEmailLog;
+    /**郵件日志詳情**/
+    public void selectDetails(Model model, String id){
+        String sql="select * from CUX_PO_EMAIL where ID='"+id+"'";
+        List<PoEmailLog> list=poTableDao.listBySql(sql,PoEmailLog.class);
+        if(null!=list.get(0) && list.size()>0){
+            if(null!=list.get(0).getFileName() && !list.get(0).getFileName().isEmpty()){
+                List<String> fileList= Arrays.asList(list.get(0).getFileName().split("\\*\\*"));
+                model.addAttribute("fileList", fileList);
+            }
+            model.addAttribute("poEmailLog", list.get(0));
+        }
     }
     @Override
     public BaseDaoHibernate<PoEmailLog> getDao() {

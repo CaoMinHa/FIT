@@ -66,7 +66,7 @@ public class PredictDetailRevenueService extends BaseService<PredictDetailRevenu
 		model.addAttribute("versionList", this.versionVal());
 		return model;
 	}
-
+	/**获取版本下拉框**/
 	public List<String> versionVal(){
 		Calendar calendar=Calendar.getInstance();
 		int year=calendar.get(Calendar.YEAR)+1;

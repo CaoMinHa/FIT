@@ -117,7 +117,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 	}
 
 	/**數據上傳*/
-	public String uploadBudget(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest,String type) {
+	public String upload(AjaxResult result, Locale locale, MultipartHttpServletRequest multipartHttpServletRequest,String type) {
 		try {
 			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 //			獲取當前用戶的SBU權限
@@ -450,7 +450,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 	}
 
 	/**下載數據*/
-	public Map<String,String>  downloadBudget(String entitys,String y,String version,HttpServletRequest request,PageRequest pageRequest,String type){
+	public Map<String,String>  download(String entitys,String y,String version,HttpServletRequest request,PageRequest pageRequest,String type){
 		Map<String,String> mapResult=new HashMap<>();
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		try {
@@ -543,7 +543,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 	}
 
 	/**預算版本控制*/
-	public String versionBudget(String tableName){
+	public String version(String tableName){
 		Calendar calendar=Calendar.getInstance();
 		int year=calendar.get(Calendar.YEAR)+1;
 		UserDetailImpl loginUser = SecurityUtils.getLoginUser();

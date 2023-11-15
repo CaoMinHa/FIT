@@ -33,12 +33,7 @@ $(function(){
 			},
 			j_password:{
 				required:true
-			}/* ,
-			verifyCode:{
-				required:true,
-				rangelength:[4,4],
-				checkVerifyCode: true
-			} */
+			}
 		},
 		messages: {
 			username:{
@@ -46,11 +41,7 @@ $(function(){
 			},
 			j_password:{
 				required:"<spring:message code='please_input'/>"
-			}/* ,
-			verifyCode:{
-				required:"<spring:message code='please_input'/>",
-				rangelength:"<spring:message code='limit_length_4'/>"
-			} */
+			}
 		},
 		unhighlight:function(element, errorClass, validClass){
 			if (element.type === 'radio') {
@@ -64,11 +55,6 @@ $(function(){
         	if(!element.data("init")){
         		var alignX="right";
         		var alignY="center";
-        		/* if(element.attr("id")=="verifyCode"){
-        			alignX="center";
-        			alignY="bottom";
-        		} */
-        		
 	            element.poshytip({
 	                className: 'tip-yellowsimple',
 	                content: error,
@@ -87,31 +73,6 @@ $(function(){
 			}
 		}
 	});
-	
-	/* jQuery.validator.addMethod('checkVerifyCode', function(value, element, param) {
-		var flag=false;
-		$.ajax({
-			type:"POST",
-			url:"${ctx}/checkVerifyCode",
-			dataType:"text",
-			async: false,
-			data:{verifyCode:value},
-			success: function(data){
-				if(data==""){
-					flag=true;
-				}else if(data=="expired"){
-					$.validator.messages['checkVerifyCode'] = "<spring:message code='verifyCode_expired'/>";
-					changeVerifyCode();
-				}else{
-					$.validator.messages['checkVerifyCode'] = "<spring:message code='verifyCode_error'/>";
-				}
-		   	},
-		   	error: function(XMLHttpRequest, textStatus, errorThrown) {
-		   	}
-		});
-		return flag;
-	}, $.validator.format("<spring:message code='verifyCode_error'/>")); */
-
 });
 window.onload=function (){ reloadPage();}
 //自动刷新一次页面
@@ -121,9 +82,6 @@ function reloadPage() {
 		location.reload();//刷新
 	}
 }
-/* function changeVerifyCode(){
-	$("#verify").attr("src","${ctx}/getVerifyCode?width=100&height=34&time=" + new Date().getTime());
-} */
 </script>
 </head>
 <body class="bg-gray">
@@ -148,16 +106,6 @@ function reloadPage() {
 					<input type="password" id="password" name="password" readonly="readonly" autocomplete="off" style="display:none;"/>
 				</div>
 			</div>
-			<%-- <div class="control-group">
-				<div class="controls">
-					<div>
-						<input type="text" class="col-sm-5" id="verifyCode" name="verifyCode" placeholder="<spring:message code='verifyCode'/>"/>
-					</div>
-					<div>
-						<a href="javascript:changeVerifyCode()" class="col-sm-5" style="padding-right:0px;float:right;"><img id="verify" src="${ctx}/getVerifyCode?width=100&height=34" title="<spring:message code='click.refresh'/>"/></a>
-					</div>
-				</div>
-			</div> --%>
 			<div class="control-group">
 				<div class="controls">
 					<button type="submit" class="btn btn-success btn-block full-width m-b-lg"><spring:message code="logon"/></button>

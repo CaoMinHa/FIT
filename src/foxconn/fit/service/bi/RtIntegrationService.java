@@ -76,10 +76,7 @@ public class RtIntegrationService extends BaseService<PoTable> {
         for (PoTable poTable : poTableList) {
             tableList.add(new PoTable(poTable.getTableName(), instrumentClassService.getByLocale(locale, poTable.getComments())));
         }
-        List<String> typeList = this.listBySql("select distinct tablename from FIT_AUDIT_CONSOL_CONFIG order by tablename");
-        model.addAttribute("typeList", typeList);
         model.addAttribute("poTableList", tableList);
-        model.addAttribute("poTableOutList", tableList);
     }
 
     /**

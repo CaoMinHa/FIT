@@ -42,9 +42,9 @@ public class RtHistoricalDataController extends BaseController {
     private RtHistoricalDataService rtHistoricalDataService;
 
     @RequestMapping(value = "index")
-    public String index(Model model, HttpServletRequest request) {
+    public String index(Model model) {
         try {
-            List<Map> list=rtHistoricalDataService.selectQuery(request);
+            List<Map> list=rtHistoricalDataService.selectQuery();
             model.addAttribute("queryList",list);
         }catch (Exception e){
             logger.error("查詢頁面條件結果集失敗！", e);
@@ -166,7 +166,7 @@ public class RtHistoricalDataController extends BaseController {
 
     @RequestMapping(value = "/delete")
     @ResponseBody
-    public String deleteAll(AjaxResult ajaxResult, String no) {
+    public String delete(AjaxResult ajaxResult, String no) {
         ajaxResult= rtHistoricalDataService.deleteData(ajaxResult,no);
         return ajaxResult.getJson();
     }

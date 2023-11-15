@@ -135,21 +135,27 @@ public class RtRevenueGrossProfitService{
         return result.getJson();
     }
 
-    /**数据倒挤*/
-    public void save(List<String> list,List<String> listSql) throws Exception {
+    /**数据保存*/
+    public void save(List<String> list,List<String> listSql){
         list=instrumentClassService.removeDuplicate(list);
-        String sql="delete BIDEV.if_rev_dtl_manual where YEAR_MONTH in('"+list.toString().substring(1,list.toString().length()-1).replaceAll(",","','")+"')";
+        String sql="delete BIDEV.if_rev_dtl_manual where YEAR_MONTH in('"+StringUtils.deleteWhitespace(list.toString().substring(1,list.toString().length()-1).replaceAll(",","','"))+"')";
+        System.out.println("sql语句"+sql);
         poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(sql).executeUpdate();
         for (String s:listSql) {
             poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(s).executeUpdate();
         }
-        Connection c = SessionFactoryUtils.getDataSource(poTableDao.getSessionFactory()).getConnection();
-        for (String s:list) {
-            CallableStatement cs = c.prepareCall("{call epmexp.pbcs_pl_pkg.diff_amt(?)}");
-            cs.setString(1, s);
-            cs.execute();
-            cs.close();
+    }
+    /**数据倒挤*/
+    public void diff(String yearMonth) throws Exception {
+        yearMonth=yearMonth.replace("-","");
+        if(yearMonth.length()==5){
+            yearMonth=yearMonth.substring(0,4)+"0"+yearMonth.substring(4,5);
         }
+        Connection c = SessionFactoryUtils.getDataSource(poTableDao.getSessionFactory()).getConnection();
+        CallableStatement cs = c.prepareCall("{call epmexp.pbcs_pl_pkg.diff_amt(?)}");
+        cs.setString(1, yearMonth);
+        cs.execute();
+        cs.close();
         c.close();
     }
 

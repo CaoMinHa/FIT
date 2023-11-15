@@ -176,21 +176,21 @@
                 roleName:$("#roleName2").val()},function(){$("#loading").fadeOut(1000);});
         });
         $('#addRoleBtn').click(function () {
-            var ids = $('input[type=checkbox]');
-            var data = '';
-            ids.each(function () {
+            debugger
+            var ids = '';
+            $("input[name='ID']").each(function () {
                 //获取当前元素的勾选状态
                 if ($(this).prop("checked")) {
-                    data = data + $(this).val() + ",";
+                    ids = ids + $(this).val() + ",";
                 }
             });
-            if(data===""){
-                alert("請勾選要要分配角色的數據！");
+            if(ids==""){
+                layer.alert("請勾選要要分配角色的數據！");
             }else{
-                data = data.substring(0, data.length - 1);
-                console.log(data)
+                ids = ids.substring(0, ids.length - 1);
+                console.log(ids)
                 var obj={
-                    userId:data,
+                    userId:ids,
                     roleId:$("#roleId2").val()
                 }
                 $.ajax({
@@ -429,12 +429,6 @@
                             <span style="font-size: 20px;color: #938a8a;float: left;line-height: 38px;font-weight: bold;"><spring:message code='all_check'/></span>
                             <input type="checkbox" style="font-size:15px;color:#7e8978;float:right;width:20px;" value=""/>
                         </li>
-<%--                        <c:forEach items="${poTableList }" var="poTable">--%>
-<%--                            <li class="Check" style="padding:0 10px;clear:both;">--%>
-<%--                                <span style="font-size:15px;color:#7e8978;float:left;line-height:38px;display:contents;">${poTable.comments }</span>--%>
-<%--                                <input type="checkbox" name="tableName" style="font-size:15px;color:#7e8978;float:right;width:20px;" value="${poTable.tableName}"/>--%>
-<%--                            </li>--%>
-<%--                        </c:forEach>--%>
                     </ul>
                 </div>
             </form>

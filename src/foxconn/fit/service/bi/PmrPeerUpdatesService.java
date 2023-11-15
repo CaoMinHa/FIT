@@ -5,33 +5,17 @@ import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoColumns;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.UserDetailImpl;
-import foxconn.fit.util.ExcelUtil;
 import foxconn.fit.util.ExceptionUtil;
 import foxconn.fit.util.SecurityUtils;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.util.Assert;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-import org.springframework.web.util.WebUtils;
-import org.springside.modules.orm.PageRequest;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.*;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 /**
  * @author maggao
@@ -42,7 +26,9 @@ public class PmrPeerUpdatesService {
     @Autowired
     private PoTableDao poTableDao;
 
-
+    /**
+     添加数据
+     **/
     public AjaxResult add(AjaxResult ajaxResult,String dateAdd,String peerUpdates) {
         try {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
@@ -60,7 +46,9 @@ public class PmrPeerUpdatesService {
         }
     return ajaxResult;
     }
-
+    /**
+     根据ID删除数据
+     **/
     public AjaxResult deleteData(AjaxResult ajaxResult,String no) {
         try {
             String[] ids = no.split(",");

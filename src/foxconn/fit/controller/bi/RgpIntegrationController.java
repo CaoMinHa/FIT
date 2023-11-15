@@ -254,7 +254,7 @@ public class RgpIntegrationController extends BaseController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     @Log(name="营收毛利刪除")
-    public String deleteAll(AjaxResult ajaxResult, @Log(name = "id") String id,@Log(name = "表名") String tableName) {
+    public String delete(AjaxResult ajaxResult, @Log(name = "id") String id,@Log(name = "表名") String tableName) {
         try {
             rgpIntegrationService.delete(id,tableName);
         } catch (Exception e) {

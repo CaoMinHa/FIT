@@ -118,8 +118,8 @@ public class RtIntegrationController extends BaseController {
 
     @RequestMapping(value = "/delete")
     @ResponseBody
-    @Log(name = "營收目標-->單條刪除")
-    public String deleteAll(AjaxResult ajaxResult, String id, @Log(name="表名") String tableName) {
+    @Log(name = "營收目標-->刪除")
+    public String delete(AjaxResult ajaxResult, String id, @Log(name="表名") String tableName) {
         try {
             rtIntegrationService.delete(id,tableName);
         } catch (Exception e) {

@@ -2,14 +2,8 @@ package foxconn.fit.controller.bi;
 
 import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
-import foxconn.fit.dao.bi.PoTableDao;
 import foxconn.fit.entity.base.AjaxResult;
-import foxconn.fit.entity.base.User;
-import foxconn.fit.entity.bi.PoColumns;
-import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.base.UserDetailImpl;
-import foxconn.fit.service.base.UserService;
-import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.service.bi.PoTaskService;
 import foxconn.fit.util.ExceptionUtil;
 import foxconn.fit.util.SecurityUtils;
@@ -45,20 +39,12 @@ import java.util.Map;
 public class PoTaskController extends BaseController {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private PoTaskService poTaskService;
-    @Autowired
-    private PoTableService poTableService;
-    @Autowired
-    private PoTableDao poTableDao;
 
     @RequestMapping(value = "index")
     public String index(Model model) {
         try {
-            User user = userService.getByUsername(SecurityUtils.getLoginUsername());
             model.addAttribute("roles", poTaskService.index());
-            model.addAttribute("attribute", user.getAttribute());
         } catch (Exception e) {
             logger.error("查询明细配置表列表信息失败", e);
         }
@@ -72,7 +58,7 @@ public class PoTaskController extends BaseController {
             UserDetailImpl loginUser = SecurityUtils.getLoginUser();
             String userName=loginUser.getUsername();
             String userSql=" select sbu,email,COMMODITY_MAJOR from fit_user where username="+"'"+userName+"'";
-            List<Map> maps = userService.listMapBySql(userSql);
+            List<Map> maps = poTaskService.listMapBySql(userSql);
             String sbu="";
             String email="";
             String commodityMajor="";
@@ -164,7 +150,7 @@ public class PoTaskController extends BaseController {
     @ResponseBody
     @Transactional
     @Log(name = "採購任務-->新增SBU年度CD目標核准表任務")
-    public String addRole(AjaxResult ajaxResult,@Log(name = "年份") String year) {
+    public String addCpoTask(AjaxResult ajaxResult,@Log(name = "年份") String year) {
         try {
             ajaxResult=poTaskService.addCpoTask(ajaxResult,year);
         } catch (Exception e) {
@@ -187,7 +173,7 @@ public class PoTaskController extends BaseController {
             model.addAttribute("role", role);
             //查询当前任务明细所有的附件
             String fileId="select FILEID,FILENAME from fit_po_task_file where TASKID='"+id+"'";
-            List<Map> fileList=poTableService.listMapBySql(fileId);
+            List<Map> fileList=poTaskService.listMapBySql(fileId);
             model.addAttribute("fileList",fileList);
 
             String taskSql=" select type,name from FIT_PO_TASK WHERE ID="+"'"+id+"'";
@@ -228,8 +214,8 @@ public class PoTaskController extends BaseController {
                             "from FIT_PO_TARGET_CPO_CD_DTL_V where task_id="+"'"+id+"'";
                     System.out.println(sql);
                     String sql1="select ID from FIT_PO_TARGET_CPO_CD_DTL_V where task_id="+"'"+id+"'";
-                    pageRequest.setPageSize(poTableService.listBySql(sql1).size());
-                    Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
+                    pageRequest.setPageSize(poTaskService.listBySql(sql1).size());
+                    Page<Object[]> page = poTaskService.findPageBySql(pageRequest, sql);
                     model.addAttribute("page", page);
                     int index=1;
                     if(pageRequest.getPageNo()>1){
@@ -239,7 +225,7 @@ public class PoTaskController extends BaseController {
                     return "/bi/poTask/cpo";
                 }else{
                     //查询任务明细及增加汇总数
-                    model=this.selectPoTask(model,tableName,locale,pageRequest,id);
+                    model=poTaskService.selectPoTask(model,tableName,locale,pageRequest,id);
                     return "/bi/poTask/audit";
                 }
             }else{
@@ -252,123 +238,6 @@ public class PoTaskController extends BaseController {
     }
 
     /**
-     * 頁面list數據加載
-     */
-    public Model selectPoTask(Model model,String tableName, Locale locale,PageRequest pageRequest,String id) throws Exception {
-        PoTable poTable = poTableService.get(tableName);
-        List<PoColumns> columns = poTable.getColumns();
-        for (PoColumns poColumns : columns) {
-            poColumns.setComments(getByLocale(locale, poColumns.getComments()));
-        }
-        String sql="select ";
-        String sqlSum="select ";
-        for (PoColumns column : columns) {
-            String columnName = column.getColumnName();
-            if (column.getDataType().equalsIgnoreCase("number")) {
-                sql+=columnName+",";
-                if("FIT_PO_CD_MONTH_DOWN".equalsIgnoreCase(poTable.getTableName())) {
-                    switch (columnName) {
-                        case "PO_TARGET_CPO":
-                            sqlSum += "to_char(decode((sum(YEAR_TOTAL)+sum(PO_TARGET_CD)),0,null,sum(PO_TARGET_CD)/(sum(YEAR_TOTAL)+sum(PO_TARGET_CD))*100),9999999999.9999) PO_TARGET_CPO,";
-                            break;
-                        case "ONE_CPO":
-                            sqlSum += "to_char(decode((sum(ONE_PO_MONEY)+sum(ONE_CD)),0,null,sum(ONE_CD)/(sum(ONE_PO_MONEY)+sum(ONE_CD))*100),9999999999.9999) ONE_CPO,";
-                            break;
-                        case "TWO_CPO":
-                            sqlSum += "to_char(decode((sum(TWO_PO_MONEY)+sum(TWO_CD)),0,null,sum(TWO_CD)/(sum(TWO_PO_MONEY)+sum(TWO_CD))*100),9999999999.9999) TWO_CPO,";
-                            break;
-                        case "THREE_CPO":
-                            sqlSum += "to_char(decode((sum(THREE_PO_MONEY)+sum(THREE_CD)),0,null,sum(THREE_CD)/(sum(THREE_PO_MONEY)+sum(THREE_CD))*100),9999999999.9999) THREE_CPO,";
-                            break;
-                        case "FOUR_CPO":
-                            sqlSum += "to_char(decode((sum(FOUR_PO_MONEY)+sum(FOUR_CD)),0,null,sum(FOUR_CD)/(sum(FOUR_PO_MONEY)+sum(FOUR_CD))*100),9999999999.9999) FOUR_CPO,";
-                            break;
-                        case "FIVE_CPO":
-                            sqlSum += "to_char(decode((sum(FIVE_PO_MONEY)+sum(FIVE_CD)),0,null,sum(FIVE_CD)/(sum(FIVE_PO_MONEY)+sum(FIVE_CD))*100),9999999999.9999) FIVE_CPO,";
-                            break;
-                        case "SIX_CPO":
-                            sqlSum += "to_char(decode((sum(SIX_PO_MONEY)+sum(SIX_CD)),0,null,sum(SIX_CD)/(sum(SIX_PO_MONEY)+sum(SIX_CD))*100),9999999999.9999) SIX_CPO,";
-                            break;
-                        case "SEVEN_CPO":
-                            sqlSum += "to_char(decode((sum(SEVEN_PO_MONEY)+sum(SEVEN_CD)),0,null,sum(SEVEN_CD)/(sum(SEVEN_PO_MONEY)+sum(SEVEN_CD))*100),9999999999.9999) SEVEN_CPO,";
-                            break;
-                        case "EIGHT_CPO":
-                            sqlSum += "to_char(decode((sum(EIGHT_PO_MONEY)+sum(EIGHT_CD)),0,null,sum(EIGHT_CD)/(sum(EIGHT_PO_MONEY)+sum(EIGHT_CD))*100),9999999999.9999) EIGHT_CPO,";
-                            break;
-                        case "NINE_CPO":
-                            sqlSum += "to_char(decode((sum(NINE_PO_MONEY)+sum(NINE_CD)),0,null,sum(NINE_CD)/(sum(NINE_PO_MONEY)+sum(NINE_CD))*100),9999999999.9999) NINE_CPO,";
-                            break;
-                        case "TEN_CPO":
-                            sqlSum += "to_char(decode((sum(TEN_PO_MONEY)+sum(TEN_CD)),0,null,sum(TEN_CD)/(sum(TEN_PO_MONEY)+sum(TEN_CD))*100),9999999999.9999) TEN_CPO,";
-                            break;
-                        case "ELEVEN_CPO":
-                            sqlSum += "to_char(decode((sum(ELEVEN_PO_MONEY)+sum(ELEVEN_CD)),0,null,sum(ELEVEN_CD)/(sum(ELEVEN_PO_MONEY)+sum(ELEVEN_CD))*100),9999999999.9999) ELEVEN_CPO,";
-                            break;
-                        case "TWELVE_CPO":
-                            sqlSum += "to_char(decode((sum(TWELVE_PO_MONEY)+sum(TWELVE_CD)),0,null,sum(TWELVE_CD)/(sum(TWELVE_PO_MONEY)+sum(TWELVE_CD))*100),9999999999.9999) TWELVE_CPO,";
-                            break;
-                        case "PO_CPO":
-                            sqlSum += "to_char(decode((sum(PO_TOTAL)+sum(PO_CD)),0,null,sum(PO_CD)/(sum(PO_TOTAL)+sum(PO_CD))*100),9999999999.9999) PO_CPO,";
-                            break;
-                        default:
-                            sqlSum += "sum(" + columnName + "),";
-                            break;
-                    }
-                }else if("FIT_PO_SBU_YEAR_CD_SUM".equalsIgnoreCase(poTable.getTableName())){
-                    switch (columnName) {
-                        case "YEAR_CD":
-                            sqlSum += " case when sum(YEAR_CD_AMOUNT) = 0 then 0 else sum(YEAR_CD_AMOUNT)/(sum(YEAR_CD_AMOUNT)+sum(PO_AMOUNT))*100 end YEAR_CD ,";
-                            break;
-                        default:
-                            sqlSum += "sum(" + columnName + "),";
-                            break;
-                    }
-                }else if("FIT_PO_BUDGET_CD_DTL".equalsIgnoreCase(poTable.getTableName())){
-                    switch (columnName) {
-                        case "CD_RATIO":
-                            sqlSum += " sum(CD_AMOUNT)/(sum(PO_AMOUNT)+sum(CD_AMOUNT))*100 CD_RATIO ,";
-                            break;
-                        default:
-                            sqlSum += "sum(" + columnName + "),";
-                            break;
-                    }
-                }else{
-                    sqlSum += "sum(" + columnName + "),";
-                }
-            }else if (column.getDataType().equalsIgnoreCase("date")) {
-                sql+="to_char("+columnName+",'dd/mm/yyyy'),";
-                sqlSum+="'' " + columnName + ",";
-            }else{
-                sql+=columnName+",";
-                sqlSum+="'' " + columnName + ",";
-            }
-        }
-        sql=sql.substring(0,sql.length()-1);
-        sql+=" from "+poTable.getTableName()+" where 1=1 and task_id="+"'"+id+"'";
-        sqlSum =sqlSum.substring(0, sqlSum.length() - 1);
-        sqlSum +=" from "+poTable.getTableName()+" where 1=1 and task_id="+"'"+id+"'";
-        pageRequest.setOrderBy(columns.get(3).getColumnName()+","+columns.get(1).getColumnName()+","+columns.get(2).getColumnName()+","+columns.get(0).getColumnName());
-        pageRequest.setOrderDir("asc,asc,asc,asc");
-        Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
-        PageRequest pageRequest1=new PageRequest();
-        pageRequest1.setPageNo(1);
-        pageRequest1.setPageSize(1);
-        Page<Object[]> pages = poTableService.findPageBySql(pageRequest1, sqlSum);
-        page.getResult().addAll(pages.getResult());
-        //查找任务对于的附档
-        model.addAttribute("tableName", poTable.getTableName());
-        model.addAttribute("page", page);
-        model.addAttribute("columns", columns);
-        int index=1;
-        if(pageRequest.getPageNo()>1){
-            index=2;
-        }
-        model.addAttribute("index", index);
-        return model;
-    }
-
-
-    /**
      *   submitTask  任务提交
      *   sbu flag=0提交到任務管理員 flag=2
      *   采購數據 flag=0提交到課級flag=1->科級flag=2
@@ -378,7 +247,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/submitTask")
     @ResponseBody
     @Log(name = "採購任務-->提交")
-    public String submitTask(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String roleCode) {
+    public String submit(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String roleCode) {
         try {
             ajaxResult=poTaskService.submit(ajaxResult,taskType,id,roleCode,remark);
         } catch (Exception e) {
@@ -395,7 +264,7 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/submitOneAudit")
     @ResponseBody
     @Log(name = "採購任務-->初審")
-    public String submitOneAudit(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,
+    public String submitOne(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,
                                  @Log(name="審批意見")String remark,String status,String roleCode) {
         try {
             ajaxResult=poTaskService.submitOne(ajaxResult,taskType,id,status,remark,roleCode);
@@ -414,9 +283,9 @@ public class PoTaskController extends BaseController {
     @RequestMapping(value="/CPOAudit")
     @ResponseBody
     @Log(name = "採購任務-->CPO目標核准初審")
-    public String CPOAudit(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,@Log(name="審批意見") String remark,String status,String roleCode) {
+    public String cpoAudit(AjaxResult ajaxResult,@Log(name="任務ID") String id,String taskType,@Log(name="審批意見") String remark,String status,String roleCode) {
         try {
-            ajaxResult=poTaskService.CPOAudit(ajaxResult,taskType,id,status,remark,roleCode);
+            ajaxResult=poTaskService.cpoAudit(ajaxResult,taskType,id,status,remark,roleCode);
         } catch (Exception e) {
             logger.error("初审任务失败", e);
             ajaxResult.put("flag", "fail");
@@ -431,7 +300,7 @@ public class PoTaskController extends BaseController {
     @Log(name = "採購任務-->終審")
     @RequestMapping(value="/submitAudit")
     @ResponseBody
-    public String submitEndAudit(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String status) {
+    public String submitEnd(AjaxResult ajaxResult,@Log(name="任務ID")String id,String taskType,@Log(name="審批意見")String remark,String status) {
         try {
             ajaxResult=poTaskService.submitEnd(ajaxResult,taskType,id,status,remark);
         } catch (Exception e) {
@@ -499,7 +368,7 @@ public class PoTaskController extends BaseController {
                 }
                 outFile.delete();
                 String deleteSql="delete from fit_po_task_file where FILEID='"+fileId+"'";
-                poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(deleteSql).executeUpdate();
+                poTaskService.updateData(deleteSql);
             }else {
                 result.put("msg", getLanguage(locale, "刪除失敗，未找到文件路徑。", "Failed to delete the file because the file path was not found."));
             }
@@ -546,7 +415,7 @@ public class PoTaskController extends BaseController {
                     String insertSql="insert into FIT_PO_TASK_FILE(CREATE_USER,TASKID,FILEURL,FILENAME,FILEID) " +
                             "values ('"+user+"','"+taskId+"','"+Id+File.separator +file.getOriginalFilename()+"','"+
                             file.getOriginalFilename()+"','"+Id+"')";
-                    poTableDao.getSessionFactory().getCurrentSession().createSQLQuery(insertSql).executeUpdate();
+                    poTaskService.updateData(insertSql);
                     result.put("fileName",file.getOriginalFilename());
                     result.put("fileId",Id);
                 }

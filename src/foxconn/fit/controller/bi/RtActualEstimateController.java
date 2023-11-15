@@ -30,9 +30,9 @@ public class RtActualEstimateController extends BaseController {
     private RtActualEstimateService rtActualEstimateService;
 
     @RequestMapping(value = "index")
-    public String index(Model model, HttpServletRequest request) {
+    public String index(Model model) {
         try {
-            List<Map> list=rtActualEstimateService.selectQuery(request);
+            List<Map> list=rtActualEstimateService.selectQuery();
             model.addAttribute("queryList",list);
         }catch (Exception e){
             logger.error("查詢頁面條件結果集失敗！", e);

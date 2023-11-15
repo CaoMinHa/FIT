@@ -51,6 +51,7 @@ public class RtHistoricalDataService{
     @Value("${jdbc-0.password}")
     String password;
 
+    /**獲取查詢sql**/
     public String selectDataSql(String queryCondition, PoTable poTable, Locale locale, Model model) {
         List<PoColumns> columns = poTable.getColumns();
         List<PoColumns> columnsList=new ArrayList<>();
@@ -99,7 +100,11 @@ public class RtHistoricalDataService{
         return sql;
     }
 
-    public List<Map> selectQuery(HttpServletRequest request){
+    /**
+     * 獲取高級查詢字段
+     * @return
+     */
+    public List<Map> selectQuery(){
         String sql="SELECT COLUMN_NAME,COMMENTS FROM fit_po_table_columns WHERE  table_name='IF_EBS_AR_REVENUE_DTL_MANUAL' AND IS_QUERY = 'Y'  ORDER BY to_number(SERIAL)";
         List<Map> list = poTableDao.listMapBySql(sql);
         List<Map> a=new ArrayList<>();
@@ -112,7 +117,7 @@ public class RtHistoricalDataService{
         return a;
     }
     
-
+    /**上傳模板**/
     public File template(XSSFWorkbook workBook,PoTable poTable,HttpServletRequest request ) throws UnsupportedEncodingException {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFCellStyle titleStyle = workBook.createCellStyle();
@@ -139,6 +144,7 @@ public class RtHistoricalDataService{
         return outFile;
     }
 
+    /**批量數據上傳**/
     public String uploadFile(PoTable poTable,Sheet sheet,AjaxResult result, Locale locale){
         System.out.print("开始处理数据-------》");
         List<PoColumns> columns = poTable.getColumns();
@@ -232,6 +238,7 @@ public class RtHistoricalDataService{
         }
     }
 
+    /**保存數據**/
     private String saveRtData(Map<String,List<List<String>>> map,PoTable poTable) throws SQLException, ClassNotFoundException {
         System.out.print("处理数据插入表中");
         String message="S";
@@ -315,7 +322,8 @@ public class RtHistoricalDataService{
         return message;
     }
 
-    public java.sql.Date getDate(boolean b, double value){
+    /**獲取時間**/
+    private java.sql.Date getDate(boolean b, double value){
         int wholeDays = (int)Math.floor(value);
         int millisecondsInDay = (int)((value - (double)wholeDays) * 8.64E7D + 0.5D);
 
@@ -341,6 +349,8 @@ public class RtHistoricalDataService{
         java.sql.Date d=new java.sql.Date(date.getTime());
         return d;
     }
+
+    /**上传校验**/
     private String dataCheck(BigDecimal revenueUSD,BigDecimal revenueNTD,String yearMonth,List<String> listSbu){
         System.out.println("校验条件"+yearMonth+"revenueNTD："+revenueNTD+"revenueUSD："+revenueUSD+"  sbu:"+listSbu);
         String msg="S";
@@ -379,6 +389,7 @@ public class RtHistoricalDataService{
         return msg;
     }
 
+    /**数据下载**/
     public String downloadFile(String queryCondition, PoTable poTable, HttpServletRequest request,PageRequest pageRequest) throws IOException {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         XSSFWorkbook workBook = new XSSFWorkbook();
@@ -499,6 +510,7 @@ public class RtHistoricalDataService{
         return outFile.getName();
     }
 
+    /**数据删除**/
     public AjaxResult deleteData(AjaxResult ajaxResult,String no) {
         try {
             String[] ids = no.split(",");

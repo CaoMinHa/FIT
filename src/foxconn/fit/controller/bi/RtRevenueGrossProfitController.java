@@ -105,4 +105,19 @@ public class RtRevenueGrossProfitController extends BaseController {
         return result.getJson();
     }
 
+    @RequestMapping(value = "diff")
+    @ResponseBody
+    @Log(name = "手工版營收毛利-->提交")
+    public String diff(HttpServletRequest request, AjaxResult result,@Log(name = "年月") String yearMonth) {
+        Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+        result.put("msg", getLanguage(locale, "提交成功", "Upload success"));
+        try {
+           rtRevenueGrossProfitService.diff(yearMonth);
+        } catch (Exception e) {
+            logger.error("手工版營收毛利提交失敗", e);
+            result.put("flag", "fail");
+            result.put("msg", ExceptionUtil.getRootCauseMessage(e));
+        }
+        return result.getJson();
+    }
 }

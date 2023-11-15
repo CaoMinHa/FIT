@@ -5,7 +5,6 @@ import foxconn.fit.controller.BaseController;
 import foxconn.fit.entity.base.AjaxResult;
 import foxconn.fit.entity.bi.PoTable;
 import foxconn.fit.service.bi.PmrCommonService;
-import foxconn.fit.service.bi.PoTableService;
 import foxconn.fit.util.ExceptionUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springside.modules.orm.Page;
 import org.springside.modules.orm.PageRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -35,9 +33,6 @@ import java.util.Map;
 @Controller
 @RequestMapping("/bi/pmrFitPLActualBudget")
 public class PmrFitPLActualBudgetController extends BaseController {
-
-    @Autowired
-    private PoTableService poTableService;
 
     @Autowired
     private PmrCommonService pmrCommonService;
@@ -60,10 +55,10 @@ public class PmrFitPLActualBudgetController extends BaseController {
     public String list(Model model, PageRequest pageRequest, HttpServletRequest request,String queryCondition) {
         try {
             Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-            PoTable poTable = poTableService.get(tableName);
+            PoTable poTable = pmrCommonService.get(tableName);
             String sql = pmrCommonService.selectDataSql(queryCondition,locale,model,poTable);
             pageRequest.setPageSize(15);
-            Page<Object[]> page = poTableService.findPageBySql(pageRequest, sql);
+            Page<Object[]> page = pmrCommonService.findPageBySql(pageRequest, sql);
             int index = 1;
             if (pageRequest.getPageNo() > 1) {
                 index = 2;
@@ -79,14 +74,14 @@ public class PmrFitPLActualBudgetController extends BaseController {
     @RequestMapping(value = "upload")
     @ResponseBody
     @Log(name = "FIT P&L- Actual vs Budget-->上傳")
-    public String upload(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+    public String upload(HttpServletRequest request, AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         result.put("msg", getLanguage(locale, "上傳成功", "Upload success"));
         try {
             MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
             Map<String, MultipartFile> mutipartFiles = multipartHttpServletRequest.getFileMap();
             if (mutipartFiles != null && mutipartFiles.size() > 0) {
-                PoTable poTable = poTableService.get(tableName);
+                PoTable poTable = pmrCommonService.get(tableName);
                 MultipartFile file = (MultipartFile) mutipartFiles.values().toArray()[0];
                 String str =pmrCommonService.uploadFile(poTable,file,result,locale);
                 return str;
@@ -107,10 +102,10 @@ public class PmrFitPLActualBudgetController extends BaseController {
     @RequestMapping(value = "download")
     @ResponseBody
     @Log(name = "FIT P&L- Actual vs Budget-->下载")
-    public synchronized String download(HttpServletRequest request, HttpServletResponse response, PageRequest pageRequest, AjaxResult result,
+    public synchronized String download(HttpServletRequest request, PageRequest pageRequest, AjaxResult result,
             @Log(name = "下載條件") String queryCondition) {
         try {
-            PoTable poTable = poTableService.get(tableName);
+            PoTable poTable = pmrCommonService.get(tableName);
             String fileName=pmrCommonService.downloadFile(queryCondition,poTable,request,pageRequest);
             result.put("fileName",fileName);
             System.gc();
@@ -128,11 +123,11 @@ public class PmrFitPLActualBudgetController extends BaseController {
      */
     @RequestMapping(value = "template")
     @ResponseBody
-    public synchronized String template(HttpServletRequest request, HttpServletResponse response, AjaxResult result) {
+    public synchronized String template(HttpServletRequest request, AjaxResult result) {
         Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
         try {
             XSSFWorkbook workBook = new XSSFWorkbook();
-            PoTable poTable = poTableService.get(tableName);
+            PoTable poTable = pmrCommonService.get(tableName);
             File outFile =pmrCommonService.template(workBook,poTable,request);
             OutputStream out = new FileOutputStream(outFile);
             workBook.write(out);
@@ -145,7 +140,6 @@ public class PmrFitPLActualBudgetController extends BaseController {
             result.put("flag", "fail");
             result.put("msg", getLanguage(locale, "下載模板文件失敗", "Fail to download template file") + " : " + ExceptionUtil.getRootCauseMessage(e));
         }
-
         return result.getJson();
     }
 }
