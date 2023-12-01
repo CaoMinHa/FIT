@@ -135,7 +135,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         }else {
             content=content.replace("\n","</br>");
             content=content.replace(" ","&nbsp;");
-            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
             if(isSend){
                content=content.replaceAll("'","''");
                 String sql="insert into CUX_PO_EMAIL(CREATED_BY,CREATED_NAME,EMAIL_TITLE,EMAIL_YEAR,EMAIL_CONTENT,EMAIL_TEAM,END_DATE) values('"+user
@@ -177,7 +177,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
             list.add(file);
             List<String> emailListC=poTableService.listBySql(sqlC);
             emailListC=emailListC.stream().distinct().collect(Collectors.toList());
-            EmailUtil.emailsMany(emailListC,title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!",list);
+            EmailUtil.emailsMany(emailListC,title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!",list);
         }
     }
     //定时任务发送邮件提醒CC
@@ -198,6 +198,6 @@ public class PoEmailService extends BaseService<PoEmailLog> {
         for (String e:emailListCC) {
             emailValCC+=e+",";
         }
-        EmailUtil.emailsManyCC(emailVal.substring(0,emailVal.length()-1),emailValCC.substring(0,emailValCC.length()-1),title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!",list);
+        EmailUtil.emailsManyCC(emailVal.substring(0,emailVal.length()-1),emailValCC.substring(0,emailValCC.length()-1),title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!",list);
     }
 }

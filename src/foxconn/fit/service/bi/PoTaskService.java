@@ -200,7 +200,7 @@ public class PoTaskService extends BaseService<PoTask> {
             for (String e:emailList) {
                 emailVal=emailVal+e+",";
             }
-            Boolean isSend = EmailUtil.emailCC(emailVal.substring(0,emailVal.length()-1),loginUser.getEmail(), title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailCC(emailVal.substring(0,emailVal.length()-1),loginUser.getEmail(), title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole(roleCode,"1")+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
             if(isSend){
                 uploadTaskFlag(taskId,flag,type,remark,step,"T");
             }else{
@@ -362,7 +362,7 @@ public class PoTaskService extends BaseService<PoTask> {
             for (String e:emailList) {
                 emailVal=emailVal+e+",";
             }
-            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
             if(isSend){
                 uploadTaskFlag(taskId,flag,type,reamrk,"","C");
             }else{
@@ -431,7 +431,7 @@ public class PoTaskService extends BaseService<PoTask> {
             for (String e:emailList) {
                 emailVal=emailVal+e+",";
             }
-            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+            Boolean isSend = EmailUtil.emailCC(emailVal,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+roleCode+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
             if(isSend){
                 uploadTaskFlag(taskId,flag,type,reamrk,"","E");
             }else{
@@ -499,9 +499,9 @@ public class PoTaskService extends BaseService<PoTask> {
                     for (String e:emailListC) {
                         email=email+e+",";
                     }
-                    isSend = EmailUtil.emailCC(email,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                    isSend = EmailUtil.emailCC(email,emailCC, title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                 }else {
-                    isSend=EmailUtil.emailsMany(emailListC,title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                    isSend=EmailUtil.emailsMany(emailListC,title,msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"&statusType="+flag+"&roleCode="+replaceRole("",taskId)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                 }
                 if(isSend){
                     if("0".equals(status)){
@@ -517,7 +517,7 @@ public class PoTaskService extends BaseService<PoTask> {
                             }else {
                                 msg = "尊敬的主管:</br> &nbsp;&nbsp;" + taskList.get(0).get("CREATE_USER_REAL").toString() + "已經完成" + task[0] + "_" + task[1] + "年度SBU CD目標數據，請盡快登陸系統進行確認，如有問題請及時與該SBU溝通,謝謝。";
                             }
-                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0] + "_" + task[1] + " SBU年度VOC", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                            Boolean isSends = EmailUtil.emailsMany(emailList, task[0] + "_" + task[1] + " SBU年度VOC", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+taskId+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                             if (!isSends) {
                                 ajaxResult.put("flag", "fail");
                                 ajaxResult.put("msg", "審核通過郵件通知發送失敗 (Failed to send the audit notification by email)");
@@ -529,7 +529,7 @@ public class PoTaskService extends BaseService<PoTask> {
                             List<String> emailList = roRoleService.listBySql(sql);
                             emailList = emailList.stream().distinct().collect(Collectors.toList());
                             msg="尊敬的主管:</br> &nbsp;&nbsp;"+taskList.get(0).get("NAME").toString()+"已呈核准, 請知悉并在 BI 接口平臺并上傳By月目標, 以及具體AR的開展。";
-                            Boolean isSends = EmailUtil.emailsMany(emailList,task[0]+"年"+task[1]+"簽核通知，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                            Boolean isSends = EmailUtil.emailsMany(emailList,task[0]+"年"+task[1]+"簽核通知，請勿回復",msg+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                             if(!isSends){
                                 ajaxResult.put("flag", "fail");
                                 ajaxResult.put("msg", "審核通過郵件通知發送失敗 (Failed to send the audit notification by email)");
@@ -630,7 +630,7 @@ public class PoTaskService extends BaseService<PoTask> {
                 ajaxResult.put("msg", "請聯係管理員維護對應崗位的郵箱(Task Type Fail)");
                 return ajaxResult;
             }else {
-                Boolean isSend = EmailUtil.emailsMany(emailListC, taskList.get(0).get("NAME").toString()+"採購BI平臺簽核通知，請勿回復","亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+id+"&statusType=0&roleCode="+replaceRole("",id)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                Boolean isSend = EmailUtil.emailsMany(emailListC, taskList.get(0).get("NAME").toString()+"採購BI平臺簽核通知，請勿回復","亲爱的同事:</br>&nbsp;&nbsp;任務管理員取消審批，請及時處理！</br>&nbsp;&nbsp;<a href=\""+accessUrl+"?taskId="+id+"&statusType=0&roleCode="+replaceRole("",id)+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                 if(!isSend){
                     ajaxResult.put("flag", "fail");
                     ajaxResult.put("msg", "郵件發送失敗 (Task Type Fail)");
@@ -642,7 +642,7 @@ public class PoTaskService extends BaseService<PoTask> {
                         List<String> emailList = roRoleService.listBySql(userList);
                         emailList = emailList.stream().distinct().collect(Collectors.toList());
                         String msg = "尊敬的主管:</br> &nbsp;&nbsp;" + task[0]+"年"+ "SBU年度CD目標有更新, 需重新呈核, 請及時關注目標變更！";
-                        Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"年"+task[1] + "簽核通知，請勿回復", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!");
+                        Boolean isSends = EmailUtil.emailsMany(emailList, task[0]+"年"+task[1] + "簽核通知，請勿回復", msg + "</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!");
                         if (!isSends) {
                             ajaxResult.put("flag", "fail");
                             ajaxResult.put("msg", "審核驳回郵件通知發送失敗 (Failed to send the audit notification by email)");

@@ -271,7 +271,7 @@ public class TaskJob {
                         }
                     }
                 }
-                content+="營收實際+預測Summary已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>"+quarter+years+"&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT_Revenue_and_Backlog_Summary</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn<br></br><br>Best Regards!";
+                content+="營收實際+預測Summary已發佈，請點擊以下鏈接登錄BI平臺進行查看，謝謝。<br></br>"+quarter+years+"&nbsp;&nbsp;&nbsp;<b>Link to:</b>&nbsp;<a href=\"https://bi.one-fit.com/analytics\" style=\"color: blue;\">FIT_Revenue_and_Backlog_Summary</a><br></br>BI平臺登錄賬號及密碼是EIP賬號及密碼，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com<br></br><br>Best Regards!";
                 EmailUtil.emailsMany(map.get("EMAIL").toString(),title,content);
             }
         }
@@ -333,7 +333,7 @@ public class TaskJob {
         }else{
             content="尊敬的用戶:<br></br>&nbsp;&nbsp;<font style=\"color: red;\">【您已超时！10號將關閉"+content+"上月數據的上傳】</font>請立即采取行動！";
         }
-        content+="<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：emji@deloitte.com.cn。<br></br>Best Regards!";
+        content+="<br></br>如已經完成，請忽略該提醒<br></br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!";
         if(Integer.valueOf(date[2])<=8){
             sql="select distinct u.email from fit_user u,FIT_PO_AUDIT_ROLE r ,FIT_PO_AUDIT_ROLE_USER ur\n" +
                     "where u.id=ur.user_id and r.id=ur.role_id and r.code='SOURCER' and r.type='BI' and u.COMMODITY_MAJOR is not null\n" +
