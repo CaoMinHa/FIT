@@ -342,8 +342,8 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 		mapResult.put("result","Y");
 		try {
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)表","Depre expen budget(in process)")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)模板","Depre expen budget(in process)")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)表","Dep. expense budget(in process)")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)模板","Dep. expense budget")+".xlsx");
 			if(type.equals("forecast")){
 				filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用预测(在製)表","折舊費用预测(在製)表")+".xlsx";
 				ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用预测(在製)模板","折舊費用预测(在製)模板")+".xlsx");
@@ -380,8 +380,8 @@ public class DepreExpenBudgetService extends BaseService<DepreExpenBudget> {
 		try {
 			mapResult.put("result","Y");
 			String realPath = request.getRealPath("");
-			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)表","Depre expen budget(in process)")+".xlsx";
-			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)模板","Depre expen budget(in process)")+".xlsx");
+			String filePath=realPath+"static"+File.separator+"download"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)表","Dep. expense budget(in process)")+".xlsx";
+			InputStream ins = new FileInputStream(realPath+"static"+File.separator+"template"+File.separator+"investment"+File.separator+instrumentClassService.getLanguage(locale,"折舊費用預算(在製)模板","Dep. expense budget(in process)")+".xlsx");
 			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 			String sql="select * from  FIT_DEPRE_EXPEN_BUDGET_V where YEAR='"+y+"' ";
 			if(type.equals("forecast")){

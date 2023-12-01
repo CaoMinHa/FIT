@@ -84,7 +84,7 @@ public class PoEmailService extends BaseService<PoEmailLog> {
             }
             content=content.replace("\n","</br>");
             content=content.replace(" ","&nbsp;");
-            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：icye@deloitte.com.cn。<br></br>Best Regards!",fileList);
+            Boolean isSend = EmailUtil.emailsMany(emailListC, title,content+"</br>&nbsp;&nbsp;<a href=\""+accessUrl+"\" style=\"color: blue;\">接口平臺</a><br></br>接口平臺登錄賬號是EIP賬號，密碼默認11111111，登錄如有問題，請聯系顧問，郵箱：brian.pr.chen@fit-foxconn.com。<br></br>Best Regards!",fileList);
             if(isSend){
                 content=content.replace("</br>","\n");
                 content=content.replace("&nbsp;"," ");
