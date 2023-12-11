@@ -148,11 +148,11 @@ public class TaskJob {
     @Scheduled(cron = "0 0 8 * * MON-SAT")
     public void checkProductDimension(){
         try{
-            String sql="SELECT distinct PRODUCT_SERIES_code FROM epmods.cux_inv_sbu_item_info_mv where PRODUCT_SERIES_DESC not in (select DIMENSION from FIT_DIMENSION where type='Product') and PRODUCT_SERIES_CODE not in('EWAA','3CAB','EVAE','5CD')";
+            String sql="SELECT distinct PRODUCT_SERIES_DESC FROM epmods.cux_inv_sbu_item_info_mv where PRODUCT_SERIES_DESC not in (select DIMENSION from FIT_DIMENSION where type='Product') and PRODUCT_SERIES_CODE not in('EWAA','3CAB','EVAE','5CD')";
             List<String> product=poTableService.listBySql(sql);
             if(null!=product&&product.size()>0){
                 String content="Dear 系統管理員：</br>&nbsp;&nbsp;以下維度值還未維護，請儘快行動。<br></br>&nbsp;&nbsp;"+product.toString().substring(1,product.toString().length()-1)+"<br></br>Best Regards!";
-                EmailUtil.emailsMany("it-ks-mfg@fit-foxconn.com","預算系統 Product Series 維護",content);
+//                EmailUtil.emailsMany("it-ks-mfg@fit-foxconn.com","預算系統 Product Series 維護",content);
                 EmailUtil.emailsMany("ambcai@deloitte.com.cn","預算系統 Product Series 維護",content);
             }
         }catch (Exception e){
