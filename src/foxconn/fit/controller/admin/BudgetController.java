@@ -58,11 +58,25 @@ public class BudgetController extends BaseController {
 			if (StringUtils.isNotEmpty(message)) {
 				throw new RuntimeException(getLanguage(locale, "计算Budget数据出错 : ","There was an error calculating the Budget data:")+message);
 			}
+			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
+			String userName=loginUser.getUsername();
+			String roleSql="select count(1) from  fit_user u \n" +
+					" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
+					" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
+					" WHERE  u.username="+"'"+userName+"' and code='BudgetForecast' ";
+			List<BigDecimal> countList = (List<BigDecimal>)budgetService.listBySql(roleSql);
+			result.put("role","NO");
+			if(countList.get(0).intValue()>0){
+				result.put("role","YES");
+			}else{
+				return result.getJson();
+			}
 			if(scenarios.equals("budget")){
-				String sql="select ACCOUNT,JAN,FEB, MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW,DATA_LOAD_CUBE_NAME from CUX_FIT_PLANNING_V order by POINT_OF_VIEW";
+				String sql="select ACCOUNT,JAN,FEB, MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW,DATA_LOAD_CUBE_NAME from CUX_FIT_PLANNING_V " +
+						"where sbu in('"+sbu.replace(",","','")+"') and current_year='"+year+"'";
 				lists = budgetService.listMapBySql(sql);
 			}else{
-				String sql="select ACCOUNT,JAN,FEB, MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW,DATA_LOAD_CUBE_NAME from cux_forecast_planning_v order by POINT_OF_VIEW";
+				String sql="select ACCOUNT,JAN,FEB, MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,YT,POINT_OF_VIEW,DATA_LOAD_CUBE_NAME from cux_forecast_planning_v";
 				lists = budgetService.listMapBySql(sql);
 			}
 			list.addAll(lists);
@@ -137,17 +151,6 @@ public class BudgetController extends BaseController {
 				out.close();
 				result.put("fileName",outFile.getName());
 				System.gc();
-				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-				String userName=loginUser.getUsername();
-				String roleSql="select count(1) from  fit_user u \n" +
-						" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
-						" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
-						" WHERE  u.username="+"'"+userName+"' and code='BudgetForecast' ";
-				List<BigDecimal> countList = (List<BigDecimal>)budgetService.listBySql(roleSql);
-				result.put("role","NO");
-				if(countList.get(0).intValue()>0){
-					result.put("role","YES");
-				}
 			}else {
 				result.put("flag", "fail");
 				result.put("msg", getLanguage(locale,"没有查询到可下载的数据","No downloadable data was queried"));
