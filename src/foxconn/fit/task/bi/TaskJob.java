@@ -152,8 +152,8 @@ public class TaskJob {
             List<String> product=poTableService.listBySql(sql);
             if(null!=product&&product.size()>0){
                 String content="Dear 系統管理員：</br>&nbsp;&nbsp;以下維度值還未維護，請儘快行動。<br></br>&nbsp;&nbsp;"+product.toString().substring(1,product.toString().length()-1)+"<br></br>Best Regards!";
-//                EmailUtil.emailsMany("it-ks-mfg@fit-foxconn.com","預算系統 Product Series 維護",content);
-                EmailUtil.emailsMany("ambcai@deloitte.com.cn","預算系統 Product Series 維護",content);
+                EmailUtil.emailsMany("it-ks-mfg@fit-foxconn.com","預算系統 Product Series 維護",content);
+//                EmailUtil.emailsMany("ambcai@deloitte.com.cn","預算系統 Product Series 維護",content);
             }
         }catch (Exception e){
             e.printStackTrace();

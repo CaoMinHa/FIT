@@ -173,7 +173,6 @@ public class BudgetController extends BaseController {
 		try {
 			Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 			result.put("msg", getLanguage(locale, "提交成功", "Submit successfully"));
-//			List<Map> list =new ArrayList<>();
 			if (sbu.endsWith(",")) {
 				sbu=sbu.substring(0,sbu.length()-1);
 			}
@@ -182,95 +181,11 @@ public class BudgetController extends BaseController {
 				entity+=s+"|";
 			}
 			entity=entity.substring(0,entity.length()-1);
-//			List<Map> lists;
 			String message = budgetService.generatePlanning(entity,year,scenarios,type);
 			if (StringUtils.isNotEmpty(message)) {
 				throw new RuntimeException(getLanguage(locale, "计算Budget数据出错 : ","There was an error calculating the Budget data:")+message);
 			}
-//			String tableName="";
-//			if(scenarios.equals("budget")){
-//				switch (type){
-//					case "investment":
-//						tableName="EPMEXP.CUX_BUDGET_Inter_PLANNING_V";
-//						break;
-//					case "depreExpen":
-//						tableName="EPMEXP.CUX_BUDGET_DEPRE_EXPEN_INT_V";
-//						break;
-//					default:
-//						tableName="EPMEXP.CUX_BUDGET_Inter_PLANNING_V";
-//						break;
-//				}
-//				String sql="select account, \n" +
-//						"       years, \n" +
-//						"       scenario, \n" +
-//						"       version_d, \n" +
-//						"       entity, \n" +
-//						"       currency, \n" +
-//						"       viewm, \n" +
-//						"       segment, \n" +
-//						"       product, \n" +
-//						"       customer, \n" +
-//						"       combine, \n" +
-//						"       bak1, \n" +
-//						"       bak2, \n" +
-//						"       project, \n" +
-//						"       period, \n" +
-//						"       data from "+tableName+" order by account";
-//				lists = budgetService.listMapBySql(sql);
-//			}else{
-//				String sql="select account, \n" +
-//						"       years, \n" +
-//						"       scenario, \n" +
-//						"       version_d, \n" +
-//						"       entity, \n" +
-//						"       currency, \n" +
-//						"       viewm, \n" +
-//						"       segment, \n" +
-//						"       product, \n" +
-//						"       customer, \n" +
-//						"       combine, \n" +
-//						"       bak1, \n" +
-//						"       bak2, \n" +
-//						"       project, \n" +
-//						"       period, \n" +
-//						"       data from "+tableName+" order by account";
-//				lists = budgetService.listMapBySql(sql);
-//			}
-//			list.addAll(lists);
-//			String realPath = request.getRealPath("");
-//			if (CollectionUtils.isNotEmpty(list)) {
-//				long time = System.currentTimeMillis();
-//				String filePath=realPath+File.separator+"static"+File.separator+"download"+File.separator+time+".csv";
-//				CsvWriter writer=new CsvWriter(filePath, ',', Charset.forName("UTF8"));
-//				writer.writeRecord(new String[]{"Account","Years","Scenario","Version","Entity","Currency","Viewm","Jul","Aug","Sep","Oct","Nov","Dec","YT","Point-of-View","Data Load Cube Name"});
-//				for (Map map : list) {
-//					if(null==map.get("DATA_LOAD_CUBE_NAME")){
-//						writer.writeRecord(new String[]{map.get("ACCOUNT").toString(),
-//								judgement(map.get("JAN").toString()),judgement(map.get("FEB").toString()),judgement(map.get("MAR").toString()),judgement(map.get("APR").toString()),
-//								judgement(map.get("MAY").toString()),judgement(map.get("JUN").toString()),judgement(map.get("JUL").toString()),judgement(map.get("AUG").toString()),
-//								judgement(map.get("SEP").toString()),judgement(map.get("OCT").toString()),judgement(map.get("NOV").toString()),judgement(map.get("DEC").toString()),
-//								map.get("YT").toString(),map.get("POINT_OF_VIEW").toString(),""});
-//					}
-//				}
-//				writer.flush();
-//				writer.close();
-//				result.put("fileName", time+".csv");
-//				System.gc();
-//				UserDetailImpl loginUser = SecurityUtils.getLoginUser();
-//				String userName=loginUser.getUsername();
-//				String roleSql="select count(1) from  fit_user u \n" +
-//						" left join FIT_PO_AUDIT_ROLE_USER ur on u.id=ur.user_id \n" +
-//						" left join FIT_PO_AUDIT_ROLE r on ur.role_id=r.id\n" +
-//						" WHERE  u.username="+"'"+userName+"' and code='BudgetForecast' ";
-//				List<BigDecimal> countList = (List<BigDecimal>)budgetService.listBySql(roleSql);
 				result.put("role","NO");
-//				if(countList.get(0).intValue()>0){
-//					result.put("role","YES");
-//				}
-//			}else {
-//				result.put("flag", "fail");
-//				result.put("msg", "没有查询到可下载的数据(No data can be downloaded)");
-//			}
 		} catch (Exception e) {
 			logger.error("下载Excel失败", e);
 			result.put("flag", "fail");
@@ -279,11 +194,5 @@ public class BudgetController extends BaseController {
 		return result.getJson();
 	}
 
-	public String judgement(String val){
-		if(val.equals("0")){
-			return "";
-		}
-		return val;
-	}
 
 }
