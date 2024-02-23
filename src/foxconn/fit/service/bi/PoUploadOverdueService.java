@@ -94,7 +94,7 @@ public class PoUploadOverdueService {
      * @return
      */
     public List<PoTable> selectTabel(Locale locale) {
-        String uploadSql = "select * from FIT_PO_TABLE where type='PO' and TABLE_NAME <> 'FIT_PO_BUDGET_CD_DTL'";
+        String uploadSql = "select * from FIT_PO_TABLE where type='PO'";
         List<PoTable> poTableList = poTableDao.listBySql(uploadSql, PoTable.class);
         List<PoTable> tableList = new ArrayList<>();
         for (PoTable poTable : poTableList) {
