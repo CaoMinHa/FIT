@@ -80,7 +80,18 @@ public class ReconciliationController extends BaseController{
 				}
 			}
 		}
+		
+		List<String> entityListebs = new ArrayList<String>();
+		if (StringUtils.isNotEmpty(entity1)) {
+			for (String code : entity1.split(",")) {
+				if (code.length() == 5 || code.length() == 6) {
+				    entityListebs.add(code.substring(2));
+				}
+			}
+		}
+		
 		model.addAttribute("entityList", entityList);
+		model.addAttribute("entityListebs", entityListebs);
 		model.addAttribute("yearList", reconciliationService.listBySql("SELECT flv.lookup_code FROM CUX_LOOKUP_VALUES flv WHERE flv.lookup_type = 'YEAR' AND flv.enabled = 'Y' ORDER BY 1"));
 		model.addAttribute("monthList", reconciliationService.listBySql("SELECT flv.lookup_code FROM CUX_LOOKUP_VALUES flv WHERE flv.lookup_type = 'PERIOD' AND flv.enabled = 'Y' ORDER BY 1"));
 		String entitys="";

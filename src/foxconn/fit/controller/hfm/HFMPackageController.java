@@ -78,7 +78,19 @@ public class HFMPackageController extends BaseController{
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request,SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		String language=getLanguage(locale,"CN","EN");
 		List<String> optionList = packageService.listBySql("select t.lov_code||','||t.tab_name||'|'||t.lov_desc from CUX_PKG_LOV_VALUES t where t.lov_type='HFM_CATEGORY' and t.enabled_flag='Y' and t.language='"+language+"' ORDER BY to_number(COL_SEQ)");
+		
+		String entity1 = SecurityUtils.getEBS();
+		List<String> entityListebs = new ArrayList<String>();
+		if (StringUtils.isNotEmpty(entity1)) {
+			for (String code : entity1.split(",")) {
+				if (code.length() == 5) {
+				    entityListebs.add(code.substring(2));
+				}
+			}
+		}
+		
 		model.addAttribute("optionList", optionList);
+		model.addAttribute("entityListebs", entityListebs);
 		return "/hfm/package/index";
 	}
 	

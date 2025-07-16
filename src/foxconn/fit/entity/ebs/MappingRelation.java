@@ -13,7 +13,7 @@ import foxconn.fit.entity.base.IdEntity;
 /**
  * 映射关系表
  * 
- * @author liangchen
+ * @author liangchen cxj update20241009
  *
  */
 @Entity
@@ -22,11 +22,14 @@ public class MappingRelation extends IdEntity {
 	private static final long serialVersionUID = 3190252124084180360L;
 
 	private String ENTITY;// 公司编码
+	private String COST_CENTER;//成本中心
 	private String DIMNAME;// 映射类别，科目：ACCOUNT，公司：ENTITY，关联方：ICP，自定义：UD
 	private String SRCKEY;// 映射源值
-	private String SRCDESC;// HFM映射源值名称
+	private String SRCDESC;// HFM映射源值中文名称
+	private String SRCDESC_US;// HFM映射源值英文名称
 	private String TARGKEY;// HFM映射目标值
 	private String TARGDESC;// 映射目标名称
+	private String TARGDESC_US;// 映射目标名称
 	private String CCT_ACCOUNT;// CCT科目分類
 	private String CCT_ACCOUNT_ATT;// CCT科目屬性
 	private boolean CHANGESIGN = false;// 是否变号
@@ -38,7 +41,10 @@ public class MappingRelation extends IdEntity {
 	public String getENTITY() {
 		return ENTITY;
 	}
-
+	@Column
+	public String getCOST_CENTER() {
+		return COST_CENTER;
+	}
 	@Column
 	public String getDIMNAME() {
 		return DIMNAME;
@@ -53,6 +59,11 @@ public class MappingRelation extends IdEntity {
 	public String getSRCDESC() {
 		return SRCDESC;
 	}
+	
+	@Column
+	public String getSRCDESC_US() {
+		return SRCDESC_US;
+	}
 
 	@Column
 	public String getTARGKEY() {
@@ -62,6 +73,11 @@ public class MappingRelation extends IdEntity {
 	@Column
 	public String getTARGDESC() {
 		return TARGDESC;
+	}
+	
+	@Column
+	public String getTARGDESC_US() {
+		return TARGDESC_US;
 	}
 
 	@Column
@@ -99,6 +115,10 @@ public class MappingRelation extends IdEntity {
 		ENTITY = eNTITY;
 	}
 
+	public void setCOST_CENTER(String cOST_CENTER) {
+		COST_CENTER = cOST_CENTER;
+	}
+
 	public void setDIMNAME(String dIMNAME) {
 		DIMNAME = dIMNAME;
 	}
@@ -110,6 +130,10 @@ public class MappingRelation extends IdEntity {
 	public void setSRCDESC(String sRCDESC) {
 		SRCDESC = sRCDESC;
 	}
+	
+	public void setSRCDESC_US(String sRCDESC_US) {
+		SRCDESC_US = sRCDESC_US;
+	}
 
 	public void setTARGKEY(String tARGKEY) {
 		TARGKEY = tARGKEY;
@@ -117,6 +141,10 @@ public class MappingRelation extends IdEntity {
 
 	public void setTARGDESC(String tARGDESC) {
 		TARGDESC = tARGDESC;
+	}
+	
+	public void setTARGDESC_US(String tARGDESC_US) {
+		TARGDESC_US = tARGDESC_US;
 	}
 
 	public void setCCT_ACCOUNT(String cCT_ACCOUNT) {

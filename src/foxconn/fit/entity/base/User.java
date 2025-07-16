@@ -33,6 +33,7 @@ public class User extends IdOperationEntity{
 	private String SBU;//SBU
 	private String EMAIL;//邮箱
 	private String commodityMajor;//物料大类 COMMODITY_MAJOR
+	private String budgetLegal;//年度预算 损益表法人CXJ202411
 
 
 	public String getSBU() {
@@ -59,6 +60,18 @@ public class User extends IdOperationEntity{
 		this.commodityMajor = commodityMajor;
 	}
 
+
+	
+	
+	@Column(name="BUDGET_LEGAL")
+	public String getBudgetLegal() {
+		return budgetLegal;
+	}
+
+	public void setBudgetLegal(String budgetLegal) {
+		this.budgetLegal = budgetLegal;
+	} 
+	
 	@Column(name="username",nullable=false,unique=true,length=20)
 	public String getUsername() {
 		return username;
@@ -167,5 +180,7 @@ public class User extends IdOperationEntity{
 	public void setEnable(boolean enable) {
 		this.enable = enable;
 	}
+	
+
 
 }

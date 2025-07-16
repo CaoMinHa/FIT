@@ -354,9 +354,16 @@ function refreshJob(){
 								<li>
 									<select id="Entity" class="input-large" style="width:100px;">
 						           		<option value=""><spring:message code='entity'/></option>
+										<!--  
 										<c:forEach items="${fn:split(entity,',') }" var="code">
 											<c:if test="${fn:startsWith(code,'F_') }">
 												<option value="${fn:substring(code,2,-1) }">${fn:substring(code,2,-1) }</option>
+											</c:if>
+										</c:forEach>
+										-->
+										<c:forEach items="${entityListebs}" var="code">
+											<c:if test="${not empty code}">
+												<option value="${code}">${code}</option>
 											</c:if>
 										</c:forEach>
 									</select>

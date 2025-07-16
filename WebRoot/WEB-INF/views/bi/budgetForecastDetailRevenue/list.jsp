@@ -320,7 +320,7 @@ function refresh(){
 					<thead class="theadCss">
 						<tr>
 							<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
-							<th rowspan="2" colspan="15">Basic Info</th>
+							<th rowspan="2" colspan="16">Basic Info</th>
 							<th>FY${year}</th>
 							<th>FY${year+1}</th>
 							<th>FY${year+2}</th>
@@ -391,7 +391,8 @@ function refresh(){
 							<th>Common name for  product part in market</th>
 							<th>Trading Type</th>
 							<th>Reporting currency</th>
-							<th>PM</th>
+							<th>PM ID</th>
+							<th>SALES ID</th>
 							<th colspan="5">Sales revenue</th>
 							<th colspan="5">Sales volume</th>
 							<th colspan="12">Sales volume</th>
@@ -404,7 +405,7 @@ function refresh(){
 					<thead class="theadCss">
 				<tr>
 					<th class="onlyQuery"  rowspan="3"><spring:message code='operation'/></th>
-					<th rowspan="2" colspan="15">基礎數據</th>
+					<th rowspan="2" colspan="16">基礎數據</th>
 					<th>FY${year}</th>
 					<th>FY${year+1}</th>
 					<th>FY${year+2}</th>
@@ -475,7 +476,8 @@ function refresh(){
 					<th>機種</th>
 					<th>交易類型</th>
 					<th>報告幣種</th>
-					<th>PM</th>
+					<th>PM ID</th>
+					<th>SALES ID</th>
 					<th colspan="5">銷貨收入</th>
 					<th colspan="5">銷售數量</th>
 					<th colspan="12">銷售數量</th>
@@ -507,6 +509,7 @@ function refresh(){
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.tradeType}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.currency}</td>
 						<td style="border-right:1px solid #eee;text-align: left;">${mapping.pm}</td>
+						<td style="border-right:1px solid #eee;text-align: left;">${mapping.sales}</td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.revenue}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.revenueNextyear}" pattern="#,##0.##"></fmt:formatNumber></td>
 						<td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping.revenueTwoyear}" pattern="#,##0.##"></fmt:formatNumber></td>

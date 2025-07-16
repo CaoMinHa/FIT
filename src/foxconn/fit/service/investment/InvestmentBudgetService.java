@@ -264,7 +264,7 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 				if (!list.isEmpty()) {
 					if(!instrumentClassService.removeDuplicate(entityList).isEmpty()){
 						checkMianData(locale,projectList,combineList,entityList,departmentList,departmentList1,bakList,mainBusinessList,segmentList,currencyList,loginUser.getUsername());
-						if(type.equals("budget")){
+						if(type.equals("budget")){							
 							this.saveBatch(list,v_year,loginUser.getUsername());
 						}else {
 							this.saveBatchForecast(list,v_year,loginUser.getUsername());
@@ -283,8 +283,9 @@ public class InvestmentBudgetService extends BaseService<InvestmentBudget> {
 					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，主數據、產品生命周期、驗收單年月不可爲空。--->" + mianDataChek.substring(0,mianDataChek.length()-1), "The data of the following row has not been uploaded successfully. Master data, product life cycle, and receipt date cannot be empty--->" + mianDataChek.substring(0,mianDataChek.length()-1)));
 				}
 				if (!dateChek.trim().isEmpty()) {
-					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品生命週期、驗收單年月格式錯誤(示例：4、202301)。--->" + dateChek.substring(0,dateChek.length()-1), "The data of the following row has not been uploaded successfully.Product life cycle, receipt year month format error (example: 4, 202301)--->" + dateChek.substring(0,dateChek.length()-1)));
+					result.put("msg", instrumentClassService.getLanguage(locale, "以下行數據未上傳成功，產品生命週期、驗收單年月格式錯誤(示例：4、202301)。--->" + dateChek.substring(0,dateChek.length()-1), "The data of the following row has not been uploaded successfully.Product life cycle, receipt year month format error (example: 4, 202301)--->" + dateChek.substring(0,dateChek.length()-1)));				    
 				}
+				
 			} else {
 				result.put("flag", "fail");
 				result.put("msg", instrumentClassService.getLanguage(locale, "對不起，未接受到上傳的文件", "Unreceived File"));

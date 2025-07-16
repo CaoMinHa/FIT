@@ -193,6 +193,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 				/**最終客戶**/List<String> endCustomerList = new ArrayList<>();
 				/**交易類型**/List<String> tradeTypeList = new ArrayList<>();
 				/**報告幣種**/List<String> currencyList = new ArrayList<>();
+				/**pm**/List<String> pmList = new ArrayList<>();  /*20241010*/
+				/**sales**/List<String> salesList = new ArrayList<>();  /*20241010*/
 				List<String> entityMakeList=new ArrayList<>();
 				String check = "";
 				String productChek="";
@@ -247,40 +249,41 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					budgetDetailRevenue.setCurrency(ExcelUtil.getCellStringValue(row.getCell(10), i));
 					budgetDetailRevenue.setTypeOfAirplane(ExcelUtil.getCellStringValue(row.getCell(11), i));
 					budgetDetailRevenue.setPm(ExcelUtil.getCellStringValue(row.getCell(12), i));
-					budgetDetailRevenue.setRevenueNextyear(ExcelUtil.getCellStringValue(row.getCell(13), i));
-					budgetDetailRevenue.setRevenueTwoyear(ExcelUtil.getCellStringValue(row.getCell(14), i));
-					budgetDetailRevenue.setRevenueThreeyear(ExcelUtil.getCellStringValue(row.getCell(15), i));
-					budgetDetailRevenue.setRevenueFouryear(ExcelUtil.getCellStringValue(row.getCell(16), i));
+					budgetDetailRevenue.setSales(ExcelUtil.getCellStringValue(row.getCell(13), i));  /*SALES ID 20241010本行及以下*/
+					budgetDetailRevenue.setRevenueNextyear(ExcelUtil.getCellStringValue(row.getCell(14), i));
+					budgetDetailRevenue.setRevenueTwoyear(ExcelUtil.getCellStringValue(row.getCell(15), i));
+					budgetDetailRevenue.setRevenueThreeyear(ExcelUtil.getCellStringValue(row.getCell(16), i));
+					budgetDetailRevenue.setRevenueFouryear(ExcelUtil.getCellStringValue(row.getCell(17), i));
 
-					budgetDetailRevenue.setQuantityNextyear(ExcelUtil.getCellStringValue(row.getCell(17), i));
-					budgetDetailRevenue.setQuantityTwoyear(ExcelUtil.getCellStringValue(row.getCell(18), i));
-					budgetDetailRevenue.setQuantityThreeyear(ExcelUtil.getCellStringValue(row.getCell(19), i));
-					budgetDetailRevenue.setQuantityFouryear(ExcelUtil.getCellStringValue(row.getCell(20), i));
-					budgetDetailRevenue.setQuantityMonth1(ExcelUtil.getCellStringValue(row.getCell(21), i));
-					budgetDetailRevenue.setQuantityMonth2(ExcelUtil.getCellStringValue(row.getCell(22), i));
-					budgetDetailRevenue.setQuantityMonth3(ExcelUtil.getCellStringValue(row.getCell(23), i));
-					budgetDetailRevenue.setQuantityMonth4(ExcelUtil.getCellStringValue(row.getCell(24), i));
-					budgetDetailRevenue.setQuantityMonth5(ExcelUtil.getCellStringValue(row.getCell(25), i));
-					budgetDetailRevenue.setQuantityMonth6(ExcelUtil.getCellStringValue(row.getCell(26), i));
-					budgetDetailRevenue.setQuantityMonth7(ExcelUtil.getCellStringValue(row.getCell(27), i));
-					budgetDetailRevenue.setQuantityMonth8(ExcelUtil.getCellStringValue(row.getCell(28), i));
-					budgetDetailRevenue.setQuantityMonth9(ExcelUtil.getCellStringValue(row.getCell(29), i));
-					budgetDetailRevenue.setQuantityMonth10(ExcelUtil.getCellStringValue(row.getCell(30), i));
-					budgetDetailRevenue.setQuantityMonth11(ExcelUtil.getCellStringValue(row.getCell(31), i));
-					budgetDetailRevenue.setQuantityMonth12(ExcelUtil.getCellStringValue(row.getCell(32), i));
+					budgetDetailRevenue.setQuantityNextyear(ExcelUtil.getCellStringValue(row.getCell(18), i));
+					budgetDetailRevenue.setQuantityTwoyear(ExcelUtil.getCellStringValue(row.getCell(19), i));
+					budgetDetailRevenue.setQuantityThreeyear(ExcelUtil.getCellStringValue(row.getCell(20), i));
+					budgetDetailRevenue.setQuantityFouryear(ExcelUtil.getCellStringValue(row.getCell(21), i));
+					budgetDetailRevenue.setQuantityMonth1(ExcelUtil.getCellStringValue(row.getCell(22), i));
+					budgetDetailRevenue.setQuantityMonth2(ExcelUtil.getCellStringValue(row.getCell(23), i));
+					budgetDetailRevenue.setQuantityMonth3(ExcelUtil.getCellStringValue(row.getCell(24), i));
+					budgetDetailRevenue.setQuantityMonth4(ExcelUtil.getCellStringValue(row.getCell(25), i));
+					budgetDetailRevenue.setQuantityMonth5(ExcelUtil.getCellStringValue(row.getCell(26), i));
+					budgetDetailRevenue.setQuantityMonth6(ExcelUtil.getCellStringValue(row.getCell(27), i));
+					budgetDetailRevenue.setQuantityMonth7(ExcelUtil.getCellStringValue(row.getCell(28), i));
+					budgetDetailRevenue.setQuantityMonth8(ExcelUtil.getCellStringValue(row.getCell(29), i));
+					budgetDetailRevenue.setQuantityMonth9(ExcelUtil.getCellStringValue(row.getCell(30), i));
+					budgetDetailRevenue.setQuantityMonth10(ExcelUtil.getCellStringValue(row.getCell(31), i));
+					budgetDetailRevenue.setQuantityMonth11(ExcelUtil.getCellStringValue(row.getCell(32), i));
+					budgetDetailRevenue.setQuantityMonth12(ExcelUtil.getCellStringValue(row.getCell(33), i));
 
-					budgetDetailRevenue.setPriceMonth1(ExcelUtil.getCellStringValue(row.getCell(33), i));
-					budgetDetailRevenue.setPriceMonth2(ExcelUtil.getCellStringValue(row.getCell(34), i));
-					budgetDetailRevenue.setPriceMonth3(ExcelUtil.getCellStringValue(row.getCell(35), i));
-					budgetDetailRevenue.setPriceMonth4(ExcelUtil.getCellStringValue(row.getCell(36), i));
-					budgetDetailRevenue.setPriceMonth5(ExcelUtil.getCellStringValue(row.getCell(37), i));
-					budgetDetailRevenue.setPriceMonth6(ExcelUtil.getCellStringValue(row.getCell(38), i));
-					budgetDetailRevenue.setPriceMonth7(ExcelUtil.getCellStringValue(row.getCell(39), i));
-					budgetDetailRevenue.setPriceMonth8(ExcelUtil.getCellStringValue(row.getCell(40), i));
-					budgetDetailRevenue.setPriceMonth9(ExcelUtil.getCellStringValue(row.getCell(41), i));
-					budgetDetailRevenue.setPriceMonth10(ExcelUtil.getCellStringValue(row.getCell(42), i));
-					budgetDetailRevenue.setPriceMonth11(ExcelUtil.getCellStringValue(row.getCell(43), i));
-					budgetDetailRevenue.setPriceMonth12(ExcelUtil.getCellStringValue(row.getCell(44), i));
+					budgetDetailRevenue.setPriceMonth1(ExcelUtil.getCellStringValue(row.getCell(34), i));
+					budgetDetailRevenue.setPriceMonth2(ExcelUtil.getCellStringValue(row.getCell(35), i));
+					budgetDetailRevenue.setPriceMonth3(ExcelUtil.getCellStringValue(row.getCell(36), i));
+					budgetDetailRevenue.setPriceMonth4(ExcelUtil.getCellStringValue(row.getCell(37), i));
+					budgetDetailRevenue.setPriceMonth5(ExcelUtil.getCellStringValue(row.getCell(38), i));
+					budgetDetailRevenue.setPriceMonth6(ExcelUtil.getCellStringValue(row.getCell(39), i));
+					budgetDetailRevenue.setPriceMonth7(ExcelUtil.getCellStringValue(row.getCell(40), i));
+					budgetDetailRevenue.setPriceMonth8(ExcelUtil.getCellStringValue(row.getCell(41), i));
+					budgetDetailRevenue.setPriceMonth9(ExcelUtil.getCellStringValue(row.getCell(42), i));
+					budgetDetailRevenue.setPriceMonth10(ExcelUtil.getCellStringValue(row.getCell(43), i));
+					budgetDetailRevenue.setPriceMonth11(ExcelUtil.getCellStringValue(row.getCell(44), i));
+					budgetDetailRevenue.setPriceMonth12(ExcelUtil.getCellStringValue(row.getCell(45), i));
 					budgetDetailRevenue.setYear(v_year);
 					budgetDetailRevenue.setVersion("V00");
 					budgetDetailRevenue.setId(UUID.randomUUID().toString());
@@ -288,13 +291,14 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 					budgetDetailRevenue.setCreateDate(new Date());
 					list.add(budgetDetailRevenue);
 				}
-				if (!list.isEmpty()) {
+				if (!list.isEmpty()) {					
 					entityMakeList.addAll(entityList);
-					result=this.checkMainData(locale,language,result,entityMakeList,industryList,mainBusinessList,threeList,productSeriesList,productNoList,
-							loanCustomerList,endCustomerList,tradeTypeList,currencyList);
+					result=this.checkMainData1(locale,language,result,entityMakeList,industryList,mainBusinessList,threeList,productSeriesList,productNoList,
+							loanCustomerList,endCustomerList,tradeTypeList,currencyList,salesList);//20241011
 					if ("fail".equals(result.getResult().get("flag"))){
 						return result.getJson();
 					}
+					
 					this.saveBatch(list,v_year,loginUser.getUsername());
 				} else {
 					result.put("flag", "fail");
@@ -526,8 +530,8 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			result.put("msg", instrumentClassService.getLanguage(locale,"以下【三大技術】在【維度表】没有找到---> ","The following [Three major technologies] is not found in the [Dimension table]-->")+check);
 			return result;
 		}
-		/**產品系列**/
-		sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
+		/**產品系列**///20240817
+		sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' and DIMENSION not in('USB Type C Plug for Dock Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
 		check=this.check(productSeriesList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
@@ -543,7 +547,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 			return result;
 		}
 		/**最終客戶**/
-		sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Combine.getCode() +"' and PARENT in('C_End Customer') ";
+		sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Combine.getCode() +"' and PARENT in('C_End Customer','RFP') and  DIMENSION <> 'RFP' ";//20240820
 		check=this.check(endCustomerList,sql);
 		if (!check.equals("") && check.length() > 0){
 			result.put("flag", "fail");
@@ -572,7 +576,7 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
 				"select distinct trim("+language+") as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx')  \n" +
 				"union all\n" +
-				"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv\n" +
+				"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv1\n" +
 				") b where b.product=c.value)");
 		if (!partNoList.isEmpty()) {
 			result.put("flag", "fail");
@@ -581,7 +585,108 @@ public class BudgetForecastDetailRevenueService extends BaseService<BudgetDetail
 		}
 		return result;
 	}
-
+	//20241011
+	private AjaxResult checkMainData1(Locale locale,String language,AjaxResult result,List<String> entityMakeList,List<String> industryList,List<String> mainBusinessList,
+			List<String> threeList,List<String> productSeriesList,List<String> productNoList,List<String> loanCustomerList,List<String> endCustomerList,
+											 List<String> tradeTypeList,List<String> currencyList,List<String> salesList) throws Exception {
+				String check="";
+				/**SBU_法人校驗*/
+				String sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Entity.getCode() +"' and DIMENSION not in('ABS_A084002')";
+				check=this.check(entityMakeList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下【SBU_銷售法人】或【SBU_製造法人】在【維度表】没有找到---> ","The following [SBU_ sales legal person] or [SBU_ manufacturing legal person] is not found in the [Dimension table]-->") + check);
+					return result;
+				}
+				/**次產業校驗*/
+				sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Segment.getCode() +"' and PARENT like 'SE_%'  or DIMENSION='S00' ";
+				check=this.check(industryList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下【次產業】在【維度表】没有找到---> ","The following [sub-industries] is not found in the [Dimension table]-->")+check);
+					return result;
+				}
+				/**3+3*/
+				/**5GAIOT\EV\AUDIO\Type C\Existing*/
+				sql="select distinct trim("+language+") from fit_dimension where type='Bak2' and PARENT in('bak201','bak20199','bak20108_1') and DIMENSION not in('bak20199','bak20100','bak20105','bak20109','bak20108_1','bak20104')";
+				check=this.check(mainBusinessList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下【3+3】在【維度表】没有找到---> ","The following [3+3] is not found in the [Dimension table]-->") + check);
+					return result;
+				}
+				/**三大技術**/
+				sql="select distinct trim("+language+") from fit_dimension where type='Project'  and PARENT='P_FIT3+3'";
+				check=this.check(threeList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下【三大技術】在【維度表】没有找到---> ","The following [Three major technologies] is not found in the [Dimension table]-->")+check);
+					return result;
+				}
+				/**產品系列**///20240817
+				sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Product.getCode() +"' and DIMENSION not in('USB Type C Plug for Dock Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
+				check=this.check(productSeriesList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下【產品系列】在【維度表】没有找到---> ","The following [Product series] is not found in the [Dimension table]-->")+check);
+					return result;
+				}
+				/**賬款客戶**/
+				sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Customer.getCode() +"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
+				check=this.check(loanCustomerList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下【賬款客戶】在【維度表】没有找到---> ","The following [Billing customer] is not found in the [Dimension table]-->")+check);
+					return result;
+				}
+				/**最終客戶**/
+				sql="select distinct trim("+language+") from fit_dimension where type='" + EnumDimensionType.Combine.getCode() +"' and PARENT in('C_End Customer','RFP') and  DIMENSION <> 'RFP' ";//20240820
+				check=this.check(endCustomerList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg",instrumentClassService.getLanguage(locale,"以下【最終客戶】在【維度表】没有找到---> ","The following [End customer] is not found in the [Dimension table]-->")+check);
+					return result;
+				}
+				/**交易類型**/
+				sql="select distinct trim("+language+") from fit_dimension where type='View' and PARENT in('Int000') and DIMENSION not in('Int005','Int006')";
+				check=this.check(tradeTypeList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下【交易類型】在【維度表】没有找到---> ","The following [Trading Type] is not found in the [Dimension table]-->")+check);
+					return result;
+				}
+				/**報告幣種**/
+				sql="select distinct trim("+language+") from fit_dimension where type='Currency' and PARENT ='O_Currency'";
+				check=this.check(currencyList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下【報告幣種】在【維度表】没有找到---> ","The following [Reporting currency] is not found in the [Dimension table]-->")+check);
+					return result;
+				}
+				/**產品料號*/
+				productNoList = instrumentClassService.removeDuplicate(productNoList);
+				forecastDetailRevenueService.saveCheckExist(productNoList);
+				List<String> partNoList = forecastDetailRevenueService.listBySql("select distinct value from epmods.FIT_CHECK_EXIST c where not exists (select distinct product from (\n" +
+						"select distinct trim("+language+") as product from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx')  \n" +
+						"union all\n" +
+						"select distinct trim(ITEM_CODE) as product from epmods.cux_inv_sbu_item_info_mv1\n" +
+						") b where b.product=c.value)");
+				if (!partNoList.isEmpty()) {
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下【產品料號】在【產品BCG映射表】没有找到---------> ","The following [product part number] is not found in the [Product BCG mapping table]--->")+Arrays.toString(partNoList.toArray()));
+					return result;
+				}
+				/**sales**/
+				sql="select distinct job_number  from apps.CUX_ODS_SALES_ACCOUNT@epmtebs";
+				check=this.check(currencyList,sql);
+				if (!check.equals("") && check.length() > 0){
+					result.put("flag", "fail");
+					result.put("msg", instrumentClassService.getLanguage(locale,"以下sales id错误---> ","The following sales ID  is't existed -->")+check);
+					return result;
+				}
+				return result;
+			}
+    
 	/**匹配用戶上傳的主數據list是否在維度表中能找到*/
 	public String check(List<String> list,String sql){
 		list = instrumentClassService.removeDuplicate(list);

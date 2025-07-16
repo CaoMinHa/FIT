@@ -67,8 +67,8 @@ public class UserService extends BaseService<User> implements UserDetailsService
 		}else if(EnumUserType.Budget==type){
 			authorities.add(new SimpleGrantedAuthority("ROLE_Budget"));
 		}
-
-		UserDetails userDetails = new UserDetailImpl(username, user.getPassword(),user.getCorporationCode(),user.getEntity(),user.getEbs(),user.getMenus(),user.getPoCenter(),user.getEMAIL(),user.getRealname(),user.getSBU(),authorities);
+        /*CXJ202411*/
+		UserDetails userDetails = new UserDetailImpl(username, user.getPassword(),user.getCorporationCode(),user.getEntity(),user.getEbs(),user.getMenus(),user.getPoCenter(),user.getEMAIL(),user.getRealname(),user.getSBU(),user.getBudgetLegal(),authorities);
 		return userDetails;
 	}
 

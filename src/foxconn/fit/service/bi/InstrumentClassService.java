@@ -68,7 +68,35 @@ public class InstrumentClassService{
         }
         return "'1,1'";
     }
-
+/*CXJ202411*/
+    public String getBudgetlegal(){
+        //獲取當前用戶的budget_legal
+        String tarList = "";
+        String legalCode = SecurityUtils.getLegalCode();
+        if (StringUtils.isNotEmpty(legalCode)) {
+            for (String string : legalCode.split(",")) {
+                tarList+="'"+string+"',";
+            }
+        }
+        if(!tarList.isEmpty()){
+            return tarList.substring(0,tarList.length()-1);
+        }
+        return "'1,1'";
+    }
+    /*cxj 20250218 拼接字段*/
+    public String querySbuSql2(String entity){
+    	 String tarList = "";
+         String corporationCode = SecurityUtils.getCorporationCode();
+         if (StringUtils.isNotEmpty(entity)) {
+             for (String string : entity.split(",")) {
+                 tarList+="'"+string+"',";
+             }
+         }
+         if(!tarList.isEmpty()){
+             return tarList.substring(0,tarList.length()-1);
+         }
+         return "'1,1'";
+    }
     //預算預測SBU權限sql拼接
     public String querySbuSql(String entity,List<Map> sbuMap){
         String sql="";

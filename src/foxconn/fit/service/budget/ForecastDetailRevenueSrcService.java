@@ -90,8 +90,8 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 			this.selectDimension(sql,sheet);
 
 			/**產品系列*/
-			sheet = workBook.getSheetAt(6);
-			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock, Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
+			sheet = workBook.getSheetAt(6);//20240817
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Product.getCode()+"' and DIMENSION not in('USB Type C Plug for Dock Keyboard and Cradle Connector','33PD75 Parallel 12ch, 6.25G Tx','33PD85 Parallel 12ch, 6.25G Rx') ";
 			this.selectDimension(sql,sheet);
 
 			/**Product series for FOIT*/
@@ -111,12 +111,12 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 
 			/**最終客戶*/
 			sheet = workBook.getSheetAt(10);
-			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Combine.getCode()+"' and PARENT in('C_End Customer') ";
-			this.selectDimension(sql,sheet);
+			sql="select distinct DIMENSION,"+language+",PARENT from fit_dimension where type='"+EnumDimensionType.Combine.getCode()+"' and PARENT in('C_End Customer','RFP') and  DIMENSION <> 'RFP'  ";//20240817
+			this.selectDimension1(sql,sheet);
 
 			/**賬款客戶*/
 			sheet = workBook.getSheetAt(11);
-			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' ";
+			sql="select distinct DIMENSION,"+language+" from fit_dimension where type='"+EnumDimensionType.Customer.getCode()+"'  and PARENT in('Customer_Total','HT_ICP') and  DIMENSION <> 'HT_ICP' "; 
 			this.selectDimension(sql,sheet);
 
 			/**交易類型*/
@@ -162,6 +162,24 @@ public class ForecastDetailRevenueSrcService extends BaseService<ForecastDetailR
 			if(null!=map.get("ALIAS")) {
 				Cell cell1 = row.createCell(1);
 				cell1.setCellValue(mapValString(map.get("ALIAS").toString()));
+			}
+		}
+	}
+	//20240817
+	private void selectDimension1(String sql,Sheet sheet){
+		List<Map> list=forecastDetailRevenueSrcDao.listMapBySql(sql);
+		for (int i = 0; i < list.size(); i++) {
+			Row row = sheet.createRow(i+1);
+			Map map=list.get(i);
+			Cell cell = row.createCell(0);
+			cell.setCellValue(mapValString(map.get("DIMENSION")));
+			if(null!=map.get("ALIAS")) {
+				Cell cell1 = row.createCell(1);
+				cell1.setCellValue(mapValString(map.get("ALIAS").toString()));
+			}
+			if(null!=map.get("PARENT")) {
+			Cell cell2 = row.createCell(2);   //20240817
+			cell2.setCellValue(mapValString(map.get("PARENT").toString()));
 			}
 		}
 	}

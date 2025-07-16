@@ -77,6 +77,7 @@
             <th>SBU</th>
             <th>SSBU</th>
             <th>Segment</th>
+            <th>FIT3+3</th>
             <th>產品歸類</th>
             <th>主產業</th>
             <th>次產業</th>
@@ -118,10 +119,11 @@
                     <td style="border-right:1px solid #eee;text-align: left;">${mapping[17]}</td>
                     <td style="border-right:1px solid #eee;text-align: left;">${mapping[18]}</td>
                     <td style="border-right:1px solid #eee;text-align: left;">${mapping[19]}</td>
-                    <td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping[20]}" pattern="#,##0.##"></fmt:formatNumber></td>
+                    <td style="border-right:1px solid #eee;text-align: left;">${mapping[20]}</td>
                     <td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping[21]}" pattern="#,##0.##"></fmt:formatNumber></td>
                     <td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping[22]}" pattern="#,##0.##"></fmt:formatNumber></td>
                     <td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping[23]}" pattern="#,##0.##"></fmt:formatNumber></td>
+                    <td style="border-right:1px solid #eee;text-align: right;"><fmt:formatNumber value="${mapping[24]}" pattern="#,##0.##"></fmt:formatNumber></td>
                 </tr>
             </c:forEach>
         </tbody>

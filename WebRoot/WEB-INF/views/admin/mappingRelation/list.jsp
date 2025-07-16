@@ -82,11 +82,14 @@ function refresh(){
 		<thead>
 			<tr>
 				<th style="border-right:1px solid #eee;text-align: center;">公司编码<a sortBy="ENTITY" style="float:right;color:#a8a6a6;position: relative;"><i sortDir="asc" class="icon-sort-up" style="font-size:20px;position:absolute;"/><i sortDir="desc" class="icon-sort-down" style="font-size:20px;"/></a></th>
+				<th style="border-right:1px solid #eee;text-align: center;">成本中心层级</th>
 				<th style="border-right:1px solid #eee;text-align: center;">映射类别<a sortBy="DIMNAME" style="float:right;color:#a8a6a6;position: relative;"><i sortDir="asc" class="icon-sort-up" style="font-size:20px;position:absolute;"/><i sortDir="desc" class="icon-sort-down" style="font-size:20px;"/></a></th>
 				<th style="border-right:1px solid #eee;text-align: center;">映射源值<a sortBy="SRCKEY" style="float:right;color:#a8a6a6;position: relative;"><i sortDir="asc" class="icon-sort-up" style="font-size:20px;position:absolute;"/><i sortDir="desc" class="icon-sort-down" style="font-size:20px;"/></a></th>
-				<th style="border-right:1px solid #eee;text-align: center;">映射源值名称</th>
+				<th style="border-right:1px solid #eee;text-align: center;">映射源值中文名称</th>
+				<th style="border-right:1px solid #eee;text-align: center;">映射源值英文文名称</th>
 				<th style="border-right:1px solid #eee;text-align: center;">HFM映射目标值</th>
-				<th style="border-right:1px solid #eee;text-align: center;">HFM映射目标名称</th>
+				<th style="border-right:1px solid #eee;text-align: center;">HFM映射目标中文名称</th>
+				<th style="border-right:1px solid #eee;text-align: center;">HFM映射目标英文名称</th>
 				<th style="border-right:1px solid #eee;text-align: center;">CCT科目分類</th>
 				<th style="border-right:1px solid #eee;text-align: center;">CCT科目屬性</th>
 				<th style="border-right:1px solid #eee;text-align: center;">是否变号</th>
@@ -99,6 +102,7 @@ function refresh(){
 			<c:forEach items="${page.result}" var="mapping">
 				<tr>
 					<td style="border-right:1px solid #eee;text-align: center;">${mapping.ENTITY}</td>
+					<td style="border-right:1px solid #eee;">${mapping.COST_CENTER}</td>
 					<td style="border-right:1px solid #eee;text-align: center;">
 						<c:forEach items="<%=EnumDimensionName.values() %>" var="dimension">
 							<c:if test="${dimension.code eq mapping.DIMNAME}">${dimension.name }</c:if>
@@ -106,8 +110,10 @@ function refresh(){
 					</td>
 					<td style="border-right:1px solid #eee;">${mapping.SRCKEY}</td>
 					<td style="border-right:1px solid #eee;">${mapping.SRCDESC}</td>
+					<td style="border-right:1px solid #eee;">${mapping.SRCDESC_US}</td>
 					<td style="border-right:1px solid #eee;">${mapping.TARGKEY}</td>
 					<td style="border-right:1px solid #eee;">${mapping.TARGDESC}</td>
+					<td style="border-right:1px solid #eee;">${mapping.TARGDESC_US}</td>
 					<td style="border-right:1px solid #eee;">${mapping.CCT_ACCOUNT}</td>
 					<td style="border-right:1px solid #eee;">${mapping.CCT_ACCOUNT_ATT}</td>
 					<td style="border-right:1px solid #eee;text-align: center;">

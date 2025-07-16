@@ -28,6 +28,15 @@ public class SecurityUtils {
 			return "";
 		}
 	}
+	/*CXJ202411*/
+	public static String getLegalCode() {
+		UserDetailImpl user = getLoginUser();
+		if (user != null) {
+			return user.getBudgetLegal();
+		} else {
+			return "";
+		}
+	}
 	
 	public static String getEntity() {
 		UserDetailImpl user = getLoginUser();
@@ -46,6 +55,7 @@ public class SecurityUtils {
 			return "";
 		}
 	}
+	
 	
 	public static String[] getMenus() {
 		UserDetailImpl user = getLoginUser();

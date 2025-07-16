@@ -52,6 +52,7 @@ public class BudgetDetailRevenue {
 	private String tradeType;// 交易類型
 	private String currency;// 報告幣種
 	private String pm;// PM
+	private String sales;// sales 20241010
 	private String revenue;// 銷貨收入
 	@Column(name = "revenue_nextyear")
 	private String revenueNextyear;// 往後第一年銷貨收入
@@ -163,7 +164,7 @@ public class BudgetDetailRevenue {
 		this.currencyTransition = currencyTransition;
 	}
 
-	public BudgetDetailRevenue(String entity, String makeEntity, String segment, String mainIndustry, String industry, String mainBusiness, String three, String productSeries, String productNo, String loanCustomer, String endCustomer, String typeOfAirplane, String tradeType, String currency, String pm, String revenue, String revenueNextyear, String revenueTwoyear, String revenueThreeyear, String revenueFouryear, String quantity, String quantityNextyear, String quantityTwoyear, String quantityThreeyear, String quantityFouryear, String quantityMonth1, String quantityMonth2, String quantityMonth3, String quantityMonth4, String quantityMonth5, String quantityMonth6, String quantityMonth7, String quantityMonth8, String quantityMonth9, String quantityMonth10, String quantityMonth11, String quantityMonth12, String priceMonth1, String priceMonth2, String priceMonth3, String priceMonth4, String priceMonth5, String priceMonth6, String priceMonth7, String priceMonth8, String priceMonth9, String priceMonth10, String priceMonth11, String priceMonth12, String revenueMonth1, String revenueMonth2, String revenueMonth3, String revenueMonth4, String revenueMonth5, String revenueMonth6, String revenueMonth7, String revenueMonth8, String revenueMonth9, String revenueMonth10, String revenueMonth11, String revenueMonth12, String createName) {
+	public BudgetDetailRevenue(String entity, String makeEntity, String segment, String mainIndustry, String industry, String mainBusiness, String three, String productSeries, String productNo, String loanCustomer, String endCustomer, String typeOfAirplane, String tradeType, String currency, String pm, String sales, String revenue, String revenueNextyear, String revenueTwoyear, String revenueThreeyear, String revenueFouryear, String quantity, String quantityNextyear, String quantityTwoyear, String quantityThreeyear, String quantityFouryear, String quantityMonth1, String quantityMonth2, String quantityMonth3, String quantityMonth4, String quantityMonth5, String quantityMonth6, String quantityMonth7, String quantityMonth8, String quantityMonth9, String quantityMonth10, String quantityMonth11, String quantityMonth12, String priceMonth1, String priceMonth2, String priceMonth3, String priceMonth4, String priceMonth5, String priceMonth6, String priceMonth7, String priceMonth8, String priceMonth9, String priceMonth10, String priceMonth11, String priceMonth12, String revenueMonth1, String revenueMonth2, String revenueMonth3, String revenueMonth4, String revenueMonth5, String revenueMonth6, String revenueMonth7, String revenueMonth8, String revenueMonth9, String revenueMonth10, String revenueMonth11, String revenueMonth12, String createName) {
 		this.entity = entity;
 		this.makeEntity = makeEntity;
 		this.segment = segment;
@@ -179,6 +180,7 @@ public class BudgetDetailRevenue {
 		this.tradeType = tradeType;
 		this.currency = currency;
 		this.pm = pm;
+		this.sales = sales; //20241010
 		this.revenue = revenue;
 		this.revenueNextyear = revenueNextyear;
 		this.revenueTwoyear = revenueTwoyear;
@@ -228,7 +230,7 @@ public class BudgetDetailRevenue {
 		this.createName = createName;
 	}
 
-	public BudgetDetailRevenue(String year, String version, String entity, String makeEntity, String segment, String mainIndustry, String industry, String mainBusiness, String three, String productSeries, String productNo, String loanCustomer, String endCustomer, String typeOfAirplane, String tradeType, String currency, String pm, String revenue, String revenueNextyear, String revenueTwoyear, String revenueThreeyear, String revenueFouryear, String quantity, String quantityNextyear, String quantityTwoyear, String quantityThreeyear, String quantityFouryear, String quantityMonth1, String quantityMonth2, String quantityMonth3, String quantityMonth4, String quantityMonth5, String quantityMonth6, String quantityMonth7, String quantityMonth8, String quantityMonth9, String quantityMonth10, String quantityMonth11, String quantityMonth12, String priceMonth1, String priceMonth2, String priceMonth3, String priceMonth4, String priceMonth5, String priceMonth6, String priceMonth7, String priceMonth8, String priceMonth9, String priceMonth10, String priceMonth11, String priceMonth12, String revenueMonth1, String revenueMonth2, String revenueMonth3, String revenueMonth4, String revenueMonth5, String revenueMonth6, String revenueMonth7, String revenueMonth8, String revenueMonth9, String revenueMonth10, String revenueMonth11, String revenueMonth12) {
+	public BudgetDetailRevenue(String year, String version, String entity, String makeEntity, String segment, String mainIndustry, String industry, String mainBusiness, String three, String productSeries, String productNo, String loanCustomer, String endCustomer, String typeOfAirplane, String tradeType, String currency, String pm, String sales, String revenue, String revenueNextyear, String revenueTwoyear, String revenueThreeyear, String revenueFouryear, String quantity, String quantityNextyear, String quantityTwoyear, String quantityThreeyear, String quantityFouryear, String quantityMonth1, String quantityMonth2, String quantityMonth3, String quantityMonth4, String quantityMonth5, String quantityMonth6, String quantityMonth7, String quantityMonth8, String quantityMonth9, String quantityMonth10, String quantityMonth11, String quantityMonth12, String priceMonth1, String priceMonth2, String priceMonth3, String priceMonth4, String priceMonth5, String priceMonth6, String priceMonth7, String priceMonth8, String priceMonth9, String priceMonth10, String priceMonth11, String priceMonth12, String revenueMonth1, String revenueMonth2, String revenueMonth3, String revenueMonth4, String revenueMonth5, String revenueMonth6, String revenueMonth7, String revenueMonth8, String revenueMonth9, String revenueMonth10, String revenueMonth11, String revenueMonth12) {
 		this.year = year;
 		this.version = version;
 		this.entity = entity;
@@ -246,6 +248,7 @@ public class BudgetDetailRevenue {
 		this.tradeType = tradeType;
 		this.currency = currency;
 		this.pm = pm;
+		this.sales = sales; //20241010
 		this.revenue = revenue;
 		this.revenueNextyear = revenueNextyear;
 		this.revenueTwoyear = revenueTwoyear;
@@ -314,6 +317,7 @@ public class BudgetDetailRevenue {
 				", tradeType='" + tradeType + '\'' +
 				", currency='" + currency + '\'' +
 				", pm='" + pm + '\'' +
+				", pm='" + sales + '\'' +     //20241011
 				", revenue='" + revenue + '\'' +
 				", revenueNextyear='" + revenueNextyear + '\'' +
 				", revenueTwoyear='" + revenueTwoyear + '\'' +
@@ -505,6 +509,14 @@ public class BudgetDetailRevenue {
 
 	public void setPm(String pm) {
 		this.pm = pm;
+	}
+	
+	public String getSales() {
+		return sales;
+	}
+	
+	public void setSales(String sales) {
+		this.sales = sales;
 	}
 
 	public String getRevenue() {

@@ -7,6 +7,7 @@ import foxconn.fit.service.base.BudgetService;
 import foxconn.fit.service.base.UserDetailImpl;
 import foxconn.fit.util.ExceptionUtil;
 import foxconn.fit.util.SecurityUtils;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -42,6 +43,7 @@ public class BudgetController extends BaseController {
 	public synchronized String download(HttpServletRequest request,HttpServletResponse response,PageRequest pageRequest,AjaxResult result,
 			@Log(name = "SBU") String sbu,@Log(name = "年") String year,@Log(name="場景")String scenarios){
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		
 		result.put("msg", getLanguage(locale, "提交成功", "Submit successfully"));
 		try {
 			List<Map> list =new ArrayList<>();
@@ -54,9 +56,20 @@ public class BudgetController extends BaseController {
 			}
 			entity=entity.substring(0,entity.length()-1);
 			List<Map> lists;
-			String message = budgetService.generatePlanning(entity,year,scenarios);
-			if (StringUtils.isNotEmpty(message)) {
-				throw new RuntimeException(getLanguage(locale, "计算Budget数据出错 : ","There was an error calculating the Budget data:")+message);
+			//add cxj  20240228 check maindata
+			String message1 = budgetService.Planning_check(entity,year,scenarios);   
+			if (StringUtils.isNotEmpty(message1)) {
+				throw new RuntimeException(getLanguage(locale, "請檢查輸出錯誤部分，下載維度表並重新上傳！ ","Please check error message and upload again")+message1);
+			}else { //add cxj 20240229 check transaction path
+				String message2 = budgetService.Planning_check1(entity,year,scenarios);   
+				if (StringUtils.isNotEmpty(message2)) {
+					throw new RuntimeException(getLanguage(locale, "無交易路徑，請恰會計檢查！ ","No transaction path, please just check accounting")+message2);
+				}else {
+			     String message = budgetService.generatePlanning(entity,year,scenarios);
+			     if (StringUtils.isNotEmpty(message)) {
+				     throw new RuntimeException(getLanguage(locale, "计算Budget数据出错 : ","There was an error calculating the Budget data:")+message);
+			      }
+				}
 			}
 			UserDetailImpl loginUser = SecurityUtils.getLoginUser();
 			String userName=loginUser.getUsername();
@@ -181,9 +194,21 @@ public class BudgetController extends BaseController {
 				entity+=s+"|";
 			}
 			entity=entity.substring(0,entity.length()-1);
-			String message = budgetService.generatePlanning(entity,year,scenarios,type);
-			if (StringUtils.isNotEmpty(message)) {
-				throw new RuntimeException(getLanguage(locale, "计算Budget数据出错 : ","There was an error calculating the Budget data:")+message);
+			// 專案/折舊/投資check20240304
+				String message1 = budgetService.generatePlanning_check(entity,year,scenarios,type);
+				if (StringUtils.isNotEmpty(message1)) {
+					throw new RuntimeException(getLanguage(locale, "請檢查錯誤輸出部分，下載維度表並重新上傳 : ","Please check error message and upload again")+message1);
+				}else{
+					/*投資卡控,不允許少於已花費金額20250103*/
+					String message2 = budgetService.generatePlanning_check1(entity,year,scenarios,type);
+					if(StringUtils.isNotEmpty(message2)) {
+						throw new RuntimeException(getLanguage(locale, "請檢查修改上傳數據並重新上傳 ===> ","Please check error message and upload again")+message2);
+					}else { 
+					     String message = budgetService.generatePlanning(entity,year,scenarios,type);
+					     if (StringUtils.isNotEmpty(message)) {
+						     throw new RuntimeException(getLanguage(locale, "计算Budget数据出错 : ","There was an error calculating the Budget data:")+message);
+					        }	
+					     }
 			}
 				result.put("role","NO");
 		} catch (Exception e) {

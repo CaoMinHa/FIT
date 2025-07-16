@@ -34,6 +34,7 @@ import foxconn.fit.advice.Log;
 import foxconn.fit.controller.BaseController;
 import foxconn.fit.dao.base.PropertyFilter;
 import foxconn.fit.entity.base.AjaxResult;
+import foxconn.fit.entity.budget.BudgetDetailRevenue;
 import foxconn.fit.entity.ebs.MappingRelation;
 import foxconn.fit.service.ebs.MappingRelationService;
 import foxconn.fit.util.ExcelUtil;
@@ -110,6 +111,7 @@ public class MappingRelationController extends BaseController{
 				}
 				
 				page = mappingRelationService.findPageByHQL(pageRequest, filters);
+
 			}
 			model.addAttribute("page", page);
 		} catch (Exception e) {

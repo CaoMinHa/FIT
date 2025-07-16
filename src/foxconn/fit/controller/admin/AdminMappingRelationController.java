@@ -240,6 +240,7 @@ public class AdminMappingRelationController extends BaseController{
 					
 					int n=0;
 					String srcEntity = ExcelUtil.getCellStringValue(row.getCell(n++),i);
+					String costCenter = ExcelUtil.getCellStringValue(row.getCell(n++),i);
 					String lowerEntity = srcEntity.toLowerCase();
 					String DIMNAME = ExcelUtil.getCellStringValue(row.getCell(n++),i);
 					String SRCKEY = ExcelUtil.getCellStringValue(row.getCell(n++),i);
@@ -250,6 +251,9 @@ public class AdminMappingRelationController extends BaseController{
 					Assert.isTrue(dimensionName.equals(DIMNAME), "第"+(i+1)+"行数据映射类别【"+DIMNAME+"】与页面选中的映射类别不一致");
 					Assert.hasText(SRCKEY, "第"+(i+1)+"行数据【映射源值】不能为空");
 					Assert.hasText(SRCKEY, "第"+(i+1)+"行数据【映射目标值】不能为空");
+					if(srcEntity.equals("EBS")){
+						costCenter="EBS_CC";
+					}
 					if (!"IGNORE".equalsIgnoreCase(TARGKEY)) {
 						if (EnumDimensionName.ACCOUNT.getCode().equals(DIMNAME)) {
 							accountMap.put(TARGKEY,TARGKEY);
@@ -259,7 +263,6 @@ public class AdminMappingRelationController extends BaseController{
 							icpMap.put(TARGKEY, TARGKEY);
 						}
 					}
-					
 					String entity = codeList.get(lowerEntity);
 					codeMap.put(lowerEntity,entity);
 					
@@ -269,6 +272,7 @@ public class AdminMappingRelationController extends BaseController{
 					detail.setSRCKEY(SRCKEY);
 					detail.setSRCDESC(SRCDESC);
 					detail.setTARGKEY(TARGKEY);
+					detail.setCOST_CENTER(costCenter);
 					detail.setTARGDESC(ExcelUtil.getCellStringValue(row.getCell(n++),i));
 					detail.setCCT_ACCOUNT(ExcelUtil.getCellStringValue(row.getCell(n++),i));
 					detail.setCCT_ACCOUNT_ATT(ExcelUtil.getCellStringValue(row.getCell(n++),i));
@@ -305,7 +309,7 @@ public class AdminMappingRelationController extends BaseController{
 							unMappedTargetKeyList.add(targkey);
 						}
 					}
-					
+
 					if (!unMappedTargetKeyList.isEmpty()) {
 						result.put("flag", "fail");
 						result.put("msg", "以下【HFM映射目标值】在HFM系统ENTITY维度中不存在---------> "+Arrays.toString(unMappedTargetKeyList.toArray()));
