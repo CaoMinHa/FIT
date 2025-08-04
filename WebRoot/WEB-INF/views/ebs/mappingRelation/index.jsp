@@ -123,7 +123,7 @@ $(function() {
 												<input type="checkbox" style="font-size:15px;color:#7e8978;float:right;width:20px;" value=""/>
 											</li>
 											<c:forEach items="${fn:split(entity,',') }" var="code">
-												<c:if test="${not empty code and fn:substring(code,2,-1) eq 'EBS'}">
+												<c:if test="${not empty code and (fn:substring(code,2,-1) eq 'EBS' or fn:substring(code,2,-1) eq 'SAP')}">
 													<li class="Check" style="padding:0 10px;clear:both;">
 														<span style="font-size:15px;color:#7e8978;float:left;line-height:38px;">${fn:substring(code,2,-1)}</span>
 														<input type="checkbox" name="entitys" style="font-size:15px;color:#7e8978;float:right;width:20px;" value="${fn:substring(code,2,-1)}"/>

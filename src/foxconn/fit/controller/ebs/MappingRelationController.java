@@ -65,7 +65,7 @@ public class MappingRelationController extends BaseController{
 		List<String> list = mappingRelationService.listBySql("select distinct ENTITY from CUX_DATAMAP order by ENTITY");
 		if (list.size()>0) {
 			for (String code : list) {
-				if ("EBS".equals(code) && targetList.contains(code)) {
+				if (("EBS".equals(code) || "SAP".equals(code)) && targetList.contains(code)) {
 					entityList.add(code);
 				}
 			}
@@ -97,7 +97,7 @@ public class MappingRelationController extends BaseController{
 			}
 			
 			Page<MappingRelation> page=new Page(pageRequest);;
-			if (entityList.contains("EBS")) {
+			if (entityList.contains("EBS") || entityList.contains("SAP")) {
 				pageRequest.setPageSize(20);
 				List<PropertyFilter> filters = new ArrayList<PropertyFilter>();
 				if (StringUtils.isNotEmpty(dimensionName)) {
@@ -109,7 +109,9 @@ public class MappingRelationController extends BaseController{
 				if (StringUtils.isNotEmpty(TARGKEY)) {
 					filters.add(new PropertyFilter("LIKES_TARGKEY",TARGKEY));
 				}
-				
+				if (StringUtils.isNotEmpty(entity)) {
+					filters.add(new PropertyFilter("LIKES_ENTITY",entity));
+				}
 				page = mappingRelationService.findPageByHQL(pageRequest, filters);
 
 			}
